@@ -4,7 +4,22 @@
       "Bash(npx create-next-app:*)",
       "Bash(npm install:*)",
       "Bash(npx prisma:*)",
-      "WebFetch(domain:public.tableau.com)"
+      "WebFetch(domain:public.tableau.com)",
+      "Bash(del fpl-team-codes.js)",
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:fantasy.premierleague.com)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run server:*)",
+      "Bash(npm run:*)",
+      "Bash(set NODE_OPTIONS=--max-old-space-size=4096)",
+      "Bash(taskkill:*)",
+      "Bash(rm:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
