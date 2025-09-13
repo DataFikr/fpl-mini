@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd fpl-league-hub && npm run build",
+  "outputDirectory": "fpl-league-hub/.next",
+  "framework": "nextjs",
+  "installCommand": "cd fpl-league-hub && npm install",
+  "rootDirectory": "fpl-league-hub"
+}
