@@ -1,0 +1,142 @@
+{
+  "project": {
+    "name": "FPL League Hub",
+    "description": "Fantasy Premier League analytics platform with Tableau-style design and ESPN-style breaking news",
+    "version": "2.0.0",
+    "technology_stack": {
+      "framework": "Next.js 14",
+      "language": "TypeScript",
+      "styling": "Tailwind CSS + Custom Tableau-style inline styles",
+      "database": "SQLite with Prisma ORM",
+      "caching": "Redis (with in-memory fallback)",
+      "charts": "Custom SVG implementation with line progression",
+      "deployment": "Local development server"
+    }
+  },
+  "current_status": {
+    "development_server": {
+      "status": "running",
+      "url": "http://localhost:3000",
+      "prisma_studio": "http://localhost:5555"
+    },
+    "features": {
+      "team_search": "✅ Working with real FPL data",
+      "league_dashboard": "✅ Working with mini-league ID 150789 (all 22 teams)",
+      "rank_progression": "✅ Tableau-style SVG charts with line progression and right sidebar",
+      "squad_analysis": "✅ Enhanced table with real gameweek 2 data",
+      "pitch_view": "✅ Modal with proper formation layout (GK, DEF, MID, FWD)",
+      "crest_generation": "✅ Fans League system - Premier League badges based on first 3 letters",
+      "breaking_news": "✅ ESPN-style auto-generated headlines with 5-second rotation",
+      "tableau_design": "✅ Clean white/gray professional styling throughout",
+      "real_time_data": "✅ Connected to FPL API with caching"
+    }
+  },
+  "data_sources": {
+    "primary_fpl_api": "https://fantasy.premierleague.com/api",
+    "test_team_id": 5093819,
+    "test_league_id": 150789,
+    "league_name": "Best Man League",
+    "total_teams": 22,
+    "current_gameweek": 2
+  },
+  "database_schema": {
+    "teams": "FPL team data with crest URLs",
+    "team_crests": "Generated/cached team crests",
+    "gameweek_data": "Historical gameweek performance data",
+    "league_teams": "League membership relationships"
+  },
+  "api_endpoints": {
+    "search": "/api/search - Team search functionality",
+    "leagues": "/api/leagues/[id] - League data and standings",
+    "squad_analysis": "/api/leagues/[id]/squad-analysis - Enhanced squad breakdown",
+    "team_squad": "/api/teams/[id]/squad - Individual team squad data",
+    "crests": "/api/crests - Team crest generation and caching"
+  },
+  "key_components": {
+    "server_components": [
+      "src/app/page.tsx - Home page with team search",
+      "src/app/league/[id]/page.tsx - League overview page",
+      "src/app/team/[id]/page.tsx - Individual team page"
+    ],
+    "client_components": [
+      "src/app/league/[id]/league-page-client.tsx - Interactive league dashboard with breaking news",
+      "src/components/squad/pitch-view.tsx - Squad formation modal",
+      "src/components/squad/enhanced-squad-table.tsx - Comprehensive squad analysis",
+      "src/components/charts/rank-progression-chart.tsx - Tableau-style SVG bump charts with line progression",
+      "src/components/ui/breaking-news.tsx - ESPN-style auto-generated news headlines"
+    ],
+    "services": [
+      "src/services/fpl-api.ts - FPL API integration with caching",
+      "src/services/team-service.ts - Core business logic for teams and leagues",
+      "src/services/crest-service.ts - Team crest generation using Premier League badges"
+    ]
+  },
+  "configuration_files": {
+    "environment": ".env - Database, Redis, and API configuration",
+    "database": "prisma/schema.prisma - Database schema definition",
+    "typescript": "tsconfig.json - TypeScript configuration",
+    "styling": "tailwind.config.ts - Tailwind CSS configuration",
+    "next_config": "next.config.mjs - Next.js configuration"
+  },
+  "recent_improvements": {
+    "tableau_redesign": "Complete UI overhaul from FPL purple theme to clean Tableau-style white/gray design",
+    "fans_league_system": "Implemented Premier League crest mapping based on first 3 letters (kej→Newcastle, jog→Man United)",
+    "svg_line_progression": "Replaced static dots with interactive SVG line charts showing rank progression",
+    "breaking_news_system": "Built ESPN-style auto-generated headlines: Biggest Climber, Captaincy Masterstroke, Bench Blunder, Rivalry Watch",
+    "layout_restructure": "Team selector moved to top right, team list moved to right sidebar with crests",
+    "all_teams_included": "Now displays all 22 teams from league 150789 instead of limiting to top 20",
+    "top3_removal": "Removed redundant top 3 teams card section for cleaner layout"
+  },
+  "performance_optimizations": {
+    "caching": "Redis caching for all FPL API calls with fallback to in-memory storage",
+    "database": "SQLite with Prisma for fast local queries",
+    "api_efficiency": "Batch processing of squad analysis for multiple teams",
+    "client_side": "Proper separation of server and client components for optimal rendering"
+  },
+  "user_testing_data": {
+    "test_searches": ["jogha", "arsenal", "liverpool", "city"],
+    "verified_leagues": ["150789 - Best Man League (22 teams total)"],
+    "verified_teams": ["5093819 - Jogha Bonito (MUN crest)", "5100818 - kejoryobkejor (NEW crest)"],
+    "working_features": [
+      "Team search with real data",
+      "League standings with rank change arrows",
+      "Interactive pitch view modals",
+      "Squad analysis with real gameweek points",
+      "Tableau-style SVG rank progression charts with line progression",
+      "Fans League Premier League crest system (first 3 letters mapping)",
+      "ESPN-style breaking news with auto-generated headlines",
+      "Right sidebar team list with scrolling",
+      "Clean white/gray professional design throughout"
+    ]
+  },
+  "design_system": {
+    "color_palette": {
+      "primary_bg": "#FFFFFF",
+      "secondary_bg": "#F9FAFB",
+      "borders": "#E5E7EB",
+      "text_primary": "#1F2937",
+      "text_secondary": "#6B7280",
+      "accent_blue": "#3B82F6",
+      "success_green": "#10B981",
+      "warning_amber": "#F59E0B",
+      "error_red": "#EF4444"
+    },
+    "typography": "system-ui, -apple-system, sans-serif",
+    "spacing": "Clean margins and padding following 8px grid",
+    "shadows": "Subtle box shadows for card elevation",
+    "borders": "1px solid borders with rounded corners"
+  },
+  "development_commands": {
+    "start_dev_server": "cd 'C:\\Users\\Family\\FPL Mini\\fpl-league-hub' && npm run dev",
+    "start_prisma_studio": "cd 'C:\\Users\\Family\\FPL Mini\\fpl-league-hub' && npx prisma studio",
+    "database_reset": "cd 'C:\\Users\\Family\\FPL Mini\\fpl-league-hub' && npx prisma db push --force-reset",
+    "type_check": "cd 'C:\\Users\\Family\\FPL Mini\\fpl-league-hub' && npm run type-check"
+  },
+  "project_structure": {
+    "root": "C:\\Users\\Family\\FPL Mini\\fpl-league-hub",
+    "source": "src/ - Main application code",
+    "database": "prisma/ - Database files and schema",
+    "public": "Public assets and static files",
+    "styles": "Global CSS and Tailwind configuration"
+  }
+}

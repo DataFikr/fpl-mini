@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id          Int      @id @default(autoincrement())
+  fplId       Int      @unique
+  name        String
+  managerName String
+  crestUrl    String?
+  lastUpdated DateTime @default(now()) @updatedAt
+  
+  gameweekData GameweekData[]
+  leagueTeams  LeagueTeam[]
+  
+  @@map("teams")
+}
+
+model League {
+  id              Int      @id @default(autoincrement())
+  fplId           Int      @unique
+  name            String
+  currentGameweek Int      @default(1)
+  lastUpdated     DateTime @default(now()) @updatedAt
+  
+  leagueTeams LeagueTeam[]
+  
+  @@map("leagues")
+}
+
+model LeagueTeam {
+  id       Int @id @default(autoincrement())
+  teamId   Int
+  leagueId Int
+  
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, leagueId])
+  @@map("league_teams")
+}
+
+model GameweekData {
+  id          Int      @id @default(autoincrement())
+  teamId      Int
+  gameweek    Int
+  points      Int
+  rank        Int
+  totalPoints Int
+  squad       Json?    // Store squad data as JSON
+  createdAt   DateTime @default(now())
+  
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, gameweek])
+  @@map("gameweek_data")
+}
+
+model TeamCrest {
+  id       Int      @id @default(autoincrement())
+  teamName String   @unique
+  crestUrl String
+  createdAt DateTime @default(now())
+  
+  @@map("team_crests")
+}

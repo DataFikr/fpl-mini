@@ -1,0 +1,190 @@
+/* ================================
+   Fantasy Premier League Inspired Theme
+   Version: 1.0
+   Author: Custom Original Theme
+   ================================ */
+
+/* ===== Root Variables ===== */
+:root {
+  --fpl-purple: #37003C;
+  --fpl-purple-dark: #360D3A;
+  --fpl-green: #00FF85;
+  --fpl-pink: #E90052;
+  --fpl-cyan: #04F5FF;
+  --fpl-white: #FFFFFF;
+  --fpl-ink: #111215;
+  --fpl-slate: #1C1F24;
+  --fpl-gray1: #F7F7F8;
+  --fpl-gray2: #EDEDEF;
+  --fpl-gray3: #D1D5DB;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  --shadow-card: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Global Styles ===== */
+body {
+  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--fpl-gray1);
+  color: var(--fpl-ink);
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--fpl-green);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Headers & Hero ===== */
+header.fpl-header {
+  background-color: var(--fpl-purple);
+  color: var(--fpl-white);
+  padding: 1rem 2rem;
+}
+
+header.fpl-header nav a {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  margin-left: 1.5rem;
+}
+
+header.fpl-header nav a:hover {
+  color: var(--fpl-white);
+}
+
+.hero {
+  background: radial-gradient(80% 100% at 20% 0%, var(--fpl-purple) 0%, var(--fpl-purple-dark) 50%, var(--fpl-slate) 100%);
+  color: var(--fpl-white);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+  background-color: var(--fpl-green);
+  color: var(--fpl-purple);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-xl);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--fpl-purple);
+  color: var(--fpl-white);
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-xl);
+  border: none;
+}
+
+.btn-outline {
+  border: 2px solid var(--fpl-green);
+  color: var(--fpl-green);
+  background: transparent;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-xl);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline:hover {
+  background-color: var(--fpl-green);
+  color: var(--fpl-purple);
+}
+
+/* ===== Cards ===== */
+.card {
+  background-color: var(--fpl-white);
+  border: 1px solid var(--fpl-gray2);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+}
+
+.card-header {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* ===== Tables ===== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background-color: var(--fpl-gray2);
+  color: var(--fpl-ink);
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.table td {
+  border-bottom: 1px solid var(--fpl-gray2);
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* ===== Chart Styles ===== */
+.chart-container {
+  background-color: var(--fpl-purple);
+  border-radius: var(--radius-2xl);
+  padding: 1rem;
+  color: var(--fpl-white);
+}
+
+.chart-line-primary {
+  stroke: var(--fpl-green);
+}
+
+.chart-line-secondary {
+  stroke: var(--fpl-pink);
+}
+
+.chart-grid {
+  stroke: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== Utility Badges ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-green {
+  background-color: var(--fpl-green);
+  color: var(--fpl-purple);
+}
+
+.badge-pink {
+  background-color: var(--fpl-pink);
+  color: var(--fpl-white);
+}
+
+.badge-cyan {
+  background-color: var(--fpl-cyan);
+  color: var(--fpl-ink);
+}
