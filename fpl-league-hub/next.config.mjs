@@ -18,6 +18,7 @@ const nextConfig = {
     cpus: 1,
     webpackBuildWorker: false,
     forceSwcTransforms: true,
+    esmExternals: 'loose',
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -74,7 +75,25 @@ const nextConfig = {
       ...config.watchOptions,
       ignored: /node_modules/,
     };
-    
+
+    // Force no parallelism and disable all workers
+    if (config.module && config.module.rules) {
+      config.module.rules.forEach(rule => {
+        if (rule.use && Array.isArray(rule.use)) {
+          rule.use.forEach(use => {
+            if (use.options) {
+              use.options.parallel = false;
+              use.options.workers = 1;
+            }
+          });
+        }
+      });
+    }
+
+    // Disable all caching to prevent worker issues
+    config.cache = false;
+    config.snapshot = undefined;
+
     return config;
   },
   outputFileTracingRoot: __dirname,
