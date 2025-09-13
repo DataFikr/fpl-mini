@@ -5,10 +5,5 @@
   "env": {
     "NODE_OPTIONS": "--max-old-space-size=4096",
     "NEXT_TELEMETRY_DISABLED": "1"
-  },
-  "functions": {
-    "fpl-league-hub/src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
   }
 }
