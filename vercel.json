@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd fpl-league-hub && NODE_OPTIONS=--max-old-space-size=4096 npm run build",
+  "buildCommand": "cd fpl-league-hub && NODE_OPTIONS=--max-old-space-size=4096 npx prisma generate && npm run build",
   "outputDirectory": "fpl-league-hub/.next",
   "installCommand": "cd fpl-league-hub && npm install",
   "env": {
