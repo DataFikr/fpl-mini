@@ -20,7 +20,8 @@
       "Bash(findstr:*)",
       "Bash(npm uninstall:*)",
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
