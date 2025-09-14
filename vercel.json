@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "fpl-league-hub/next.config.mjs",
+      "src": "fpl-league-hub/package.json",
       "use": "@vercel/next",
       "config": {
         "distDir": ".next"
