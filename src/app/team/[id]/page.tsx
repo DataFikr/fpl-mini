@@ -86,8 +86,50 @@ export default async function TeamPage({ params }: TeamPageProps) {
       lastUpdated: new Date()
     };
 
-    // For now, show empty leagues array (can be enhanced later with database)
-    const leagues: any[] = [];
+    // Get manager's leagues from FPL API
+    let leagues: any[] = [];
+    try {
+      const managerLeagues = await fplApi.getManagerLeagues(teamId);
+
+      if (managerLeagues?.leagues?.classic) {
+        const currentGameweek = await fplApi.getCurrentGameweek();
+
+        // Process classic leagues (mini-leagues)
+        for (const classicLeague of managerLeagues.leagues.classic) {
+          // Only process mini-leagues (not global leagues)
+          if (classicLeague.id > 1000 && leagues.length < 6) { // Limit to 6 leagues for performance
+            try {
+              const leagueStandings = await fplApi.getLeagueStandings(classicLeague.id);
+
+              // Find this manager in the standings
+              const managerPosition = leagueStandings.standings.results.find(
+                (entry: any) => entry.entry === teamId
+              );
+
+              if (managerPosition) {
+                leagues.push({
+                  id: classicLeague.id,
+                  name: classicLeague.name,
+                  currentGameweek: currentGameweek,
+                  standings: leagueStandings.standings.results.map((entry: any) => ({
+                    teamId: entry.entry,
+                    teamName: entry.entry_name,
+                    managerName: entry.player_name,
+                    rank: entry.rank,
+                    points: entry.total,
+                    gameweekPoints: entry.event_total
+                  }))
+                });
+              }
+            } catch (error) {
+              console.warn(`Failed to fetch league ${classicLeague.id}:`, error);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to fetch manager leagues:', error);
+    }
 
     const managerInfo = null;
 
