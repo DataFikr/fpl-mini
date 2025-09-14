@@ -4,9 +4,36 @@ import { LeagueCard } from '@/components/ui/league-card';
 import { TeamCrest } from '@/components/ui/team-crest';
 import { User, Calendar, TrendingUp, Award, Star, Zap } from 'lucide-react';
 
-// FPL Team crest URLs mapping
-const getTeamCrest = (teamName: string): string => {
-  const teamCrests: Record<string, string> = {
+// FPL Team crest URLs mapping - handles both team IDs and names
+const getTeamCrest = (team: string | number | undefined): string => {
+  if (!team) return '';
+
+  // Map of team IDs to crest URLs (FPL API uses team IDs)
+  const teamIdCrests: Record<number, string> = {
+    1: 'https://resources.premierleague.com/premierleague/badges/25/t3.png', // Arsenal
+    2: 'https://resources.premierleague.com/premierleague/badges/25/t7.png', // Aston Villa
+    3: 'https://resources.premierleague.com/premierleague/badges/25/t91.png', // Bournemouth
+    4: 'https://resources.premierleague.com/premierleague/badges/25/t94.png', // Brentford
+    5: 'https://resources.premierleague.com/premierleague/badges/25/t36.png', // Brighton
+    6: 'https://resources.premierleague.com/premierleague/badges/25/t8.png', // Chelsea
+    7: 'https://resources.premierleague.com/premierleague/badges/25/t31.png', // Crystal Palace
+    8: 'https://resources.premierleague.com/premierleague/badges/25/t11.png', // Everton
+    9: 'https://resources.premierleague.com/premierleague/badges/25/t54.png', // Fulham
+    10: 'https://resources.premierleague.com/premierleague/badges/25/t40.png', // Ipswich
+    11: 'https://resources.premierleague.com/premierleague/badges/25/t13.png', // Leicester
+    12: 'https://resources.premierleague.com/premierleague/badges/25/t14.png', // Liverpool
+    13: 'https://resources.premierleague.com/premierleague/badges/25/t43.png', // Manchester City
+    14: 'https://resources.premierleague.com/premierleague/badges/25/t1.png', // Manchester United
+    15: 'https://resources.premierleague.com/premierleague/badges/25/t4.png', // Newcastle
+    16: 'https://resources.premierleague.com/premierleague/badges/25/t17.png', // Nottingham Forest
+    17: 'https://resources.premierleague.com/premierleague/badges/25/t20.png', // Southampton
+    18: 'https://resources.premierleague.com/premierleague/badges/25/t6.png', // Tottenham
+    19: 'https://resources.premierleague.com/premierleague/badges/25/t21.png', // West Ham
+    20: 'https://resources.premierleague.com/premierleague/badges/25/t39.png' // Wolves
+  };
+
+  // Map of team names to crest URLs (for mock data compatibility)
+  const teamNameCrests: Record<string, string> = {
     'Arsenal': 'https://resources.premierleague.com/premierleague/badges/25/t3.png',
     'Aston Villa': 'https://resources.premierleague.com/premierleague/badges/25/t7.png',
     'Bournemouth': 'https://resources.premierleague.com/premierleague/badges/25/t91.png',
@@ -28,8 +55,14 @@ const getTeamCrest = (teamName: string): string => {
     'West Ham': 'https://resources.premierleague.com/premierleague/badges/25/t21.png',
     'Wolves': 'https://resources.premierleague.com/premierleague/badges/25/t39.png'
   };
-  
-  return teamCrests[teamName] || '';
+
+  // Handle team ID (number)
+  if (typeof team === 'number') {
+    return teamIdCrests[team] || '';
+  }
+
+  // Handle team name (string)
+  return teamNameCrests[team] || '';
 };
 
 interface TeamPageProps {
@@ -48,7 +81,10 @@ export async function generateMetadata({ params }: TeamPageProps) {
 
   try {
     const fplApi = new FPLApiService();
-    const managerData = await fplApi.getManagerEntry(teamId);
+    const managerData = await Promise.race([
+      fplApi.getManagerEntry(teamId),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Metadata timeout')), 3000))
+    ]);
     const teamName = managerData.name || `Team ${teamId}`;
     const managerName = `${managerData.player_first_name || ''} ${managerData.player_last_name || ''}`.trim() || 'FPL Manager';
 
@@ -56,9 +92,11 @@ export async function generateMetadata({ params }: TeamPageProps) {
       title: `${teamName} - FPL League Hub`,
       description: `View ${teamName} managed by ${managerName} - track league positions, rank progression and squad analysis.`
     };
-  } catch {
+  } catch (error) {
+    console.warn(`Failed to generate metadata for team ${teamId}:`, error);
     return {
-      title: 'Team Dashboard - FPL League Hub'
+      title: `Team ${teamId} - FPL League Hub`,
+      description: 'Fantasy Premier League team dashboard with league analysis and squad insights.'
     };
   }
 }
@@ -74,11 +112,27 @@ export default async function TeamPage({ params }: TeamPageProps) {
   try {
     const fplApi = new FPLApiService();
 
-    // Get real manager data from FPL API with timeout
-    const managerData = await Promise.race([
-      fplApi.getManagerEntry(teamId),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Manager data timeout')), 8000))
-    ]) as any;
+    // Get real manager data from FPL API with timeout and better error handling
+    let managerData: any;
+    try {
+      managerData = await Promise.race([
+        fplApi.getManagerEntry(teamId),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Manager data timeout')), 8000))
+      ]);
+    } catch (error) {
+      console.warn(`Failed to fetch manager data for ${teamId}:`, error);
+      // Fallback to basic manager data structure
+      managerData = {
+        id: teamId,
+        name: `Team ${teamId}`,
+        player_first_name: 'FPL',
+        player_last_name: 'Manager',
+        summary_overall_points: 0,
+        summary_overall_rank: 1000000,
+        player_region_name: null,
+        favourite_team: null
+      };
+    }
 
     // Create team object from FPL API data
     const team = {
@@ -172,10 +226,10 @@ export default async function TeamPage({ params }: TeamPageProps) {
                     <div className="flex flex-wrap gap-6 text-base">
                       {managerData.favourite_team && (
                         <div className="flex items-center bg-gradient-to-r from-green-50 to-blue-50 px-4 py-2 rounded-xl border border-green-200">
-                          {getTeamCrest(String(managerData.favourite_team)) ? (
-                            <img 
-                              src={getTeamCrest(String(managerData.favourite_team))} 
-                              alt={String(managerData.favourite_team)} 
+                          {getTeamCrest(managerData.favourite_team) ? (
+                            <img
+                              src={getTeamCrest(managerData.favourite_team)}
+                              alt={String(managerData.favourite_team)}
                               className="w-8 h-8 mr-3 rounded"
                             />
                           ) : (

@@ -32,26 +32,36 @@ const globalForRedis = globalThis as unknown as {
 
 // Use real Redis if URL is provided, otherwise use memory cache
 export const redis = globalForRedis.redis ?? (() => {
-  if (process.env.REDIS_URL) {
-    const client = createClient({
-      url: process.env.REDIS_URL,
-      socket: {
-        connectTimeout: 60000,
-        lazyConnect: true,
-      }
-    });
+  const redisUrl = process.env.REDIS_URL;
 
-    client.on('error', (err) => {
-      console.warn('Redis Client Error:', err);
-    });
-
-    if (!client.isOpen) {
-      client.connect().catch((err) => {
-        console.warn('Redis connection failed, using memory cache:', err);
+  // Check if Redis URL is valid and not a placeholder
+  if (redisUrl && redisUrl !== '' && !redisUrl.includes('placeholder')) {
+    try {
+      const client = createClient({
+        url: redisUrl,
+        socket: {
+          connectTimeout: 5000,
+          lazyConnect: true,
+        }
       });
+
+      client.on('error', (err) => {
+        console.warn('Redis Client Error:', err);
+      });
+
+      if (!client.isOpen) {
+        client.connect().catch((err) => {
+          console.warn('Redis connection failed, using memory cache:', err);
+        });
+      }
+      return client;
+    } catch (error) {
+      console.warn('Failed to create Redis client, using memory cache:', error);
+      return mockRedis;
     }
-    return client;
   }
+
+  console.log('Using memory cache (Redis not configured or invalid URL)');
   return mockRedis;
 })();
 

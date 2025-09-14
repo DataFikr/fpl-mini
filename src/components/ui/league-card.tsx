@@ -45,7 +45,7 @@ export function LeagueCard({ league, teamId }: LeagueCardProps) {
           </h3>
           <div className="flex items-center text-gray-500 text-sm">
             <Users className="h-4 w-4 mr-1" />
-            {league.teams.length} teams
+            {league.teams?.length || league.standings?.length || 0} teams
           </div>
         </div>
         

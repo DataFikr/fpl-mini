@@ -44,7 +44,7 @@ export interface FPLManagerEntry {
   last_deadline_bank: number;
   last_deadline_value: number;
   last_deadline_total_transfers: number;
-  favourite_team?: string;
+  favourite_team?: string | number;
   player_region_iso_code_short?: string;
   player_region_iso_code_long?: string;
 }
@@ -201,7 +201,7 @@ export interface StandingData {
   teamName: string;
   managerName: string;
   lastWeekRank?: number;
-  favourite_team?: string;
+  favourite_team?: string | number;
   player_region_name?: string;
   player_region_iso_code_short?: string;
   player_region_iso_code_long?: string;
