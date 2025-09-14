@@ -3,16 +3,16 @@
   "builds": [
     {
       "src": "fpl-league-hub/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": ".next"
-      }
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "fpl-league-hub/$1"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "fpl-league-hub"
     }
   ],
   "env": {
