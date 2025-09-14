@@ -1,5 +1,9 @@
 node_modules
 
+# Next.js build output
+.next/
+out/
+
 # Keep environment variables out of version control
 .env
 .env.local
