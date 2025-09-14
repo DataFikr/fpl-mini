@@ -629,8 +629,8 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
             })}
           </svg>
         </div>
-      </div>
-      
+        </div>
+
       {/* Hover Tooltip Modal */}
       {hoveredPoint && (
         <div
@@ -971,6 +971,7 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
             })}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
