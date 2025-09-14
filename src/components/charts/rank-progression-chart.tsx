@@ -40,6 +40,7 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
   const [error, setError] = useState<string | null>(null);
   const [maxRank, setMaxRank] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
     y: number;
@@ -61,8 +62,10 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
     return gwData ? gwData.rank : null;
   };
 
-  // Handle responsive layout
+  // Handle client-side hydration and responsive layout
   useEffect(() => {
+    setIsClient(true);
+
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -209,9 +212,10 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
     fetchProgressionData();
   }, [leagueId, userTeamId]);
 
-  if (isLoading) {
+  // Prevent hydration mismatch by waiting for client-side rendering
+  if (!isClient || isLoading) {
     return (
-      <div style={{ 
+      <div style={{
         backgroundColor: '#37003C',
         borderRadius: '1.25rem',
         padding: '2rem',
@@ -219,17 +223,17 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
         boxShadow: '0 6px 18px rgba(0, 0, 0, 0.08)'
       }}>
         <div style={{ animation: 'pulse 2s infinite' }}>
-          <div style={{ 
-            height: '1.5rem', 
-            backgroundColor: 'rgba(255, 255, 255, 0.2)', 
-            borderRadius: '0.25rem', 
-            marginBottom: '1rem', 
-            width: '12rem' 
+          <div style={{
+            height: '1.5rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '0.25rem',
+            marginBottom: '1rem',
+            width: '12rem'
           }}></div>
-          <div style={{ 
-            height: '16rem', 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-            borderRadius: '0.5rem' 
+          <div style={{
+            height: '16rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '0.5rem'
           }}></div>
         </div>
       </div>
