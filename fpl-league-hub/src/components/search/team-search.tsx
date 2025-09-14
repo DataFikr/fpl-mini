@@ -48,7 +48,15 @@ export function TeamSearch({ onTeamSelect }: TeamSearchProps) {
       if (isManagerId) {
         // Direct manager ID search - redirect to team page
         const managerId = parseInt(query.trim());
-        window.location.href = `/team/${managerId}`;
+        const mockTeam: FPLManagerEntry = {
+          id: managerId,
+          name: `Manager ${managerId}`,
+          player_first_name: 'FPL',
+          player_last_name: 'Manager',
+          summary_overall_points: 0,
+          summary_overall_rank: 0
+        };
+        handleTeamSelect(mockTeam);
         return;
       }
 
