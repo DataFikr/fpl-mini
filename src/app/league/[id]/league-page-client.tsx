@@ -124,7 +124,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
       case 'squad-analysis':
         return (
           <div>
-            <EnhancedSquadTable leagueId={leagueId} gameweek={3} />
+            <EnhancedSquadTable leagueId={leagueId} gameweek={4} />
           </div>
         );
 
@@ -270,7 +270,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
         <PitchView
           teamName={selectedTeam.name}
           managerName={selectedTeam.manager}
-          gameweek={3}
+          gameweek={4}
           isOpen={true}
           onClose={() => setSelectedTeam(null)}
         />

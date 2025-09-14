@@ -53,7 +53,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
     const league = {
       id: leagueId,
       name: leagueStandings.league.name,
-      currentGameweek: 3, // Simplified
+      currentGameweek: 4, // Updated for gameweek 4
       standings: leagueStandings.standings.results.map((entry: any) => ({
         teamId: entry.entry,
         teamName: entry.entry_name,
@@ -94,7 +94,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
       fallbackLeague = {
         id: leagueId,
         name: 'Best Man League',
-        currentGameweek: 3,
+        currentGameweek: 4,
         standings: [
           {
             teamId: 5100818,
@@ -143,7 +143,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
       fallbackLeague = {
         id: leagueId,
         name: `League ${leagueId}`,
-        currentGameweek: 3,
+        currentGameweek: 4,
         standings: [
           {
             teamId: 1000001,

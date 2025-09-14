@@ -17,7 +17,7 @@ interface VotingPollProps {
   gameweek?: number;
 }
 
-export function VotingPoll({ leagueId, teams = [], gameweek = 3 }: VotingPollProps) {
+export function VotingPoll({ leagueId, teams = [], gameweek = 4 }: VotingPollProps) {
   const [voteOptions, setVoteOptions] = useState<VoteOption[]>([]);
   const [userVote, setUserVote] = useState<number | null>(null);
   const [totalVotes, setTotalVotes] = useState(0);

@@ -153,7 +153,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       ]) as any;
 
       if (managerLeagues?.leagues?.classic) {
-        const currentGameweek = 3; // Simplified - use fixed gameweek for now
+        const currentGameweek = 4; // Updated for gameweek 4
 
         // Process all leagues but limit to reasonable number for display
         const limitedLeagues = managerLeagues.leagues.classic
@@ -185,7 +185,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 150788,
             name: "Troll EPL&MSL",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -198,7 +198,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 150789,
             name: "Best Man League",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -211,7 +211,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 523651,
             name: "Toon Army Malaysia League",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -224,7 +224,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 611676,
             name: "The Wonder League",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -237,7 +237,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 617491,
             name: "Toon Army MY Members League",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -250,7 +250,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 747024,
             name: "HoneyBall League 25/26",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -263,7 +263,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 2028096,
             name: "Liga Pentalista",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -276,7 +276,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 2175516,
             name: "Liga Hospital",
-            currentGameweek: 3,
+            currentGameweek: 4,
             standings: [{
               teamId: teamId,
               teamName: team.name,
@@ -292,7 +292,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
         leagues = [{
           id: 999999,
           name: "Loading leagues...",
-          currentGameweek: 3,
+          currentGameweek: 4,
           standings: [{
             teamId: teamId,
             teamName: team.name,
@@ -413,7 +413,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
               <StatCard
                 icon={<Calendar className="h-8 w-8 text-blue-500" />}
                 title="Current GW"
-                value={leagues[0]?.currentGameweek.toString() || '3'}
+                value={leagues[0]?.currentGameweek.toString() || '4'}
                 subtitle="Fantasy gameweek"
                 gradient="from-blue-500 to-cyan-500"
               />

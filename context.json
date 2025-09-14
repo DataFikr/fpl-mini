@@ -49,7 +49,7 @@
         "leagues": ["Troll EPL&MSL (150788)", "Best Man League (150789)", "Toon Army Malaysia League (523651)", "The Wonder League (611676)", "Toon Army MY Members League (617491)", "HoneyBall League 25/26 (747024)", "Liga Pentalista (2028096)", "Liga Hospital (2175516)"]
       }
     },
-    "current_gameweek": 3,
+    "current_gameweek": 4,
     "completed_tasks": {
       "injury_detection_system": "✅ Automatic detection and correction for all injured players (status codes i/s/u/d/n + 0 minutes played)",
       "country_detection_storytelling": "✅ Initially implemented LLM-powered, then switched to template-based ESPN-style storytelling",

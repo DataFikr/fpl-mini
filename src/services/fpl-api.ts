@@ -383,7 +383,7 @@ export class FPLApiService {
   async getCurrentGameweek(): Promise<number> {
     // Return mock current gameweek to avoid API delays
     // TODO: Re-enable real API call once FPL API stability improves
-    return 3; // Current gameweek based on context.json
+    return 4; // Current gameweek - updated for gameweek 4
   }
 
   async getManagerLeagues(managerId: number): Promise<any> {
