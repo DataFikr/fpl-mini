@@ -21,7 +21,8 @@
       "Bash(npm uninstall:*)",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

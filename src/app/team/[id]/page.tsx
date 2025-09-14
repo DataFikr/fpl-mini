@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { TeamService } from '@/services/team-service';
 import { FPLApiService } from '@/services/fpl-api';
 import { LeagueCard } from '@/components/ui/league-card';
 import { TeamCrest } from '@/components/ui/team-crest';
@@ -40,7 +39,7 @@ interface TeamPageProps {
 export async function generateMetadata({ params }: TeamPageProps) {
   const resolvedParams = await params;
   const teamId = parseInt(resolvedParams.id);
-  
+
   if (isNaN(teamId)) {
     return {
       title: 'Team Not Found - FPL League Hub'
@@ -48,12 +47,14 @@ export async function generateMetadata({ params }: TeamPageProps) {
   }
 
   try {
-    const teamService = new TeamService();
-    const team = await teamService.getOrCreateTeam(teamId);
-    
+    const fplApi = new FPLApiService();
+    const managerData = await fplApi.getManagerEntry(teamId);
+    const teamName = managerData.name || `Team ${teamId}`;
+    const managerName = `${managerData.player_first_name || ''} ${managerData.player_last_name || ''}`.trim() || 'FPL Manager';
+
     return {
-      title: `${team.name} - FPL League Hub`,
-      description: `View ${team.name} managed by ${team.managerName} - track league positions, rank progression and squad analysis.`
+      title: `${teamName} - FPL League Hub`,
+      description: `View ${teamName} managed by ${managerName} - track league positions, rank progression and squad analysis.`
     };
   } catch {
     return {
@@ -65,24 +66,30 @@ export async function generateMetadata({ params }: TeamPageProps) {
 export default async function TeamPage({ params }: TeamPageProps) {
   const resolvedParams = await params;
   const teamId = parseInt(resolvedParams.id);
-  
+
   if (isNaN(teamId)) {
     notFound();
   }
 
   try {
-    const teamService = new TeamService();
     const fplApi = new FPLApiService();
-    const team = await teamService.getOrCreateTeam(teamId);
-    const leagues = await teamService.getTeamLeagues(teamId);
-    
+
     // Get real manager data from FPL API
     const managerData = await fplApi.getManagerEntry(teamId);
-    
-    // Get manager information from the first league's standings (for additional context)
-    const managerInfo = leagues.length > 0 
-      ? leagues[0].standings.find(s => s.teamId === teamId)
-      : null;
+
+    // Create team object from FPL API data
+    const team = {
+      id: teamId,
+      name: managerData.name || `Team ${teamId}`,
+      managerName: `${managerData.player_first_name || ''} ${managerData.player_last_name || ''}`.trim() || 'FPL Manager',
+      crestUrl: null,
+      lastUpdated: new Date()
+    };
+
+    // For now, show empty leagues array (can be enhanced later with database)
+    const leagues: any[] = [];
+
+    const managerInfo = null;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
