@@ -431,13 +431,31 @@ export class TeamService {
           
           const progression = history.current.map((gw: any) => {
             let gwRank;
-            
-            if (gw.event === 3) {
-              // Gameweek 3 (current): Use rank_sort (current rank)
+            let movementFromLastWeek = 0;
+
+            if (gw.event === 4) {
+              // Gameweek 4 (current): Use rank_sort (current rank)
               gwRank = currentRank;
-            } else if (gw.event === 2) {
-              // Gameweek 2: Use last_rank field from FPL API
+              movementFromLastWeek = (lastWeekRank || 0) - currentRank;
+            } else if (gw.event === 3) {
+              // Gameweek 3: Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
+            } else if (gw.event === 2) {
+              // Gameweek 2: Calculate rank based on GW2 total points relative to other teams
+              const gw2TotalPoints = gw.total_points;
+              // Create a ranking based on GW2 total points
+              const gw2Ranking = Object.values(allHistoryData)
+                .map(({ standing: s, history: h }) => {
+                  const gw2Data = h.current.find((g: any) => g.event === 2);
+                  return {
+                    teamId: s.teamId,
+                    totalPoints: gw2Data?.total_points || 0
+                  };
+                })
+                .sort((a, b) => b.totalPoints - a.totalPoints)
+                .findIndex(team => team.teamId === standing.teamId) + 1;
+
+              gwRank = gw2Ranking;
             } else if (gw.event === 1) {
               // Gameweek 1: Use calculated ranking based on GW1 points
               gwRank = gw1Rankings[standing.teamId] || currentRank;
@@ -445,7 +463,7 @@ export class TeamService {
               // Future gameweeks: use current rank
               gwRank = currentRank;
             }
-            
+
             return {
               teamId: standing.teamId,
               gameweek: gw.event,
@@ -453,8 +471,7 @@ export class TeamService {
               rank: gwRank,
               totalPoints: gw.total_points,
               squad: [],
-              // Add movement calculation for latest gameweek (last_rank - rank_sort)
-              movementFromLastWeek: gw.event === 3 ? (lastWeekRank || 0) - currentRank : 0,
+              movementFromLastWeek,
               managerName: standing.teamName,
               playerName: standing.managerName
             };
