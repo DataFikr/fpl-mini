@@ -39,6 +39,7 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [maxRank, setMaxRank] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
     y: number;
@@ -59,6 +60,22 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
     const gwData = team.gameweekData.find(gw => gw.gameweek === gameweek);
     return gwData ? gwData.rank : null;
   };
+
+  // Handle responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchProgressionData = async () => {
@@ -261,43 +278,52 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
   }
 
   return (
-    <div style={{ 
-      display: 'flex',
-      gap: '2rem',
+    <div style={{
       backgroundColor: '#FFFFFF',
       borderRadius: '0.5rem',
-      padding: '2rem',
+      padding: '1rem',
       border: '1px solid #E1E5E9',
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
     }}>
-      {/* Main Chart Area */}
-      <div style={{ flex: '1' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start',
+      {/* Mobile/Desktop Responsive Layout */}
+      <div style={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? '1.5rem' : '2rem'
+      }}>
+        {/* Main Chart Area */}
+        <div style={{
+          flex: '1',
+          minWidth: 0 // Allow shrinking on mobile
+        }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'space-between',
+          alignItems: isMobile ? 'stretch' : 'flex-start',
+          gap: isMobile ? '1rem' : '0',
           marginBottom: '1.5rem'
         }}>
           <div>
-            <h2 style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: '600', 
+            <h2 style={{
+              fontSize: isMobile ? '1.25rem' : '1.5rem',
+              fontWeight: '600',
               color: '#1f2937',
               marginBottom: '0.5rem',
               fontFamily: 'system-ui, -apple-system, sans-serif'
             }}>
               League Table Progression
             </h2>
-            <p style={{ 
-              color: '#6b7280', 
+            <p style={{
+              color: '#6b7280',
               fontSize: '0.875rem',
               margin: 0
             }}>
               Track position changes across gameweeks
             </p>
           </div>
-          
-          {/* Team Selector Dropdown - Top Right */}
+
+          {/* Team Selector Dropdown */}
           <div>
             <select
               value={selectedTeam || ''}
@@ -309,7 +335,8 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
                 borderRadius: '0.375rem',
                 border: '1px solid #D1D5DB',
                 fontSize: '0.875rem',
-                minWidth: '180px',
+                width: isMobile ? '100%' : 'auto',
+                minWidth: isMobile ? 'auto' : '180px',
                 boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
               }}
             >
@@ -327,19 +354,25 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
         </div>
       
         {/* SVG Chart Container */}
-        <div style={{ 
+        <div style={{
           position: 'relative',
-          height: `${Math.max(400, Math.min(600, maxRank * 10 + 100))}px`, // Dynamic height with reasonable limits
+          height: isMobile
+            ? `${Math.max(300, Math.min(400, maxRank * 8 + 80))}px`
+            : `${Math.max(400, Math.min(600, maxRank * 10 + 100))}px`,
           backgroundColor: '#FFFFFF',
           borderRadius: '0.375rem',
-          border: '1px solid #E5E7EB'
+          border: '1px solid #E5E7EB',
+          overflow: 'hidden'
         }}>
           {/* Chart SVG */}
-          <svg 
-            width="100%" 
-            height="100%" 
-            viewBox={`0 0 1000 ${Math.max(400, Math.min(600, maxRank * 10 + 100))}`}
-            style={{ position: 'absolute', top: 0, left: 0 }}
+          <svg
+            width="100%"
+            height="100%"
+            viewBox={isMobile
+              ? `0 0 800 ${Math.max(300, Math.min(400, maxRank * 8 + 80))}`
+              : `0 0 1000 ${Math.max(400, Math.min(600, maxRank * 10 + 100))}`
+            }
+            style={{ display: 'block' }}
           >
             {/* Grid lines */}
             <defs>
@@ -351,16 +384,21 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
             
             {/* Horizontal rank lines */}
             {Array.from({ length: maxRank }, (_, i) => i + 1).map(rank => {
-              const chartHeight = Math.max(400, Math.min(600, maxRank * 10 + 100));
-              const availableHeight = chartHeight - 90; // 45px top + 45px bottom margins
-              const yPos = ((rank - 1) / (maxRank - 1)) * availableHeight + 45;
-              
+              const chartHeight = isMobile
+                ? Math.max(300, Math.min(400, maxRank * 8 + 80))
+                : Math.max(400, Math.min(600, maxRank * 10 + 100));
+              const availableHeight = chartHeight - (isMobile ? 70 : 90); // Smaller margins on mobile
+              const topMargin = isMobile ? 35 : 45;
+              const yPos = ((rank - 1) / (maxRank - 1)) * availableHeight + topMargin;
+              const maxX = isMobile ? 750 : 950;
+              const startX = isMobile ? 50 : 60;
+
               return (
                 <line
                   key={rank}
-                  x1="60"
+                  x1={startX}
                   y1={yPos}
-                  x2="950"
+                  x2={maxX}
                   y2={yPos}
                   stroke="#E5E7EB"
                   strokeWidth="1"
@@ -371,14 +409,21 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
             
             {/* Vertical gameweek lines */}
             {gameweeks.map((gw, gwIndex) => {
-              const chartHeight = Math.max(400, Math.min(600, maxRank * 10 + 100));
+              const chartHeight = isMobile
+                ? Math.max(300, Math.min(400, maxRank * 8 + 80))
+                : Math.max(400, Math.min(600, maxRank * 10 + 100));
+              const startX = isMobile ? 50 : 60;
+              const chartWidth = isMobile ? 700 : 890;
+              const topMargin = isMobile ? 35 : 45;
+              const bottomMargin = isMobile ? 35 : 45;
+
               return (
                 <line
                   key={gw}
-                  x1={60 + (gwIndex / (gameweeks.length - 1)) * 890}
-                  y1="45"
-                  x2={60 + (gwIndex / (gameweeks.length - 1)) * 890}
-                  y2={chartHeight - 45}
+                  x1={startX + (gwIndex / (gameweeks.length - 1)) * chartWidth}
+                  y1={topMargin}
+                  x2={startX + (gwIndex / (gameweeks.length - 1)) * chartWidth}
+                  y2={chartHeight - bottomMargin}
                   stroke="#E5E7EB"
                   strokeWidth="1"
                   opacity="0.5"
@@ -387,54 +432,80 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
             })}
             
             {/* Gameweek labels */}
-            {gameweeks.map((gw, gwIndex) => (
-              <text
-                key={`gw-${gw}`}
-                x={60 + (gwIndex / (gameweeks.length - 1)) * 890}
-                y="36"
-                textAnchor="middle"
-                fontSize="12"
-                fill="#6B7280"
-                fontWeight="500"
-              >
-                GW {gw}
-              </text>
-            ))}
+            {gameweeks.map((gw, gwIndex) => {
+              const startX = isMobile ? 50 : 60;
+              const chartWidth = isMobile ? 700 : 890;
+              const yPos = isMobile ? 28 : 36;
+              const fontSize = isMobile ? "10" : "12";
+
+              return (
+                <text
+                  key={`gw-${gw}`}
+                  x={startX + (gwIndex / (gameweeks.length - 1)) * chartWidth}
+                  y={yPos}
+                  textAnchor="middle"
+                  fontSize={fontSize}
+                  fill="#6B7280"
+                  fontWeight="500"
+                >
+                  GW {gw}
+                </text>
+              );
+            })}
             
             {/* Y-axis Title */}
             <text
-              x="15"
-              y={Math.max(400, Math.min(600, maxRank * 10 + 100)) / 2}
+              x={isMobile ? "12" : "15"}
+              y={isMobile
+                ? Math.max(300, Math.min(400, maxRank * 8 + 80)) / 2
+                : Math.max(400, Math.min(600, maxRank * 10 + 100)) / 2
+              }
               textAnchor="middle"
-              fontSize="12"
+              fontSize={isMobile ? "10" : "12"}
               fill="#374151"
               fontWeight="600"
-              transform={`rotate(-90, 15, ${Math.max(400, Math.min(600, maxRank * 10 + 100)) / 2})`}
+              transform={`rotate(-90, ${isMobile ? "12" : "15"}, ${
+                isMobile
+                  ? Math.max(300, Math.min(400, maxRank * 8 + 80)) / 2
+                  : Math.max(400, Math.min(600, maxRank * 10 + 100)) / 2
+              })`}
               dominantBaseline="middle"
             >
-              Table Position
+              {isMobile ? "Rank" : "Table Position"}
             </text>
             
             {/* Rank labels - Show ALL teams with smart spacing */}
             {Array.from({ length: maxRank }, (_, i) => i + 1)
               .filter((rank, index) => {
-                // For large leagues, show every nth rank to avoid overcrowding
-                if (maxRank <= 20) return true; // Show all for small leagues
-                if (maxRank <= 50) return index % 2 === 0; // Show every 2nd for medium leagues  
-                return index % 5 === 0 || rank === maxRank; // Show every 5th for large leagues, plus last
+                // More aggressive filtering on mobile for space
+                if (isMobile) {
+                  if (maxRank <= 10) return true;
+                  if (maxRank <= 20) return index % 2 === 0;
+                  return index % 3 === 0 || rank === maxRank;
+                } else {
+                  // Desktop filtering
+                  if (maxRank <= 20) return true;
+                  if (maxRank <= 50) return index % 2 === 0;
+                  return index % 5 === 0 || rank === maxRank;
+                }
               })
               .map(rank => {
-                const chartHeight = Math.max(400, Math.min(600, maxRank * 10 + 100));
-                const availableHeight = chartHeight - 90;
-                const yPos = ((rank - 1) / (maxRank - 1)) * availableHeight + 45;
-                
+                const chartHeight = isMobile
+                  ? Math.max(300, Math.min(400, maxRank * 8 + 80))
+                  : Math.max(400, Math.min(600, maxRank * 10 + 100));
+                const availableHeight = chartHeight - (isMobile ? 70 : 90);
+                const topMargin = isMobile ? 35 : 45;
+                const yPos = ((rank - 1) / (maxRank - 1)) * availableHeight + topMargin;
+                const xPos = isMobile ? 38 : 45;
+                const fontSize = isMobile ? "9" : "11";
+
                 return (
                   <text
                     key={`rank-${rank}`}
-                    x="45"
+                    x={xPos}
                     y={yPos}
                     textAnchor="middle"
-                    fontSize="11"
+                    fontSize={fontSize}
                     fill="#6B7280"
                     dominantBaseline="middle"
                   >
@@ -457,10 +528,15 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
                 const rank = getTeamRankForGameweek(team, gw);
                 if (rank !== null) {
                   // Calculate absolute coordinates within viewBox
-                  const chartHeight = Math.max(400, Math.min(600, maxRank * 10 + 100));
-                  const availableHeight = chartHeight - 90;
-                  const x = 60 + (gwIndex / (gameweeks.length - 1)) * 890;
-                  const y = ((rank - 1) / (maxRank - 1)) * availableHeight + 45;
+                  const chartHeight = isMobile
+                    ? Math.max(300, Math.min(400, maxRank * 8 + 80))
+                    : Math.max(400, Math.min(600, maxRank * 10 + 100));
+                  const availableHeight = chartHeight - (isMobile ? 70 : 90);
+                  const topMargin = isMobile ? 35 : 45;
+                  const startX = isMobile ? 50 : 60;
+                  const chartWidth = isMobile ? 700 : 890;
+                  const x = startX + (gwIndex / (gameweeks.length - 1)) * chartWidth;
+                  const y = ((rank - 1) / (maxRank - 1)) * availableHeight + topMargin;
                   points.push({
                     x: x,
                     y: y,
@@ -515,18 +591,22 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
                         key={`${team.teamId}-${point.gameweek}`}
                         cx={point.x}
                         cy={point.y}
-                        r={isSelected ? "6" : "4"}
+                        r={isMobile ? (isSelected ? "4" : "3") : (isSelected ? "6" : "4")}
                         fill={isSelected ? '#3B82F6' : team.color}
                         stroke="#FFFFFF"
-                        strokeWidth="2"
+                        strokeWidth={isMobile ? "1" : "2"}
                         opacity={opacity}
                         style={{ cursor: 'pointer' }}
                         onClick={() => handleTeamClick(team.teamId)}
                         onMouseEnter={(e) => {
                           const svgRect = e.currentTarget.closest('svg')?.getBoundingClientRect();
                           if (svgRect && gameweekData) {
-                            const svgX = point.x / 1000 * svgRect.width;
-                            const svgY = point.y / 600 * svgRect.height;
+                            const viewBoxWidth = isMobile ? 800 : 1000;
+                            const viewBoxHeight = isMobile
+                              ? Math.max(300, Math.min(400, maxRank * 8 + 80))
+                              : Math.max(400, Math.min(600, maxRank * 10 + 100));
+                            const svgX = point.x / viewBoxWidth * svgRect.width;
+                            const svgY = point.y / viewBoxHeight * svgRect.height;
                             setHoveredPoint({
                               x: svgRect.left + svgX,
                               y: svgRect.top + svgY,
@@ -661,13 +741,18 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
       )}
       
       {/* Right Sidebar - Current Standings Integrated */}
-      <div style={{ width: '350px' }}>
+      <div style={{
+        width: isMobile ? '100%' : '350px',
+        order: isMobile ? -1 : 0 // Move sidebar above chart on mobile
+      }}>
         <div style={{
           backgroundColor: '#F9FAFB',
           borderRadius: '0.375rem',
           border: '1px solid #E5E7EB',
-          height: '100%',
-          minHeight: `${Math.max(400, Math.min(600, maxRank * 10 + 100))}px` // Match main chart height
+          height: isMobile ? 'auto' : '100%',
+          minHeight: isMobile
+            ? 'auto'
+            : `${Math.max(400, Math.min(600, maxRank * 10 + 100))}px`
         }}>
           {/* Standings Header */}
           <div style={{ 
@@ -690,8 +775,8 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
           </div>
           
           {/* Scrollable Team List with Full Info */}
-          <div style={{ 
-            maxHeight: 'calc(100% - 85px)',
+          <div style={{
+            maxHeight: isMobile ? '300px' : 'calc(100% - 85px)',
             overflowY: 'auto',
             padding: '0.5rem'
           }}>
