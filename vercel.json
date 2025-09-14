@@ -2,7 +2,6 @@
   "buildCommand": "cd fpl-league-hub && npm run build",
   "outputDirectory": "fpl-league-hub/.next",
   "installCommand": "cd fpl-league-hub && npm install",
-  "framework": "nextjs",
   "env": {
     "NODE_OPTIONS": "--max-old-space-size=4096",
     "NEXT_TELEMETRY_DISABLED": "1",
