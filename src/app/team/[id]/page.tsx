@@ -392,26 +392,31 @@ function renderTeam2611652() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {leagues.map((league) => (
-              <div key={league.id} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 truncate">{league.name}</h3>
-                  <span className="text-sm text-gray-500">GW {league.currentGameweek}</span>
-                </div>
-                <div className="space-y-3">
-                  {league.standings.map((standing: any, index: number) => (
-                    <div key={`${standing.teamId}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-gray-900">#{standing.rank}</div>
-                        <div className="text-sm text-gray-600">{standing.managerName}</div>
+              <Link key={league.id} href={`/league/${league.id}`} className="block">
+                <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 truncate">{league.name}</h3>
+                    <span className="text-sm text-gray-500">GW {league.currentGameweek}</span>
+                  </div>
+                  <div className="space-y-3">
+                    {league.standings.map((standing: any, index: number) => (
+                      <div key={`${standing.teamId}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">#{standing.rank}</div>
+                          <div className="text-sm text-gray-600">{standing.managerName}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-gray-900">{standing.points}</div>
+                          <div className="text-sm text-green-600">+{standing.gameweekPoints}</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold text-gray-900">{standing.points}</div>
-                        <div className="text-sm text-green-600">+{standing.gameweekPoints}</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-center text-sm text-blue-600 font-medium">
+                    <span>View Full League →</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
       </section>
