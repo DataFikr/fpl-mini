@@ -199,14 +199,16 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories }: New
           email,
           leagueId,
           leagueName,
-          stories: stories.slice(0, 3) // Send top 3 stories
+          stories: stories.slice(0, 6), // Send top 6 stories for newsletter
+          gameweek,
+          subscriptionType: 'newsletter'
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('🎉 Newsletter sent successfully! You\'ve been subscribed for weekly updates.');
+        setMessage('🎉 Newsletter sent successfully! You\'ve been subscribed for weekly updates with top 6 headlines.');
         setMessageType('success');
         setEmail('');
         setTimeout(() => {
@@ -299,7 +301,7 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories }: New
   );
 }
 
-export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [], leagueName = '', showImages = true }: EnhancedStorytellingProps) {
+export function EnhancedLeagueStorytelling({ leagueId, gameweek = 5, teams = [], leagueName = '', showImages = true }: EnhancedStorytellingProps) {
   const [stories, setStories] = useState<EnhancedStory[]>([]);
   const [selectedStory, setSelectedStory] = useState<EnhancedStory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -591,7 +593,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Top Headlines</h2>
-              <p className="text-sm text-gray-600">ESPN-style drama from Gameweek {gameweek}</p>
+              <p className="text-sm text-gray-600">All the news update you need from Gameweek {gameweek}</p>
             </div>
           </div>
 
@@ -619,6 +621,9 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                   alt={story.headline}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDMyMCAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTkyIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNTIgOTZMMTY4IDExMkgxMzZMMTUyIDk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <div className="absolute bottom-2 left-2 text-white">
@@ -666,6 +671,9 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 alt={selectedStory.headline}
                 fill
                 className="object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDY0MCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMjU2IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMDQgMTI4TDMyMCAxNDRIMjg4TDMwNCAxMjhaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=';
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
               <button

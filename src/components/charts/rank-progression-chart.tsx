@@ -389,7 +389,7 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
         <div style={{
           position: 'relative',
           height: isMobile
-            ? `${Math.max(300, Math.min(400, maxRank * 8 + 80))}px`
+            ? `${Math.max(250, Math.min(350, maxRank * 6 + 60))}px`
             : `${Math.max(400, Math.min(600, maxRank * 10 + 100))}px`,
           backgroundColor: '#FFFFFF',
           borderRadius: '0.375rem',

@@ -73,7 +73,7 @@ function formatSquadForDisplay(squad: any): string {
   return 'Squad data unavailable';
 }
 
-export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTableProps) {
+export function EnhancedSquadTable({ leagueId, gameweek = 5 }: EnhancedSquadTableProps) {
   const [squadData, setSquadData] = useState<SquadAnalysisData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -257,14 +257,18 @@ FPL Ranker Team`;
         body: JSON.stringify({
           email: email,
           leagueId: leagueId,
-          gameweek: gameweek
+          gameweek: gameweek,
+          subscriptionType: 'team-analysis',
+          leagueName: 'Your League'
         }),
       });
 
       if (response.ok) {
-        alert('Successfully subscribed! You will receive weekly league analysis updates.');
+        const data = await response.json();
+        alert('Successfully subscribed! You will receive weekly team analysis summaries.');
         setShowNewsletterModal(false);
         setEmail('');
+        console.log('Team analysis subscription saved to database:', data);
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to subscribe. Please try again.');
@@ -359,18 +363,11 @@ FPL Ranker Team`;
             Sort by Total Points
           </button>
           <button
-            onClick={handleEmailExport}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-green-100 text-green-800 hover:bg-green-200 ml-4 flex items-center gap-2"
+            onClick={() => setShowNewsletterModal(true)}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 ml-4 flex items-center gap-2 shadow-lg hover:shadow-xl"
           >
             <Mail className="h-4 w-4" />
-            Get League's GW Analysis
-          </button>
-          <button
-            onClick={() => setShowNewsletterModal(true)}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-800 hover:bg-blue-200 ml-2 flex items-center gap-2"
-          >
-            <Bell className="h-4 w-4" />
-            Subscribe to Updates
+            Get team's analysis summary for GW
           </button>
         </div>
       </div>

@@ -436,9 +436,9 @@ export function PitchView({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] overflow-hidden">
-        <div className="bg-white border-b border-gray-200 p-2 sm:p-4 flex justify-between items-center">
+        <div className="bg-white border-b border-gray-200 p-3 sm:p-4 flex justify-between items-start">
           <div className="min-w-0 flex-1 pr-2">
-            <h2 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900 break-words leading-tight">{teamName}</h2>
+            <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 break-words leading-tight mb-1">{teamName}</h2>
             <p className="text-xs sm:text-sm text-gray-600 break-words leading-tight">Manager: {managerName} • GW {gameweek}</p>
           </div>
           <button
@@ -551,12 +551,12 @@ export function PitchView({
                     </div>
                   </div>
 
-                  {/* Midfielders - positioned at 55% from top - NO WRAP for 5 players */}
-                  <div 
+                  {/* Midfielders - positioned at 55% from top with better spacing */}
+                  <div
                     className="absolute w-full flex justify-center"
                     style={{ top: '55%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-3 justify-center" style={{ maxWidth: 'none', flexWrap: 'nowrap' }}>
+                    <div className="flex gap-2 sm:gap-3 justify-center" style={{ maxWidth: '95%', flexWrap: 'nowrap' }}>
                       {squadData.starting.MID.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
@@ -578,9 +578,9 @@ export function PitchView({
               </div>
 
               {/* Substitutes Section - with better spacing and layout */}
-              <div className="bg-gray-50 rounded-lg p-4 mt-8">
-                <h3 className="text-sm font-semibold text-gray-700 mb-4 text-center">SUBSTITUTES</h3>
-                <div className="flex justify-center gap-4 flex-wrap">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mt-4">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3 text-center">SUBSTITUTES</h3>
+                <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
                   {squadData.subs.map((player, index) => (
                     <div key={index} className="flex-shrink-0">
                       <EnhancedJerseyCard player={player} isSubstitute={true} />

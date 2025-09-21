@@ -178,11 +178,27 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
 
       case 'community-poll':
         return (
-          <div>
+          <div className="space-y-6">
             <VotingPoll
               leagueId={leagueId}
               teams={league.standings}
-              gameweek={league.currentGameweek + 1}
+              gameweek={league.currentGameweek}
+              pollId="high-scorer"
+              question="Who will score the most points in Gameweek"
+            />
+            <VotingPoll
+              leagueId={leagueId}
+              teams={league.standings}
+              gameweek={league.currentGameweek}
+              pollId="captain-pick"
+              question="Who will be the most popular captain choice for Gameweek"
+            />
+            <VotingPoll
+              leagueId={leagueId}
+              teams={league.standings}
+              gameweek={league.currentGameweek}
+              pollId="biggest-riser"
+              question="Who will climb the most positions in Gameweek"
             />
           </div>
         );
@@ -199,11 +215,14 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
         <div className="flex items-center">
           <div className="bg-gradient-to-r from-green-500 to-blue-500 p-1.5 rounded-xl mr-3">
             <Image
-              src="/images/fplranker.png"
+              src="https://fplranker.com/favicon.ico"
               alt="FPLRanker Logo"
               width={24}
               height={24}
               className="rounded"
+              onError={(e) => {
+                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iNCIgZmlsbD0iIzAwN0M2NiIvPgo8dGV4dCB4PSIxMiIgeT0iMTYiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5GUEw8L3RleHQ+Cjwvc3ZnPg==';
+              }}
             />
           </div>
           <div>
@@ -226,8 +245,8 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
         </div>
       </div>
 
-      {/* Compact League Stats */}
-      <div className="bg-white border-b border-gray-200 px-3 md:px-6 py-2 md:py-4" style={{ minHeight: '8vh' }}>
+      {/* Compact League Stats - Hidden on Mobile */}
+      <div className="hidden md:block bg-white border-b border-gray-200 px-3 md:px-6 py-2 md:py-4" style={{ minHeight: '8vh' }}>
         <div className={`grid gap-2 md:gap-4 ${userTeamId ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 md:grid-cols-4'}`}>
           <StatCard
             icon={<Users className="h-5 w-5 text-blue-500" />}
@@ -297,8 +316,10 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
                     : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
-                <Icon className="h-3 md:h-4 w-3 md:w-4 mr-1 md:mr-2" />
-                <span className="truncate">{tab.name}</span>
+                <Icon className={`h-3 md:h-4 w-3 md:w-4 mr-1 md:mr-2 ${
+                  isActive ? 'text-blue-600' : 'text-gray-500'
+                }`} />
+                <span className="truncate hidden md:inline">{tab.name}</span>
               </button>
             );
           })}

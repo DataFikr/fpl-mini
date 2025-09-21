@@ -15,9 +15,11 @@ interface VotingPollProps {
   leagueId: number;
   teams?: any[];
   gameweek?: number;
+  pollId?: string;
+  question?: string;
 }
 
-export function VotingPoll({ leagueId, teams = [], gameweek = 6 }: VotingPollProps) {
+export function VotingPoll({ leagueId, teams = [], gameweek = 5, pollId = 'default', question = 'Who will score the most points in Gameweek' }: VotingPollProps) {
   const [voteOptions, setVoteOptions] = useState<VoteOption[]>([]);
   const [userVote, setUserVote] = useState<number | null>(null);
   const [totalVotes, setTotalVotes] = useState(0);
@@ -58,7 +60,7 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 6 }: VotingPollPro
       setTotalVotes(total);
       
       // Check if user has voted (simulate with localStorage)
-      const existingVote = localStorage.getItem(`poll_vote_${leagueId}_gw${gameweek}`);
+      const existingVote = localStorage.getItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}`);
       if (existingVote) {
         setUserVote(parseInt(existingVote));
         setHasVoted(true);
@@ -89,7 +91,7 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 6 }: VotingPollPro
     setHasVoted(true);
     
     // Save vote to localStorage
-    localStorage.setItem(`poll_vote_${leagueId}_gw${gameweek}`, teamId.toString());
+    localStorage.setItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}`, teamId.toString());
   };
 
   const getVotePercentage = (votes: number) => {
@@ -190,7 +192,7 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 6 }: VotingPollPro
             margin: 0,
             textAlign: isMobile ? 'center' : 'left'
           }}>
-            Who will score the most points in Gameweek {gameweek}?
+            {question} {gameweek + 1}?
           </p>
         </div>
         <div style={{
@@ -423,7 +425,7 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 6 }: VotingPollPro
           fontSize: '0.75rem',
           color: '#6B7280'
         }}>
-          Poll closes at GW{gameweek} deadline
+          Poll closes at GW{gameweek + 1} deadline
         </div>
       </div>
     </div>
