@@ -156,11 +156,31 @@ export class FPLApiService {
     }
     
     // Fallback to real API if manager not in mock data
-    return this.fetchWithCache(
-      `${this.baseUrl}/entry/${managerId}/`,
-      `fpl:manager:${managerId}`,
-      3600 // 1 hour
-    );
+    try {
+      return await this.fetchWithCache(
+        `${this.baseUrl}/entry/${managerId}/`,
+        `fpl:manager:${managerId}`,
+        3600 // 1 hour
+      );
+    } catch (error) {
+      console.warn(`Failed to fetch manager ${managerId} from FPL API:`, error);
+      // Return a default manager structure when API fails
+      return {
+        id: managerId,
+        name: `Team ${managerId}`,
+        player_first_name: 'FPL',
+        player_last_name: 'Manager',
+        summary_overall_points: 0,
+        summary_overall_rank: 1000000,
+        started_event: 1,
+        joined_time: new Date().toISOString(),
+        player_region_name: null,
+        player_region_iso_code_short: null,
+        player_region_iso_code_long: null,
+        favourite_team: null,
+        kit: 'home'
+      };
+    }
   }
 
   async findTeamByName(teamName: string): Promise<FPLManagerEntry[]> {
@@ -387,10 +407,22 @@ export class FPLApiService {
   }
 
   async getManagerLeagues(managerId: number): Promise<any> {
-    return this.fetchWithCache(
-      `${this.baseUrl}/entry/${managerId}/`,
-      `fpl:manager:${managerId}:leagues`,
-      3600 // 1 hour
-    );
+    try {
+      return await this.fetchWithCache(
+        `${this.baseUrl}/entry/${managerId}/`,
+        `fpl:manager:${managerId}:leagues`,
+        3600 // 1 hour
+      );
+    } catch (error) {
+      console.warn(`Failed to fetch leagues for manager ${managerId}:`, error);
+      // Return empty leagues structure when API fails
+      return {
+        leagues: {
+          classic: [],
+          h2h: [],
+          cup: {}
+        }
+      };
+    }
   }
 }

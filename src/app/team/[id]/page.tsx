@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { FPLApiService } from '@/services/fpl-api';
 import { LeagueCard } from '@/components/ui/league-card';
 import { TeamCrest } from '@/components/ui/team-crest';
+import { TeamError } from '@/components/ui/team-error';
 import { User, Calendar, TrendingUp, Award, Star, Zap, Home } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -508,7 +509,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
     );
   } catch (error) {
     console.error('Error loading team data:', error);
-    notFound();
+    return <TeamError teamId={teamId} error={error instanceof Error ? error.message : 'Unknown error'} />;
   }
 }
 
