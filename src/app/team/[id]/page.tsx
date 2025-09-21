@@ -115,26 +115,36 @@ export default async function TeamPage({ params }: TeamPageProps) {
   try {
     const fplApi = new FPLApiService();
 
-    // Get real manager data from FPL API with timeout and better error handling
+    // Get real manager data and history from FPL API
     let managerData: any;
+    let managerHistory: any;
+
     try {
-      managerData = await Promise.race([
-        fplApi.getManagerEntry(teamId),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Manager data timeout')), 8000))
+      // Fetch both manager entry and history data in parallel
+      const [entryData, historyData] = await Promise.all([
+        Promise.race([
+          fplApi.getManagerEntry(teamId),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Manager data timeout')), 10000))
+        ]),
+        Promise.race([
+          fplApi.getManagerHistory(teamId),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('History data timeout')), 10000))
+        ])
       ]);
+
+      managerData = entryData;
+      managerHistory = historyData;
+
+      console.log(`Successfully loaded data for team ${teamId}:`, {
+        managerName: `${managerData.player_first_name} ${managerData.player_last_name}`,
+        totalPoints: managerData.summary_overall_points,
+        overallRank: managerData.summary_overall_rank,
+        gameweeksPlayed: managerHistory.current?.length || 0
+      });
+
     } catch (error) {
-      console.warn(`Failed to fetch manager data for ${teamId}:`, error);
-      // Fallback to basic manager data structure
-      managerData = {
-        id: teamId,
-        name: `Team ${teamId}`,
-        player_first_name: 'FPL',
-        player_last_name: 'Manager',
-        summary_overall_points: 0,
-        summary_overall_rank: 1000000,
-        player_region_name: null,
-        favourite_team: null
-      };
+      console.error(`Failed to fetch data for team ${teamId}:`, error);
+      throw new Error(`Unable to load team data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
     // Create team object from FPL API data
@@ -146,25 +156,37 @@ export default async function TeamPage({ params }: TeamPageProps) {
       lastUpdated: new Date()
     };
 
-    // Get manager's leagues from FPL API with timeout and simplified data
+    // Get current gameweek from history data
+    const currentGameweek = managerHistory.current?.length > 0
+      ? managerHistory.current[managerHistory.current.length - 1].event
+      : 5;
+
+    const latestGameweekData = managerHistory.current?.find((gw: any) => gw.event === currentGameweek);
+    const currentGWPoints = latestGameweekData?.points || 0;
+    const totalPoints = latestGameweekData?.total_points || managerData.summary_overall_points || 0;
+    const currentOverallRank = latestGameweekData?.overall_rank || managerData.summary_overall_rank || 0;
+
+    console.log(`Current gameweek ${currentGameweek} data:`, {
+      gwPoints: currentGWPoints,
+      totalPoints: totalPoints,
+      overallRank: currentOverallRank
+    });
+
+    // Get manager's leagues from FPL API
     let leagues: any[] = [];
     try {
-      // Simplified approach - just get basic league info without detailed standings
       const managerLeagues = await Promise.race([
         fplApi.getManagerLeagues(teamId),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 10000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Leagues timeout')), 8000))
       ]) as any;
 
       if (managerLeagues?.leagues?.classic) {
-        const currentGameweek = 5; // Updated for gameweek 5
-
-        // Process all leagues but limit to reasonable number for display
+        // Process leagues with live data
         const limitedLeagues = managerLeagues.leagues.classic
-          .filter((league: any) => league.id > 1000)
-          .slice(0, 8); // Show up to 8 leagues as per context.json
+          .filter((league: any) => league.id > 1000) // Filter out global leagues
+          .slice(0, 8); // Show up to 8 leagues
 
         for (const classicLeague of limitedLeagues) {
-          // Create simplified league data without full standings
           leagues.push({
             id: classicLeague.id,
             name: classicLeague.name,
@@ -174,8 +196,8 @@ export default async function TeamPage({ params }: TeamPageProps) {
               teamName: team.name,
               managerName: team.managerName,
               rank: classicLeague.entry_rank || 1,
-              points: classicLeague.entry_total || managerData?.summary_overall_points || 0,
-              gameweekPoints: classicLeague.entry_last_rank || 65
+              points: totalPoints,
+              gameweekPoints: currentGWPoints
             }]
           });
         }
@@ -433,22 +455,22 @@ export default async function TeamPage({ params }: TeamPageProps) {
               <StatCard
                 icon={<Calendar className="h-8 w-8 text-blue-500" />}
                 title="Current GW"
-                value={leagues[0]?.currentGameweek.toString() || '5'}
+                value={currentGameweek.toString()}
                 subtitle="Fantasy gameweek"
                 gradient="from-blue-500 to-cyan-500"
               />
               <StatCard
                 icon={<Zap className="h-8 w-8 text-purple-500" />}
                 title="Overall Points"
-                value={managerData?.summary_overall_points?.toLocaleString() || '0'}
+                value={totalPoints.toLocaleString()}
                 subtitle="Season total"
                 gradient="from-purple-500 to-pink-500"
               />
               <StatCard
                 icon={<Star className="h-8 w-8 text-indigo-500" />}
                 title="GW Points"
-                value="58"
-                subtitle="Latest gameweek"
+                value={currentGWPoints.toString()}
+                subtitle={`Gameweek ${currentGameweek}`}
                 gradient="from-indigo-500 to-violet-500"
               />
             </div>

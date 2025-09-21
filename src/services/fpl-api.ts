@@ -145,26 +145,42 @@ export class FPLApiService {
   }
 
   async getManagerEntry(managerId: number): Promise<FPLManagerEntry> {
-    // Use mock data for manager entries to get enhanced manager information
-    const mockManagerData = this.findTeamByName('');
-    const resolvedMockData = await mockManagerData;
-    const manager = resolvedMockData.find(m => m.id === managerId);
-    
-    if (manager) {
-      console.log(`Using mock data for manager ${managerId}:`, manager.name, manager.favourite_team, manager.player_region_name);
-      return manager;
-    }
-    
-    // Fallback to real API if manager not in mock data
+    console.log(`Fetching live data for manager ${managerId} from FPL API`);
+
     try {
-      return await this.fetchWithCache(
+      // Always use live FPL API data with shorter cache time
+      const apiResponse = await this.fetchWithCache(
         `${this.baseUrl}/entry/${managerId}/`,
-        `fpl:manager:${managerId}`,
-        3600 // 1 hour
+        `fpl:manager:${managerId}:live`,
+        900 // 15 minutes cache for live data
       );
+
+      console.log(`Successfully fetched live data for manager ${managerId}:`, {
+        name: apiResponse.name || `${apiResponse.player_first_name} ${apiResponse.player_last_name}`,
+        points: apiResponse.summary_overall_points,
+        rank: apiResponse.summary_overall_rank
+      });
+
+      return apiResponse;
+
     } catch (error) {
       console.warn(`Failed to fetch manager ${managerId} from FPL API:`, error);
-      // Return a default manager structure when API fails
+
+      // Try to use mock data as fallback only if API completely fails
+      try {
+        const mockManagerData = await this.findTeamByName('');
+        const manager = mockManagerData.find(m => m.id === managerId);
+
+        if (manager) {
+          console.log(`Using mock data fallback for manager ${managerId}:`, manager.name);
+          return manager;
+        }
+      } catch (mockError) {
+        console.warn('Mock data fallback also failed:', mockError);
+      }
+
+      // Final fallback - create basic manager structure
+      console.log(`Creating default structure for manager ${managerId}`);
       return {
         id: managerId,
         name: `Team ${managerId}`,
@@ -407,12 +423,23 @@ export class FPLApiService {
   }
 
   async getManagerLeagues(managerId: number): Promise<any> {
+    console.log(`Fetching live leagues data for manager ${managerId}`);
+
     try {
-      return await this.fetchWithCache(
+      // Use live FPL API data for leagues with shorter cache
+      const response = await this.fetchWithCache(
         `${this.baseUrl}/entry/${managerId}/`,
-        `fpl:manager:${managerId}:leagues`,
-        3600 // 1 hour
+        `fpl:manager:${managerId}:leagues:live`,
+        600 // 10 minutes cache for leagues
       );
+
+      console.log(`Successfully fetched leagues for manager ${managerId}:`, {
+        classicLeagues: response.leagues?.classic?.length || 0,
+        h2hLeagues: response.leagues?.h2h?.length || 0
+      });
+
+      return response;
+
     } catch (error) {
       console.warn(`Failed to fetch leagues for manager ${managerId}:`, error);
       // Return empty leagues structure when API fails
@@ -422,6 +449,33 @@ export class FPLApiService {
           h2h: [],
           cup: {}
         }
+      };
+    }
+  }
+
+  async getManagerHistory(managerId: number): Promise<any> {
+    console.log(`Fetching live history data for manager ${managerId}`);
+
+    try {
+      const response = await this.fetchWithCache(
+        `${this.baseUrl}/entry/${managerId}/history/`,
+        `fpl:manager:${managerId}:history:live`,
+        300 // 5 minutes cache for history (most dynamic data)
+      );
+
+      console.log(`Successfully fetched history for manager ${managerId}:`, {
+        currentGameweeks: response.current?.length || 0,
+        latestGW: response.current?.[response.current.length - 1]?.event || 'N/A'
+      });
+
+      return response;
+
+    } catch (error) {
+      console.warn(`Failed to fetch history for manager ${managerId}:`, error);
+      return {
+        current: [],
+        past: [],
+        chips: []
       };
     }
   }
