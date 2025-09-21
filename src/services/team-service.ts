@@ -426,19 +426,19 @@ export class TeamService {
         
         // Now process each team's progression
         allHistoryData.forEach(({ standing, history }) => {
-          const currentRank = standing.rank; // Current rank_sort
-          const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API
-          
+          const currentRank = standing.rank; // Current rank_sort (GW5)
+          const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API (GW4)
+
           const progression = history.current.map((gw: any) => {
             let gwRank;
             let movementFromLastWeek = 0;
 
             if (gw.event === currentGameweek) {
-              // Current gameweek (6): Use rank_sort (current rank)
+              // Current gameweek (5): Use rank_sort (current rank)
               gwRank = currentRank;
               movementFromLastWeek = (lastWeekRank || 0) - currentRank;
             } else if (gw.event === currentGameweek - 1) {
-              // Previous gameweek (5): Use last_rank field from FPL API (previous rank)
+              // Previous gameweek (4): Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
             } else if (gw.event <= currentGameweek - 2) {
               // Earlier gameweeks: Calculate rank based on total points at that gameweek
