@@ -127,7 +127,7 @@ function renderTeam2611652() {
     summary_overall_rank: 1165323
   };
 
-  const currentGameweek = 5;
+  const currentGameweek = 5; // Consistent GW5 for all teams
   const currentGWPoints = 44;
   const totalPoints = 292;
   const currentOverallRank = 1165323;
@@ -501,13 +501,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
       lastUpdated: new Date()
     };
 
-    // Get current gameweek from history data
-    const currentGameweek = managerHistory.current?.length > 0
-      ? managerHistory.current[managerHistory.current.length - 1].event
-      : 5;
+    // Get current gameweek from live data, ensuring we use GW5 (not GW6)
+    const currentGameweek = 5; // Force GW5 as requested
 
-    const latestGameweekData = managerHistory.current?.find((gw: any) => gw.event === currentGameweek);
-    const currentGWPoints = latestGameweekData?.points || 0;
+    // Get GW5 specific data from history
+    const latestGameweekData = managerHistory.current?.find((gw: any) => gw.event === 5);
+    const currentGWPoints = latestGameweekData?.points || managerData.summary_event_points || 0;
     const totalPoints = latestGameweekData?.total_points || managerData.summary_overall_points || 0;
     const currentOverallRank = latestGameweekData?.overall_rank || managerData.summary_overall_rank || 0;
 
@@ -675,14 +674,14 @@ export default async function TeamPage({ params }: TeamPageProps) {
         leagues = [{
           id: 999999,
           name: "Loading leagues...",
-          currentGameweek: 6,
+          currentGameweek: 5,
           standings: [{
             teamId: teamId,
             teamName: team.name,
             managerName: team.managerName,
             rank: 1,
             points: managerData?.summary_overall_points || 0,
-            gameweekPoints: 65
+            gameweekPoints: currentGWPoints || 65
           }]
         }];
       }
