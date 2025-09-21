@@ -187,7 +187,7 @@ export class TeamService {
       {
         id: 999001,
         name: "Sample League 1",
-        currentGameweek: 6,
+        currentGameweek: 5,
         teams: [
           { id: team.id, name: team.name, managerName: team.managerName, crestUrl: team.crestUrl, lastUpdated: team.lastUpdated },
         ],
@@ -211,7 +211,7 @@ export class TeamService {
       {
         id: 999002,
         name: "Sample League 2",
-        currentGameweek: 6,
+        currentGameweek: 5,
         teams: [
           { id: team.id, name: team.name, managerName: team.managerName, crestUrl: team.crestUrl, lastUpdated: team.lastUpdated },
         ],
@@ -334,7 +334,7 @@ export class TeamService {
       150789: {
         id: 150789,
         name: "Your Real Mini-League",
-        currentGameweek: 6,
+        currentGameweek: 5,
         teams: [],
         standings: [
           { teamId: 5093819, rank: 1, points: 1500, teamName: "Your FPL Team", managerName: "Real Manager", lastWeekRank: 2 },
@@ -344,7 +344,7 @@ export class TeamService {
       1001: {
         id: 1001,
         name: "Premier League Fanatics",
-        currentGameweek: 6,
+        currentGameweek: 5,
         teams: [
           { id: 1, name: "Arsenal Dream Team", managerName: "John Smith", crestUrl: null, lastUpdated: new Date() },
           { id: 2, name: "Liverpool Legends", managerName: "Mike Johnson", crestUrl: null, lastUpdated: new Date() },
@@ -365,7 +365,7 @@ export class TeamService {
       1002: {
         id: 1002,
         name: "Office League 2024/25",
-        currentGameweek: 6,
+        currentGameweek: 5,
         teams: [
           { id: 1, name: "Arsenal Dream Team", managerName: "John Smith", crestUrl: null, lastUpdated: new Date() },
           { id: 7, name: "Desk Warriors", managerName: "Tom Wilson", crestUrl: null, lastUpdated: new Date() },

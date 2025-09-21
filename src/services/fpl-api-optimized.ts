@@ -395,7 +395,7 @@ export class OptimizedFPLApiService {
       await this.getBootstrapStatic();
 
       // Preload current gameweek live data
-      const currentGameweek = 6; // Update based on current gameweek
+      const currentGameweek = 5; // Update based on current gameweek
       await this.getGameweekLiveData(currentGameweek);
 
       console.log('✅ Common data preloaded successfully');

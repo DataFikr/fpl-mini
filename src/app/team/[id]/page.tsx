@@ -52,36 +52,31 @@ async function fetchTeamData(teamId: number) {
       console.warn(`History failed for ${teamId}, using empty:`, historyError);
     }
 
-    // Get GW5 data
+    // Get GW5 data - prioritize history over summary for accuracy
     const gw5Data = managerHistory.current?.find((gw: any) => gw.event === 5);
     const currentGWPoints = gw5Data?.points || managerData.summary_event_points || 0;
     const totalPoints = gw5Data?.total_points || managerData.summary_overall_points || 0;
     const overallRank = gw5Data?.overall_rank || managerData.summary_overall_rank || 0;
 
-    // Fetch leagues with timeout
+    // Extract leagues directly from manager data
     let leagues: any[] = [];
-    try {
-      const managerLeagues = await Promise.race([
-        fplApi.getManagerLeagues(teamId),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Leagues timeout')), 10000))
-      ]) as any;
+    if (managerData?.leagues?.classic && Array.isArray(managerData.leagues.classic)) {
+      const limitedLeagues = managerData.leagues.classic
+        .filter((league: any) => league && league.id && league.id > 1000)
+        .slice(0, 6);
 
-      if (managerLeagues?.leagues?.classic && Array.isArray(managerLeagues.leagues.classic)) {
-        const limitedLeagues = managerLeagues.leagues.classic
-          .filter((league: any) => league && league.id && league.id > 1000)
-          .slice(0, 6);
+      leagues = limitedLeagues.map((league: any) => ({
+        id: league.id,
+        name: league.name || `League ${league.id}`,
+        rank: league.entry_rank || 1
+      }));
+    }
 
-        leagues = limitedLeagues.map((league: any) => ({
-          id: league.id,
-          name: league.name || `League ${league.id}`,
-          rank: league.entry_rank || 1
-        }));
-      }
-    } catch (leaguesError) {
-      console.warn(`Leagues failed for ${teamId}, using fallback:`, leaguesError);
+    // Use fallback leagues if none found
+    if (leagues.length === 0) {
       leagues = [
-        { id: 999000 + teamId, name: "Overall League", rank: overallRank },
-        { id: 888000 + teamId, name: "Regional League", rank: Math.floor(overallRank / 100) }
+        { id: 314, name: "Overall", rank: overallRank },
+        { id: managerData.player_region_id || 150, name: managerData.player_region_name || "Regional", rank: Math.floor(overallRank / 10) }
       ];
     }
 
@@ -95,9 +90,7 @@ async function fetchTeamData(teamId: number) {
       region: managerData.player_region_name || 'Unknown',
       regionCode: managerData.player_region_iso_code_short || '',
       favouriteTeam: managerData.favourite_team || null,
-      leagues: leagues.length > 0 ? leagues : [
-        { id: 999000 + teamId, name: "Default League", rank: overallRank || 1000000 }
-      ]
+      leagues: leagues
     };
 
   } catch (error) {
