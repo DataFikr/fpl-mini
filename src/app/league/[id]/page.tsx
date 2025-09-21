@@ -61,7 +61,7 @@ export default async function LeaguePage({ params, searchParams }: LeaguePagePro
         teamId: entry.entry,
         teamName: entry.entry_name,
         managerName: entry.player_name,
-        rank: entry.rank,
+        rank: entry.rank_sort, // Use rank_sort for proper ordering
         points: entry.total,
         gameweekPoints: entry.event_total || 0
       }))
