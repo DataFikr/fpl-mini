@@ -217,7 +217,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
             <span className="font-medium">Home</span>
           </Link>
           <Link
-            href={currentUserTeamId ? `/team/${currentUserTeamId}` : "/team/5100818"}
+            href={currentUserTeamId ? `/team/${currentUserTeamId}` : userTeamId ? `/team/${userTeamId}` : "/"}
             className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <User className="h-4 w-4 mr-2" />

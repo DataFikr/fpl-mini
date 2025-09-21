@@ -10,7 +10,7 @@ export async function GET(
     const resolvedParams = await params;
     const leagueId = parseInt(resolvedParams.id);
     const { searchParams } = new URL(request.url);
-    const gameweek = parseInt(searchParams.get('gameweek') || '15');
+    const gameweek = parseInt(searchParams.get('gameweek') || '6');
     
     if (isNaN(leagueId)) {
       return NextResponse.json(

@@ -107,7 +107,7 @@ export class FPLApiService {
       
       // Fallback to mock data
       const mockHistory: FPLManagerHistory = {
-        current: Array.from({ length: 15 }, (_, i) => ({
+        current: Array.from({ length: 6 }, (_, i) => ({
           event: i + 1,
           points: 50 + Math.floor(Math.random() * 40), // 50-90 points per GW
           total_points: (i + 1) * 65 + Math.floor(Math.random() * 200),
@@ -383,7 +383,7 @@ export class FPLApiService {
   async getCurrentGameweek(): Promise<number> {
     // Return mock current gameweek to avoid API delays
     // TODO: Re-enable real API call once FPL API stability improves
-    return 4; // Current gameweek - updated for gameweek 4
+    return 6; // Current gameweek - updated for gameweek 6
   }
 
   async getManagerLeagues(managerId: number): Promise<any> {

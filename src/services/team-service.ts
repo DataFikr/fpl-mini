@@ -187,7 +187,7 @@ export class TeamService {
       {
         id: 999001,
         name: "Sample League 1",
-        currentGameweek: 3,
+        currentGameweek: 6,
         teams: [
           { id: team.id, name: team.name, managerName: team.managerName, crestUrl: team.crestUrl, lastUpdated: team.lastUpdated },
         ],
@@ -211,7 +211,7 @@ export class TeamService {
       {
         id: 999002,
         name: "Sample League 2",
-        currentGameweek: 3,
+        currentGameweek: 6,
         teams: [
           { id: team.id, name: team.name, managerName: team.managerName, crestUrl: team.crestUrl, lastUpdated: team.lastUpdated },
         ],
@@ -334,7 +334,7 @@ export class TeamService {
       150789: {
         id: 150789,
         name: "Your Real Mini-League",
-        currentGameweek: 15,
+        currentGameweek: 6,
         teams: [],
         standings: [
           { teamId: 5093819, rank: 1, points: 1500, teamName: "Your FPL Team", managerName: "Real Manager", lastWeekRank: 2 },
@@ -344,7 +344,7 @@ export class TeamService {
       1001: {
         id: 1001,
         name: "Premier League Fanatics",
-        currentGameweek: 15,
+        currentGameweek: 6,
         teams: [
           { id: 1, name: "Arsenal Dream Team", managerName: "John Smith", crestUrl: null, lastUpdated: new Date() },
           { id: 2, name: "Liverpool Legends", managerName: "Mike Johnson", crestUrl: null, lastUpdated: new Date() },
@@ -365,7 +365,7 @@ export class TeamService {
       1002: {
         id: 1002,
         name: "Office League 2024/25",
-        currentGameweek: 15,
+        currentGameweek: 6,
         teams: [
           { id: 1, name: "Arsenal Dream Team", managerName: "John Smith", crestUrl: null, lastUpdated: new Date() },
           { id: 7, name: "Desk Warriors", managerName: "Tom Wilson", crestUrl: null, lastUpdated: new Date() },
@@ -502,21 +502,21 @@ export class TeamService {
     // Generate mock rank progression data for demo charts
     const mockProgressions: Record<number, Record<string, GameweekData[]>> = {
       150789: { // Your real league
-        "Your FPL Team": generateRankProgression("Your FPL Team", 5093819, [3, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1])
+        "Your FPL Team": generateRankProgression("Your FPL Team", 5093819, [3, 2, 1, 2, 1, 1])
       },
       1001: { // Premier League Fanatics
-        "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [6, 5, 4, 3, 2, 3, 4, 3, 2, 3, 3, 2, 3, 4, 3]),
-        "Liverpool Legends": generateRankProgression("Liverpool Legends", 345678, [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1]),
-        "Chelsea Champions": generateRankProgression("Chelsea Champions", 456789, [3, 1, 3, 2, 3, 2, 1, 2, 3, 1, 2, 3, 2, 2, 2]),
-        "Manchester United FC": generateRankProgression("Manchester United FC", 234567, [2, 3, 2, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 3, 4]),
-        "Tottenham Team": generateRankProgression("Tottenham Team", 567890, [4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]),
-        "City Slickers": generateRankProgression("City Slickers", 678901, [5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6])
+        "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [6, 5, 4, 3, 2, 3]),
+        "Liverpool Legends": generateRankProgression("Liverpool Legends", 345678, [1, 2, 1, 1, 1, 1]),
+        "Chelsea Champions": generateRankProgression("Chelsea Champions", 456789, [3, 1, 3, 2, 3, 2]),
+        "Manchester United FC": generateRankProgression("Manchester United FC", 234567, [2, 3, 2, 4, 4, 4]),
+        "Tottenham Team": generateRankProgression("Tottenham Team", 567890, [4, 4, 5, 5, 5, 5]),
+        "City Slickers": generateRankProgression("City Slickers", 678901, [5, 6, 6, 6, 6, 6])
       },
       1002: { // Office League 2024/25
-        "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [4, 3, 3, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2]),
-        "Desk Warriors": generateRankProgression("Desk Warriors", 789012, [1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]),
-        "Coffee Break FC": generateRankProgression("Coffee Break FC", 890123, [2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]),
-        "Monday Morning": generateRankProgression("Monday Morning", 901234, [3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4])
+        "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [4, 3, 3, 2, 2, 2]),
+        "Desk Warriors": generateRankProgression("Desk Warriors", 789012, [1, 1, 1, 1, 1, 1]),
+        "Coffee Break FC": generateRankProgression("Coffee Break FC", 890123, [2, 2, 2, 3, 3, 3]),
+        "Monday Morning": generateRankProgression("Monday Morning", 901234, [3, 4, 4, 4, 4, 4])
       }
     };
 

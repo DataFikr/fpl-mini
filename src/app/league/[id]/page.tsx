@@ -81,7 +81,6 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         league={leagueWithTeams}
         topTeams={topTeams}
         averagePoints={averagePoints}
-        userTeamId={5100818}
       />
     );
   } catch (error) {
@@ -189,7 +188,6 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         league={leagueWithTeams}
         topTeams={topTeams}
         averagePoints={averagePoints}
-        userTeamId={5100818}
       />
     );
   }
