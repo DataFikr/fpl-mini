@@ -35,7 +35,7 @@ export function LeagueCard({ league, teamId }: LeagueCardProps) {
 
   return (
     <Link
-      href={`/league/${league.id}`}
+      href={`/league/${league.id}?teamId=${teamId}`}
       className="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6"
     >
       <div className="flex justify-between items-start mb-4">

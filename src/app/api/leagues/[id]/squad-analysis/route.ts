@@ -60,20 +60,20 @@ function generateSquadAnalysisData(leagueId: number, gameweek: number) {
   const leagueData: Record<number, any> = {
     1001: { // Premier League Fanatics
       teams: [
-        { name: "Liverpool Legends", manager: "Mike Johnson", rank: 1, totalPoints: 1234 },
-        { name: "Chelsea Champions", manager: "Emma Brown", rank: 2, totalPoints: 1198 },
-        { name: "Arsenal Dream Team", manager: "John Smith", rank: 3, totalPoints: 1167 },
-        { name: "Manchester United FC", manager: "Sarah Wilson", rank: 4, totalPoints: 1156 },
-        { name: "Tottenham Team", manager: "David Davis", rank: 5, totalPoints: 1089 },
-        { name: "City Slickers", manager: "Alex Turner", rank: 6, totalPoints: 1045 }
+        { name: "Liverpool Legends", manager: "Mike Johnson", managerId: 345678, rank: 1, totalPoints: 1234 },
+        { name: "Chelsea Champions", manager: "Emma Brown", managerId: 456789, rank: 2, totalPoints: 1198 },
+        { name: "Arsenal Dream Team", manager: "John Smith", managerId: 123456, rank: 3, totalPoints: 1167 },
+        { name: "Manchester United FC", manager: "Sarah Wilson", managerId: 234567, rank: 4, totalPoints: 1156 },
+        { name: "Tottenham Team", manager: "David Davis", managerId: 567890, rank: 5, totalPoints: 1089 },
+        { name: "City Slickers", manager: "Alex Turner", managerId: 678901, rank: 6, totalPoints: 1045 }
       ]
     },
     1002: { // Office League 2024/25
       teams: [
-        { name: "Desk Warriors", manager: "Tom Wilson", rank: 1, totalPoints: 1298 },
-        { name: "Arsenal Dream Team", manager: "John Smith", rank: 2, totalPoints: 1167 },
-        { name: "Coffee Break FC", manager: "Lisa Chen", rank: 3, totalPoints: 1089 },
-        { name: "Monday Morning", manager: "James Miller", rank: 4, totalPoints: 1012 }
+        { name: "Desk Warriors", manager: "Tom Wilson", managerId: 789012, rank: 1, totalPoints: 1298 },
+        { name: "Arsenal Dream Team", manager: "John Smith", managerId: 123456, rank: 2, totalPoints: 1167 },
+        { name: "Coffee Break FC", manager: "Lisa Chen", managerId: 890123, rank: 3, totalPoints: 1089 },
+        { name: "Monday Morning", manager: "James Miller", managerId: 901234, rank: 4, totalPoints: 1012 }
       ]
     }
   };
@@ -92,6 +92,7 @@ function generateSquadAnalysisData(leagueId: number, gameweek: number) {
       team: team.name,
       teamName: team.name,
       manager: team.manager,
+      managerId: team.managerId,
       managerName: team.manager,
       gwTotalPoints: gwPoints,
       totalPoints: team.totalPoints,
@@ -303,12 +304,13 @@ async function generateRealSquadAnalysisData(leagueId: number, gameweek: number)
         // Generate detailed squad from picks
         const squad = await generateRealSquadFromPicks(picks, bootstrap, gameweek);
         const analysis = generateRealPerformanceAnalysis(gwPoints, standing.teamName, squad);
-        
+
         return {
           rank: standing.rank,
           team: standing.teamName,
           teamName: standing.teamName,
           manager: standing.managerName,
+          managerId: standing.teamId,
           managerName: standing.managerName,
           gwTotalPoints: gwPoints,
           totalPoints: standing.points,
@@ -334,6 +336,7 @@ async function generateRealSquadAnalysisData(leagueId: number, gameweek: number)
           team: standing.teamName,
           teamName: standing.teamName,
           manager: standing.managerName,
+          managerId: standing.teamId,
           managerName: standing.managerName,
           gwTotalPoints: gwPoints,
           totalPoints: standing.points,

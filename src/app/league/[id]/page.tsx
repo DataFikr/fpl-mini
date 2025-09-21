@@ -4,6 +4,7 @@ import { LeaguePageClient } from './league-page-client';
 
 interface LeaguePageProps {
   params: { id: string };
+  searchParams: { teamId?: string };
 }
 
 export async function generateMetadata({ params }: LeaguePageProps) {
@@ -34,9 +35,11 @@ export async function generateMetadata({ params }: LeaguePageProps) {
   }
 }
 
-export default async function LeaguePage({ params }: LeaguePageProps) {
+export default async function LeaguePage({ params, searchParams }: LeaguePageProps) {
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const leagueId = parseInt(resolvedParams.id);
+  const userTeamId = resolvedSearchParams.teamId ? parseInt(resolvedSearchParams.teamId) : undefined;
 
   if (isNaN(leagueId)) {
     notFound();
@@ -81,6 +84,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         league={leagueWithTeams}
         topTeams={topTeams}
         averagePoints={averagePoints}
+        userTeamId={userTeamId}
       />
     );
   } catch (error) {
@@ -188,6 +192,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         league={leagueWithTeams}
         topTeams={topTeams}
         averagePoints={averagePoints}
+        userTeamId={userTeamId}
       />
     );
   }

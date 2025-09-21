@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { FPLManagerEntry, TeamData } from '@/types/fpl';
-import { Crown, Star, TrendingUp, Users } from 'lucide-react';
+import { Crown, Star, TrendingUp, Users, Mail } from 'lucide-react';
 import { PitchView } from './pitch-view';
 
 interface SquadAnalysisData {
   rank: number;
   team: string;
   manager: string;
+  managerId?: number;
   gwTotalPoints: number;
   totalPoints: number;
   squad: string;
@@ -190,6 +191,53 @@ export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTabl
     });
   };
 
+  const handleEmailExport = () => {
+    // Generate CSV data
+    const csvHeaders = ['Rank', 'Team', 'Manager', 'Manager ID', 'GW Points', 'Total Points', 'Performance Analysis'];
+    const csvData = sortedData.map(data => [
+      data.rank,
+      `"${data.team}"`,
+      `"${data.manager}"`,
+      data.managerId || '',
+      data.gwTotalPoints,
+      data.totalPoints,
+      `"${data.performanceAnalysis.replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [csvHeaders.join(','), ...csvData.map(row => row.join(','))].join('\n');
+
+    // Create email body
+    const emailSubject = `League ${leagueId} - Gameweek ${gameweek} Analysis`;
+    const emailBody = `Hi,
+
+Please find attached the League Analysis for Gameweek ${gameweek}.
+
+League Summary:
+- Total Teams: ${squadData.length}
+- Gameweek: ${gameweek}
+- Generated: ${new Date().toLocaleDateString()}
+
+The analysis includes team rankings, manager details, gameweek points, and performance breakdown.
+
+Best regards,
+FPL Ranker Team`;
+
+    // Create mailto link
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+
+    // Also download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `league-${leagueId}-gw${gameweek}-analysis.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    // Open email client
+    window.open(mailtoLink);
+  };
+
   const sortedData = [...squadData].sort((a, b) => {
     switch (sortBy) {
       case 'rank':
@@ -271,6 +319,13 @@ export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTabl
           >
             Sort by Total Points
           </button>
+          <button
+            onClick={handleEmailExport}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-green-100 text-green-800 hover:bg-green-200 ml-4 flex items-center gap-2"
+          >
+            <Mail className="h-4 w-4" />
+            Get League's GW Analysis
+          </button>
         </div>
       </div>
 
@@ -282,6 +337,7 @@ export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTabl
               <th className="text-left py-3 px-2 text-sm font-semibold text-gray-700">Crest</th>
               <th className="text-left py-3 px-2 text-sm font-semibold text-gray-700">Team</th>
               <th className="text-left py-3 px-2 text-sm font-semibold text-gray-700">Manager</th>
+              <th className="text-center py-3 px-2 text-sm font-semibold text-gray-700">Manager ID</th>
               <th className="text-center py-3 px-2 text-sm font-semibold text-gray-700">GW Points</th>
               <th className="text-center py-3 px-2 text-sm font-semibold text-gray-700">Total Points</th>
               <th className="text-left py-3 px-2 text-sm font-semibold text-gray-700 min-w-80">Squad</th>
@@ -331,6 +387,11 @@ export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTabl
                 <td className="py-4 px-2">
                   <div className="text-gray-700 max-w-32 truncate">
                     {data.manager}
+                  </div>
+                </td>
+                <td className="py-4 px-2 text-center">
+                  <div className="text-gray-600 text-sm font-mono">
+                    {data.managerId || '-'}
                   </div>
                 </td>
                 <td className="py-4 px-2 text-center">

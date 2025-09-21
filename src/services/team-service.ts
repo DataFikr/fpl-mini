@@ -502,20 +502,20 @@ export class TeamService {
     // Generate mock rank progression data for demo charts
     const mockProgressions: Record<number, Record<string, GameweekData[]>> = {
       150789: { // Your real league
-        "Your FPL Team": generateRankProgression("Your FPL Team", 5093819, [3, 2, 1, 2, 1, 1])
+        "Your FPL Team": generateRankProgression("Your FPL Team", 5093819, [3, 2, 1, 2, 3, 1])
       },
       1001: { // Premier League Fanatics
         "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [6, 5, 4, 3, 2, 3]),
-        "Liverpool Legends": generateRankProgression("Liverpool Legends", 345678, [1, 2, 1, 1, 1, 1]),
-        "Chelsea Champions": generateRankProgression("Chelsea Champions", 456789, [3, 1, 3, 2, 3, 2]),
-        "Manchester United FC": generateRankProgression("Manchester United FC", 234567, [2, 3, 2, 4, 4, 4]),
-        "Tottenham Team": generateRankProgression("Tottenham Team", 567890, [4, 4, 5, 5, 5, 5]),
-        "City Slickers": generateRankProgression("City Slickers", 678901, [5, 6, 6, 6, 6, 6])
+        "Liverpool Legends": generateRankProgression("Liverpool Legends", 345678, [1, 2, 1, 1, 3, 1]),
+        "Chelsea Champions": generateRankProgression("Chelsea Champions", 456789, [3, 1, 3, 2, 1, 2]),
+        "Manchester United FC": generateRankProgression("Manchester United FC", 234567, [2, 3, 2, 4, 5, 4]),
+        "Tottenham Team": generateRankProgression("Tottenham Team", 567890, [4, 4, 5, 6, 4, 5]),
+        "City Slickers": generateRankProgression("City Slickers", 678901, [5, 6, 6, 5, 6, 6])
       },
       1002: { // Office League 2024/25
-        "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [4, 3, 3, 2, 2, 2]),
-        "Desk Warriors": generateRankProgression("Desk Warriors", 789012, [1, 1, 1, 1, 1, 1]),
-        "Coffee Break FC": generateRankProgression("Coffee Break FC", 890123, [2, 2, 2, 3, 3, 3]),
+        "Arsenal Dream Team": generateRankProgression("Arsenal Dream Team", 123456, [4, 3, 3, 2, 3, 2]),
+        "Desk Warriors": generateRankProgression("Desk Warriors", 789012, [1, 1, 1, 1, 2, 1]),
+        "Coffee Break FC": generateRankProgression("Coffee Break FC", 890123, [2, 2, 2, 3, 1, 3]),
         "Monday Morning": generateRankProgression("Monday Morning", 901234, [3, 4, 4, 4, 4, 4])
       }
     };

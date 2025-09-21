@@ -211,24 +211,24 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
             <p className="text-sm text-gray-600">Gameweek {league.currentGameweek} • {league.teams.length} Teams</p>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <Link href="/" className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-            <Home className="h-4 w-4 mr-2" />
-            <span className="font-medium">Home</span>
+        <div className="flex items-center space-x-2 md:space-x-4">
+          <Link href="/" className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <Home className="h-4 w-4 mr-1 md:mr-2" />
+            <span className="font-medium text-sm md:text-base">Home</span>
           </Link>
           <Link
             href={currentUserTeamId ? `/team/${currentUserTeamId}` : userTeamId ? `/team/${userTeamId}` : "/"}
-            className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <User className="h-4 w-4 mr-2" />
-            <span className="font-medium">My Leagues</span>
+            <User className="h-4 w-4 mr-1 md:mr-2" />
+            <span className="font-medium text-sm md:text-base">My Leagues</span>
           </Link>
         </div>
       </div>
 
       {/* Compact League Stats */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4" style={{ height: '10vh' }}>
-        <div className="grid grid-cols-4 gap-4">
+      <div className="bg-white border-b border-gray-200 px-3 md:px-6 py-2 md:py-4" style={{ minHeight: '8vh' }}>
+        <div className={`grid gap-2 md:gap-4 ${userTeamId ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 md:grid-cols-4'}`}>
           <StatCard
             icon={<Users className="h-5 w-5 text-blue-500" />}
             title="Teams"
@@ -261,12 +261,28 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
             gradient="from-purple-500 to-pink-500"
             compact={true}
           />
+          {userTeamId && (() => {
+            const userTeamStanding = league.standings.find((team: any) => team.teamId === userTeamId);
+            const userRank = userTeamStanding?.rank || 'N/A';
+            const userPoints = userTeamStanding?.points || 0;
+
+            return (
+              <StatCard
+                icon={<User className="h-5 w-5 text-indigo-500" />}
+                title="Your Rank"
+                value={userRank === 'N/A' ? 'N/A' : `#${userRank}`}
+                subtitle={`${userPoints.toLocaleString()} points`}
+                gradient="from-indigo-500 to-purple-500"
+                compact={true}
+              />
+            );
+          })()}
         </div>
       </div>
 
       {/* Top Tab Navigation */}
-      <div className="bg-white border-b border-gray-200 px-6">
-        <div className="flex space-x-1 overflow-x-auto">
+      <div className="bg-white border-b border-gray-200 px-3 md:px-6">
+        <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -275,14 +291,14 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 ${
+                className={`flex items-center px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 min-w-0 ${
                   isActive
                     ? 'text-blue-600 border-blue-600 bg-blue-50'
                     : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
-                <Icon className="h-4 w-4 mr-2" />
-                {tab.name}
+                <Icon className="h-3 md:h-4 w-3 md:w-4 mr-1 md:mr-2" />
+                <span className="truncate">{tab.name}</span>
               </button>
             );
           })}
@@ -290,7 +306,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-hidden bg-white">
+      <div className="flex-1 p-3 md:p-6 overflow-hidden bg-white">
         <div className="h-full overflow-y-auto">
           {renderTabContent()}
         </div>
