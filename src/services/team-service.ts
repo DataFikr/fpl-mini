@@ -429,6 +429,9 @@ export class TeamService {
           const currentRank = standing.rank; // Current rank_sort (GW5)
           const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API (GW4)
 
+          // Debug logging for ranking issues
+          console.log(`PROGRESSION DEBUG: ${standing.teamName} - currentRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, points: ${standing.points}`);
+
           const progression = history.current.map((gw: any) => {
             let gwRank;
             let movementFromLastWeek = 0;
