@@ -424,10 +424,14 @@ export class TeamService {
             return acc;
           }, {} as Record<number, number>);
         
-        // Create a fresh rank lookup from the current standings to ensure accuracy
+        // Get fresh league standings data to ensure we have the latest rank_sort values
+        const freshLeagueStandings = await this.fplApi.getLeagueStandings(leagueId, 1, true);
+
+        // Create a fresh rank lookup directly from FPL API rank_sort values
         const currentRankLookup: Record<number, number> = {};
-        leagueData.standings.forEach((standing, index) => {
-          currentRankLookup[standing.teamId] = standing.rank; // Use the actual rank_sort value
+        freshLeagueStandings.standings.results.forEach((entry: any) => {
+          currentRankLookup[entry.entry] = entry.rank_sort; // Use fresh rank_sort value
+          console.log(`FRESH RANK LOOKUP: ${entry.entry_name} (ID: ${entry.entry}) -> rank_sort: ${entry.rank_sort}, points: ${entry.total}`);
         });
 
         // Now process each team's progression
@@ -436,7 +440,7 @@ export class TeamService {
           const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API (GW4)
 
           // Debug logging for ranking issues
-          console.log(`PROGRESSION DEBUG: ${standing.teamName} - currentRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, points: ${standing.points}`);
+          console.log(`PROGRESSION DEBUG: ${standing.teamName} - lookupRank: ${currentRankLookup[standing.teamId]}, fallbackRank: ${standing.rank}, finalRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, points: ${standing.points}`);
 
           const progression = history.current.map((gw: any) => {
             let gwRank;
