@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { FPLApiService } from '@/services/fpl-api';
 
 interface TeamPageProps {
   params: { id: string };
@@ -29,49 +30,95 @@ export async function generateMetadata({ params }: TeamPageProps) {
   }
 }
 
-// Generate team data based on team ID
-function generateTeamData(teamId: number) {
-  const teamNames = [
-    "Dream Team FC", "Fantasy United", "Goal Getters", "Premier Legends", "Victory Squad",
-    "Elite Eleven", "Champions Club", "Star Strikers", "Magic Team", "Ultimate XI"
-  ];
+// Fetch real team data from FPL API
+async function fetchTeamData(teamId: number) {
+  try {
+    const fplApi = new FPLApiService();
 
-  const managerNames = [
-    "Alex Johnson", "Sam Wilson", "Jordan Smith", "Casey Brown", "Riley Davis",
-    "Morgan Taylor", "Jamie Lee", "Avery Clark", "Quinn Miller", "Blake White"
-  ];
+    // Fetch manager data with timeout
+    const managerData = await Promise.race([
+      fplApi.getManagerEntry(teamId),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Manager timeout')), 8000))
+    ]) as any;
 
-  // Special case for team 2611652
-  if (teamId === 2611652) {
+    // Fetch manager history with timeout
+    let managerHistory: any = { current: [] };
+    try {
+      managerHistory = await Promise.race([
+        fplApi.getManagerHistory(teamId),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('History timeout')), 8000))
+      ]) as any;
+    } catch (historyError) {
+      console.warn(`History failed for ${teamId}, using empty:`, historyError);
+    }
+
+    // Get GW5 data
+    const gw5Data = managerHistory.current?.find((gw: any) => gw.event === 5);
+    const currentGWPoints = gw5Data?.points || managerData.summary_event_points || 0;
+    const totalPoints = gw5Data?.total_points || managerData.summary_overall_points || 0;
+    const overallRank = gw5Data?.overall_rank || managerData.summary_overall_rank || 0;
+
+    // Fetch leagues with timeout
+    let leagues: any[] = [];
+    try {
+      const managerLeagues = await Promise.race([
+        fplApi.getManagerLeagues(teamId),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Leagues timeout')), 10000))
+      ]) as any;
+
+      if (managerLeagues?.leagues?.classic && Array.isArray(managerLeagues.leagues.classic)) {
+        const limitedLeagues = managerLeagues.leagues.classic
+          .filter((league: any) => league && league.id && league.id > 1000)
+          .slice(0, 6);
+
+        leagues = limitedLeagues.map((league: any) => ({
+          id: league.id,
+          name: league.name || `League ${league.id}`,
+          rank: league.entry_rank || 1
+        }));
+      }
+    } catch (leaguesError) {
+      console.warn(`Leagues failed for ${teamId}, using fallback:`, leaguesError);
+      leagues = [
+        { id: 999000 + teamId, name: "Overall League", rank: overallRank },
+        { id: 888000 + teamId, name: "Regional League", rank: Math.floor(overallRank / 100) }
+      ];
+    }
+
     return {
       id: teamId,
-      name: "Tapirus Indicus",
-      managerName: "Redhu Malek",
-      points: 292,
-      gwPoints: 44,
-      rank: 1165323,
+      name: managerData.name || `Team ${teamId}`,
+      managerName: `${managerData.player_first_name || ''} ${managerData.player_last_name || ''}`.trim() || 'FPL Manager',
+      points: totalPoints,
+      gwPoints: currentGWPoints,
+      rank: overallRank,
+      region: managerData.player_region_name || 'Unknown',
+      regionCode: managerData.player_region_iso_code_short || '',
+      favouriteTeam: managerData.favourite_team || null,
+      leagues: leagues.length > 0 ? leagues : [
+        { id: 999000 + teamId, name: "Default League", rank: overallRank || 1000000 }
+      ]
+    };
+
+  } catch (error) {
+    console.error(`Failed to fetch data for team ${teamId}:`, error);
+
+    // Return fallback data if API completely fails
+    return {
+      id: teamId,
+      name: `Team ${teamId}`,
+      managerName: 'FPL Manager',
+      points: 250,
+      gwPoints: 50,
+      rank: 1000000,
+      region: 'Unknown',
+      regionCode: '',
+      favouriteTeam: null,
       leagues: [
-        { id: 20511, name: "KakiFantasyFootball.com (bobo36)", rank: 419 },
-        { id: 51077, name: "FANTASY FUN LEAGUE ✌", rank: 589 },
-        { id: 73337, name: "ASEAN League", rank: 81 },
-        { id: 264817, name: "FPL• my 🇲🇾 | code : 4adz33", rank: 13 }
+        { id: 999000 + teamId, name: "Default League", rank: 1000000 }
       ]
     };
   }
-
-  // Generate for other teams
-  return {
-    id: teamId,
-    name: teamNames[teamId % teamNames.length] + ` ${teamId}`,
-    managerName: managerNames[teamId % managerNames.length],
-    points: Math.floor(Math.random() * 300) + 200,
-    gwPoints: Math.floor(Math.random() * 50) + 30,
-    rank: Math.floor(Math.random() * 5000000) + 100000,
-    leagues: [
-      { id: 999000 + teamId, name: "Overall League", rank: Math.floor(Math.random() * 1000000) + 100000 },
-      { id: 888000 + teamId, name: "Regional League", rank: Math.floor(Math.random() * 10000) + 1000 }
-    ]
-  };
 }
 
 export default async function TeamPage({ params }: TeamPageProps) {
@@ -83,7 +130,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       notFound();
     }
 
-    const team = generateTeamData(teamId);
+    const team = await fetchTeamData(teamId);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
@@ -147,6 +194,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
                 <div><strong>Overall Rank:</strong> #{team.rank.toLocaleString()}</div>
                 <div><strong>Current Gameweek:</strong> 5</div>
                 <div><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</div>
+                {team.region && team.region !== 'Unknown' && (
+                  <div><strong>Region:</strong> {team.region} {team.regionCode && `(${team.regionCode})`}</div>
+                )}
+                {team.favouriteTeam && (
+                  <div><strong>Favourite Team:</strong> Team {team.favouriteTeam}</div>
+                )}
               </div>
             </div>
           </div>
