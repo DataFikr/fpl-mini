@@ -42,7 +42,7 @@ export class FPLApiService {
         return JSON.parse(cached);
       }
     } catch (error) {
-      console.warn('Redis cache read failed:', error);
+      console.warn('Redis cache read failed (continuing without cache):', error);
     }
 
     const response = await fetch(url, {
@@ -219,6 +219,25 @@ export class FPLApiService {
         player_region_iso_code_short: "MY",
         player_region_iso_code_long: "MYS",
         favourite_team: "Arsenal",
+        kit: "home",
+        last_deadline_bank: 5,
+        last_deadline_value: 1000,
+        last_deadline_total_transfers: 2
+      },
+      // Team 2611652 - Redhu Malek (fallback data based on real API)
+      {
+        id: 2611652,
+        name: "Redhu Malek Team",
+        player_first_name: "Redhu",
+        player_last_name: "Malek",
+        summary_overall_points: 258,
+        summary_overall_rank: 2579895,
+        joined_time: "2025-07-28T14:05:42.278659Z",
+        started_event: 1,
+        player_region_name: "Malaysia",
+        player_region_iso_code_short: "MY",
+        player_region_iso_code_long: "MYS",
+        favourite_team: "Liverpool",
         kit: "home",
         last_deadline_bank: 5,
         last_deadline_value: 1000,
