@@ -3,7 +3,7 @@ import { prisma } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, leagueId, leagueName, stories } = await request.json();
+    const { email, leagueId, leagueName, stories, gameweek } = await request.json();
 
     if (!email || !leagueId) {
       return NextResponse.json(
@@ -56,12 +56,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate newsletter content
-    const newsletterContent = generateNewsletterHTML(leagueName, stories, email);
+    // If subscribing from squad analysis, generate confirmation content
+    if (gameweek && !stories) {
+      console.log(`📧 Subscription confirmed for ${email} for league ${leagueId}, gameweek ${gameweek}`);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Subscription saved! You will receive weekly league analysis updates.'
+      });
+    }
+
+    // Generate newsletter content for storytelling subscriptions
+    const newsletterContent = generateNewsletterHTML(leagueName || `League ${leagueId}`, stories || [], email);
 
     // In a real application, you would send this via email service like SendGrid, AWS SES, etc.
     // For now, we'll simulate the email sending and return success
-    console.log(`📧 Newsletter sent to ${email} for league ${leagueName}`);
+    console.log(`📧 Newsletter sent to ${email} for league ${leagueName || leagueId}`);
     console.log('Newsletter content:', newsletterContent.substring(0, 200) + '...');
 
     return NextResponse.json({

@@ -436,10 +436,10 @@ export function PitchView({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] overflow-hidden">
-        <div className="bg-white border-b border-gray-200 p-3 sm:p-4 flex justify-between items-center">
+        <div className="bg-white border-b border-gray-200 p-2 sm:p-4 flex justify-between items-center">
           <div className="min-w-0 flex-1 pr-2">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{teamName}</h2>
-            <p className="text-xs sm:text-sm text-gray-600 truncate">Manager: {managerName} • GW {gameweek}</p>
+            <h2 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900 break-words leading-tight">{teamName}</h2>
+            <p className="text-xs sm:text-sm text-gray-600 break-words leading-tight">Manager: {managerName} • GW {gameweek}</p>
           </div>
           <button
             onClick={onClose}
@@ -457,29 +457,28 @@ export function PitchView({
             </div>
           ) : squadData ? (
             <div className="space-y-3">
-              {/* Enhanced Total Points Card with Chip Info */}
-              <div className="bg-white border-2 border-green-600 rounded-lg p-4 text-center shadow-lg">
-                <div className="text-lg font-bold text-gray-900">
-                  Gameweek {gameweek} Total
+              {/* Compact Total Points Card - Mobile optimized */}
+              <div className="bg-white border-2 border-green-600 rounded-lg text-center shadow-lg p-2 sm:p-4">
+                <div className="text-sm sm:text-lg font-bold text-gray-900">
+                  GW {gameweek}
                 </div>
-                <div className="text-3xl font-bold text-green-600 mb-2">
+                <div className="text-xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2">
                   {squadData.entryHistory?.points || squadData.totalPoints || calculateTotalPoints(squadData)} pts
                 </div>
-                
-                {/* Chip Information */}
+
+                {/* Chip Information - Compact design */}
                 {console.log('PITCH VIEW RENDER: squadData.activeChip =', squadData.activeChip)}
                 {squadData.activeChip && (
-                  <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-2 mb-2">
-                    <div className="text-xs font-semibold text-yellow-800">ACTIVE CHIP</div>
-                    <div className="text-sm font-bold text-yellow-900 uppercase">
+                  <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-1 mb-1">
+                    <div className="text-xs font-bold text-yellow-900 uppercase">
                       {formatChipName(squadData.activeChip)}
                     </div>
                   </div>
                 )}
-                
-                {/* Additional Stats */}
+
+                {/* Additional Stats - Hidden on small screens */}
                 {squadData.entryHistory && (
-                  <div className="grid grid-cols-3 gap-2 text-xs text-gray-600 border-t pt-2">
+                  <div className="hidden sm:grid grid-cols-3 gap-2 text-xs text-gray-600 border-t pt-2">
                     <div>
                       <div className="font-semibold">Total Points</div>
                       <div>{squadData.entryHistory.total_points?.toLocaleString()}</div>
@@ -564,10 +563,10 @@ export function PitchView({
                     </div>
                   </div>
 
-                  {/* Forwards - moved even closer to bottom goal (88% from top) */}
-                  <div 
+                  {/* Forwards - positioned closer to midfielders (78% from top) */}
+                  <div
                     className="absolute w-full flex justify-center"
-                    style={{ top: '88%', transform: 'translateY(-50%)' }}
+                    style={{ top: '78%', transform: 'translateY(-50%)' }}
                   >
                     <div className="flex gap-8 justify-center">
                       {squadData.starting.FWD.map((player, index) => (

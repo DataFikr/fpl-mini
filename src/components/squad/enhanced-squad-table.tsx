@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FPLManagerEntry, TeamData } from '@/types/fpl';
-import { Crown, Star, TrendingUp, Users, Mail } from 'lucide-react';
+import { Crown, Star, TrendingUp, Users, Mail, Bell } from 'lucide-react';
 import { PitchView } from './pitch-view';
 
 interface SquadAnalysisData {
@@ -80,13 +80,16 @@ export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTabl
   const [sortBy, setSortBy] = useState<'rank' | 'gwPoints' | 'totalPoints'>('rank');
   const [teamCrests, setTeamCrests] = useState<{[teamName: string]: string}>({});
   const [selectedTeam, setSelectedTeam] = useState<{
-    name: string; 
-    manager: string; 
-    squad?: any; 
+    name: string;
+    manager: string;
+    squad?: any;
     gwTotalPoints?: number;
     totalPoints?: number;
     activeChip?: string;
   } | null>(null);
+  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   useEffect(() => {
     const fetchSquadAnalysis = async () => {
@@ -238,6 +241,42 @@ FPL Ranker Team`;
     window.open(mailtoLink);
   };
 
+  const handleNewsletterSubscription = async () => {
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    setIsSubscribing(true);
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          leagueId: leagueId,
+          gameweek: gameweek
+        }),
+      });
+
+      if (response.ok) {
+        alert('Successfully subscribed! You will receive weekly league analysis updates.');
+        setShowNewsletterModal(false);
+        setEmail('');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to subscribe. Please try again.');
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      alert('Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   const sortedData = [...squadData].sort((a, b) => {
     switch (sortBy) {
       case 'rank':
@@ -325,6 +364,13 @@ FPL Ranker Team`;
           >
             <Mail className="h-4 w-4" />
             Get League's GW Analysis
+          </button>
+          <button
+            onClick={() => setShowNewsletterModal(true)}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-800 hover:bg-blue-200 ml-2 flex items-center gap-2"
+          >
+            <Bell className="h-4 w-4" />
+            Subscribe to Updates
           </button>
         </div>
       </div>
@@ -446,6 +492,62 @@ FPL Ranker Team`;
             overall_rank: 0
           }}
         />
+      )}
+
+      {/* Newsletter Subscription Modal */}
+      {showNewsletterModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              Subscribe to League Updates
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Get weekly league analysis summaries sent to your email. Stay updated with team performances, rankings, and insights!
+            </p>
+            <div className="mb-4">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowNewsletterModal(false);
+                  setEmail('');
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                disabled={isSubscribing}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleNewsletterSubscription}
+                disabled={isSubscribing}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isSubscribing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Subscribing...
+                  </>
+                ) : (
+                  <>
+                    <Bell className="h-4 w-4" />
+                    Subscribe
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

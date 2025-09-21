@@ -49,7 +49,7 @@
         "leagues": ["Troll EPL&MSL (150788)", "Best Man League (150789)", "Toon Army Malaysia League (523651)", "The Wonder League (611676)", "Toon Army MY Members League (617491)", "HoneyBall League 25/26 (747024)", "Liga Pentalista (2028096)", "Liga Hospital (2175516)"]
       }
     },
-    "current_gameweek": 4,
+    "current_gameweek": 6,
     "session_commits": [
       "e46ea2d - Fix hydration mismatch preventing mobile rank progression chart display",
       "161fd48 - Fix missing closing div tag causing build failure",
@@ -57,6 +57,12 @@
       "a6310f6 - Fix rank progression chart to show movement between gameweeks 3 and 4"
     ],
     "completed_tasks": {
+      "gameweek_6_update": "✅ Updated league progression to gameweek 6 with correct team rankings and fixed duplicate rankings between gameweeks 4-5",
+      "newsletter_subscription": "✅ Implemented newsletter subscription button for team analysis table with email capture and database storage",
+      "newsletter_email_template": "✅ Created newsletter email template with league analysis summary and weekly updates",
+      "mobile_pitch_view_fixes": "✅ Fixed team name truncation, reduced gameweek card summary to 10%, and improved forward positioning",
+      "manager_id_integration": "✅ Added Manager ID column between Manager and GW Points in Team Analysis tab",
+      "team_navigation_flow": "✅ Enhanced navigation between team and league pages with proper ID preservation",
       "injury_detection_system": "✅ Automatic detection and correction for all injured players (status codes i/s/u/d/n + 0 minutes played)",
       "country_detection_storytelling": "✅ Initially implemented LLM-powered, then switched to template-based ESPN-style storytelling",
       "country_flags_display": "✅ Interactive country flags in league headers with tooltip manager origins",
@@ -75,7 +81,8 @@
     "teams": "FPL team data with crest URLs",
     "team_crests": "Generated/cached team crests",
     "gameweek_data": "Historical gameweek performance data",
-    "league_teams": "League membership relationships"
+    "league_teams": "League membership relationships",
+    "newsletter_subscriptions": "Email subscriptions for league analysis updates with fields: email, leagueId, isActive, lastSentAt"
   },
   "api_endpoints": {
     "search": "/api/search - Team search functionality with expanded team database from multiple leagues",
@@ -201,11 +208,12 @@
     }
   },
   "latest_session_updates": {
-    "rank_progression_gameweek_fix": "Fixed rank progression chart showing same rankings between gameweeks 3 and 4 by updating getGameweekRankProgression method to properly handle gameweek 4 rankings and show realistic movement between gameweeks",
-    "mobile_responsive_chart": "Added comprehensive responsive design for rank progression chart with mobile-first approach including layout switching, optimized SVG dimensions, touch-friendly interactions, and proper breakpoint detection at 768px",
-    "build_failure_resolution": "Fixed JSX syntax error preventing deployment by adding missing closing div tag for main chart area container, resolving webpack compilation errors",
-    "hydration_mismatch_fix": "Resolved mobile chart display issue caused by hydration mismatch between server-side and client-side rendering when accessing window object for responsive detection",
-    "ssr_compatibility": "Added isClient state to prevent hydration mismatches and ensure consistent rendering between server and client, fixing mobile chart visibility issues"
+    "gameweek_6_data_update": "Updated entire application to gameweek 6 with accurate team rankings and player analysis data across all leagues",
+    "newsletter_subscription_system": "Implemented comprehensive newsletter subscription functionality with email capture, database storage via Prisma, and weekly league analysis updates",
+    "mobile_pitch_view_optimization": "Fixed mobile pitch view issues including team name truncation, compact gameweek summary card (reduced to 10% height), and improved forward positioning",
+    "team_navigation_enhancement": "Enhanced navigation between team and league pages with proper team ID preservation and 'My League' button functionality",
+    "manager_id_column_addition": "Added Manager ID column to Team Analysis tab between Manager and GW Points columns for better team identification",
+    "responsive_design_improvements": "Comprehensive mobile responsiveness fixes across league pages, cards, and pitch view components"
   },
   "previous_session_updates": {
     "automatic_injury_detection": "Implemented comprehensive automatic injury detection system for all players - replaced manual overrides with status code checking ('i', 's', 'u', 'd', 'n') and minutes played analysis",
