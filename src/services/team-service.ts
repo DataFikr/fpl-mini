@@ -424,9 +424,15 @@ export class TeamService {
             return acc;
           }, {} as Record<number, number>);
         
+        // Create a fresh rank lookup from the current standings to ensure accuracy
+        const currentRankLookup: Record<number, number> = {};
+        leagueData.standings.forEach((standing, index) => {
+          currentRankLookup[standing.teamId] = standing.rank; // Use the actual rank_sort value
+        });
+
         // Now process each team's progression
         allHistoryData.forEach(({ standing, history }) => {
-          const currentRank = standing.rank; // Current rank_sort (GW5)
+          const currentRank = currentRankLookup[standing.teamId] || standing.rank; // Use fresh rank lookup
           const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API (GW4)
 
           // Debug logging for ranking issues
@@ -440,6 +446,7 @@ export class TeamService {
               // Current gameweek (5): Use rank_sort (current rank)
               gwRank = currentRank;
               movementFromLastWeek = (lastWeekRank || 0) - currentRank;
+              console.log(`GW${gw.event} RANK: ${standing.teamName} = ${gwRank} (currentRank: ${currentRank})`);
             } else if (gw.event === currentGameweek - 1) {
               // Previous gameweek (4): Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
