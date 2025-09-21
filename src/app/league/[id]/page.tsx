@@ -53,7 +53,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
     const league = {
       id: leagueId,
       name: leagueStandings.league.name,
-      currentGameweek: 4, // Updated for gameweek 4
+      currentGameweek: 6, // Updated to gameweek 6
       standings: leagueStandings.standings.results.map((entry: any) => ({
         teamId: entry.entry,
         teamName: entry.entry_name,
@@ -81,6 +81,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         league={leagueWithTeams}
         topTeams={topTeams}
         averagePoints={averagePoints}
+        userTeamId={5100818}
       />
     );
   } catch (error) {
@@ -94,47 +95,47 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
       fallbackLeague = {
         id: leagueId,
         name: 'Best Man League',
-        currentGameweek: 4,
+        currentGameweek: 6,
         standings: [
           {
             teamId: 5100818,
             teamName: 'kejoryobkejor',
             managerName: 'Azmil Zahimi Abdul Kadir',
             rank: 5,
-            points: 183,
-            gameweekPoints: 72
+            points: 325,
+            gameweekPoints: 58
           },
           {
             teamId: 5093819,
             teamName: 'Jogha Bonito',
             managerName: 'Imaad Zaki',
             rank: 8,
-            points: 160,
-            gameweekPoints: 65
+            points: 298,
+            gameweekPoints: 61
           },
           {
             teamId: 6463870,
             teamName: 'KakiBangkuFC',
             managerName: 'Razman Affendi',
             rank: 12,
-            points: 160,
-            gameweekPoints: 68
+            points: 285,
+            gameweekPoints: 52
           },
           {
             teamId: 6454003,
             teamName: 'Meriam Pak Maon',
             managerName: 'Tyson 001',
             rank: 1,
-            points: 180,
-            gameweekPoints: 75
+            points: 345,
+            gameweekPoints: 68
           },
           {
             teamId: 6356669,
             teamName: "Kickin' FC",
             managerName: 'Nabeyl Salleh',
             rank: 3,
-            points: 178,
-            gameweekPoints: 70
+            points: 338,
+            gameweekPoints: 63
           }
         ]
       };
@@ -143,31 +144,31 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
       fallbackLeague = {
         id: leagueId,
         name: `League ${leagueId}`,
-        currentGameweek: 4,
+        currentGameweek: 6,
         standings: [
           {
             teamId: 1000001,
             teamName: 'Loading Team 1',
             managerName: 'Manager 1',
             rank: 1,
-            points: 200,
-            gameweekPoints: 75
+            points: 350,
+            gameweekPoints: 65
           },
           {
             teamId: 1000002,
             teamName: 'Loading Team 2',
             managerName: 'Manager 2',
             rank: 2,
-            points: 195,
-            gameweekPoints: 68
+            points: 340,
+            gameweekPoints: 58
           },
           {
             teamId: 1000003,
             teamName: 'Loading Team 3',
             managerName: 'Manager 3',
             rank: 3,
-            points: 188,
-            gameweekPoints: 72
+            points: 330,
+            gameweekPoints: 62
           }
         ]
       };
@@ -188,6 +189,7 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
         league={leagueWithTeams}
         topTeams={topTeams}
         averagePoints={averagePoints}
+        userTeamId={5100818}
       />
     );
   }

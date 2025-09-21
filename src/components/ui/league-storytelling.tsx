@@ -56,9 +56,10 @@ interface StorytellingProps {
   gameweek?: number;
   teams?: any[];
   leagueName?: string;
+  showImages?: boolean;
 }
 
-export function LeagueStorytelling({ leagueId, gameweek = 2, teams = [], leagueName = '' }: StorytellingProps) {
+export function LeagueStorytelling({ leagueId, gameweek = 6, teams = [], leagueName = '', showImages = false }: StorytellingProps) {
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -534,8 +535,8 @@ Latest updates from Gameweek {gameweek}
         {/* Story Cards Row */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
-          gap: '0.5rem',
+          gridTemplateColumns: showImages ? 'repeat(auto-fit, minmax(400px, 1fr))' : 'repeat(5, 1fr)',
+          gap: showImages ? '1rem' : '0.5rem',
           width: '100%',
           flex: 1,
           alignContent: 'start'
@@ -555,7 +556,7 @@ Latest updates from Gameweek {gameweek}
                 transform: 'translateY(0)',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
                 width: '100%',
-                height: '100px',
+                height: showImages ? '200px' : '100px',
                 overflow: 'hidden'
               }}
               onMouseOver={(e) => {
@@ -572,7 +573,8 @@ Latest updates from Gameweek {gameweek}
               <div style={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                height: '100%'
               }}>
                 <div style={{
                   color: story.color,
@@ -581,7 +583,7 @@ Latest updates from Gameweek {gameweek}
                 }}>
                   {story.icon}
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: showImages ? 2 : 1 }}>
                   <h3 style={{
                     fontSize: '0.75rem',
                     fontWeight: '700',
@@ -618,6 +620,30 @@ Latest updates from Gameweek {gameweek}
                     Click to read more →
                   </p>
                 </div>
+                {showImages && (
+                  <div style={{
+                    flex: 1,
+                    backgroundColor: '#F3F4F6',
+                    borderRadius: '0.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '120px',
+                    backgroundImage: `linear-gradient(45deg, ${story.color}20, ${story.color}10)`,
+                    border: `1px solid ${story.color}30`
+                  }}>
+                    <div style={{
+                      fontSize: '2rem',
+                      opacity: 0.7
+                    }}>
+                      {story.type === 'breakthrough' ? '🏆' :
+                       story.type === 'masterstroke' ? '⚡' :
+                       story.type === 'disaster' ? '💔' :
+                       story.type === 'rivalry' ? '🔥' :
+                       story.type === 'underdog' ? '🚀' : '⚽'}
+                    </div>
+                  </div>
+                )}
               </div>
             </button>
           ))}

@@ -35,10 +35,20 @@ interface BadgesAchievementsProps {
   teams?: any[];
 }
 
-export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: BadgesAchievementsProps) {
+export function BadgesAchievements({ leagueId, gameweek = 6, teams = [] }: BadgesAchievementsProps) {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const generateBadgesAndMilestones = async () => {
@@ -293,8 +303,8 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
         </div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '1rem'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: isMobile ? '0.75rem' : '1rem'
         }}>
           {[1, 2, 3, 4].map(i => (
             <div key={i} style={{
@@ -312,32 +322,31 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
   return (
     <div style={{
       backgroundColor: '#FFFFFF',
-      borderRadius: '1rem',
-      padding: '2rem',
+      borderRadius: isMobile ? '0.75rem' : '1rem',
+      padding: isMobile ? '1rem' : '2rem',
       border: '1px solid #E5E7EB',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-      marginBottom: '2rem'
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
     }}>
       {/* Header */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '1rem',
-        marginBottom: '2rem'
+        gap: isMobile ? '0.75rem' : '1rem',
+        marginBottom: isMobile ? '1.5rem' : '2rem'
       }}>
         <div style={{
           background: 'linear-gradient(135deg, #F59E0B, #D97706)',
           color: '#FFFFFF',
-          padding: '0.75rem',
+          padding: isMobile ? '0.5rem' : '0.75rem',
           borderRadius: '0.75rem',
-          fontSize: '1.5rem',
+          fontSize: isMobile ? '1.25rem' : '1.5rem',
           boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
         }}>
           🏆
         </div>
         <div>
           <h2 style={{
-            fontSize: '1.75rem',
+            fontSize: isMobile ? '1.25rem' : '1.75rem',
             fontWeight: '700',
             color: '#1F2937',
             margin: 0,
@@ -346,7 +355,7 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
             Badges & Achievements
           </h2>
           <p style={{
-            fontSize: '0.875rem',
+            fontSize: isMobile ? '0.75rem' : '0.875rem',
             color: '#6B7280',
             margin: 0
           }}>
@@ -356,19 +365,19 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
       </div>
 
       {/* Badges Grid */}
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: isMobile ? '1.5rem' : '2rem' }}>
         <h3 style={{
-          fontSize: '1.25rem',
+          fontSize: isMobile ? '1rem' : '1.25rem',
           fontWeight: '600',
           color: '#1F2937',
-          marginBottom: '1rem'
+          marginBottom: isMobile ? '0.75rem' : '1rem'
         }}>
           Recent Achievements
         </h3>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1rem'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: isMobile ? '0.75rem' : '1rem'
         }}>
           {badges.slice(0, 4).map((badge) => (
             <div
@@ -377,7 +386,7 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
                 backgroundColor: badge.achieved ? badge.bgColor : '#F9FAFB',
                 border: `2px solid ${badge.achieved ? badge.borderColor : '#E5E7EB'}`,
                 borderRadius: '0.75rem',
-                padding: '1.25rem',
+                padding: isMobile ? '1rem' : '1.25rem',
                 position: 'relative',
                 opacity: badge.achieved ? 1 : 0.6,
                 transition: 'all 0.2s ease',
@@ -429,7 +438,7 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
                 </div>
                 <div style={{ flex: 1 }}>
                   <h4 style={{
-                    fontSize: '1rem',
+                    fontSize: isMobile ? '0.875rem' : '1rem',
                     fontWeight: '700',
                     color: '#1F2937',
                     margin: 0,
@@ -438,7 +447,7 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
                     {badge.name}
                   </h4>
                   <p style={{
-                    fontSize: '0.875rem',
+                    fontSize: isMobile ? '0.75rem' : '0.875rem',
                     color: '#6B7280',
                     margin: 0,
                     lineHeight: '1.4'
@@ -466,17 +475,17 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
       {/* Milestones */}
       <div>
         <h3 style={{
-          fontSize: '1.25rem',
+          fontSize: isMobile ? '1rem' : '1.25rem',
           fontWeight: '600',
           color: '#1F2937',
-          marginBottom: '1rem'
+          marginBottom: isMobile ? '0.75rem' : '1rem'
         }}>
           Active Milestones
         </h3>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1rem'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: isMobile ? '0.75rem' : '1rem'
         }}>
           {milestones.map((milestone) => {
             const progressPercent = Math.min((milestone.progress / milestone.maxProgress) * 100, 100);
@@ -488,7 +497,7 @@ export function BadgesAchievements({ leagueId, gameweek = 2, teams = [] }: Badge
                   backgroundColor: '#F9FAFB',
                   border: '1px solid #E5E7EB',
                   borderRadius: '0.75rem',
-                  padding: '1.25rem'
+                  padding: isMobile ? '1rem' : '1.25rem'
                 }}
               >
                 <div style={{

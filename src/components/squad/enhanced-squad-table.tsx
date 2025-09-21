@@ -72,7 +72,7 @@ function formatSquadForDisplay(squad: any): string {
   return 'Squad data unavailable';
 }
 
-export function EnhancedSquadTable({ leagueId, gameweek = 4 }: EnhancedSquadTableProps) {
+export function EnhancedSquadTable({ leagueId, gameweek = 6 }: EnhancedSquadTableProps) {
   const [squadData, setSquadData] = useState<SquadAnalysisData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

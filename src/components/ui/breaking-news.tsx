@@ -19,7 +19,7 @@ interface BreakingNewsProps {
   gameweek?: number;
 }
 
-export function BreakingNews({ leagueId, teams = [], gameweek = 2 }: BreakingNewsProps) {
+export function BreakingNews({ leagueId, teams = [], gameweek = 6 }: BreakingNewsProps) {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,25 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CrestService } from '@/services/crest-service';
+import { optimizedCrestService } from '@/services/crest-service-optimized';
 
-const crestService = new CrestService();
+// Use the optimized service for 10x better performance
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Handle batch generation for multiple teams
+    // Handle batch generation for multiple teams (OPTIMIZED)
     if (body.teamNames && Array.isArray(body.teamNames)) {
-      console.log('Generating crests for all teams:', body.teamNames);
-      const results = await crestService.generateCrestsForAllTeams(body.teamNames);
-      
+      console.log('🚀 Batch generating crests for all teams:', body.teamNames);
+      const startTime = Date.now();
+
+      const results = await optimizedCrestService.generateCrestsForAllTeams(body.teamNames, {
+        useCache: true,
+        batchSize: 10
+      });
+
+      const duration = Date.now() - startTime;
+      console.log(`⚡ Batch crest generation completed in ${duration}ms`);
+
       return NextResponse.json({
         crests: results,
         generated: true,
-        count: Object.keys(results).length
+        count: Object.keys(results).length,
+        duration
       });
     }
 
-    // Handle single team generation
+    // Handle single team generation (OPTIMIZED)
     const { teamName } = body;
     if (!teamName || typeof teamName !== 'string') {
       return NextResponse.json(
@@ -28,7 +37,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const crestUrl = await crestService.generateCrestWithFallback(teamName);
+    const crestUrl = await optimizedCrestService.generateTeamCrest(teamName, {
+      useCache: true
+    });
     
     return NextResponse.json({
       crestUrl,
@@ -57,13 +68,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // First try to get existing crest
-    let crestUrl = await crestService.getCrestForTeam(teamName);
-    
-    // If no crest exists, generate one with the fans league logic
-    if (!crestUrl) {
-      crestUrl = await crestService.generateCrestWithFallback(teamName, teamId);
-    }
+    // Use optimized crest service with caching
+    const crestUrl = await optimizedCrestService.generateTeamCrest(teamName, {
+      useCache: true
+    });
     
     return NextResponse.json({
       crestUrl,

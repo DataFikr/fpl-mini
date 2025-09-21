@@ -52,10 +52,38 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
     totalPoints: number;
     crestUrl?: string;
   } | null>(null);
+  const [modalInfo, setModalInfo] = useState<{
+    teamName: string;
+    managerName: string;
+    gameweek: number;
+    rank: number;
+    points: number;
+    totalPoints: number;
+    crestUrl?: string;
+    color: string;
+  } | null>(null);
 
   const handleTeamClick = useCallback((teamId: number) => {
     setSelectedTeam(selectedTeam === teamId ? null : teamId);
   }, [selectedTeam]);
+
+  const handlePointClick = useCallback((teamId: number, gameweek: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const team = teams.find(t => t.teamId === teamId);
+    const gameweekData = team?.gameweekData.find(gw => gw.gameweek === gameweek);
+    if (team && gameweekData) {
+      setModalInfo({
+        teamName: team.teamName,
+        managerName: team.managerName,
+        gameweek,
+        rank: gameweekData.rank,
+        points: gameweekData.points || 0,
+        totalPoints: gameweekData.totalPoints || 0,
+        crestUrl: team.crestUrl,
+        color: team.color
+      });
+    }
+  }, [teams]);
 
   const getTeamRankForGameweek = (team: TeamData, gameweek: number): number | null => {
     const gwData = team.gameweekData.find(gw => gw.gameweek === gameweek);
@@ -601,7 +629,13 @@ export function RankProgressionChart({ leagueId, userTeamId }: RankProgressionCh
                         strokeWidth={isMobile ? "1" : "2"}
                         opacity={opacity}
                         style={{ cursor: 'pointer' }}
-                        onClick={() => handleTeamClick(team.teamId)}
+                        onClick={(e) => {
+                          if (e.ctrlKey || e.metaKey) {
+                            handlePointClick(team.teamId, point.gameweek, e);
+                          } else {
+                            handleTeamClick(team.teamId);
+                          }
+                        }}
                         onMouseEnter={(e) => {
                           const svgRect = e.currentTarget.closest('svg')?.getBoundingClientRect();
                           if (svgRect && gameweekData) {

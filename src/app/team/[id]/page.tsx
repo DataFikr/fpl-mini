@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation';
 import { FPLApiService } from '@/services/fpl-api';
 import { LeagueCard } from '@/components/ui/league-card';
 import { TeamCrest } from '@/components/ui/team-crest';
-import { User, Calendar, TrendingUp, Award, Star, Zap } from 'lucide-react';
+import { User, Calendar, TrendingUp, Award, Star, Zap, Home } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 // FPL Team crest URLs mapping - handles both team IDs and names
 const getTeamCrest = (team: string | number | undefined): string => {
@@ -153,7 +155,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
       ]) as any;
 
       if (managerLeagues?.leagues?.classic) {
-        const currentGameweek = 4; // Updated for gameweek 4
+        const currentGameweek = 6; // Updated for gameweek 6
 
         // Process all leagues but limit to reasonable number for display
         const limitedLeagues = managerLeagues.leagues.classic
@@ -185,104 +187,104 @@ export default async function TeamPage({ params }: TeamPageProps) {
           {
             id: 150788,
             name: "Troll EPL&MSL",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 1,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 68
             }]
           },
           {
             id: 150789,
             name: "Best Man League",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 5,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 72
             }]
           },
           {
             id: 523651,
             name: "Toon Army Malaysia League",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 3,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 65
             }]
           },
           {
             id: 611676,
             name: "The Wonder League",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 2,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 75
             }]
           },
           {
             id: 617491,
             name: "Toon Army MY Members League",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 4,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 69
             }]
           },
           {
             id: 747024,
             name: "HoneyBall League 25/26",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 2,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 71
             }]
           },
           {
             id: 2028096,
             name: "Liga Pentalista",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 6,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 63
             }]
           },
           {
             id: 2175516,
             name: "Liga Hospital",
-            currentGameweek: 4,
+            currentGameweek: 6,
             standings: [{
               teamId: teamId,
               teamName: team.name,
               managerName: team.managerName,
               rank: 1,
-              points: managerData?.summary_overall_points || 183,
+              points: managerData?.summary_overall_points || 325,
               gameweekPoints: 77
             }]
           }
@@ -292,7 +294,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
         leagues = [{
           id: 999999,
           name: "Loading leagues...",
-          currentGameweek: 4,
+          currentGameweek: 6,
           standings: [{
             teamId: teamId,
             teamName: team.name,
@@ -313,12 +315,26 @@ export default async function TeamPage({ params }: TeamPageProps) {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-blue-600/10"></div>
           <div className="relative container mx-auto px-4 py-12">
-            <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 border border-gray-100">
+            <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 border border-gray-100 relative">
+            {/* Home Icon on Manager's Card */}
+            <div className="absolute top-6 right-6">
+              <Link href="/" className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                <Home className="h-5 w-5 mr-1" />
+                <span className="font-medium text-sm">Home</span>
+              </Link>
+            </div>
+
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
               <div className="mb-6 md:mb-0">
                 <div className="flex items-center mb-4">
-                  <div className="bg-gradient-to-r from-green-500 to-blue-500 p-3 rounded-2xl mr-4">
-                    <User className="h-8 w-8 text-white" />
+                  <div className="bg-gradient-to-r from-green-500 to-blue-500 p-2 rounded-2xl mr-4">
+                    <Image
+                      src="/images/fplranker.png"
+                      alt="FPLRanker Logo"
+                      width={40}
+                      height={40}
+                      className="rounded-lg"
+                    />
                   </div>
                   <div>
                     <h1 className="text-5xl font-bold text-gray-900 mb-2">
@@ -413,7 +429,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
               <StatCard
                 icon={<Calendar className="h-8 w-8 text-blue-500" />}
                 title="Current GW"
-                value={leagues[0]?.currentGameweek.toString() || '4'}
+                value={leagues[0]?.currentGameweek.toString() || '6'}
                 subtitle="Fantasy gameweek"
                 gradient="from-blue-500 to-cyan-500"
               />
@@ -427,7 +443,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
               <StatCard
                 icon={<Star className="h-8 w-8 text-indigo-500" />}
                 title="GW Points"
-                value="68"
+                value="58"
                 subtitle="Latest gameweek"
                 gradient="from-indigo-500 to-violet-500"
               />

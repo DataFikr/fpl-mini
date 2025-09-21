@@ -1,0 +1,380 @@
+name: 🚀 Playwright Tests - Performance Optimized
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run nightly at 2 AM UTC for monitoring
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - smoke
+          - full
+          - performance
+          - accessibility
+          - visual
+      browser:
+        description: 'Browser to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+      shard_total:
+        description: 'Total number of shards'
+        required: false
+        default: '1'
+        type: string
+      shard_index:
+        description: 'Current shard index'
+        required: false
+        default: '1'
+        type: string
+
+env:
+  NODE_VERSION: '18'
+  FORCE_COLOR: 1
+  # Performance optimizations
+  NODE_OPTIONS: '--max-old-space-size=4096'
+  # Test environment
+  BASE_URL: 'http://localhost:3000'
+  # Artifact settings
+  ARTIFACTS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+jobs:
+  # 🏁 Pre-flight checks and setup
+  setup:
+    name: 🔧 Setup & Validation
+    runs-on: ubuntu-latest
+    outputs:
+      should-run-tests: ${{ steps.check.outputs.should-run }}
+      test-strategy: ${{ steps.strategy.outputs.matrix }}
+      cache-key: ${{ steps.cache.outputs.key }}
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Need history for change detection
+
+      - name: 🔍 Check if tests should run
+        id: check
+        run: |
+          # Skip tests if only docs changed
+          if git diff --name-only HEAD~1 HEAD | grep -E '\.(md|txt)$' && ! git diff --name-only HEAD~1 HEAD | grep -v -E '\.(md|txt)$'; then
+            echo "should-run=false" >> $GITHUB_OUTPUT
+            echo "📝 Only documentation changed, skipping tests"
+          else
+            echo "should-run=true" >> $GITHUB_OUTPUT
+            echo "🚀 Code changes detected, running tests"
+          fi
+
+      - name: 🎯 Determine test strategy
+        id: strategy
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "matrix=[\"chromium\", \"firefox\", \"webkit\"]" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.inputs.browser }}" != "all" ]] && [[ "${{ github.event.inputs.browser }}" != "" ]]; then
+            echo "matrix=[\"${{ github.event.inputs.browser }}\"]" >> $GITHUB_OUTPUT
+          else
+            echo "matrix=[\"chromium\", \"firefox\", \"webkit\"]" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🏗 Setup Node.js for cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/ms-playwright
+            node_modules
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}-${{ env.NODE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-${{ env.NODE_VERSION }}-
+            ${{ runner.os }}-playwright-
+
+  # 🎭 Main test execution with sharding support
+  test:
+    name: 🎭 Tests (${{ matrix.project }}) ${{ matrix.shard && format('Shard {0}/{1}', matrix.shard, matrix.total_shards) || '' }}
+    needs: setup
+    if: needs.setup.outputs.should-run-tests == 'true'
+    timeout-minutes: 45 # Reduced timeout for faster feedback
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.setup.outputs.test-strategy) }}
+        shard: ${{ github.event.inputs.shard_total != '1' && fromJson('[1,2,3,4]') || fromJson('[null]') }}
+        total_shards: ${{ github.event.inputs.shard_total != '1' && fromJson('[4]') || fromJson('[null]') }}
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit --progress=false
+          echo "📦 Dependencies installed successfully"
+
+      - name: 🎭 Install Playwright Browsers
+        run: |
+          npx playwright install --with-deps ${{ matrix.project }}
+          echo "🎭 Browser ${{ matrix.project }} installed"
+
+      - name: 🔥 Warm up application
+        run: |
+          npm run build &
+          BUILD_PID=$!
+          npm run dev &
+          DEV_PID=$!
+
+          # Wait for application to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 2; done'
+          echo "🔥 Application warmed up successfully"
+
+          # Kill build process but keep dev running
+          kill $BUILD_PID || true
+
+      - name: 🏃 Run Playwright tests
+        run: |
+          # Set test command based on input
+          case "${{ github.event.inputs.test_type }}" in
+            "smoke")
+              TEST_CMD="npm run test:smoke"
+              ;;
+            "performance")
+              TEST_CMD="npm run test:performance"
+              ;;
+            "accessibility")
+              TEST_CMD="npm run test:accessibility"
+              ;;
+            "visual")
+              TEST_CMD="npm run test:visual"
+              ;;
+            *)
+              TEST_CMD="npx playwright test --project=${{ matrix.project }}"
+              ;;
+          esac
+
+          # Add sharding if specified
+          if [[ "${{ matrix.shard }}" != "null" ]]; then
+            TEST_CMD="$TEST_CMD --shard=${{ matrix.shard }}/${{ matrix.total_shards }}"
+          fi
+
+          echo "🏃 Running: $TEST_CMD"
+          $TEST_CMD
+        env:
+          CI: true
+          SHARD: ${{ matrix.shard }}
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_TOTAL: ${{ matrix.total_shards }}
+          ARTIFACTS_URL: ${{ env.ARTIFACTS_URL }}
+
+      - name: 📊 Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', matrix.shard) || '' }}
+          path: |
+            tests/reports/
+            tests/test-results/
+          retention-days: 30
+          compression-level: 6
+
+      - name: 📸 Upload Debug Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: debug-screenshots-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', matrix.shard) || '' }}
+          path: tests/screenshots/
+          retention-days: 7
+          compression-level: 9
+
+      - name: 📋 Upload Performance Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-report-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', matrix.shard) || '' }}
+          path: tests/reports/performance/
+          retention-days: 30
+
+      - name: 💬 Comment on PR (Failure)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const project = '${{ matrix.project }}';
+            const shard = '${{ matrix.shard }}' !== 'null' ? ' (Shard ${{ matrix.shard }})' : '';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **Playwright tests failed** for ${project}${shard}\n\nCheck the [test results](${{ env.ARTIFACTS_URL }}) for details.`
+            });
+
+  mobile-test:
+    name: 📱 Mobile Tests
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright Browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: 📱 Run Mobile tests
+        run: npm run test:mobile
+        env:
+          CI: true
+
+      - name: 📊 Upload Mobile Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-test-report
+          path: tests/reports/
+          retention-days: 30
+
+  accessibility-test:
+    name: ♿ Accessibility Tests
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: ♿ Run Accessibility tests
+        run: npm run test:accessibility
+        env:
+          CI: true
+
+      - name: 📊 Upload Accessibility Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-report
+          path: tests/reports/
+          retention-days: 30
+
+  visual-regression:
+    name: 🎨 Visual Regression Tests
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: 🎨 Run Visual Regression tests
+        run: npm run test:visual
+        env:
+          CI: true
+
+      - name: 📊 Upload Visual Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-regression-report
+          path: tests/reports/
+          retention-days: 30
+
+      - name: 🖼️ Upload Visual Diffs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-diffs
+          path: tests/test-results/
+          retention-days: 30
+
+  test-summary:
+    name: 📋 Test Summary
+    runs-on: ubuntu-latest
+    needs: [test, mobile-test, accessibility-test, visual-regression]
+    if: always()
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download all test reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports/
+
+      - name: 📊 Generate Test Summary
+        run: |
+          echo "# 🎭 Playwright Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Desktop Tests**: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mobile Tests**: ${{ needs.mobile-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Accessibility Tests**: ${{ needs.accessibility-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Visual Regression Tests**: ${{ needs.visual-regression.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📁 Available Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Test reports for each browser" >> $GITHUB_STEP_SUMMARY
+          echo "- Screenshots for failed tests" >> $GITHUB_STEP_SUMMARY
+          echo "- Visual regression diffs (if any)" >> $GITHUB_STEP_SUMMARY
+          echo "- Accessibility scan results" >> $GITHUB_STEP_SUMMARY

@@ -24,7 +24,8 @@
       "Bash(git rm:*)",
       "Bash(git commit:*)",
       "Read(//c/Users/Family/Downloads/web_project/web_project/**)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(where psql)"
     ],
     "deny": [],
     "ask": []

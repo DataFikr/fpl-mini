@@ -433,29 +433,29 @@ export class TeamService {
             let gwRank;
             let movementFromLastWeek = 0;
 
-            if (gw.event === 4) {
-              // Gameweek 4 (current): Use rank_sort (current rank)
+            if (gw.event === currentGameweek) {
+              // Current gameweek (6): Use rank_sort (current rank)
               gwRank = currentRank;
               movementFromLastWeek = (lastWeekRank || 0) - currentRank;
-            } else if (gw.event === 3) {
-              // Gameweek 3: Use last_rank field from FPL API (previous rank)
+            } else if (gw.event === currentGameweek - 1) {
+              // Previous gameweek (5): Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
-            } else if (gw.event === 2) {
-              // Gameweek 2: Calculate rank based on GW2 total points relative to other teams
-              const gw2TotalPoints = gw.total_points;
-              // Create a ranking based on GW2 total points
-              const gw2Ranking = Object.values(allHistoryData)
+            } else if (gw.event <= currentGameweek - 2) {
+              // Earlier gameweeks: Calculate rank based on total points at that gameweek
+              const gwTotalPoints = gw.total_points;
+              // Create a ranking based on total points at this gameweek
+              const gwRanking = Object.values(allHistoryData)
                 .map(({ standing: s, history: h }) => {
-                  const gw2Data = h.current.find((g: any) => g.event === 2);
+                  const gwData = h.current.find((g: any) => g.event === gw.event);
                   return {
                     teamId: s.teamId,
-                    totalPoints: gw2Data?.total_points || 0
+                    totalPoints: gwData?.total_points || 0
                   };
                 })
                 .sort((a, b) => b.totalPoints - a.totalPoints)
                 .findIndex(team => team.teamId === standing.teamId) + 1;
 
-              gwRank = gw2Ranking;
+              gwRank = gwRanking;
             } else if (gw.event === 1) {
               // Gameweek 1: Use calculated ranking based on GW1 points
               gwRank = gw1Rankings[standing.teamId] || currentRank;

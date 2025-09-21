@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -72,6 +72,18 @@ model TeamCrest {
   teamName String   @unique
   crestUrl String
   createdAt DateTime @default(now())
-  
+
   @@map("team_crests")
+}
+
+model NewsletterSubscription {
+  id          Int      @id @default(autoincrement())
+  email       String
+  leagueId    Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  lastSentAt  DateTime?
+
+  @@unique([email, leagueId])
+  @@map("newsletter_subscriptions")
 }

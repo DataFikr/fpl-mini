@@ -434,12 +434,12 @@ export function PitchView({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
-        <div className="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{teamName}</h2>
-            <p className="text-sm text-gray-600">Manager: {managerName} • Gameweek {gameweek}</p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] overflow-hidden">
+        <div className="bg-white border-b border-gray-200 p-3 sm:p-4 flex justify-between items-center">
+          <div className="min-w-0 flex-1 pr-2">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">{teamName}</h2>
+            <p className="text-xs sm:text-sm text-gray-600 truncate">Manager: {managerName} • GW {gameweek}</p>
           </div>
           <button
             onClick={onClose}
@@ -449,7 +449,7 @@ export function PitchView({
           </button>
         </div>
 
-        <div className="p-4">
+        <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(98vh-80px)] sm:max-h-[calc(95vh-80px)]">
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -497,7 +497,7 @@ export function PitchView({
               </div>
 
               {/* Enhanced Pitch with optimized spacing for smaller cards */}
-              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-2 p-3 h-[580px]">
+              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-2 sm:p-3 h-[400px] sm:h-[500px] lg:h-[580px]">
                 {/* Pitch Markings */}
                 <div className="absolute inset-0 opacity-20">
                   <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -614,28 +614,28 @@ function EnhancedJerseyCard({ player, isSubstitute = false }: {
   const shirtUrl = player.teamCode ? getFPLShirtUrl(player.teamCode) : null;
   
   return (
-    <div className="text-center relative flex flex-col items-center" style={{ minWidth: '90px', maxWidth: '90px' }}>
+    <div className="text-center relative flex flex-col items-center w-16 sm:w-20 lg:w-[90px]">
       {/* Captain/Vice-Captain badge - consistent positioning */}
       {player.isCaptain && (
-        <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold z-30 shadow-lg border border-white">
+        <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-xs sm:text-sm font-bold z-30 shadow-lg border border-white">
           C
         </div>
       )}
       {player.isViceCaptain && (
-        <div className="absolute -top-1 -right-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold z-30 shadow-lg border border-white">
+        <div className="absolute -top-1 -right-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-xs sm:text-sm font-bold z-30 shadow-lg border border-white">
           V
         </div>
       )}
       
       {/* Injury/Unavailability Status Indicator - Red Alert for all unavailable players */}
       {(player.status === 'i' || player.status === 's' || player.status === 'u' || player.status === 'd' || player.status === 'n' || (player.minutes === 0 && player.points === 0)) && (
-        <div className="absolute -top-1 -left-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold z-30 shadow-lg border border-white">
+        <div className="absolute -top-1 -left-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-xs font-bold z-30 shadow-lg border border-white">
           !
         </div>
       )}
       
       {/* Consistent FPL Shirt Image size for all players */}
-      <div className="relative mx-auto mb-1 transform hover:scale-105 transition-transform" style={{ width: '65px', height: '65px' }}>
+      <div className="relative mx-auto mb-1 transform hover:scale-105 transition-transform w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16">
         {shirtUrl ? (
           <img 
             src={shirtUrl}

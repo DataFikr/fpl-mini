@@ -17,12 +17,22 @@ interface VotingPollProps {
   gameweek?: number;
 }
 
-export function VotingPoll({ leagueId, teams = [], gameweek = 4 }: VotingPollProps) {
+export function VotingPoll({ leagueId, teams = [], gameweek = 6 }: VotingPollProps) {
   const [voteOptions, setVoteOptions] = useState<VoteOption[]>([]);
   const [userVote, setUserVote] = useState<number | null>(null);
   const [totalVotes, setTotalVotes] = useState(0);
   const [hasVoted, setHasVoted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     // Initialize voting data
@@ -141,18 +151,18 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 4 }: VotingPollPro
   return (
     <div style={{
       backgroundColor: '#FFFFFF',
-      borderRadius: '1rem',
-      padding: '2rem',
+      borderRadius: isMobile ? '0.75rem' : '1rem',
+      padding: isMobile ? '1rem' : '2rem',
       border: '1px solid #E5E7EB',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-      marginBottom: '2rem'
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
     }}>
       {/* Header */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '1rem',
-        marginBottom: '1.5rem'
+        gap: isMobile ? '0.75rem' : '1rem',
+        marginBottom: isMobile ? '1rem' : '1.5rem',
+        flexDirection: isMobile ? 'column' : 'row'
       }}>
         <div style={{
           background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
@@ -165,18 +175,20 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 4 }: VotingPollPro
         </div>
         <div style={{ flex: 1 }}>
           <h2 style={{
-            fontSize: '1.5rem',
+            fontSize: isMobile ? '1.25rem' : '1.5rem',
             fontWeight: '700',
             color: '#1F2937',
             margin: 0,
-            marginBottom: '0.25rem'
+            marginBottom: '0.25rem',
+            textAlign: isMobile ? 'center' : 'left'
           }}>
             Community Poll
           </h2>
           <p style={{
-            fontSize: '0.875rem',
+            fontSize: isMobile ? '0.75rem' : '0.875rem',
             color: '#6B7280',
-            margin: 0
+            margin: 0,
+            textAlign: isMobile ? 'center' : 'left'
           }}>
             Who will score the most points in Gameweek {gameweek}?
           </p>
@@ -218,8 +230,8 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 4 }: VotingPollPro
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                padding: '1rem',
-                marginBottom: '0.75rem',
+                padding: isMobile ? '0.75rem' : '1rem',
+                marginBottom: isMobile ? '0.5rem' : '0.75rem',
                 borderRadius: '0.75rem',
                 border: isUserVote ? '2px solid #3B82F6' : '2px solid #E5E7EB',
                 backgroundColor: isUserVote ? '#EBF8FF' : hasVoted ? '#F9FAFB' : '#FFFFFF',

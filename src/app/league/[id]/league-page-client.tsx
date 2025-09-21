@@ -4,24 +4,42 @@ import { useState, useEffect } from 'react';
 import { RankProgressionChart } from '@/components/charts/rank-progression-chart';
 import { EnhancedSquadTable } from '@/components/squad/enhanced-squad-table';
 import { PitchView } from '@/components/squad/pitch-view';
-import { LeagueStorytelling } from '@/components/ui/league-storytelling';
+import { EnhancedLeagueStorytelling } from '@/components/ui/enhanced-league-storytelling';
 import { BadgesAchievements } from '@/components/ui/badges-achievements';
 import { VotingPoll } from '@/components/ui/voting-poll';
-import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap } from 'lucide-react';
+import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface LeaguePageClientProps {
   leagueId: number;
   league: any;
   topTeams: any[];
   averagePoints: number;
+  userTeamId?: number;
 }
 
-type TabType = 'league-progression' | 'squad-analysis' | 'badges-achievements' | 'community-poll';
+type TabType = 'headlines' | 'league-progression' | 'team-analysis' | 'badges-achievements' | 'community-poll';
 
-export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: LeaguePageClientProps) {
+export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, userTeamId }: LeaguePageClientProps) {
   const [selectedTeam, setSelectedTeam] = useState<{name: string; manager: string} | null>(null);
   const [teamCrests, setTeamCrests] = useState<{[teamName: string]: string}>({});
-  const [activeTab, setActiveTab] = useState<TabType>('league-progression');
+  const [activeTab, setActiveTab] = useState<TabType>('headlines');
+  const [currentUserTeamId, setCurrentUserTeamId] = useState<number | null>(null);
+
+  // Store user team ID in localStorage and state
+  useEffect(() => {
+    if (userTeamId) {
+      localStorage.setItem('fpl_user_team_id', userTeamId.toString());
+      setCurrentUserTeamId(userTeamId);
+    } else {
+      // Try to get team ID from localStorage
+      const storedTeamId = localStorage.getItem('fpl_user_team_id');
+      if (storedTeamId) {
+        setCurrentUserTeamId(parseInt(storedTeamId));
+      }
+    }
+  }, [userTeamId]);
 
   const handleTeamClick = (teamName: string, managerName: string) => {
     setSelectedTeam({ name: teamName, manager: managerName });
@@ -77,20 +95,26 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
 
   const tabs = [
     {
+      id: 'headlines' as TabType,
+      name: 'Top Headlines',
+      icon: Star,
+      description: 'Latest updates from the current gameweek'
+    },
+    {
       id: 'league-progression' as TabType,
       name: 'League Progression',
       icon: BarChart3,
-      description: 'View league standings and rank progression over time'
+      description: 'View rank progression over time'
     },
     {
-      id: 'squad-analysis' as TabType,
-      name: 'Squad Analysis',
+      id: 'team-analysis' as TabType,
+      name: 'Team Analysis',
       icon: UserSearch,
       description: 'Analyze team squads and player performance'
     },
     {
       id: 'badges-achievements' as TabType,
-      name: 'Badges & Achievements',
+      name: 'Badges',
       icon: Award,
       description: 'Track achievements and league milestones'
     },
@@ -114,6 +138,19 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'headlines':
+        return (
+          <div className="space-y-4">
+            <EnhancedLeagueStorytelling
+              leagueId={leagueId}
+              teams={league.standings}
+              gameweek={league.currentGameweek}
+              leagueName={league.name}
+              showImages={true}
+            />
+          </div>
+        );
+
       case 'league-progression':
         return (
           <div>
@@ -121,20 +158,20 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
           </div>
         );
 
-      case 'squad-analysis':
+      case 'team-analysis':
         return (
           <div>
-            <EnhancedSquadTable leagueId={leagueId} gameweek={4} />
+            <EnhancedSquadTable leagueId={leagueId} gameweek={league.currentGameweek} />
           </div>
         );
 
       case 'badges-achievements':
         return (
           <div>
-            <BadgesAchievements 
-              leagueId={leagueId} 
-              teams={league.standings} 
-              gameweek={league.currentGameweek} 
+            <BadgesAchievements
+              leagueId={leagueId}
+              teams={league.standings}
+              gameweek={league.currentGameweek}
             />
           </div>
         );
@@ -142,10 +179,10 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
       case 'community-poll':
         return (
           <div>
-            <VotingPoll 
-              leagueId={leagueId} 
-              teams={league.standings} 
-              gameweek={league.currentGameweek + 1} 
+            <VotingPoll
+              leagueId={leagueId}
+              teams={league.standings}
+              gameweek={league.currentGameweek + 1}
             />
           </div>
         );
@@ -157,111 +194,105 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
 
   return (
     <div className="h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex flex-col">
-      {/* Hero Header Section */}
-      <div className="relative overflow-hidden bg-white border-b border-gray-200 flex-none" style={{ height: '20vh' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-green-600/5 to-blue-600/5"></div>
-        <div className="relative p-6">
-        <div className="h-full flex flex-col justify-center">
-          <div className="flex items-center mb-4">
-            <div className="bg-gradient-to-r from-green-500 to-blue-500 p-3 rounded-2xl mr-4">
-              <Trophy className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{league.name}</span>
-              </h1>
-              <p className="text-gray-600 font-medium">Gameweek {league.currentGameweek} • {league.teams.length} Teams</p>
-            </div>
+      {/* Top Navigation */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
+        <div className="flex items-center">
+          <div className="bg-gradient-to-r from-green-500 to-blue-500 p-1.5 rounded-xl mr-3">
+            <Image
+              src="/images/fplranker.png"
+              alt="FPLRanker Logo"
+              width={24}
+              height={24}
+              className="rounded"
+            />
           </div>
-          
-          <div className="grid grid-cols-4 gap-3">
-            <StatCard
-              icon={<Users className="h-6 w-6 text-blue-500" />}
-              title="Teams"
-              value={league.teams.length.toString()}
-              subtitle="Participating teams"
-              gradient="from-blue-500 to-cyan-500"
-            />
-            <StatCard
-              icon={<Calendar className="h-6 w-6 text-green-500" />}
-              title="Gameweek"
-              value={league.currentGameweek.toString()}
-              subtitle="Current round"
-              gradient="from-green-500 to-emerald-500"
-            />
-            <StatCard
-              icon={<Trophy className="h-6 w-6 text-yellow-500" />}
-              title="Leader"
-              value={topTeams[0]?.teamName || 'TBD'}
-              subtitle={`${topTeams[0]?.points?.toLocaleString() || 0} points`}
-              gradient="from-yellow-500 to-orange-500"
-            />
-            <StatCard
-              icon={<TrendingUp className="h-6 w-6 text-purple-500" />}
-              title="Average"
-              value={averagePoints.toLocaleString()}
-              subtitle="Points per team"
-              gradient="from-purple-500 to-pink-500"
-            />
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">{league.name}</h1>
+            <p className="text-sm text-gray-600">Gameweek {league.currentGameweek} • {league.teams.length} Teams</p>
           </div>
         </div>
+        <div className="flex items-center space-x-4">
+          <Link href="/" className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <Home className="h-4 w-4 mr-2" />
+            <span className="font-medium">Home</span>
+          </Link>
+          <Link
+            href={currentUserTeamId ? `/team/${currentUserTeamId}` : "/team/5100818"}
+            className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <User className="h-4 w-4 mr-2" />
+            <span className="font-medium">My Leagues</span>
+          </Link>
         </div>
       </div>
 
-      {/* Top Headlines Section - 20% of viewport height */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 border-b border-gray-200 px-6 py-4 flex-none overflow-hidden" style={{ height: '20vh' }}>
-        <LeagueStorytelling 
-          leagueId={leagueId} 
-          teams={league.standings} 
-          gameweek={league.currentGameweek}
-          leagueName={league.name}
-        />
+      {/* Compact League Stats */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4" style={{ height: '10vh' }}>
+        <div className="grid grid-cols-4 gap-4">
+          <StatCard
+            icon={<Users className="h-5 w-5 text-blue-500" />}
+            title="Teams"
+            value={league.teams.length.toString()}
+            subtitle="Participating teams"
+            gradient="from-blue-500 to-cyan-500"
+            compact={true}
+          />
+          <StatCard
+            icon={<Calendar className="h-5 w-5 text-green-500" />}
+            title="Gameweek"
+            value={league.currentGameweek.toString()}
+            subtitle="Current round"
+            gradient="from-green-500 to-emerald-500"
+            compact={true}
+          />
+          <StatCard
+            icon={<Trophy className="h-5 w-5 text-yellow-500" />}
+            title="Leader"
+            value={topTeams[0]?.teamName || 'TBD'}
+            subtitle={`${topTeams[0]?.points?.toLocaleString() || 0} points`}
+            gradient="from-yellow-500 to-orange-500"
+            compact={true}
+          />
+          <StatCard
+            icon={<TrendingUp className="h-5 w-5 text-purple-500" />}
+            title="Average"
+            value={averagePoints.toLocaleString()}
+            subtitle="Points per team"
+            gradient="from-purple-500 to-pink-500"
+            compact={true}
+          />
+        </div>
       </div>
 
-      {/* Main Content with Left Tabs - Dynamic height to prevent scrolling */}
-      <div className="flex flex-1 min-h-0">
-        {/* Left Tab Navigation */}
-        <div className="w-20 bg-gradient-to-b from-green-50 to-blue-50 border-r border-gray-200 flex flex-col py-4">
-          <div className="flex flex-col space-y-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              
-              return (
-                <div key={tab.id} className="group relative">
-                  <button
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex flex-col items-center justify-center py-3 px-2 rounded-xl mx-2 transition-all duration-200 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg'
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-white hover:shadow-md'
-                    }`}
-                    title={tab.description}
-                  >
-                    <Icon className="h-5 w-5 mb-1" />
-                    <span className="text-xs font-medium text-center leading-tight">
-                      {tab.name.split(' ').map((word, index) => (
-                        <div key={index}>{word}</div>
-                      ))}
-                    </span>
-                  </button>
-                  
-                  {/* Tooltip on hover */}
-                  <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-                    {tab.description}
-                    <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+      {/* Top Tab Navigation */}
+      <div className="bg-white border-b border-gray-200 px-6">
+        <div className="flex space-x-1 overflow-x-auto">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
 
-        {/* Tab Content */}
-        <div className="flex-1 p-6 overflow-hidden bg-white">
-          <div className="h-full overflow-y-auto">
-            {renderTabContent()}
-          </div>
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 ${
+                  isActive
+                    ? 'text-blue-600 border-blue-600 bg-blue-50'
+                    : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
+                }`}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {tab.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 overflow-hidden bg-white">
+        <div className="h-full overflow-y-auto">
+          {renderTabContent()}
         </div>
       </div>
 
@@ -270,7 +301,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
         <PitchView
           teamName={selectedTeam.name}
           managerName={selectedTeam.manager}
-          gameweek={4}
+          gameweek={league.currentGameweek}
           isOpen={true}
           onClose={() => setSelectedTeam(null)}
         />
@@ -279,28 +310,29 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints }: 
   );
 }
 
-function StatCard({ icon, title, value, subtitle, gradient }: {
+function StatCard({ icon, title, value, subtitle, gradient, compact = false }: {
   icon: React.ReactNode;
   title: string;
   value: string;
   subtitle: string;
   gradient?: string;
+  compact?: boolean;
 }) {
   return (
-    <div className="group bg-white rounded-xl shadow-md p-3 h-full flex items-center hover:shadow-lg transition-all duration-300 border border-gray-100 min-w-0">
-      <div className={`inline-flex p-1.5 rounded-lg bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mr-3 group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+    <div className={`group bg-white rounded-xl shadow-md ${compact ? 'p-3' : 'p-4'} h-full flex items-center hover:shadow-lg transition-all duration-300 border border-gray-100 min-w-0`}>
+      <div className={`inline-flex ${compact ? 'p-1.5' : 'p-2'} rounded-lg bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mr-3 group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
         <div className="text-white">
           {icon}
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="text-xs font-semibold text-gray-700 truncate mb-0.5">
+        <h3 className={`${compact ? 'text-xs' : 'text-sm'} font-semibold text-gray-700 truncate mb-0.5`}>
           {title}
         </h3>
-        <div className="text-sm font-bold text-gray-900 truncate mb-0.5">
+        <div className={`${compact ? 'text-sm' : 'text-base'} font-bold text-gray-900 truncate mb-0.5`}>
           {value}
         </div>
-        <div className="text-xs text-gray-600 truncate">
+        <div className={`${compact ? 'text-xs' : 'text-sm'} text-gray-600 truncate`}>
           {subtitle}
         </div>
       </div>

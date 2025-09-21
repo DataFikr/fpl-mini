@@ -1,0 +1,184 @@
+{
+  "timestamp": "2025-09-21T00:54:03.198Z",
+  "summary": {
+    "totalTests": 7,
+    "successful": 7,
+    "failed": 0,
+    "withinExpectedTime": 5,
+    "successRate": 100,
+    "performanceRate": 71.42857142857143,
+    "averageDuration": 1531,
+    "totalDuration": 14495
+  },
+  "gradeDistribution": {
+    "A+": 3,
+    "C": 2,
+    "A": 1,
+    "B": 1
+  },
+  "results": [
+    {
+      "name": "Home Page Load",
+      "success": true,
+      "duration": 103,
+      "expectedTime": 3000,
+      "withinExpectedTime": true,
+      "performanceGrade": "A+",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+          "cache-control": "no-store, must-revalidate",
+          "x-powered-by": "Next.js",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 21 Sep 2025 00:53:49 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 43769
+      },
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "name": "Team Page Load",
+      "success": true,
+      "duration": 5257,
+      "expectedTime": 4000,
+      "withinExpectedTime": false,
+      "performanceGrade": "C",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+          "cache-control": "no-store, must-revalidate",
+          "x-powered-by": "Next.js",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 21 Sep 2025 00:53:53 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 134368
+      },
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "name": "League Page Load",
+      "success": true,
+      "duration": 2905,
+      "expectedTime": 5000,
+      "withinExpectedTime": true,
+      "performanceGrade": "A",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+          "cache-control": "no-store, must-revalidate",
+          "x-powered-by": "Next.js",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 21 Sep 2025 00:53:58 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 79042
+      },
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "name": "Crest API - Single",
+      "success": true,
+      "duration": 1272,
+      "expectedTime": 1000,
+      "withinExpectedTime": false,
+      "performanceGrade": "C",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "content-type": "application/json",
+          "date": "Sun, 21 Sep 2025 00:53:59 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 4296
+      },
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "name": "Crest API - Batch",
+      "success": true,
+      "duration": 274,
+      "expectedTime": 2000,
+      "withinExpectedTime": true,
+      "performanceGrade": "A+",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "content-type": "application/json",
+          "date": "Sun, 21 Sep 2025 00:54:00 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 5879
+      },
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "name": "Performance Status",
+      "success": true,
+      "duration": 832,
+      "expectedTime": 1000,
+      "withinExpectedTime": true,
+      "performanceGrade": "B",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "content-type": "application/json",
+          "date": "Sun, 21 Sep 2025 00:54:02 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 896
+      },
+      "error": null,
+      "attempt": 1
+    },
+    {
+      "name": "Health Check",
+      "success": true,
+      "duration": 71,
+      "expectedTime": 500,
+      "withinExpectedTime": true,
+      "performanceGrade": "A+",
+      "response": {
+        "status": 200,
+        "headers": {
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "content-type": "application/json",
+          "date": "Sun, 21 Sep 2025 00:54:02 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5",
+          "transfer-encoding": "chunked"
+        },
+        "dataSize": 216
+      },
+      "error": null,
+      "attempt": 1
+    }
+  ],
+  "recommendations": [
+    "🎨 Crest generation is slow - verify optimized service is being used"
+  ]
+}
