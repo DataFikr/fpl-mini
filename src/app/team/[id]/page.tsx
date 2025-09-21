@@ -195,14 +195,11 @@ function renderTeam2611652() {
               <div className="flex items-center mb-4">
                 <div className="bg-gradient-to-r from-green-500 to-blue-500 p-2 rounded-2xl mr-4">
                   <Image
-                    src="https://fplranker.com/favicon.ico"
-                    alt="FPLRanker Logo"
+                    src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzAwN0M2NiIvPgo8dGV4dCB4PSIyMCIgeT0iMjciIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5GUEw8L3RleHQ+Cjwvc3ZnPg=="
+                    alt="FPL Logo"
                     width={40}
                     height={40}
                     className="rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzAwN0M2NiIvPgo8dGV4dCB4PSIyMCIgeT0iMjciIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5GUEw8L3RleHQ+Cjwvc3ZnPg==';
-                    }}
                   />
                 </div>
                 <div>
@@ -219,11 +216,9 @@ function renderTeam2611652() {
               <div className="mb-6">
                 <div className="flex flex-wrap gap-6 text-base">
                   <div className="flex items-center bg-gradient-to-r from-green-50 to-blue-50 px-4 py-2 rounded-xl border border-green-200">
-                    <img
-                      src={getTeamCrest(14)}
-                      alt="Manchester United"
-                      className="w-8 h-8 mr-3 rounded"
-                    />
+                    <div className="w-8 h-8 mr-3 rounded bg-red-600 flex items-center justify-center text-white text-xs font-bold">
+                      MU
+                    </div>
                     <div>
                       <span className="font-semibold text-green-700">Favourite Team</span>
                       <div className="text-gray-700">{managerData.favourite_team}</div>
@@ -256,12 +251,11 @@ function renderTeam2611652() {
 
             <div className="flex-shrink-0">
               <div className="bg-gradient-to-r from-green-500 to-blue-500 p-1 rounded-3xl">
-                <TeamCrest
-                  teamName={team.name}
-                  size="xl"
-                  className="border-4 border-white rounded-2xl"
-                  autoGenerate={true}
-                />
+                <div className="w-32 h-32 bg-white border-4 border-white rounded-2xl flex items-center justify-center">
+                  <div className="bg-gradient-to-r from-green-600 to-blue-600 w-24 h-24 rounded-xl flex items-center justify-center">
+                    <span className="text-white text-lg font-bold">JD</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -333,11 +327,26 @@ function renderTeam2611652() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {leagues.map((league) => (
-              <LeagueCard
-                key={league.id}
-                league={league}
-                teamId={teamId}
-              />
+              <div key={league.id} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 truncate">{league.name}</h3>
+                  <span className="text-sm text-gray-500">GW {league.currentGameweek}</span>
+                </div>
+                <div className="space-y-3">
+                  {league.standings.map((standing: any, index: number) => (
+                    <div key={`${standing.teamId}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div className="font-medium text-gray-900">#{standing.rank}</div>
+                        <div className="text-sm text-gray-600">{standing.managerName}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-gray-900">{standing.points}</div>
+                        <div className="text-sm text-green-600">+{standing.gameweekPoints}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
       </section>
@@ -355,7 +364,13 @@ export default async function TeamPage({ params }: TeamPageProps) {
 
   // Special handling for team 2611652 to ensure it always works
   if (teamId === 2611652) {
-    return renderTeam2611652();
+    try {
+      console.log('Rendering static team 2611652 page');
+      return renderTeam2611652();
+    } catch (staticError) {
+      console.error('Error in renderTeam2611652:', staticError);
+      return <TeamError teamId={teamId} error="Failed to render team page" />;
+    }
   }
 
   try {
