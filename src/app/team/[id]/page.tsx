@@ -123,59 +123,111 @@ function renderTeam2611652() {
     favourite_team: "Liverpool",
     player_region_name: "Malaysia",
     player_region_iso_code_short: "MY",
-    summary_overall_points: 425,
-    summary_overall_rank: 850000
+    summary_overall_points: 292,
+    summary_overall_rank: 1165323
   };
 
   const currentGameweek = 5;
-  const currentGWPoints = 72;
-  const totalPoints = 425;
-  const currentOverallRank = 850000;
+  const currentGWPoints = 44;
+  const totalPoints = 292;
+  const currentOverallRank = 1165323;
 
-  // Static leagues data for team 2611652 - Tapirus Indicus
+  // Real leagues data for team 2611652 - Tapirus Indicus (from FPL API)
   const leagues = [
     {
-      id: 245789,
-      name: "Malaysia Premier League",
+      id: 20511,
+      name: "KakiFantasyFootball.com (bobo36)",
       currentGameweek: 5,
       standings: [{
         teamId: teamId,
         teamName: team.name,
         managerName: team.managerName,
-        rank: 2,
+        rank: 419,
         points: totalPoints,
         gameweekPoints: currentGWPoints
       }]
     },
     {
-      id: 334521,
-      name: "Reds United League",
+      id: 51077,
+      name: "FANTASY FUN LEAGUE ✌",
       currentGameweek: 5,
       standings: [{
         teamId: teamId,
         teamName: team.name,
         managerName: team.managerName,
-        rank: 1,
+        rank: 589,
         points: totalPoints,
-        gameweekPoints: 78
+        gameweekPoints: currentGWPoints
       }]
     },
     {
-      id: 456123,
-      name: "Tapir Champions",
+      id: 73337,
+      name: "ASEAN League",
       currentGameweek: 5,
       standings: [{
         teamId: teamId,
         teamName: team.name,
         managerName: team.managerName,
-        rank: 1,
+        rank: 81,
         points: totalPoints,
-        gameweekPoints: 82
+        gameweekPoints: currentGWPoints
       }]
     },
     {
-      id: 567890,
-      name: "Malek Family League",
+      id: 264817,
+      name: "FPL• my 🇲🇾 | code : 4adz33",
+      currentGameweek: 5,
+      standings: [{
+        teamId: teamId,
+        teamName: team.name,
+        managerName: team.managerName,
+        rank: 13,
+        points: totalPoints,
+        gameweekPoints: currentGWPoints
+      }]
+    },
+    {
+      id: 406828,
+      name: "IB Bestest League",
+      currentGameweek: 5,
+      standings: [{
+        teamId: teamId,
+        teamName: team.name,
+        managerName: team.managerName,
+        rank: 3,
+        points: totalPoints,
+        gameweekPoints: currentGWPoints
+      }]
+    },
+    {
+      id: 443378,
+      name: "UNDIBOLA FPL LEAGUE",
+      currentGameweek: 5,
+      standings: [{
+        teamId: teamId,
+        teamName: team.name,
+        managerName: team.managerName,
+        rank: 71,
+        points: totalPoints,
+        gameweekPoints: currentGWPoints
+      }]
+    },
+    {
+      id: 455203,
+      name: "PLM FPL Elite League 2025/26",
+      currentGameweek: 5,
+      standings: [{
+        teamId: teamId,
+        teamName: team.name,
+        managerName: team.managerName,
+        rank: 207,
+        points: totalPoints,
+        gameweekPoints: currentGWPoints
+      }]
+    },
+    {
+      id: 496202,
+      name: "Geng Irshad 2k",
       currentGameweek: 5,
       standings: [{
         teamId: teamId,
@@ -183,7 +235,7 @@ function renderTeam2611652() {
         managerName: team.managerName,
         rank: 1,
         points: totalPoints,
-        gameweekPoints: 72
+        gameweekPoints: currentGWPoints
       }]
     }
   ];
