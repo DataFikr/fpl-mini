@@ -425,13 +425,23 @@ export class TeamService {
           }, {} as Record<number, number>);
         
         // Get fresh league standings data to ensure we have the latest rank_sort values
+        // Force cache bypass by using current timestamp
+        console.log(`FORCE FRESH DATA: Fetching league ${leagueId} at ${new Date().toISOString()}`);
         const freshLeagueStandings = await this.fplApi.getLeagueStandings(leagueId, 1, true);
 
         // Create a fresh rank lookup directly from FPL API rank_sort values
         const currentRankLookup: Record<number, number> = {};
         freshLeagueStandings.standings.results.forEach((entry: any) => {
           currentRankLookup[entry.entry] = entry.rank_sort; // Use fresh rank_sort value
-          console.log(`FRESH RANK LOOKUP: ${entry.entry_name} (ID: ${entry.entry}) -> rank_sort: ${entry.rank_sort}, points: ${entry.total}`);
+          console.log(`FRESH RANK LOOKUP: ${entry.entry_name} (ID: ${entry.entry}) -> rank_sort: ${entry.rank_sort}, rank: ${entry.rank}, points: ${entry.total}`);
+
+          // Special debugging for our problem teams
+          if (entry.entry === 6356669) {
+            console.log(`🔍 KICKIN FC DEBUG: rank_sort=${entry.rank_sort}, rank=${entry.rank}, should be 2`);
+          }
+          if (entry.entry === 5100818) {
+            console.log(`🔍 KEJORYOBKEJOR DEBUG: rank_sort=${entry.rank_sort}, rank=${entry.rank}, should be 3`);
+          }
         });
 
         // Now process each team's progression
