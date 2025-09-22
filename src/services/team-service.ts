@@ -396,6 +396,7 @@ export class TeamService {
         console.log('Fetching real rank progression for league:', leagueId);
         const leagueData = await this.syncLeagueData(leagueId);
         const currentGameweek = await this.fplApi.getCurrentGameweek();
+        console.log(`🎯 CURRENT GAMEWEEK: ${currentGameweek}`);
         
         const realProgression: Record<string, GameweekData[]> = {};
         
@@ -478,7 +479,15 @@ export class TeamService {
               // Current gameweek (5): Use rank_sort (current rank)
               gwRank = currentRank;
               movementFromLastWeek = (lastWeekRank || 0) - currentRank;
-              console.log(`GW${gw.event} RANK: ${standing.teamName} = ${gwRank} (currentRank: ${currentRank})`);
+              console.log(`🚀 GW${gw.event} RANK: ${standing.teamName} = ${gwRank} (currentRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, movement: ${movementFromLastWeek})`);
+
+              // Special debug for problem teams
+              if (standing.teamId === 6356669) {
+                console.log(`🔥 KICKIN FC: override=${directRankOverride[standing.teamId]}, lookup=${currentRankLookup[standing.teamId]}, fallback=${standing.rank}, final=${currentRank}`);
+              }
+              if (standing.teamId === 5100818) {
+                console.log(`🔥 KEJORYOBKEJOR: override=${directRankOverride[standing.teamId]}, lookup=${currentRankLookup[standing.teamId]}, fallback=${standing.rank}, final=${currentRank}`);
+              }
             } else if (gw.event === currentGameweek - 1) {
               // Previous gameweek (4): Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
