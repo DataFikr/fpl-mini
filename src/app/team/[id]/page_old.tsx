@@ -718,7 +718,7 @@ async function renderTeamPage(teamId: number) {
                 <div className="flex items-center mb-4">
                   <div className="bg-gradient-to-r from-green-500 to-blue-500 p-2 rounded-2xl mr-4">
                     <Image
-                      src="https://fplranker.com/favicon.ico"
+                      src="/favicon.ico"
                       alt="FPLRanker Logo"
                       width={40}
                       height={40}

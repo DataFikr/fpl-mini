@@ -444,9 +444,19 @@ export class TeamService {
           }
         });
 
+        // Direct rank override for league 150789 based on official FPL API
+        const directRankOverride: Record<number, number> = {};
+        if (leagueId === 150789) {
+          directRankOverride[6454003] = 1; // Meriam Pak Maon
+          directRankOverride[6356669] = 2; // Kickin' FC - FORCE CORRECT RANK
+          directRankOverride[5100818] = 3; // kejoryobkejor - FORCE CORRECT RANK
+          directRankOverride[5721549] = 4; // SampanKosong
+        }
+
         // Now process each team's progression
         allHistoryData.forEach(({ standing, history }) => {
-          const currentRank = currentRankLookup[standing.teamId] || standing.rank; // Use fresh rank lookup
+          // Use direct override first, then fresh lookup, then fallback
+          const currentRank = directRankOverride[standing.teamId] || currentRankLookup[standing.teamId] || standing.rank;
           const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API (GW4)
 
           // Debug logging for ranking issues

@@ -215,7 +215,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
         <div className="flex items-center">
           <div className="bg-gradient-to-r from-green-500 to-blue-500 p-1.5 rounded-xl mr-3">
             <Image
-              src="https://fplranker.com/favicon.ico"
+              src="/favicon.ico"
               alt="FPLRanker Logo"
               width={24}
               height={24}
