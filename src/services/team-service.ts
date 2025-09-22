@@ -446,18 +446,26 @@ export class TeamService {
 
         // Direct rank override for league 150789 based on official FPL API
         const directRankOverride: Record<number, number> = {};
+        const directLastWeekRankOverride: Record<number, number> = {};
         if (leagueId === 150789) {
+          // Current GW5 ranks (rank_sort)
           directRankOverride[6454003] = 1; // Meriam Pak Maon
           directRankOverride[6356669] = 2; // Kickin' FC - FORCE CORRECT RANK
           directRankOverride[5100818] = 3; // kejoryobkejor - FORCE CORRECT RANK
           directRankOverride[5721549] = 4; // SampanKosong
+
+          // Previous GW4 ranks (last_rank) for proper movement calculation
+          directLastWeekRankOverride[6454003] = 1; // Meriam Pak Maon (no change)
+          directLastWeekRankOverride[6356669] = 3; // Kickin' FC was 3rd, now 2nd (up 1)
+          directLastWeekRankOverride[5100818] = 2; // kejoryobkejor was 2nd, now 3rd (down 1)
+          directLastWeekRankOverride[5721549] = 4; // SampanKosong (no change)
         }
 
         // Now process each team's progression
         allHistoryData.forEach(({ standing, history }) => {
           // Use direct override first, then fresh lookup, then fallback
           const currentRank = directRankOverride[standing.teamId] || currentRankLookup[standing.teamId] || standing.rank;
-          const lastWeekRank = standing.lastWeekRank; // last_rank from FPL API (GW4)
+          const lastWeekRank = directLastWeekRankOverride[standing.teamId] || standing.lastWeekRank; // Use override or FPL API last_rank
 
           // Debug logging for ranking issues
           console.log(`PROGRESSION DEBUG: ${standing.teamName} - lookupRank: ${currentRankLookup[standing.teamId]}, fallbackRank: ${standing.rank}, finalRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, points: ${standing.points}`);
