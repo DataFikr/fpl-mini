@@ -475,7 +475,7 @@ export class TeamService {
             let gwRank;
             let movementFromLastWeek = 0;
 
-            if (gw.event === currentGameweek) {
+            if (gw.event === currentGameweek || (leagueId === 150789 && gw.event === 5)) {
               // Current gameweek (5): Use rank_sort (current rank)
               gwRank = currentRank;
               movementFromLastWeek = (lastWeekRank || 0) - currentRank;
@@ -488,7 +488,7 @@ export class TeamService {
               if (standing.teamId === 5100818) {
                 console.log(`🔥 KEJORYOBKEJOR: override=${directRankOverride[standing.teamId]}, lookup=${currentRankLookup[standing.teamId]}, fallback=${standing.rank}, final=${currentRank}`);
               }
-            } else if (gw.event === currentGameweek - 1) {
+            } else if (gw.event === currentGameweek - 1 || (leagueId === 150789 && gw.event === 4)) {
               // Previous gameweek (4): Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
             } else if (gw.event <= currentGameweek - 2) {
