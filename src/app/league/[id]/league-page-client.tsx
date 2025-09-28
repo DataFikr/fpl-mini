@@ -324,7 +324,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
 
       {/* Top Tab Navigation */}
       <div className="bg-white border-b border-gray-200 px-3 md:px-6">
-        <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
+        <div className="flex overflow-hidden">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -333,16 +333,16 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 min-w-0 ${
+                className={`flex flex-col sm:flex-row items-center justify-center flex-1 px-1 sm:px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium transition-all duration-200 border-b-2 ${
                   isActive
                     ? 'text-blue-600 border-blue-600 bg-blue-50'
                     : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
-                <Icon className={`h-3 md:h-4 w-3 md:w-4 mr-1 md:mr-2 ${
+                <Icon className={`h-3 md:h-4 w-3 md:w-4 mb-1 sm:mb-0 sm:mr-1 md:mr-2 ${
                   isActive ? 'text-blue-600' : 'text-gray-500'
                 }`} />
-                <span className="truncate hidden md:inline">{tab.name}</span>
+                <span className="text-xs sm:text-xs md:text-sm leading-tight text-center">{tab.name}</span>
               </button>
             );
           })}

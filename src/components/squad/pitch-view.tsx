@@ -653,8 +653,8 @@ function EnhancedJerseyCard({ player, isSubstitute = false }: {
       
       {/* Consistent Player name styling for all players */}
       <div className="font-bold text-white bg-gradient-to-r from-purple-900 to-purple-800 rounded px-1 sm:px-2 py-0.5 mb-1 text-center w-full border border-purple-600 text-xs">
-        <div className="break-words leading-tight" title={player.name}>
-          {player.name.length > 7 ? player.name.split(' ').pop()?.substring(0, 8) : player.name.split(' ').pop()}
+        <div className="leading-tight whitespace-nowrap" title={player.name}>
+          {player.name}
         </div>
       </div>
 

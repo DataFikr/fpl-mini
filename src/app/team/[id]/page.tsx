@@ -237,8 +237,9 @@ export default async function TeamPage({ params }: TeamPageProps) {
 
                   <div className="bg-white p-4 rounded-lg">
                     <div className="flex justify-between items-center">
-                      <div>
-                        <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        {/* News headline inline with rank and movement */}
+                        <div className="flex items-center gap-2 mb-2">
                           <span className="font-medium text-gray-900">#{league.rank}</span>
                           {(() => {
                             const movement = league.lastRank - league.rank;
@@ -250,46 +251,45 @@ export default async function TeamPage({ params }: TeamPageProps) {
                               return <span className="text-gray-400 text-sm">—</span>;
                             }
                           })()}
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <span>📰</span>
+                            <span className="text-xs text-gray-700">
+                              {(() => {
+                                const movement = league.lastRank - league.rank;
+                                const leagueVariedHeadlines = [
+                                  // Team-focused headlines (index 0-2)
+                                  `${team.managerName} climbs to #${league.rank}`,
+                                  `${team.name} shows strong form`,
+                                  `${team.managerName} maintains position`,
+                                  // Captain-focused headlines (index 3-5)
+                                  `Captain Haaland delivers big points`,
+                                  `Salah (C) choice backfires for many`,
+                                  `Triple captain played early`,
+                                  // League news headlines (index 6-8)
+                                  `Title race heating up in ${league.name}`,
+                                  `New leader emerges after GW${team.currentGameweek}`,
+                                  `Bottom teams fighting relegation`,
+                                  // Transfer/Strategy headlines (index 9-11)
+                                  `Wildcard active this week`,
+                                  `Free hit saves many managers`,
+                                  `Bench boost pays off big time`
+                                ];
+                                // Use combination of league ID and gameweek for variety
+                                const headlineIndex = (league.id + team.currentGameweek) % leagueVariedHeadlines.length;
+                                return leagueVariedHeadlines[headlineIndex];
+                              })()}
+                            </span>
+                          </div>
                         </div>
                         <div className="text-sm text-gray-600">{team.managerName}</div>
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-gray-900">{team.points}</div>
-                        <div className="text-sm text-green-600">+{team.gwPoints}</div>
+                        <div className="text-sm text-gray-600">Season total</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* News headline for each card */}
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500 mb-1">📰 League Update</div>
-                    <div className="text-sm text-gray-700">
-                      {(() => {
-                        const movement = league.lastRank - league.rank;
-                        const headlines = [
-                          // Leader-focused headlines
-                          `${team.managerName} holds strong position at #${league.rank} in ${league.name}`,
-                          `Top performer: ${team.name} leads with ${team.points} points this season`,
-                          // Captain-focused headlines
-                          `Captain picks paying dividends for ${team.managerName} in GW${team.currentGameweek}`,
-                          `Smart captaincy choices boost ${team.name} up the rankings`,
-                          // Movement-focused headlines
-                          movement > 0 ? `${team.managerName} climbs ${movement} spots to #${league.rank}!` :
-                          movement < 0 ? `${team.name} drops ${Math.abs(movement)} places but still competitive` :
-                          `${team.managerName} maintains steady #${league.rank} position`,
-                          // Strategy-focused headlines
-                          `Transfer strategy proving effective for ${team.managerName}`,
-                          `Defensive picks helping ${team.name} secure points consistently`,
-                          // Performance headlines
-                          `Strong GW${team.currentGameweek} performance: ${team.gwPoints} points for ${team.name}`,
-                          `${team.managerName} targeting top 3 finish in ${league.name}`
-                        ];
-                        // Use league ID to consistently pick the same headline type for each league
-                        const headlineIndex = league.id % headlines.length;
-                        return headlines[headlineIndex] || headlines[0];
-                      })()}
-                    </div>
-                  </div>
 
                   <div className="mt-4 text-center text-sm text-blue-600 font-medium">
                     View Full League →

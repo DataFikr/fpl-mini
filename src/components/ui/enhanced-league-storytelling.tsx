@@ -176,9 +176,10 @@ interface NewsletterModalProps {
   leagueId: number;
   leagueName: string;
   stories: EnhancedStory[];
+  gameweek: number;
 }
 
-function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories }: NewsletterModalProps) {
+function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories, gameweek }: NewsletterModalProps) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -301,7 +302,7 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories }: New
   );
 }
 
-export function EnhancedLeagueStorytelling({ leagueId, gameweek = 5, teams = [], leagueName = '', showImages = true }: EnhancedStorytellingProps) {
+export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [], leagueName = '', showImages = true }: EnhancedStorytellingProps) {
   const [stories, setStories] = useState<EnhancedStory[]>([]);
   const [selectedStory, setSelectedStory] = useState<EnhancedStory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -735,6 +736,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 5, teams = [],
         leagueId={leagueId}
         leagueName={leagueName}
         stories={stories}
+        gameweek={gameweek}
       />
     </>
   );
