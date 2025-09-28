@@ -621,8 +621,13 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 5, teams = [],
                   alt={story.headline}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={false}
+                  quality={75}
                   onError={(e) => {
-                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDMyMCAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTkyIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNTIgOTZMMTY4IDExMkgxMzZMMTUyIDk2WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+                    const target = e.currentTarget;
+                    // Create a fallback image with gradient background
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDMyMCAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTBCOTgxO3N0b3Atb3BhY2l0eToxIiAvPgo8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMzQjgyRjY7c3RvcC1vcGFjaXR5OjEiIC8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIxOTIiIGZpbGw9InVybCgjZ3JhZCkiLz4KPHN2ZyB4PSI1MCUiIHk9IjUwJSIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMjQsIC0yNCkiPgo8cGF0aCBkPSJNOSAydjJINy41QzYuMTIgNCAwIDUuMTIgMCA2LjV2MTFDMCAxOC44OCAxLjEyIDIwIDIuNSAyMGgxOWMxLjM4IDAgMi41LTEuMTIgMi41LTIuNXYtMTFDMjQgNS4xMiAyMi44OCA0IDIxLjUgNEgyMFYyaC0ydjJIOFYySDl6TTIgNi41QzIgNi4yMiAyLjIyIDYgMi41IDZoMTlDMjEuNzggNiAyMiA2LjIyIDIyIDYuNXYyLjI1SDJWNi41ek0yIDEwaDIwdjcuNUMiMiAxNy43OCAyMS43OCAxOCAyMS41IDE4aC0xOUM7Ljg4IDE4IDIgMTcuNzggMiAxNy41VjEweiIvPgo8L3N2Zz4KPC9zdmc+';
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -671,8 +676,11 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 5, teams = [],
                 alt={selectedStory.headline}
                 fill
                 className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={85}
                 onError={(e) => {
-                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDY0MCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMjU2IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMDQgMTI4TDMyMCAxNDRIMjg4TDMwNCAxMjhaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=';
+                  const target = e.currentTarget;
+                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDY0MCAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9Im1vZGFsR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMxMEI5ODE7c3RvcC1vcGFjaXR5OjEiIC8+CjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzNCODJGNjtzdG9wLW9wYWNpdHk6MSIgLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgZmlsbD0idXJsKCNtb2RhbEdyYWQpIi8+Cjwvc3ZnPgo=';
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>

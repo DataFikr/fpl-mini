@@ -13,90 +13,59 @@ const nextConfig = {
     // Allow production builds to succeed despite TypeScript errors
     ignoreBuildErrors: true,
   },
+  // Simplified experimental configuration - remove problematic features
   experimental: {
     workerThreads: false,
     cpus: 1,
-    webpackBuildWorker: false,
-    forceSwcTransforms: true,
-    esmExternals: 'loose',
   },
+  // Simplified webpack configuration to prevent worker conflicts
   webpack: (config, { isServer }) => {
+    // Basic fallback configuration
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        buffer: false,
+        util: false,
       };
     }
-    // Reduce memory usage and worker issues
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      },
-    };
-    
-    // Disable worker threads to prevent child process exceptions
+
+    // Exclude Redis and related Node.js modules from client-side bundle
+    if (!isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        'redis': 'redis',
+        'net': 'net',
+        'tls': 'tls',
+        '@redis/client': '@redis/client'
+      });
+    }
+
+    // Disable caching to prevent worker issues
+    config.cache = false;
+
+    // Single threaded mode
     config.parallelism = 1;
+
+    // Reduce logging noise
     config.infrastructureLogging = {
       level: 'error',
     };
 
-    // Disable all workers and child processes
-    config.stats = { ...config.stats, children: false };
-    config.devtool = false; // Disable source maps in dev to reduce memory
-
-    // Completely disable worker usage
-    config.cache = false;
-    config.watchOptions = {
-      ...config.watchOptions,
-      aggregateTimeout: 300,
-      poll: 1000,
-      ignored: /node_modules/
-    };
-    
-    // Force single-threaded compilation
-    if (config.optimization.minimizer) {
-      config.optimization.minimizer.forEach((minimizer) => {
-        if (minimizer.options) {
-          minimizer.options.parallel = false;
-        }
-      });
-    }
-    
-    // Disable webpack workers completely
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: /node_modules/,
-    };
-
-    // Force no parallelism and disable all workers
-    if (config.module && config.module.rules) {
-      config.module.rules.forEach(rule => {
-        if (rule.use && Array.isArray(rule.use)) {
-          rule.use.forEach(use => {
-            if (use.options) {
-              use.options.parallel = false;
-              use.options.workers = 1;
-            }
-          });
-        }
-      });
-    }
-
-    // Disable all caching to prevent worker issues
-    config.cache = false;
-    config.snapshot = undefined;
-
     return config;
   },
   outputFileTracingRoot: __dirname,
+  // Add output configuration to prevent build worker issues
+  output: 'standalone',
 };
 
 export default nextConfig;

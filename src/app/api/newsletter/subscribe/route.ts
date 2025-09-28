@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
+import { FPLApiService } from '@/services/fpl-api';
 
 export async function POST(request: NextRequest) {
   try {
     const { email, leagueId, leagueName, stories, gameweek, subscriptionType = 'newsletter' } = await request.json();
+
+    // Get current gameweek dynamically if not provided
+    let currentGameweek = gameweek;
+    if (!currentGameweek) {
+      try {
+        const fplApi = new FPLApiService();
+        currentGameweek = await fplApi.getCurrentGameweek();
+      } catch (error) {
+        console.warn('Failed to fetch current gameweek, using fallback:', error);
+        currentGameweek = 6; // Fallback to current gameweek
+      }
+    }
 
     if (!email || !leagueId) {
       return NextResponse.json(
@@ -64,7 +77,7 @@ export async function POST(request: NextRequest) {
       console.log(`📧 Team analysis subscription confirmed for ${email} for league ${leagueId}, gameweek ${gameweek}`);
 
       // Generate team analysis summary
-      const teamAnalysisSummary = generateTeamAnalysisEmail(leagueName || `League ${leagueId}`, gameweek || 5, email);
+      const teamAnalysisSummary = generateTeamAnalysisEmail(leagueName || `League ${leagueId}`, currentGameweek, email);
 
       return NextResponse.json({
         success: true,
@@ -78,7 +91,7 @@ export async function POST(request: NextRequest) {
       leagueName || `League ${leagueId}`,
       stories || [],
       email,
-      gameweek || 5
+      currentGameweek
     );
 
     // In a real application, you would send this via email service like SendGrid, AWS SES, etc.

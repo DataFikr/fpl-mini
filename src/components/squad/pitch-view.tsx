@@ -436,16 +436,16 @@ export function PitchView({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] overflow-hidden">
-        <div className="bg-white border-b border-gray-200 p-3 sm:p-4 flex justify-between items-start">
-          <div className="min-w-0 flex-1 pr-2">
-            <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 break-words leading-tight mb-1">{teamName}</h2>
-            <p className="text-xs sm:text-sm text-gray-600 break-words leading-tight">Manager: {managerName} • GW {gameweek}</p>
+        <div className="bg-white border-b border-gray-200 p-2 sm:p-4 flex justify-between items-start">
+          <div className="min-w-0 flex-1 pr-1">
+            <h2 className="text-xs sm:text-lg lg:text-xl font-bold text-gray-900 leading-tight mb-0.5 sm:mb-1 break-words">{teamName}</h2>
+            <p className="text-xs sm:text-sm text-gray-600 leading-tight break-words">Manager: {managerName} • GW {gameweek}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 sm:p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
 
@@ -496,7 +496,7 @@ export function PitchView({
               </div>
 
               {/* Enhanced Pitch with optimized spacing for smaller cards */}
-              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-2 sm:p-3 h-[400px] sm:h-[500px] lg:h-[580px]">
+              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-1 sm:p-3 h-[350px] sm:h-[500px] lg:h-[580px]">
                 {/* Pitch Markings */}
                 <div className="absolute inset-0 opacity-20">
                   <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -540,11 +540,11 @@ export function PitchView({
                   </div>
 
                   {/* Defenders - positioned at 32% from top */}
-                  <div 
+                  <div
                     className="absolute w-full flex justify-center"
                     style={{ top: '32%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-3 justify-center" style={{ maxWidth: 'none' }}>
+                    <div className="flex gap-1 sm:gap-3 justify-center" style={{ maxWidth: '98%' }}>
                       {squadData.starting.DEF.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
@@ -556,7 +556,7 @@ export function PitchView({
                     className="absolute w-full flex justify-center"
                     style={{ top: '55%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-2 sm:gap-3 justify-center" style={{ maxWidth: '95%', flexWrap: 'nowrap' }}>
+                    <div className="flex gap-1 sm:gap-3 justify-center" style={{ maxWidth: '98%', flexWrap: 'nowrap' }}>
                       {squadData.starting.MID.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
@@ -568,7 +568,7 @@ export function PitchView({
                     className="absolute w-full flex justify-center"
                     style={{ top: '78%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-8 justify-center">
+                    <div className="flex gap-4 sm:gap-8 justify-center">
                       {squadData.starting.FWD.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
@@ -578,9 +578,9 @@ export function PitchView({
               </div>
 
               {/* Substitutes Section - with better spacing and layout */}
-              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mt-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 text-center">SUBSTITUTES</h3>
-                <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
+              <div className="bg-gray-50 rounded-lg p-2 sm:p-4 mt-2 sm:mt-4">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 text-center">SUBSTITUTES</h3>
+                <div className="flex justify-center gap-2 sm:gap-4 flex-wrap">
                   {squadData.subs.map((player, index) => (
                     <div key={index} className="flex-shrink-0">
                       <EnhancedJerseyCard player={player} isSubstitute={true} />
@@ -613,7 +613,7 @@ function EnhancedJerseyCard({ player, isSubstitute = false }: {
   const shirtUrl = player.teamCode ? getFPLShirtUrl(player.teamCode) : null;
   
   return (
-    <div className="text-center relative flex flex-col items-center w-16 sm:w-20 lg:w-[90px]">
+    <div className="text-center relative flex flex-col items-center w-12 sm:w-20 lg:w-[90px]">
       {/* Captain/Vice-Captain badge - consistent positioning */}
       {player.isCaptain && (
         <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black rounded-full w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex items-center justify-center text-xs sm:text-sm font-bold z-30 shadow-lg border border-white">
@@ -634,7 +634,7 @@ function EnhancedJerseyCard({ player, isSubstitute = false }: {
       )}
       
       {/* Consistent FPL Shirt Image size for all players */}
-      <div className="relative mx-auto mb-1 transform hover:scale-105 transition-transform w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16">
+      <div className="relative mx-auto mb-1 transform hover:scale-105 transition-transform w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16">
         {shirtUrl ? (
           <img 
             src={shirtUrl}
@@ -652,14 +652,14 @@ function EnhancedJerseyCard({ player, isSubstitute = false }: {
       </div>
       
       {/* Consistent Player name styling for all players */}
-      <div className="font-bold text-white bg-gradient-to-r from-purple-900 to-purple-800 rounded px-2 py-0.5 mb-1 text-center w-full border border-purple-600 text-xs">
-        <div className="truncate" title={player.name}>
-          {player.name.length > 9 ? player.name.split(' ').pop()?.substring(0, 9) : player.name.split(' ').pop()}
+      <div className="font-bold text-white bg-gradient-to-r from-purple-900 to-purple-800 rounded px-1 sm:px-2 py-0.5 mb-1 text-center w-full border border-purple-600 text-xs">
+        <div className="break-words leading-tight" title={player.name}>
+          {player.name.length > 7 ? player.name.split(' ').pop()?.substring(0, 8) : player.name.split(' ').pop()}
         </div>
       </div>
-      
+
       {/* Consistent Points display styling for all players */}
-      <div className="font-bold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 rounded px-2 py-0.5 text-center w-full shadow-sm border border-cyan-400 text-xs">
+      <div className="font-bold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 rounded px-1 sm:px-2 py-0.5 text-center w-full shadow-sm border border-cyan-400 text-xs">
         <div className="flex items-center justify-center">
           {isSubstitute ? player.points : player.points * player.multiplier}
           {player.multiplier > 1 && !isSubstitute && (

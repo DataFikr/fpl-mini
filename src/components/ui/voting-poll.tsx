@@ -19,7 +19,7 @@ interface VotingPollProps {
   question?: string;
 }
 
-export function VotingPoll({ leagueId, teams = [], gameweek = 5, pollId = 'default', question = 'Who will score the most points in Gameweek' }: VotingPollProps) {
+export function VotingPoll({ leagueId, teams = [], gameweek = 6, pollId = 'default', question = 'Who will score the most points in Gameweek' }: VotingPollProps) {
   const [voteOptions, setVoteOptions] = useState<VoteOption[]>([]);
   const [userVote, setUserVote] = useState<number | null>(null);
   const [totalVotes, setTotalVotes] = useState(0);
@@ -40,7 +40,13 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 5, pollId = 'defau
     // Initialize voting data
     const initializeVoting = () => {
       setIsLoading(true);
-      
+
+      // Clear previous poll votes for this gameweek (fresh start)
+      const pollKeys = Object.keys(localStorage).filter(key =>
+        key.startsWith(`poll_vote_${leagueId}_${pollId}_gw${gameweek}`)
+      );
+      pollKeys.forEach(key => localStorage.removeItem(key));
+
       // Take top 8 teams for voting
       const topTeams = teams
         .sort((a, b) => a.rank - b.rank)
@@ -50,48 +56,67 @@ export function VotingPoll({ leagueId, teams = [], gameweek = 5, pollId = 'defau
           teamName: team.teamName,
           managerName: team.managerName,
           crestUrl: team.crestUrl,
-          votes: Math.floor(Math.random() * 50) + 5 // Simulated votes
+          votes: 0 // Start with 0 votes (fresh poll)
         }));
 
       setVoteOptions(topTeams);
-      
-      // Calculate total votes
-      const total = topTeams.reduce((sum, option) => sum + option.votes, 0);
-      setTotalVotes(total);
-      
-      // Check if user has voted (simulate with localStorage)
-      const existingVote = localStorage.getItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}`);
-      if (existingVote) {
-        setUserVote(parseInt(existingVote));
-        setHasVoted(true);
+
+      // Calculate total votes (starts at 0)
+      setTotalVotes(0);
+
+      // Get current user's team ID from localStorage (set by league page)
+      const currentUserTeamId = localStorage.getItem('fpl_user_team_id');
+
+      // Check if current user has voted (check using their team ID)
+      if (currentUserTeamId) {
+        const existingVote = localStorage.getItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}_team${currentUserTeamId}`);
+        if (existingVote) {
+          setUserVote(parseInt(existingVote));
+          setHasVoted(true);
+        }
       }
-      
+
       setIsLoading(false);
     };
 
     if (teams.length > 0) {
       initializeVoting();
     }
-  }, [leagueId, teams, gameweek]);
+  }, [leagueId, teams, gameweek, pollId]);
 
   const handleVote = (teamId: number) => {
     if (hasVoted) return;
 
+    // Get current user's team ID from localStorage
+    const currentUserTeamId = localStorage.getItem('fpl_user_team_id');
+
+    if (!currentUserTeamId) {
+      alert('Please navigate from a team page to participate in the poll');
+      return;
+    }
+
+    // Check if this team ID has already voted for this poll
+    const existingVote = localStorage.getItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}_team${currentUserTeamId}`);
+    if (existingVote) {
+      alert('You have already voted in this poll for this gameweek');
+      return;
+    }
+
     // Update votes
-    setVoteOptions(prev => 
-      prev.map(option => 
-        option.teamId === teamId 
+    setVoteOptions(prev =>
+      prev.map(option =>
+        option.teamId === teamId
           ? { ...option, votes: option.votes + 1 }
           : option
       )
     );
-    
+
     setTotalVotes(prev => prev + 1);
     setUserVote(teamId);
     setHasVoted(true);
-    
-    // Save vote to localStorage
-    localStorage.setItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}`, teamId.toString());
+
+    // Save vote to localStorage using team ID
+    localStorage.setItem(`poll_vote_${leagueId}_${pollId}_gw${gameweek}_team${currentUserTeamId}`, teamId.toString());
   };
 
   const getVotePercentage = (votes: number) => {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { FPLManagerEntry, TeamData } from '@/types/fpl';
 import { Crown, Star, TrendingUp, Users, Mail, Bell } from 'lucide-react';
 import { PitchView } from './pitch-view';
+// Removed FPLApiService import to avoid Redis dependency in client components
 
 interface SquadAnalysisData {
   rank: number;
@@ -73,11 +74,12 @@ function formatSquadForDisplay(squad: any): string {
   return 'Squad data unavailable';
 }
 
-export function EnhancedSquadTable({ leagueId, gameweek = 5 }: EnhancedSquadTableProps) {
+export function EnhancedSquadTable({ leagueId, gameweek }: EnhancedSquadTableProps) {
   const [squadData, setSquadData] = useState<SquadAnalysisData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'rank' | 'gwPoints' | 'totalPoints'>('rank');
+  const [currentGameweek, setCurrentGameweek] = useState<number>(gameweek || 6);
   const [teamCrests, setTeamCrests] = useState<{[teamName: string]: string}>({});
   const [selectedTeam, setSelectedTeam] = useState<{
     name: string;
@@ -90,6 +92,29 @@ export function EnhancedSquadTable({ leagueId, gameweek = 5 }: EnhancedSquadTabl
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
+
+  // Fetch current gameweek if not provided
+  useEffect(() => {
+    if (!gameweek) {
+      const fetchCurrentGameweek = async () => {
+        try {
+          const response = await fetch('/api/gameweek/current');
+          const data = await response.json();
+          if (data.success) {
+            setCurrentGameweek(data.gameweek);
+          } else {
+            setCurrentGameweek(6); // Fallback gameweek
+          }
+        } catch (error) {
+          console.warn('Failed to fetch current gameweek, using fallback:', error);
+          setCurrentGameweek(6); // Current gameweek fallback
+        }
+      };
+      fetchCurrentGameweek();
+    } else {
+      setCurrentGameweek(gameweek);
+    }
+  }, [gameweek]);
 
   useEffect(() => {
     const fetchSquadAnalysis = async () => {
@@ -109,7 +134,7 @@ export function EnhancedSquadTable({ leagueId, gameweek = 5 }: EnhancedSquadTabl
         }
         
         // Fallback to mock data
-        const mockData = generateSquadAnalysisData(leagueId, gameweek);
+        const mockData = generateSquadAnalysisData(leagueId, currentGameweek);
         
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 800));
@@ -124,7 +149,7 @@ export function EnhancedSquadTable({ leagueId, gameweek = 5 }: EnhancedSquadTabl
     };
 
     fetchSquadAnalysis();
-  }, [leagueId, gameweek]);
+  }, [leagueId, currentGameweek]);
 
   // Fetch team crests
   useEffect(() => {
@@ -257,7 +282,7 @@ FPL Ranker Team`;
         body: JSON.stringify({
           email: email,
           leagueId: leagueId,
-          gameweek: gameweek,
+          gameweek: currentGameweek,
           subscriptionType: 'team-analysis',
           leagueName: 'Your League'
         }),
@@ -325,7 +350,7 @@ FPL Ranker Team`;
     <div className="bg-white rounded-xl shadow-lg p-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Squad Analysis - Gameweek {gameweek}
+          Squad Analysis - Gameweek {currentGameweek}
         </h2>
         <p className="text-gray-600">
           Comprehensive squad breakdown with performance analysis
@@ -367,7 +392,7 @@ FPL Ranker Team`;
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 ml-4 flex items-center gap-2 shadow-lg hover:shadow-xl"
           >
             <Mail className="h-4 w-4" />
-            Get team's analysis summary for GW
+            Get Team's Performance Summary
           </button>
         </div>
       </div>
@@ -477,7 +502,7 @@ FPL Ranker Team`;
         <PitchView
           teamName={selectedTeam.name}
           managerName={selectedTeam.manager}
-          gameweek={gameweek}
+          gameweek={currentGameweek}
           isOpen={true}
           onClose={() => setSelectedTeam(null)}
           squadData={selectedTeam.squad}
@@ -491,15 +516,15 @@ FPL Ranker Team`;
         />
       )}
 
-      {/* Newsletter Subscription Modal */}
+      {/* Team Performance Summary Modal */}
       {showNewsletterModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
-              Subscribe to League Updates
+              Get Team's Performance Summary
             </h3>
             <p className="text-gray-600 mb-4">
-              Get weekly league analysis summaries sent to your email. Stay updated with team performances, rankings, and insights!
+              Get all the teams performance summary from League {leagueId} sent to your inbox.
             </p>
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -533,12 +558,12 @@ FPL Ranker Team`;
                 {isSubscribing ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Subscribing...
+                    Sending...
                   </>
                 ) : (
                   <>
-                    <Bell className="h-4 w-4" />
-                    Subscribe
+                    <Mail className="h-4 w-4" />
+                    Send Team's Performance Summary
                   </>
                 )}
               </button>
