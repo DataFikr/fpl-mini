@@ -52,23 +52,25 @@ async function fetchTeamData(teamId: number) {
       console.warn(`History failed for ${teamId}, using empty:`, historyError);
     }
 
-    // Get GW5 data - prioritize history over summary for accuracy
-    const gw5Data = managerHistory.current?.find((gw: any) => gw.event === 5);
-    const currentGWPoints = gw5Data?.points || managerData.summary_event_points || 0;
-    const totalPoints = gw5Data?.total_points || managerData.summary_overall_points || 0;
-    const overallRank = gw5Data?.overall_rank || managerData.summary_overall_rank || 0;
+    // Get current gameweek data dynamically
+    const fplApi2 = new FPLApiService();
+    const currentGameweek = await fplApi2.getCurrentGameweek();
+    const currentGWData = managerHistory.current?.find((gw: any) => gw.event === currentGameweek);
+    const currentGWPoints = currentGWData?.points || managerData.summary_event_points || 0;
+    const totalPoints = currentGWData?.total_points || managerData.summary_overall_points || 0;
+    const overallRank = currentGWData?.overall_rank || managerData.summary_overall_rank || 0;
 
-    // Extract leagues directly from manager data
+    // Extract ALL mini-leagues from manager data (remove limit)
     let leagues: any[] = [];
     if (managerData?.leagues?.classic && Array.isArray(managerData.leagues.classic)) {
-      const limitedLeagues = managerData.leagues.classic
-        .filter((league: any) => league && league.id && league.id > 1000)
-        .slice(0, 6);
+      const allMiniLeagues = managerData.leagues.classic
+        .filter((league: any) => league && league.id && league.id > 1000); // Show ALL mini-leagues
 
-      leagues = limitedLeagues.map((league: any) => ({
+      leagues = allMiniLeagues.map((league: any) => ({
         id: league.id,
         name: league.name || `League ${league.id}`,
-        rank: league.entry_rank || 1
+        rank: league.entry_rank || 1,
+        lastRank: league.entry_last_rank || league.entry_rank || 1
       }));
     }
 
@@ -90,7 +92,8 @@ async function fetchTeamData(teamId: number) {
       region: managerData.player_region_name || 'Unknown',
       regionCode: managerData.player_region_iso_code_short || '',
       favouriteTeam: managerData.favourite_team || null,
-      leagues: leagues
+      leagues: leagues,
+      currentGameweek: currentGameweek
     };
 
   } catch (error) {
@@ -109,7 +112,8 @@ async function fetchTeamData(teamId: number) {
       favouriteTeam: null,
       leagues: [
         { id: 999000 + teamId, name: "Default League", rank: 1000000 }
-      ]
+      ],
+      currentGameweek: 6
     };
   }
 }
@@ -132,13 +136,34 @@ export default async function TeamPage({ params }: TeamPageProps) {
           <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
             {/* Home Link */}
             <div className="flex justify-between items-start mb-6">
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                    {team.name}
+              <div className="flex items-center">
+                {/* Team Badge - My Team's Badge from Fantasy Premier League */}
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0 overflow-hidden">
+                  {team.favouriteTeam ? (
+                    <img
+                      src={`https://resources.premierleague.com/premierleague/badges/70/t${team.favouriteTeam}.png`}
+                      alt={`Team ${team.favouriteTeam} badge`}
+                      className="w-10 h-10 object-contain"
+                      onError={(e) => {
+                        // Fallback to initials if image fails to load
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling.style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <span className={`text-white font-bold text-sm ${team.favouriteTeam ? 'hidden' : 'block'}`}>
+                    {team.name.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}
                   </span>
-                </h1>
-                <p className="text-xl text-gray-700">Managed by {team.managerName}</p>
+                </div>
+
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+                    <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                      {team.name}
+                    </span>
+                  </h1>
+                  <p className="text-base md:text-lg text-gray-700">Managed by {team.managerName}</p>
+                </div>
               </div>
               <Link
                 href="/"
@@ -175,7 +200,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
                 <div className="text-blue-600 text-2xl mb-2">⭐</div>
                 <h3 className="font-bold text-gray-900">GW Points</h3>
                 <div className="text-2xl font-bold text-gray-900">{team.gwPoints}</div>
-                <div className="text-sm text-gray-600">Gameweek 5</div>
+                <div className="text-sm text-gray-600">Gameweek {team.currentGameweek}</div>
               </div>
             </div>
 
@@ -183,15 +208,15 @@ export default async function TeamPage({ params }: TeamPageProps) {
             <div className="bg-gray-50 p-6 rounded-xl">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Team Information</h2>
               <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Manager ID:</strong> {team.id}</div>
-                <div><strong>Overall Rank:</strong> #{team.rank.toLocaleString()}</div>
-                <div><strong>Current Gameweek:</strong> 5</div>
-                <div><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</div>
+                <div><strong className="text-gray-900">Manager ID:</strong> <span className="text-gray-900">{team.id}</span></div>
+                <div><strong className="text-gray-900">Overall Rank:</strong> <span className="text-gray-900">#{team.rank.toLocaleString()}</span></div>
+                <div><strong className="text-gray-900">Current Gameweek:</strong> <span className="text-gray-900">{team.currentGameweek}</span></div>
+                <div><strong className="text-gray-900">Last Updated:</strong> <span className="text-gray-900">{new Date().toLocaleDateString()}</span></div>
                 {team.region && team.region !== 'Unknown' && (
-                  <div><strong>Region:</strong> {team.region} {team.regionCode && `(${team.regionCode})`}</div>
+                  <div><strong className="text-gray-900">Region:</strong> <span className="text-gray-900">{team.region} {team.regionCode && `(${team.regionCode})`}</span></div>
                 )}
                 {team.favouriteTeam && (
-                  <div><strong>Favourite Team:</strong> Team {team.favouriteTeam}</div>
+                  <div><strong className="text-gray-900">Favourite Team:</strong> <span className="text-gray-900">Team {team.favouriteTeam}</span></div>
                 )}
               </div>
             </div>
@@ -212,19 +237,62 @@ export default async function TeamPage({ params }: TeamPageProps) {
                 >
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-bold text-gray-900 text-lg">{league.name}</h3>
-                    <span className="text-sm text-gray-500">GW 5</span>
+                    <span className="text-sm text-gray-500">GW {team.currentGameweek}</span>
                   </div>
 
                   <div className="bg-white p-4 rounded-lg">
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="font-medium text-gray-900">#{league.rank}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">#{league.rank}</span>
+                          {(() => {
+                            const movement = league.lastRank - league.rank;
+                            if (movement > 0) {
+                              return <span className="text-green-600 text-sm font-medium">↑{movement}</span>;
+                            } else if (movement < 0) {
+                              return <span className="text-red-600 text-sm font-medium">↓{Math.abs(movement)}</span>;
+                            } else {
+                              return <span className="text-gray-400 text-sm">—</span>;
+                            }
+                          })()}
+                        </div>
                         <div className="text-sm text-gray-600">{team.managerName}</div>
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-gray-900">{team.points}</div>
                         <div className="text-sm text-green-600">+{team.gwPoints}</div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* News headline for each card */}
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">📰 League Update</div>
+                    <div className="text-sm text-gray-700">
+                      {(() => {
+                        const movement = league.lastRank - league.rank;
+                        const headlines = [
+                          // Leader-focused headlines
+                          `${team.managerName} holds strong position at #${league.rank} in ${league.name}`,
+                          `Top performer: ${team.name} leads with ${team.points} points this season`,
+                          // Captain-focused headlines
+                          `Captain picks paying dividends for ${team.managerName} in GW${team.currentGameweek}`,
+                          `Smart captaincy choices boost ${team.name} up the rankings`,
+                          // Movement-focused headlines
+                          movement > 0 ? `${team.managerName} climbs ${movement} spots to #${league.rank}!` :
+                          movement < 0 ? `${team.name} drops ${Math.abs(movement)} places but still competitive` :
+                          `${team.managerName} maintains steady #${league.rank} position`,
+                          // Strategy-focused headlines
+                          `Transfer strategy proving effective for ${team.managerName}`,
+                          `Defensive picks helping ${team.name} secure points consistently`,
+                          // Performance headlines
+                          `Strong GW${team.currentGameweek} performance: ${team.gwPoints} points for ${team.name}`,
+                          `${team.managerName} targeting top 3 finish in ${league.name}`
+                        ];
+                        // Use league ID to consistently pick the same headline type for each league
+                        const headlineIndex = league.id % headlines.length;
+                        return headlines[headlineIndex] || headlines[0];
+                      })()}
                     </div>
                   </div>
 
