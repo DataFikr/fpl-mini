@@ -139,16 +139,11 @@ export default async function TeamPage({ params }: TeamPageProps) {
               <div className="flex items-center">
                 {/* Team Badge - My Team's Badge from Fantasy Premier League */}
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0 overflow-hidden">
-                  {team.favouriteTeam ? (
+  {team.favouriteTeam ? (
                     <img
                       src={`https://resources.premierleague.com/premierleague/badges/70/t${team.favouriteTeam}.png`}
                       alt={`Team ${team.favouriteTeam} badge`}
                       className="w-10 h-10 object-contain"
-                      onError={(e) => {
-                        // Fallback to initials if image fails to load
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling.style.display = 'block';
-                      }}
                     />
                   ) : null}
                   <span className={`text-white font-bold text-sm ${team.favouriteTeam ? 'hidden' : 'block'}`}>
