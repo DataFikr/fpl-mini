@@ -38,16 +38,24 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       if (storedTeamId) {
         setCurrentUserTeamId(parseInt(storedTeamId));
       } else {
-        // Try to get from URL parameters first
+        // Try to get from URL parameters first (both 'teamId' and 'team' formats)
         const urlParams = new URLSearchParams(window.location.search);
-        const urlTeamId = urlParams.get('teamId');
+        const urlTeamId = urlParams.get('teamId') || urlParams.get('team');
         if (urlTeamId) {
           const teamId = parseInt(urlTeamId);
           localStorage.setItem('fpl_user_team_id', teamId.toString());
           setCurrentUserTeamId(teamId);
         } else {
-          // Last resort fallback - no specific default
-          setCurrentUserTeamId(null);
+          // Check if team ID is in the URL path (format: /league/123/team=456)
+          const pathMatch = window.location.pathname.match(/\/team=(\d+)/);
+          if (pathMatch) {
+            const teamId = parseInt(pathMatch[1]);
+            localStorage.setItem('fpl_user_team_id', teamId.toString());
+            setCurrentUserTeamId(teamId);
+          } else {
+            // Last resort fallback - no specific default
+            setCurrentUserTeamId(null);
+          }
         }
       }
     }

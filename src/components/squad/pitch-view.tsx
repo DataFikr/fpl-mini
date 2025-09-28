@@ -544,7 +544,7 @@ export function PitchView({
                     className="absolute w-full flex justify-center"
                     style={{ top: '32%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-1 sm:gap-3 justify-center" style={{ maxWidth: '98%' }}>
+                    <div className="flex gap-2 sm:gap-4 justify-center" style={{ maxWidth: '98%' }}>
                       {squadData.starting.DEF.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
@@ -556,7 +556,7 @@ export function PitchView({
                     className="absolute w-full flex justify-center"
                     style={{ top: '55%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-1 sm:gap-3 justify-center" style={{ maxWidth: '98%', flexWrap: 'nowrap' }}>
+                    <div className="flex gap-2 sm:gap-4 justify-center" style={{ maxWidth: '98%', flexWrap: 'nowrap' }}>
                       {squadData.starting.MID.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
