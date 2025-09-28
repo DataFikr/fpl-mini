@@ -436,9 +436,15 @@ export class FPLApiService {
   }
 
   async getCurrentGameweek(): Promise<number> {
-    // Return mock current gameweek to avoid API delays
-    // TODO: Re-enable real API call once FPL API stability improves
-    return 6; // Current gameweek - updated for gameweek 6
+    try {
+      const bootstrap = await this.getBootstrapData();
+      const currentEvent = bootstrap.events.find(event => event.is_current);
+      return currentEvent ? currentEvent.id : 1;
+    } catch (error) {
+      console.warn('Failed to fetch current gameweek from bootstrap, using fallback:', error);
+      // Fallback to hardcoded value only if API fails
+      return 6;
+    }
   }
 
   async getManagerLeagues(managerId: number): Promise<any> {

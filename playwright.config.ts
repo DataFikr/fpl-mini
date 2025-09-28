@@ -20,10 +20,8 @@ export default defineConfig({
   // 🔄 RELIABILITY: Enhanced retry configuration
   retries: process.env.CI ? 3 : 1, // More retries on CI, 1 locally for faster feedback
 
-  // 🏃 PERFORMANCE: Optimized worker configuration
-  workers: process.env.CI
-    ? Math.max(1, Math.floor(require('os').cpus().length / 2)) // Use half CPUs on CI
-    : require('os').cpus().length - 1, // Use all but one CPU locally
+  // 🏃 PERFORMANCE: Optimized worker configuration - reduce to prevent conflicts
+  workers: process.env.CI ? 2 : 1, // Reduced workers to prevent Jest worker conflicts
 
   // 📊 TEST SHARDING: Support for test sharding in CI
   shard: process.env.CI && process.env.SHARD
@@ -47,7 +45,7 @@ export default defineConfig({
   // 🔧 OPTIMIZED SHARED SETTINGS: Enhanced performance and reliability
   use: {
     // Base URL to use in actions like `await page.goto('/')`
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || 'http://localhost:3002',
 
     // 🎯 PERFORMANCE: Optimized trace collection
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
@@ -61,9 +59,9 @@ export default defineConfig({
     // 🎥 VIDEO: Conditional video recording
     video: process.env.CI ? 'retain-on-failure' : 'off',
 
-    // ⏱️ PERFORMANCE: Optimized timeouts
-    actionTimeout: 15000, // Reduced from 30s for faster feedback
-    navigationTimeout: 30000,
+    // ⏱️ PERFORMANCE: Increased timeouts to handle slow server responses
+    actionTimeout: 30000, // Increased to handle slow API responses
+    navigationTimeout: 60000, // Increased for slow initial loads
 
     // 🌐 NETWORK: Performance optimizations
     ignoreHTTPSErrors: true,
@@ -158,13 +156,15 @@ export default defineConfig({
   // Run your local dev server before starting the tests
   webServer: {
     command: 'npm run dev',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000, // 2 minutes
+    port: 3002,
+    reuseExistingServer: true, // Always reuse existing server to prevent conflicts
+    timeout: 180 * 1000, // 3 minutes for slow initial startup
+    stdout: 'ignore', // Reduce noise in test output
+    stderr: 'pipe',
   },
 
-  // ⏱️ PERFORMANCE: Optimized test timeouts
-  timeout: process.env.CI ? 90 * 1000 : 45 * 1000, // Longer on CI, shorter locally
+  // ⏱️ PERFORMANCE: Increased test timeouts to handle slow API responses
+  timeout: process.env.CI ? 120 * 1000 : 90 * 1000, // Increased for slow FPL API calls
 
   // 🔍 RELIABILITY: Smart expect timeout
   expect: {

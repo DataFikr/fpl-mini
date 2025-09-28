@@ -183,11 +183,12 @@ export class TeamService {
     
     // Fallback to generic mock data if real API fails
     console.log('Falling back to mock leagues for manager:', fplTeamId);
+    const fallbackGameweek = await this.fplApi.getCurrentGameweek();
     const mockLeagues = [
       {
         id: 999001,
         name: "Sample League 1",
-        currentGameweek: 5,
+        currentGameweek: fallbackGameweek,
         teams: [
           { id: team.id, name: team.name, managerName: team.managerName, crestUrl: team.crestUrl, lastUpdated: team.lastUpdated },
         ],
@@ -211,7 +212,7 @@ export class TeamService {
       {
         id: 999002,
         name: "Sample League 2",
-        currentGameweek: 5,
+        currentGameweek: fallbackGameweek,
         teams: [
           { id: team.id, name: team.name, managerName: team.managerName, crestUrl: team.crestUrl, lastUpdated: team.lastUpdated },
         ],
@@ -330,11 +331,12 @@ export class TeamService {
     }
 
     // Mock league data for demo
+    const fallbackCurrentGameweek = await this.fplApi.getCurrentGameweek();
     const mockLeaguesData: Record<number, LeagueData> = {
       150789: {
         id: 150789,
         name: "Your Real Mini-League",
-        currentGameweek: 5,
+        currentGameweek: fallbackCurrentGameweek,
         teams: [],
         standings: [
           { teamId: 5093819, rank: 1, points: 1500, teamName: "Your FPL Team", managerName: "Real Manager", lastWeekRank: 2 },
@@ -344,7 +346,7 @@ export class TeamService {
       1001: {
         id: 1001,
         name: "Premier League Fanatics",
-        currentGameweek: 5,
+        currentGameweek: fallbackCurrentGameweek,
         teams: [
           { id: 1, name: "Arsenal Dream Team", managerName: "John Smith", crestUrl: null, lastUpdated: new Date() },
           { id: 2, name: "Liverpool Legends", managerName: "Mike Johnson", crestUrl: null, lastUpdated: new Date() },
@@ -365,7 +367,7 @@ export class TeamService {
       1002: {
         id: 1002,
         name: "Office League 2024/25",
-        currentGameweek: 5,
+        currentGameweek: fallbackCurrentGameweek,
         teams: [
           { id: 1, name: "Arsenal Dream Team", managerName: "John Smith", crestUrl: null, lastUpdated: new Date() },
           { id: 7, name: "Desk Warriors", managerName: "Tom Wilson", crestUrl: null, lastUpdated: new Date() },
@@ -445,28 +447,16 @@ export class TeamService {
           }
         });
 
-        // Direct rank override for league 150789 based on official FPL API
+        // Use fresh FPL API data for rankings - remove hardcoded overrides
+        // Now rely entirely on rank_sort and last_rank from live FPL API
         const directRankOverride: Record<number, number> = {};
         const directLastWeekRankOverride: Record<number, number> = {};
-        if (leagueId === 150789) {
-          // Current GW5 ranks (rank_sort)
-          directRankOverride[6454003] = 1; // Meriam Pak Maon
-          directRankOverride[6356669] = 2; // Kickin' FC - FORCE CORRECT RANK
-          directRankOverride[5100818] = 3; // kejoryobkejor - FORCE CORRECT RANK
-          directRankOverride[5721549] = 4; // SampanKosong
-
-          // Previous GW4 ranks (last_rank) for proper movement calculation
-          directLastWeekRankOverride[6454003] = 1; // Meriam Pak Maon (no change)
-          directLastWeekRankOverride[6356669] = 3; // Kickin' FC was 3rd, now 2nd (up 1)
-          directLastWeekRankOverride[5100818] = 2; // kejoryobkejor was 2nd, now 3rd (down 1)
-          directLastWeekRankOverride[5721549] = 4; // SampanKosong (no change)
-        }
 
         // Now process each team's progression
         allHistoryData.forEach(({ standing, history }) => {
-          // Use direct override first, then fresh lookup, then fallback
-          const currentRank = directRankOverride[standing.teamId] || currentRankLookup[standing.teamId] || standing.rank;
-          const lastWeekRank = directLastWeekRankOverride[standing.teamId] || standing.lastWeekRank; // Use override or FPL API last_rank
+          // Use fresh FPL API data - rank_sort for current rank, last_rank for previous
+          const currentRank = currentRankLookup[standing.teamId] || standing.rank;
+          const lastWeekRank = standing.lastWeekRank; // Use FPL API last_rank field
 
           // Debug logging for ranking issues
           console.log(`PROGRESSION DEBUG: ${standing.teamName} - lookupRank: ${currentRankLookup[standing.teamId]}, fallbackRank: ${standing.rank}, finalRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, points: ${standing.points}`);
@@ -475,21 +465,13 @@ export class TeamService {
             let gwRank;
             let movementFromLastWeek = 0;
 
-            if (gw.event === currentGameweek || (leagueId === 150789 && gw.event === 5)) {
-              // Current gameweek (5): Use rank_sort (current rank)
+            if (gw.event === currentGameweek) {
+              // Current gameweek: Use rank_sort (current rank)
               gwRank = currentRank;
               movementFromLastWeek = (lastWeekRank || 0) - currentRank;
               console.log(`🚀 GW${gw.event} RANK: ${standing.teamName} = ${gwRank} (currentRank: ${currentRank}, lastWeekRank: ${lastWeekRank}, movement: ${movementFromLastWeek})`);
-
-              // Special debug for problem teams
-              if (standing.teamId === 6356669) {
-                console.log(`🔥 KICKIN FC: override=${directRankOverride[standing.teamId]}, lookup=${currentRankLookup[standing.teamId]}, fallback=${standing.rank}, final=${currentRank}`);
-              }
-              if (standing.teamId === 5100818) {
-                console.log(`🔥 KEJORYOBKEJOR: override=${directRankOverride[standing.teamId]}, lookup=${currentRankLookup[standing.teamId]}, fallback=${standing.rank}, final=${currentRank}`);
-              }
-            } else if (gw.event === currentGameweek - 1 || (leagueId === 150789 && gw.event === 4)) {
-              // Previous gameweek (4): Use last_rank field from FPL API (previous rank)
+            } else if (gw.event === currentGameweek - 1) {
+              // Previous gameweek: Use last_rank field from FPL API (previous rank)
               gwRank = lastWeekRank || currentRank;
             } else if (gw.event <= currentGameweek - 2) {
               // Earlier gameweeks: Calculate rank based on total points at that gameweek

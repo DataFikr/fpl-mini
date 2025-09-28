@@ -38,7 +38,7 @@ export class HomePage extends BasePage {
     // Header elements
     this.logo = page.locator('img[alt="FPL Ranker Logo"]');
     this.mainHeading = page.locator('h1:has-text("FPLRanker")');
-    this.websiteUrl = page.locator('text=fplranker.com');
+    this.websiteUrl = page.locator('div.text-lg.text-gray-600:has-text("fplranker.com")').first();
     this.heroDescription = page.locator('p:has-text("Your ultimate Fantasy Premier League analytics platform")');
 
     // Search functionality

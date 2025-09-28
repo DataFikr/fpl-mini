@@ -11,7 +11,10 @@ async function globalSetup(config: FullConfig) {
   try {
     // Pre-warm the application
     console.log('🔥 Warming up the application...');
-    await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
+    await page.goto('http://localhost:3002', {
+      waitUntil: 'domcontentloaded',
+      timeout: 90000
+    });
     console.log('✅ Application warmed up successfully');
 
     // You can add more global setup here like:

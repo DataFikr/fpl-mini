@@ -97,7 +97,7 @@ test.describe('FPL Ranker Home Page', () => {
     await expect(homePage.ctaSection).toBeVisible();
 
     // Verify URL structure
-    expect(page.url()).toMatch(/localhost:3000\/?$/);
+    expect(page.url()).toMatch(/localhost:300[0-9]\/?$/); // Support both port 3000 and 3002
   });
 
   test('should handle search interactions', async ({ homePage, page }) => {

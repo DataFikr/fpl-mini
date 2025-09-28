@@ -61,7 +61,7 @@ export class BasePage {
     waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit';
     timeout?: number;
   } = {}): Promise<void> {
-    const { retries = 3, waitUntil = 'networkidle', timeout = 30000 } = options;
+    const { retries = 3, waitUntil = 'domcontentloaded', timeout = 90000 } = options; // Changed to domcontentloaded for faster loading
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
@@ -73,7 +73,14 @@ export class BasePage {
           referer: 'https://google.com' // Help with anti-bot measures
         });
 
-        // Verify page loaded successfully
+        // Wait for basic content to load, then verify
+        await this.page.waitForLoadState('domcontentloaded');
+
+        // For slow API responses, wait a bit more for initial content
+        if (url.includes('league') || url.includes('team')) {
+          await this.page.waitForTimeout(2000); // Brief wait for API data
+        }
+
         await this.verifyPageLoaded();
         console.log(`✅ Successfully loaded ${url}`);
         return;
