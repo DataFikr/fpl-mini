@@ -35,7 +35,7 @@ export function LeagueCard({ league, teamId }: LeagueCardProps) {
 
   return (
     <Link
-      href={`/league/${league.id}?teamId=${teamId}`}
+      href={`/league/${league.id}?team=${teamId}`}
       className="block bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-3 md:p-6"
     >
       <div className="flex justify-between items-start mb-2 md:mb-4">
@@ -66,7 +66,7 @@ export function LeagueCard({ league, teamId }: LeagueCardProps) {
         </div>
         <div className="p-2 md:p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
           <div className="text-xs md:text-sm font-semibold text-green-700 mb-1">GW</div>
-          <div className="text-sm md:text-base font-bold text-green-900">{league.currentGameweek || 5}</div>
+          <div className="text-sm md:text-base font-bold text-green-900">{league.currentGameweek || 6}</div>
         </div>
         <div className="p-2 md:p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
           <div className="text-xs md:text-sm font-semibold text-purple-700 mb-1">Points</div>
