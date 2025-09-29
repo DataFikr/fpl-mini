@@ -27,7 +27,9 @@
       "Bash(npx tsc:*)",
       "Bash(where psql)",
       "Bash(where vercel)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Read(//c/Users/Family/Downloads/**)",
+      "Bash(npm cache clean:*)"
     ],
     "deny": [],
     "ask": []

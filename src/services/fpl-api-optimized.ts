@@ -385,6 +385,23 @@ export class OptimizedFPLApiService {
   }
 
   /**
+   * 📅 Get current gameweek from bootstrap data
+   */
+  async getCurrentGameweek(): Promise<number> {
+    try {
+      const bootstrap = await this.getBootstrapStatic();
+      if (bootstrap?.events) {
+        const currentEvent = bootstrap.events.find((event: any) => event.is_current);
+        return currentEvent ? currentEvent.id : 6; // Fallback to gameweek 6
+      }
+      return 6; // Fallback to gameweek 6
+    } catch (error) {
+      console.error('❌ Failed to get current gameweek:', error);
+      return 6; // Fallback to gameweek 6
+    }
+  }
+
+  /**
    * 🔄 Preload common data for better performance
    */
   async preloadCommonData(): Promise<void> {
@@ -395,7 +412,7 @@ export class OptimizedFPLApiService {
       await this.getBootstrapStatic();
 
       // Preload current gameweek live data
-      const currentGameweek = 5; // Update based on current gameweek
+      const currentGameweek = await this.getCurrentGameweek();
       await this.getGameweekLiveData(currentGameweek);
 
       console.log('✅ Common data preloaded successfully');

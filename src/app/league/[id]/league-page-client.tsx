@@ -255,24 +255,14 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
             <Home className="h-4 w-4 mr-1 md:mr-2" />
             <span className="font-medium text-sm md:text-base">Home</span>
           </Link>
-          {currentUserTeamId ? (
-            <Link
-              href={`/team/${currentUserTeamId}`}
-              className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <User className="h-4 w-4 mr-1 md:mr-2" />
-              <span className="font-medium text-sm md:text-base">My Leagues</span>
-            </Link>
-          ) : (
-            <Link
-              href="/"
-              className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Search for your team ID on the home page"
-            >
-              <User className="h-4 w-4 mr-1 md:mr-2" />
-              <span className="font-medium text-sm md:text-base">Search Team</span>
-            </Link>
-          )}
+          <Link
+            href={currentUserTeamId ? `/team/${currentUserTeamId}?team=${currentUserTeamId}` : "/"}
+            className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title={currentUserTeamId ? "Go to your team page" : "Search for your team ID on the home page"}
+          >
+            <User className="h-4 w-4 mr-1 md:mr-2" />
+            <span className="font-medium text-sm md:text-base">My Leagues</span>
+          </Link>
         </div>
       </div>
 

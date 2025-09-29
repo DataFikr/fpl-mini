@@ -4,7 +4,7 @@ import { LeaguePageClient } from './league-page-client';
 
 interface LeaguePageProps {
   params: { id: string };
-  searchParams: { teamId?: string };
+  searchParams: { teamId?: string; team?: string };
 }
 
 export async function generateMetadata({ params }: LeaguePageProps) {
@@ -39,7 +39,17 @@ export default async function LeaguePage({ params, searchParams }: LeaguePagePro
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const leagueId = parseInt(resolvedParams.id);
-  const userTeamId = resolvedSearchParams.teamId ? parseInt(resolvedSearchParams.teamId) : undefined;
+  // Extract team ID from search params or path (handle /league/123/team=456 format)
+  let userTeamId = undefined;
+  if (resolvedSearchParams.teamId) {
+    userTeamId = parseInt(resolvedSearchParams.teamId);
+  } else if (resolvedSearchParams.team) {
+    userTeamId = parseInt(resolvedSearchParams.team);
+  } else {
+    // Check if team ID is in the path format (e.g., /league/123/team=456)
+    // Note: For this URL format, we'll rely on the client-side extraction
+    userTeamId = undefined;
+  }
 
   if (isNaN(leagueId)) {
     notFound();
@@ -47,16 +57,19 @@ export default async function LeaguePage({ params, searchParams }: LeaguePagePro
 
   try {
     const fplApi = new FPLApiService();
-    const leagueStandings = await Promise.race([
-      fplApi.getLeagueStandings(leagueId),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('League data timeout')), 8000))
-    ]) as any;
+    const [leagueStandings, currentGameweek] = await Promise.all([
+      Promise.race([
+        fplApi.getLeagueStandings(leagueId),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('League data timeout')), 8000))
+      ]) as any,
+      fplApi.getCurrentGameweek()
+    ]);
 
     // Transform FPL API data to match expected format
     const league = {
       id: leagueId,
       name: leagueStandings.league.name,
-      currentGameweek: 5, // Updated to gameweek 5
+      currentGameweek: currentGameweek,
       standings: leagueStandings.standings.results.map((entry: any) => ({
         teamId: entry.entry,
         teamName: entry.entry_name,
@@ -98,7 +111,7 @@ export default async function LeaguePage({ params, searchParams }: LeaguePagePro
       fallbackLeague = {
         id: leagueId,
         name: 'Best Man League',
-        currentGameweek: 5,
+        currentGameweek: 6,
         standings: [
           {
             teamId: 5100818,
@@ -147,7 +160,7 @@ export default async function LeaguePage({ params, searchParams }: LeaguePagePro
       fallbackLeague = {
         id: leagueId,
         name: `League ${leagueId}`,
-        currentGameweek: 5,
+        currentGameweek: 6,
         standings: [
           {
             teamId: 1000001,

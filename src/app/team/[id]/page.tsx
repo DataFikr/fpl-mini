@@ -230,7 +230,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
               {team.leagues.map((league) => (
                 <Link
                   key={league.id}
-                  href={`/league/${league.id}`}
+                  href={`/league/${league.id}?team=${team.id}`}
                   className="block bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border hover:shadow-md transition-all"
                 >
                   <div className="flex justify-between items-start mb-4">

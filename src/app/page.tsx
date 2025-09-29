@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TeamSearch } from '@/components/search/team-search';
 import { WebsiteStructuredData, OrganizationStructuredData } from '@/components/seo/structured-data';
+import { Footer } from '@/components/ui/footer';
 import { FPLManagerEntry } from '@/types/fpl';
 import { Trophy, Users, TrendingUp, BarChart3, Star, Zap, Target, ArrowUp, Crown, Brain, Vote } from 'lucide-react';
 import Image from 'next/image';
@@ -166,6 +167,8 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      <Footer />
       </div>
     </>
   );
