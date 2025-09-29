@@ -13,6 +13,43 @@ const nextConfig = {
     // Allow production builds to succeed despite TypeScript errors
     ignoreBuildErrors: true,
   },
+  images: {
+    domains: [
+      'fantasy.premierleague.com',
+      'resources.premierleague.com',
+      'fplranker.com',
+      'fpl-league-hub.vercel.app',
+      'fpl-mini.vercel.app',
+      'localhost'
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'fantasy.premierleague.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'resources.premierleague.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fplranker.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fpl-league-hub.vercel.app',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fpl-mini.vercel.app',
+        pathname: '/**',
+      }
+    ]
+  },
   // Simplified experimental configuration - remove problematic features
   experimental: {
     workerThreads: false,

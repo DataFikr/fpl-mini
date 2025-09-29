@@ -1,0 +1,52 @@
+{
+  "contact_info": {
+    "project_name": "FPL Mini League Hub (FPLRanker)",
+    "description": "Fantasy Premier League Mini League Management and Analytics Platform",
+    "support": {
+      "email": "support@fplranker.com",
+      "response_time": "48 hours"
+    },
+    "social_media": {
+      "twitter": {
+        "handle": "@FPLRanker",
+        "url": "https://twitter.com/FPLRanker"
+      }
+    },
+    "community": {
+      "discord": {
+        "name": "FPLRanker Discord",
+        "url": "https://discord.gg/FPLRanker"
+      }
+    },
+    "contact_methods": [
+      {
+        "type": "email",
+        "value": "support@fplranker.com",
+        "primary": true
+      },
+      {
+        "type": "twitter",
+        "value": "@FPLRanker",
+        "url": "https://twitter.com/FPLRanker"
+      },
+      {
+        "type": "discord",
+        "value": "FPLRanker Discord Community",
+        "url": "https://discord.gg/FPLRanker"
+      }
+    ],
+    "website": {
+      "production_url": "https://fpl-mini.vercel.app",
+      "contact_page": "https://fpl-mini.vercel.app/contact"
+    }
+  },
+  "technical_info": {
+    "framework": "Next.js 15.5.2",
+    "database": "PostgreSQL with Prisma ORM",
+    "deployment": "Vercel",
+    "api_source": "Fantasy Premier League Official API",
+    "current_gameweek": 6
+  },
+  "exported_at": "2025-09-28T04:15:00.000Z",
+  "export_note": "Contact information extracted from FPL Mini League Hub application"
+}

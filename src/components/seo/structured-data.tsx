@@ -17,10 +17,10 @@ export function WebsiteStructuredData() {
     "@type": "WebSite",
     "name": "FPL League Hub",
     "description": "Fantasy Premier League mini-league analytics and tracking platform",
-    "url": "https://fpl-league-hub.vercel.app",
+    "url": "https://fpl-mini.vercel.app",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://fpl-league-hub.vercel.app/search?q={search_term_string}",
+      "target": "https://fpl-mini.vercel.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
@@ -34,8 +34,8 @@ export function OrganizationStructuredData() {
     "@type": "Organization",
     "name": "FPL League Hub",
     "description": "Fantasy Premier League mini-league analytics platform",
-    "url": "https://fpl-league-hub.vercel.app",
-    "logo": "https://fpl-league-hub.vercel.app/logo.png",
+    "url": "https://fpl-mini.vercel.app",
+    "logo": "https://fpl-mini.vercel.app/logo.png",
     "sameAs": [
       "https://github.com/fpl-league-hub"
     ]
