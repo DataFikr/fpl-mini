@@ -1,13 +1,14 @@
 {
   "project": "FPL Mini League Hub",
   "current_session": {
-    "summary": "Fixed progression chart rankings and movement indicators",
+    "summary": "Fixed newsletter subscription error handling and database migration issues",
     "main_issues_resolved": [
-      "Progression chart showing Kickin' FC as rank 3 instead of rank 2",
-      "Missing movement indicators (arrows up/down) in league table",
-      "Broken fplranker.com image references"
+      "Newsletter subscription 'Failed to save subscription' error",
+      "Improved API error handling with detailed error messages",
+      "Added database migration deployment guide",
+      "Enhanced error detection for table and connection issues"
     ],
-    "status": "All major issues resolved and deployed"
+    "status": "Newsletter subscription error handling improved - requires database migration in production"
   },
   "technical_context": {
     "framework": "Next.js 14 App Router with TypeScript",
@@ -16,23 +17,29 @@
     "fpl_api": "https://fantasy.premierleague.com/api/",
     "current_gameweek": 6
   },
-  "final_fixes_implemented": [
+  "latest_fixes_implemented": [
     {
-      "issue": "Progression chart wrong rankings",
-      "solution": "Direct rank override for league 150789 based on official FPL API",
-      "implementation": "Added directRankOverride mapping with correct rank_sort values",
+      "issue": "Hardcoded gameweek 5 preventing gameweek 6 data display",
+      "solution": "Implement dynamic gameweek detection across application",
+      "implementation": "Added getCurrentGameweek() method to optimized FPL API service, updated fallback values from 5 to 6",
       "status": "Completed"
     },
     {
-      "issue": "Missing movement indicators",
-      "solution": "Added directLastWeekRankOverride for proper movement calculation",
-      "implementation": "Movement = lastWeekRank - currentRank, with hardcoded GW5/GW4 detection",
+      "issue": "Missing FPLRanker icon and headlines images in deployment",
+      "solution": "Configure Next.js image domains and add local assets",
+      "implementation": "Added comprehensive image domain configuration, copied favicon.ico and logo.png to public directory",
       "status": "Completed"
     },
     {
-      "issue": "Broken fplranker.com images",
-      "solution": "Replace with local favicon.ico",
-      "implementation": "Changed src from https://fplranker.com/favicon.ico to /favicon.ico",
+      "issue": "Email delivery system not working properly",
+      "solution": "Enhanced email service with proper configuration and error handling",
+      "implementation": "Implemented lazy initialization for Resend, updated API key and FROM_EMAIL domain",
+      "status": "Completed"
+    },
+    {
+      "issue": "Navigation inconsistencies with team parameters",
+      "solution": "Standardize URL parameter usage across components",
+      "implementation": "Updated league card and navigation to use consistent 'team' parameter instead of 'teamId'",
       "status": "Completed"
     }
   ],
@@ -99,8 +106,8 @@
   "final_deployment": {
     "production_url": "https://fpl-mini.vercel.app",
     "test_league": "https://fpl-mini.vercel.app/league/150789",
-    "last_commit": "0c683ba - Add hardcoded GW5 fix for league 150789 movement calculation",
-    "deployment_status": "Live and working"
+    "last_commit": "3e970d4 - Fix image loading and add image domain configuration",
+    "deployment_status": "Live and working - all images loading, gameweek 6 data displaying correctly"
   },
   "verification_steps_completed": [
     "Tested FPL API directly to confirm correct data",
@@ -148,13 +155,17 @@
     "All pages (Home, Team, League) now loading successfully"
   ],
   "completedFeatures": [
-    "Dynamic gameweek calculation",
+    "Dynamic gameweek calculation (updated to gameweek 6)",
     "Redis build error resolution",
     "Mobile responsiveness improvements",
     "Newsletter database integration",
     "Team-based voting system",
     "Headlines pictures integration",
-    "Navigation fixes"
+    "Navigation fixes",
+    "Email delivery system with Resend integration",
+    "Image domain configuration for all external sources",
+    "Contact information export system",
+    "Gameweek consistency across all components"
   ],
   "techStack": {
     "frontend": "Next.js with TypeScript",
@@ -167,5 +178,26 @@
     "note": "Multiple npm run dev processes detected",
     "recommendation": "Kill existing processes before starting new ones"
   },
-  "exportedAt": "2025-09-28T03:23:21.329Z"
+  "exportedAt": "2025-09-28T04:30:00.000Z",
+  "latest_session_summary": {
+    "date": "2025-10-04",
+    "focus": "Newsletter subscription error handling and database migration",
+    "key_files_modified": [
+      "src/app/api/newsletter/subscribe/route.ts - Enhanced error handling",
+      "DATABASE_MIGRATION.md - Created comprehensive migration guide",
+      "context.json - Updated current session status"
+    ],
+    "resolved_issues": [
+      "Improved error messages for database connection failures",
+      "Added detection for missing database tables",
+      "Created step-by-step migration deployment guide",
+      "Enhanced error logging for debugging production issues"
+    ],
+    "pending_actions": [
+      "Run database migrations on production (npx prisma migrate deploy)",
+      "Verify newsletter_subscriptions table exists in production database",
+      "Test subscription flow after migration"
+    ],
+    "current_status": "Code ready for deployment - database migration required in production environment"
+  }
 }

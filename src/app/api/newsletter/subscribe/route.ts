@@ -38,6 +38,9 @@ export async function POST(request: NextRequest) {
     // Save subscription to database
     let subscription;
     try {
+      console.log(`📧 Attempting to save subscription: ${email} for league ${leagueId}`);
+
+      // First, check if the table exists by attempting to find
       const existingSubscription = await prisma.newsletterSubscription.findFirst({
         where: {
           email: email.toLowerCase(),
@@ -46,6 +49,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (existingSubscription) {
+        console.log(`📧 Updating existing subscription (ID: ${existingSubscription.id})`);
         subscription = await prisma.newsletterSubscription.update({
           where: { id: existingSubscription.id },
           data: {
@@ -54,6 +58,7 @@ export async function POST(request: NextRequest) {
           }
         });
       } else {
+        console.log(`📧 Creating new subscription for ${email}`);
         subscription = await prisma.newsletterSubscription.create({
           data: {
             email: email.toLowerCase(),
@@ -64,11 +69,49 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      console.log(`📧 Email subscription saved: ${email} for league ${leagueId} (ID: ${subscription.id})`);
+      console.log(`✅ Email subscription saved successfully: ${email} for league ${leagueId} (ID: ${subscription.id})`);
     } catch (dbError) {
-      console.error('Database error:', dbError);
+      console.error('❌ Database error details:', dbError);
+      const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown database error';
+      console.error('Error message:', errorMessage);
+      console.error('Full error object:', JSON.stringify(dbError, null, 2));
+
+      // Check if this is a table not found error
+      const isTableNotFoundError = errorMessage.toLowerCase().includes('relation') &&
+                                    errorMessage.toLowerCase().includes('does not exist');
+
+      const isConnectionError = errorMessage.toLowerCase().includes('connection') ||
+                               errorMessage.toLowerCase().includes('connect') ||
+                               errorMessage.toLowerCase().includes('timeout');
+
+      if (isTableNotFoundError) {
+        return NextResponse.json(
+          {
+            error: 'Database table not found',
+            details: 'Please run database migrations: npx prisma migrate deploy',
+            technicalDetails: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+          },
+          { status: 503 }
+        );
+      }
+
+      if (isConnectionError) {
+        return NextResponse.json(
+          {
+            error: 'Database connection failed',
+            details: 'Unable to connect to the database. Please check DATABASE_URL environment variable.',
+            technicalDetails: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+          },
+          { status: 503 }
+        );
+      }
+
       return NextResponse.json(
-        { error: 'Failed to save subscription' },
+        {
+          error: 'Failed to save subscription',
+          details: 'An error occurred while saving your subscription. Please try again.',
+          technicalDetails: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        },
         { status: 500 }
       );
     }
