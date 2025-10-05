@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import GoogleAnalyticsWrapper from "@/components/analytics/GoogleAnalyticsWrapper";
 import CookieConsent from "@/components/analytics/CookieConsent";
 
 const geistSans = localFont({
@@ -77,7 +77,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {gaId && <GoogleAnalytics measurementId={gaId} />}
+        {gaId && <GoogleAnalyticsWrapper measurementId={gaId} />}
         {children}
         <CookieConsent />
       </body>
