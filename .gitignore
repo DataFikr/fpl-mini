@@ -22,18 +22,11 @@ openAI_API_Key.txt
 # Cache directories
 .fpl_cache/
 
-# Images and media (development files)
-*.png
-*.jpg
-*.PNG
-*.JPG
-
 # Python files (development scripts)
 *.py
 
 # Development documentation and notes
 notes.txt
-*.md (except README.md)
 
 # Temporary files
 nul
@@ -45,3 +38,7 @@ bump_chart_tableau_embed_code.txt
 
 # Theme files
 fpl-theme.css
+
+# Note: Images (png, jpg) are now INCLUDED in git for deployment
+# If you have local dev images you don't want to commit,
+# add them specifically (e.g., /dev-images/*.png)
