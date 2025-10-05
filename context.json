@@ -158,14 +158,15 @@
     "Dynamic gameweek calculation (updated to gameweek 6)",
     "Redis build error resolution",
     "Mobile responsiveness improvements",
-    "Newsletter database integration",
+    "Newsletter database integration with enhanced error handling",
     "Team-based voting system",
     "Headlines pictures integration",
     "Navigation fixes",
     "Email delivery system with Resend integration",
     "Image domain configuration for all external sources",
     "Contact information export system",
-    "Gameweek consistency across all components"
+    "Gameweek consistency across all components",
+    "Comprehensive database migration guide and verification tools"
   ],
   "techStack": {
     "frontend": "Next.js with TypeScript",

@@ -12,42 +12,42 @@ const getStoryConfig = (type: string) => {
         icon: <Crown className="h-6 w-6" />,
         color: '#DC2626',
         bgColor: '#FEF2F2',
-        image: '/images/headlines/monster.png'
+        image: '/images/headlines/monster.jpg'
       };
     case 'masterstroke':
       return {
         icon: <Target className="h-6 w-6" />,
         color: '#059669',
         bgColor: '#ECFDF5',
-        image: '/images/headlines/captain.png'
+        image: '/images/headlines/captain.jpg'
       };
     case 'disaster':
       return {
         icon: <AlertTriangle className="h-6 w-6" />,
         color: '#DC2626',
         bgColor: '#FEF2F2',
-        image: '/images/headlines/captain_zero.png'
+        image: '/images/headlines/captain_zero.jpg'
       };
     case 'rivalry':
       return {
         icon: <Zap className="h-6 w-6" />,
         color: '#7C3AED',
         bgColor: '#F3E8FF',
-        image: '/images/headlines/fever_pitch.png'
+        image: '/images/headlines/fever_pitch.jpg'
       };
     case 'underdog':
       return {
         icon: <TrendingUp className="h-6 w-6" />,
         color: '#0891B2',
         bgColor: '#ECFEFF',
-        image: '/images/headlines/monster.png'
+        image: '/images/headlines/monster.jpg'
       };
     default:
       return {
         icon: <Users className="h-6 w-6" />,
         color: '#6B7280',
         bgColor: '#F9FAFB',
-        image: '/images/headlines/fever_pitch.png'
+        image: '/images/headlines/fever_pitch.jpg'
       };
   }
 };
@@ -209,19 +209,30 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories, gamew
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('🎉 Newsletter sent successfully! You\'ve been subscribed for weekly updates with top 6 headlines.');
-        setMessageType('success');
+        // Check if it's a demo mode response
+        if (data.isDemo) {
+          setMessage('✅ Subscription saved! Note: Email service is in demo mode. Contact admin to enable actual email delivery.');
+          setMessageType('success');
+        } else {
+          setMessage('🎉 Newsletter sent successfully! You\'ve been subscribed for weekly updates with top 6 headlines.');
+          setMessageType('success');
+        }
         setEmail('');
         setTimeout(() => {
           onClose();
           setMessage('');
         }, 3000);
       } else {
-        setMessage(data.error || 'Failed to send newsletter');
+        const errorMsg = data.details
+          ? `${data.error}: ${data.details}`
+          : data.error || 'Failed to send newsletter';
+        setMessage(errorMsg);
         setMessageType('error');
+        console.error('Newsletter error:', data);
       }
     } catch (error) {
-      setMessage('Failed to send newsletter. Please try again.');
+      console.error('Newsletter request failed:', error);
+      setMessage('Failed to send newsletter. Please check your connection and try again.');
       setMessageType('error');
     } finally {
       setIsLoading(false);

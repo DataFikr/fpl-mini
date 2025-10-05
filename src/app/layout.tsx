@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import CookieConsent from "@/components/analytics/CookieConsent";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,33 +16,38 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "FPL League Hub - Fantasy Premier League Mini-League Analytics",
+  title: "FPL Ranker - Fantasy Premier League Mini-League Analytics",
   description: "Your ultimate Fantasy Premier League mini-league companion. Get personalized insights, track rank progression, and analyze squad performance. Reduce analysis time from 30+ minutes to under 5 minutes.",
   keywords: ["FPL", "Fantasy Premier League", "mini-league", "analytics", "tracker", "rank progression", "squad analysis"],
-  authors: [{ name: "FPL League Hub" }],
-  creator: "FPL League Hub",
-  publisher: "FPL League Hub",
+  authors: [{ name: "FPL Ranker" }],
+  creator: "FPL Ranker",
+  publisher: "FPL Ranker",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://fpl-league-hub.vercel.app",
-    siteName: "FPL League Hub",
-    title: "FPL League Hub - Fantasy Premier League Mini-League Analytics",
+    url: "https://fplranker.com",
+    siteName: "FPL Ranker",
+    title: "FPL Ranker - Fantasy Premier League Mini-League Analytics",
     description: "Track your FPL mini-league performance with detailed analytics and insights. Visual rank progression charts and squad analysis.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/icon.png",
         width: 1200,
-        height: 630,
-        alt: "FPL League Hub - Mini-League Analytics",
+        height: 1200,
+        alt: "FPL Ranker - Mini-League Analytics",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FPL League Hub - Fantasy Premier League Mini-League Analytics",
+    title: "FPL Ranker - Fantasy Premier League Mini-League Analytics",
     description: "Track your FPL mini-league performance with detailed analytics and insights.",
-    images: ["/og-image.png"],
+    images: ["/icon.png"],
   },
   robots: {
     index: true,
@@ -63,12 +70,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {gaId && <GoogleAnalytics measurementId={gaId} />}
         {children}
+        <CookieConsent />
       </body>
     </html>
   );
