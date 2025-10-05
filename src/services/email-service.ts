@@ -127,6 +127,38 @@ export class EmailService {
     });
   }
 
+  async sendContactFormEmail(
+    name: string,
+    email: string,
+    message: string
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const subject = `📬 New Contact Form Submission from ${name}`;
+    const html = this.generateContactFormHTML(name, email, message);
+
+    return this.sendEmail({
+      to: 'support@fplranker.com',
+      subject,
+      html,
+      from: process.env.FROM_EMAIL || 'noreply@fplranker.com',
+    });
+  }
+
+  async sendThursdayReminder(
+    email: string,
+    leagueName: string,
+    leagueId: number,
+    upcomingGameweek: number
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const subject = `⏰ FPL Deadline Reminder - Gameweek ${upcomingGameweek} | ${leagueName}`;
+    const html = this.generateThursdayReminderHTML(email, leagueName, leagueId, upcomingGameweek);
+
+    return this.sendEmail({
+      to: email,
+      subject,
+      html,
+    });
+  }
+
   private generateGameweekSummaryHTML(leagueName: string, stories: any[], email: string, gameweek: number): string {
     const currentDate = new Date().toLocaleDateString('en-US', {
       weekday: 'long',
@@ -213,14 +245,14 @@ export class EmailService {
           </div>
 
           <div class="footer">
-            <p style="font-size: 18px; margin-bottom: 10px;">📊 FPL League Hub Newsletter</p>
+            <p style="font-size: 18px; margin-bottom: 10px;">📊 fplranker.com Newsletter</p>
             <p style="margin-bottom: 15px;">You're subscribed to weekly updates for <strong>${leagueName}</strong></p>
             <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
               <p style="margin: 0; font-size: 14px;">📧 Newsletter delivered to: ${email}</p>
               <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.8;">Gameweek ${gameweek} Summary | Generated on ${currentDate}</p>
             </div>
             <p style="font-size: 11px; opacity: 0.7; margin-top: 20px;">
-              🔧 Powered by FPL League Hub | Want to unsubscribe? Reply to this email
+              🔧 Powered by fplranker.com | Want to unsubscribe? Reply to this email
             </p>
           </div>
         </div>
@@ -258,7 +290,6 @@ export class EmailService {
           .stat-value { font-size: 24px; font-weight: bold; color: #00b894; }
           .stat-label { font-size: 12px; color: #636e72; text-transform: uppercase; letter-spacing: 0.5px; }
           .footer { background: #2d3436; color: white; padding: 20px; text-align: center; }
-          .action-box { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
         </style>
       </head>
       <body>
@@ -299,39 +330,9 @@ export class EmailService {
               <p>📉 <strong>Disappointing Returns:</strong> Analyze underperforming assets and missed opportunities</p>
             </div>
 
-            <div class="analysis-section">
-              <div class="section-title">
-                <span class="section-icon">🧠</span>
-                Strategic Insights
-              </div>
-              <p>👑 <strong>Captain Choices:</strong> See which captain picks paid off and which didn't</p>
-              <p>🔄 <strong>Transfer Trends:</strong> Popular moves and template changes in your league</p>
-              <p>💡 <strong>Template Analysis:</strong> How your team compares to the league template</p>
-            </div>
-
-            <div class="analysis-section">
-              <div class="section-title">
-                <span class="section-icon">🔮</span>
-                Looking Ahead to GW ${gameweek + 1}
-              </div>
-              <p>📅 <strong>Fixture Analysis:</strong> Best fixtures and potential rotation risks</p>
-              <p>💰 <strong>Value Picks:</strong> Budget-friendly options that could deliver points</p>
-              <p>🎲 <strong>Differential Opportunities:</strong> Low-owned players who could provide an edge</p>
-            </div>
-
             <div class="highlight-box">
               <h3 style="color: #00b894; margin-top: 0; text-align: center;">📱 Access Your Full Analysis</h3>
-              <p style="text-align: center;">Visit the FPL League Hub to view detailed squad breakdowns, position-by-position analysis, and interactive charts showing your league's progression.</p>
-            </div>
-
-            <div class="action-box">
-              <h3 style="color: #e17055; margin-top: 0;">⚡ Quick Actions for GW ${gameweek + 1}</h3>
-              <ul style="text-align: left; display: inline-block;">
-                <li>🔍 Review your team's performance vs league average</li>
-                <li>📋 Plan transfers for upcoming fixtures</li>
-                <li>👑 Choose your captain wisely</li>
-                <li>🎯 Consider differential picks to gain ground</li>
-              </ul>
+              <p style="text-align: center;">Visit fplranker.com to view detailed squad breakdowns, position-by-position analysis, and interactive charts showing your league's progression.</p>
             </div>
 
             <p style="text-align: center; font-size: 16px; color: #2d3436;">Get the edge you need to climb your mini-league!</p>
@@ -339,14 +340,224 @@ export class EmailService {
           </div>
 
           <div class="footer">
-            <p style="font-size: 18px; margin-bottom: 10px;">📈 FPL Team Analysis</p>
+            <p style="font-size: 18px; margin-bottom: 10px;">📈 fplranker.com Team Analysis</p>
             <p style="margin-bottom: 15px;">Weekly insights for <strong>${leagueName}</strong></p>
             <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
               <p style="margin: 0; font-size: 14px;">📧 Analysis delivered to: ${email}</p>
               <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.8;">Gameweek ${gameweek} Summary | Generated on ${currentDate}</p>
             </div>
             <p style="font-size: 11px; opacity: 0.7; margin-top: 20px;">
-              🔧 Powered by FPL League Hub | Want to unsubscribe? Reply to this email
+              🔧 Powered by fplranker.com | Want to unsubscribe? Reply to this email
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private generateContactFormHTML(name: string, email: string, message: string): string {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contact Form Submission - fplranker.com</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+          .container { max-width: 600px; margin: 0 auto; background-color: white; }
+          .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px; text-align: center; }
+          .content { padding: 30px; }
+          .info-box { background: #f8f9fa; padding: 20px; border-left: 4px solid #10B981; border-radius: 0 8px 8px 0; margin-bottom: 20px; }
+          .info-label { font-weight: bold; color: #2d3436; margin-bottom: 5px; }
+          .info-value { color: #555; }
+          .message-box { background: #e8f4fd; padding: 20px; border-radius: 8px; border: 1px solid #10B981; margin: 20px 0; }
+          .footer { background: #2d3436; color: white; padding: 20px; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div style="font-size: 24px;">📬</div>
+            <h1>New Contact Form Submission</h1>
+            <p>fplranker.com</p>
+            <p style="font-size: 14px; opacity: 0.9;">${currentDate}</p>
+          </div>
+
+          <div class="content">
+            <h2 style="color: #2d3436; margin-bottom: 20px;">Contact Details</h2>
+
+            <div class="info-box">
+              <div class="info-label">👤 Name:</div>
+              <div class="info-value">${name}</div>
+            </div>
+
+            <div class="info-box">
+              <div class="info-label">📧 Email:</div>
+              <div class="info-value"><a href="mailto:${email}" style="color: #10B981;">${email}</a></div>
+            </div>
+
+            <h3 style="color: #2d3436; margin-top: 30px; margin-bottom: 15px;">💬 Message:</h3>
+            <div class="message-box">
+              <p style="white-space: pre-wrap; margin: 0; color: #2d3436; line-height: 1.8;">${message}</p>
+            </div>
+
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px;">
+              <p style="margin: 0; color: #856404;">
+                <strong>⚡ Action Required:</strong> Please respond to this inquiry within 48 hours to maintain our excellent customer service standards.
+              </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="mailto:${email}?subject=Re: Your inquiry to fplranker.com"
+                 style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                Reply to ${name}
+              </a>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p style="font-size: 16px; margin-bottom: 10px;">📧 fplranker.com Contact Form</p>
+            <p style="font-size: 12px; opacity: 0.8; margin: 0;">
+              This is an automated notification from the fplranker.com contact form.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private generateThursdayReminderHTML(email: string, leagueName: string, leagueId: number, upcomingGameweek: number): string {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Calculate deadline (typically Friday 18:30 UK time)
+    const deadline = 'Friday 18:30 UK time';
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FPL Deadline Reminder - ${leagueName}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+          .container { max-width: 600px; margin: 0 auto; background-color: white; }
+          .header { background: linear-gradient(135deg, #FF6B6B 0%, #EE5A6F 100%); color: white; padding: 30px; text-align: center; }
+          .content { padding: 30px; }
+          .alert-box { background: #FFF3CD; border: 2px solid #FFC107; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .action-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 8px; margin: 20px 0; text-align: center; color: white; }
+          .checklist { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .checklist-item { padding: 10px 0; border-bottom: 1px solid #dee2e6; }
+          .checklist-item:last-child { border-bottom: none; }
+          .footer { background: #2d3436; color: white; padding: 20px; text-align: center; }
+          .cta-button { display: inline-block; padding: 15px 40px; background: #10B981; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 10px 0; }
+          .countdown-box { background: #FFF; border: 3px solid #FF6B6B; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div style="font-size: 48px; margin-bottom: 10px;">⏰</div>
+            <h1>Gameweek ${upcomingGameweek} Deadline Approaching!</h1>
+            <p style="font-size: 18px; margin-bottom: 0;">${leagueName}</p>
+            <p style="font-size: 14px; opacity: 0.9;">${currentDate}</p>
+          </div>
+
+          <div class="content">
+            <div class="alert-box">
+              <h2 style="color: #856404; margin-top: 0; font-size: 20px;">⚠️ Don't Forget Your Team!</h2>
+              <p style="color: #856404; margin-bottom: 0; font-size: 16px;">
+                The deadline for Gameweek ${upcomingGameweek} is coming up soon. Make sure your team is ready!
+              </p>
+            </div>
+
+            <div class="countdown-box">
+              <div style="font-size: 48px; font-weight: bold; color: #FF6B6B; margin-bottom: 10px;">⏱️</div>
+              <h3 style="color: #2d3436; margin: 10px 0;">Deadline</h3>
+              <p style="font-size: 24px; font-weight: bold; color: #FF6B6B; margin: 10px 0;">${deadline}</p>
+              <p style="color: #666; margin-bottom: 0;">Time is running out! Make your moves now.</p>
+            </div>
+
+            <h3 style="color: #2d3436; margin-top: 30px;">✅ Pre-Deadline Checklist</h3>
+            <div class="checklist">
+              <div class="checklist-item">
+                <strong>🔄 Make Transfers:</strong> Review your squad and make necessary changes
+              </div>
+              <div class="checklist-item">
+                <strong>👑 Pick Captain:</strong> Choose wisely - your captain scores double points!
+              </div>
+              <div class="checklist-item">
+                <strong>📋 Check Starting XI:</strong> Ensure your best team is selected
+              </div>
+              <div class="checklist-item">
+                <strong>🚨 Verify Formations:</strong> Make sure you have a valid formation (1 GK, 3-5 DEF, 2-5 MID, 1-3 FWD)
+              </div>
+              <div class="checklist-item">
+                <strong>💰 Monitor Price Changes:</strong> Act fast if your players are about to drop in value
+              </div>
+              <div class="checklist-item">
+                <strong>🩺 Check Injuries:</strong> Review injury news and press conferences
+              </div>
+            </div>
+
+            <div class="action-box">
+              <h3 style="margin-top: 0; font-size: 22px;">🏆 Visit fplranker.com</h3>
+              <p style="margin-bottom: 20px; opacity: 0.95;">
+                Check your mini-league standings, view rival teams, and get insights throughout the gameweek matches!
+              </p>
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com'}/league/${leagueId}"
+                 style="display: inline-block; padding: 15px 40px; background: white; color: #667eea; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                View ${leagueName} →
+              </a>
+            </div>
+
+            <h3 style="color: #2d3436; margin-top: 30px;">📊 What to Expect This Gameweek</h3>
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; border-left: 4px solid #3B82F6;">
+              <ul style="margin: 0; padding-left: 20px;">
+                <li><strong>Live Updates:</strong> Track all matches and player performances in real-time</li>
+                <li><strong>League Rankings:</strong> See how your rivals are doing throughout the gameweek</li>
+                <li><strong>Performance Tracking:</strong> Monitor captain choices, transfers, and team selections</li>
+                <li><strong>Community Polls:</strong> Participate in polls and see what other managers are thinking</li>
+              </ul>
+            </div>
+
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px;">
+              <p style="margin: 0; color: #856404;">
+                <strong>💡 Pro Tip:</strong> Visit fplranker.com during matches to see live score updates and track how your team is performing against your mini-league rivals!
+              </p>
+            </div>
+
+            <p style="text-align: center; font-size: 16px; color: #2d3436; margin-top: 30px;">
+              Good luck for Gameweek ${upcomingGameweek}! 🍀⚽
+            </p>
+          </div>
+
+          <div class="footer">
+            <p style="font-size: 18px; margin-bottom: 10px;">⏰ fplranker.com Deadline Reminder</p>
+            <p style="margin-bottom: 15px;">You're subscribed to updates for <strong>${leagueName}</strong></p>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+              <p style="margin: 0; font-size: 14px;">📧 Reminder sent to: ${email}</p>
+              <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.8;">Gameweek ${upcomingGameweek} | ${currentDate}</p>
+            </div>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 20px;">
+              🔧 Powered by fplranker.com | Want to unsubscribe? Reply to this email
             </p>
           </div>
         </div>

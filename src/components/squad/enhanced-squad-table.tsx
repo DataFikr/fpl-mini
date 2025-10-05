@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FPLManagerEntry, TeamData } from '@/types/fpl';
-import { Crown, Star, TrendingUp, Users, Mail, Bell } from 'lucide-react';
+import { Crown, Star, TrendingUp, Users, Mail, Bell, X } from 'lucide-react';
 import { PitchView } from './pitch-view';
 // Removed FPLApiService import to avoid Redis dependency in client components
 
@@ -355,7 +355,7 @@ FPL Ranker Team`;
         <p className="text-gray-600">
           Comprehensive squad breakdown with performance analysis
         </p>
-        
+
         <div className="flex flex-wrap gap-2 mt-4">
           <button
             onClick={() => setSortBy('rank')}
@@ -392,8 +392,17 @@ FPL Ranker Team`;
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 ml-4 flex items-center gap-2 shadow-lg hover:shadow-xl"
           >
             <Mail className="h-4 w-4" />
-            Get Team's Performance Summary
+            Email
           </button>
+        </div>
+
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>📊 Analysis includes:</strong> Squad formation breakdown (GKP/DEF/MID/FWD/SUBS),
+            captain performance, top scorers, and overall gameweek assessment based on points thresholds.
+            <br />
+            <strong>💡 Tip:</strong> Click on any team name to view their squad in pitch view format!
+          </p>
         </div>
       </div>
 
@@ -488,15 +497,6 @@ FPL Ranker Team`;
         </table>
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-blue-800">
-          <strong>📊 Analysis includes:</strong> Squad formation breakdown (GKP/DEF/MID/FWD/SUBS), 
-          captain performance, top scorers, and overall gameweek assessment based on points thresholds.
-          <br />
-          <strong>💡 Tip:</strong> Click on any team name to view their squad in pitch view format!
-        </p>
-      </div>
-
       {/* Pitch View Modal */}
       {selectedTeam && (
         <PitchView
@@ -516,17 +516,34 @@ FPL Ranker Team`;
         />
       )}
 
-      {/* Team Performance Summary Modal */}
+      {/* Team Performance Summary Modal - Redesigned to match Top Headlines style */}
       {showNewsletterModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
-              Get Team's Performance Summary
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Get all the teams performance summary from League {leagueId} sent to your inbox.
-            </p>
-            <div className="mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl relative">
+            <button
+              onClick={() => {
+                setShowNewsletterModal(false);
+                setEmail('');
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              disabled={isSubscribing}
+            >
+              <X className="h-6 w-6" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 mb-4">
+                <Mail className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
+                <span>📧</span> Get Your League Newsletter!
+              </h3>
+              <p className="text-gray-600">
+                Get this week's top headlines delivered to your inbox + weekly updates from {leagueId}
+              </p>
+            </div>
+
+            <div className="mb-6">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
@@ -535,39 +552,32 @@ FPL Ranker Team`;
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="your.email@example.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
               />
             </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => {
-                  setShowNewsletterModal(false);
-                  setEmail('');
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                disabled={isSubscribing}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleNewsletterSubscription}
-                disabled={isSubscribing}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {isSubscribing ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="h-4 w-4" />
-                    Send Team's Performance Summary
-                  </>
-                )}
-              </button>
-            </div>
+
+            <button
+              onClick={handleNewsletterSubscription}
+              disabled={isSubscribing}
+              className="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+            >
+              {isSubscribing ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Subscribing...
+                </>
+              ) : (
+                <>
+                  <Bell className="h-5 w-5" />
+                  Send Newsletter & Subscribe
+                </>
+              )}
+            </button>
+
+            <p className="text-center text-sm text-gray-500 mt-4">
+              You'll receive weekly updates about Gameweek {currentGameweek} plus this gameweek's summary
+            </p>
           </div>
         </div>
       )}

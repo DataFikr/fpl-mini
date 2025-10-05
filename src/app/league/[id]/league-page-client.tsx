@@ -128,7 +128,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
     },
     {
       id: 'team-analysis' as TabType,
-      name: 'Team Analysis',
+      name: 'Rival Watch',
       icon: UserSearch,
       description: 'Analyze team squads and player performance'
     },
@@ -198,27 +198,12 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
 
       case 'community-poll':
         return (
-          <div className="space-y-6">
+          <div>
             <VotingPoll
               leagueId={leagueId}
+              leagueName={league.name}
               teams={league.standings}
               gameweek={league.currentGameweek}
-              pollId="high-scorer"
-              question="Who will score the most points in Gameweek"
-            />
-            <VotingPoll
-              leagueId={leagueId}
-              teams={league.standings}
-              gameweek={league.currentGameweek}
-              pollId="captain-pick"
-              question="Who will be the most popular captain choice for Gameweek"
-            />
-            <VotingPoll
-              leagueId={leagueId}
-              teams={league.standings}
-              gameweek={league.currentGameweek}
-              pollId="biggest-riser"
-              question="Who will climb the most positions in Gameweek"
             />
           </div>
         );

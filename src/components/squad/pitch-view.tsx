@@ -496,7 +496,7 @@ export function PitchView({
               </div>
 
               {/* Enhanced Pitch with optimized spacing for smaller cards */}
-              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-1 sm:p-3 h-[350px] sm:h-[500px] lg:h-[580px]">
+              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-1 sm:p-3 h-[420px] sm:h-[550px] lg:h-[620px]">
                 {/* Pitch Markings */}
                 <div className="absolute inset-0 opacity-20">
                   <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -527,10 +527,10 @@ export function PitchView({
 
                 {/* Formation with absolute positioning for optimal pitch utilization */}
                 <div className="relative z-10 w-full h-full">
-                  {/* Goalkeeper - moved even closer to top goal post (8% from top) */}
-                  <div 
+                  {/* Goalkeeper - positioned at 10% from top */}
+                  <div
                     className="absolute w-full flex justify-center"
-                    style={{ top: '8%', transform: 'translateY(-50%)' }}
+                    style={{ top: '10%', transform: 'translateY(-50%)' }}
                   >
                     <div className="flex gap-4">
                       {squadData.starting.GKP.map((player, index) => (
@@ -539,36 +539,36 @@ export function PitchView({
                     </div>
                   </div>
 
-                  {/* Defenders - positioned at 32% from top */}
+                  {/* Defenders - positioned at 32% from top with better horizontal spacing */}
                   <div
                     className="absolute w-full flex justify-center"
                     style={{ top: '32%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-2 sm:gap-4 justify-center" style={{ maxWidth: '98%' }}>
+                    <div className="flex gap-3 sm:gap-6 md:gap-8 justify-center" style={{ maxWidth: '98%' }}>
                       {squadData.starting.DEF.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
                     </div>
                   </div>
 
-                  {/* Midfielders - positioned at 55% from top with better spacing */}
+                  {/* Midfielders - positioned at 56% from top with better spacing */}
                   <div
                     className="absolute w-full flex justify-center"
-                    style={{ top: '55%', transform: 'translateY(-50%)' }}
+                    style={{ top: '56%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-2 sm:gap-4 justify-center" style={{ maxWidth: '98%', flexWrap: 'nowrap' }}>
+                    <div className="flex gap-3 sm:gap-6 md:gap-8 justify-center" style={{ maxWidth: '98%', flexWrap: 'nowrap' }}>
                       {squadData.starting.MID.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
                     </div>
                   </div>
 
-                  {/* Forwards - positioned closer to midfielders (78% from top) */}
+                  {/* Forwards - positioned at 80% from top with good spacing */}
                   <div
                     className="absolute w-full flex justify-center"
-                    style={{ top: '78%', transform: 'translateY(-50%)' }}
+                    style={{ top: '80%', transform: 'translateY(-50%)' }}
                   >
-                    <div className="flex gap-4 sm:gap-8 justify-center">
+                    <div className="flex gap-6 sm:gap-10 md:gap-14 justify-center">
                       {squadData.starting.FWD.map((player, index) => (
                         <EnhancedJerseyCard key={index} player={player} />
                       ))}
@@ -580,7 +580,7 @@ export function PitchView({
               {/* Substitutes Section - with better spacing and layout */}
               <div className="bg-gray-50 rounded-lg p-2 sm:p-4 mt-2 sm:mt-4">
                 <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 text-center">SUBSTITUTES</h3>
-                <div className="flex justify-center gap-2 sm:gap-4 flex-wrap">
+                <div className="flex justify-center gap-4 sm:gap-6 md:gap-8 flex-wrap">
                   {squadData.subs.map((player, index) => (
                     <div key={index} className="flex-shrink-0">
                       <EnhancedJerseyCard player={player} isSubstitute={true} />
