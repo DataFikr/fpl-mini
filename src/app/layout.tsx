@@ -22,11 +22,7 @@ export const metadata: Metadata = {
   authors: [{ name: "FPL Ranker" }],
   creator: "FPL Ranker",
   publisher: "FPL Ranker",
-  icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
-  },
+  metadataBase: new URL('https://fplranker.com'),
   openGraph: {
     type: "website",
     locale: "en_US",
