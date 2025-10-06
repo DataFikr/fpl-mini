@@ -38,6 +38,13 @@ export const metadata: Metadata = {
   creator: "FPL Ranker",
   publisher: "FPL Ranker",
   metadataBase: new URL('https://fplranker.com'),
+  icons: {
+    icon: [
+      { url: '/images/fplranker.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/fplranker.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/images/fplranker.png',
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -22,47 +22,63 @@ export default function Home() {
     <>
       <WebsiteStructuredData />
       <OrganizationStructuredData />
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-fpl-dark via-fpl-primary/5 to-fpl-dark">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-blue-600/10"></div>
-        <div className="relative container mx-auto px-4 py-20">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-6">
+      <section className="relative overflow-hidden min-h-screen flex items-center">
+        <div className="absolute inset-0 bg-animated-gradient opacity-20"></div>
+
+        {/* Large Icon on Left */}
+        <div className="absolute left-0 top-0 bottom-0 w-1/3 hidden lg:flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <Image
+              src="/images/fplranker.png"
+              alt="FPL Ranker Logo"
+              width={500}
+              height={500}
+              className="rounded-3xl shadow-fpl-glow opacity-90"
+            />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="relative container mx-auto px-4 py-20 lg:pl-[40%]">
+          <div className="mb-12">
+            {/* Mobile Icon */}
+            <div className="flex justify-center mb-6 lg:hidden">
               <div className="relative">
                 <Image
                   src="/images/fplranker.png"
                   alt="FPL Ranker Logo"
                   width={120}
                   height={120}
-                  className="rounded-2xl shadow-lg"
+                  className="rounded-2xl shadow-fpl-glow"
                 />
               </div>
             </div>
-            <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-6">
-              <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">FPLRanker</span>
+
+            <h1 className="text-5xl md:text-7xl font-jakarta font-bold text-white mb-6">
+              <span className="text-gradient-primary">FPLRanker</span>
             </h1>
-            <div className="text-lg text-gray-600 mb-2 font-medium">fplranker.com</div>
-            <p className="text-2xl text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-fpl-text-secondary mb-8 max-w-3xl leading-relaxed">
               Your ultimate Fantasy Premier League analytics platform. Track progress, analyze performance, and dominate your mini-leagues with{' '}
-              <span className="font-semibold text-green-600">powerful insights</span> and{' '}
-              <span className="font-semibold text-blue-600">real-time data</span>.
+              <span className="font-jakarta font-semibold text-fpl-accent">powerful insights</span> and{' '}
+              <span className="font-jakarta font-semibold text-fpl-violet-400">real-time data</span>.
             </p>
-            
+
             <TeamSearch onTeamSelect={handleTeamSelect} />
-            
-            <div className="mt-8 flex justify-center items-center space-x-8 text-sm text-gray-600">
-              <div className="flex items-center">
-                <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                <span className="font-medium">Live FPL Data</span>
+
+            <div className="mt-8 flex flex-wrap justify-start gap-6 text-sm">
+              <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
+                <Star className="h-5 w-5 text-fpl-accent mr-2" />
+                <span className="font-jakarta font-medium text-white">Live FPL Data</span>
               </div>
-              <div className="flex items-center">
-                <Zap className="h-5 w-5 text-green-500 mr-2" />
-                <span className="font-medium">Instant Analytics</span>
+              <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
+                <Zap className="h-5 w-5 text-fpl-accent mr-2" />
+                <span className="font-jakarta font-medium text-white">Instant Analytics</span>
               </div>
-              <div className="flex items-center">
-                <Target className="h-5 w-5 text-blue-500 mr-2" />
-                <span className="font-medium">100% Free</span>
+              <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
+                <Target className="h-5 w-5 text-fpl-accent mr-2" />
+                <span className="font-jakarta font-medium text-white">100% Free</span>
               </div>
             </div>
           </div>
@@ -70,13 +86,13 @@ export default function Home() {
       </section>
 
       {/* Questions CTA Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 backdrop-blur-fpl bg-fpl-dark/60">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Ever <span className="text-green-600">Wondered</span> About Your League?
+            <h2 className="text-4xl font-jakarta font-bold text-white mb-4">
+              Ever <span className="text-fpl-accent">Wondered</span> About Your League?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl font-inter text-fpl-text-secondary max-w-3xl mx-auto">
               Get instant answers to the questions that matter most to FPL managers
             </p>
           </div>
@@ -121,8 +137,8 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-xl inline-block">
-              <div className="text-lg font-semibold">🚀 All answers are just one search away!</div>
+            <div className="bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white px-8 py-4 rounded-fpl inline-block shadow-fpl-glow-violet">
+              <div className="text-lg font-jakarta font-semibold">🚀 All answers are just one search away!</div>
             </div>
           </div>
         </div>
@@ -131,36 +147,36 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-16">
 
         {/* CTA Section */}
-        <section className="relative bg-gradient-to-r from-green-600 to-blue-600 rounded-3xl shadow-2xl p-12 text-center text-white overflow-hidden">
-          <div className="absolute inset-0 bg-black/10 rounded-3xl"></div>
+        <section className="relative bg-gradient-to-r from-fpl-primary to-fpl-violet-700 rounded-fpl shadow-fpl-glow-violet p-12 text-center text-white overflow-hidden">
+          <div className="absolute inset-0 bg-black/10 rounded-fpl"></div>
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ready to <span className="text-yellow-300">Elevate</span> Your FPL Game?
+            <h2 className="text-4xl md:text-5xl font-jakarta font-bold mb-6">
+              Ready to <span className="text-fpl-accent">Elevate</span> Your FPL Game?
             </h2>
-            <p className="text-xl text-green-100 mb-8 max-w-3xl mx-auto">
-              Join thousands of managers who use FPLRanker.com to track their leagues,
+            <p className="text-xl font-inter text-fpl-lime-100 mb-8 max-w-3xl mx-auto">
+              Join thousands of managers who use FPLRanker to track their leagues,
               analyze their squads, and make smarter decisions every gameweek.
             </p>
-            
+
             <div className="grid md:grid-cols-3 gap-6 mb-10">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <div className="text-3xl font-bold text-yellow-300">Live</div>
-                <div className="text-green-100">FPL Data</div>
+              <div className="backdrop-blur-fpl bg-white/10 rounded-fpl p-6">
+                <div className="text-3xl font-jakarta font-bold text-fpl-accent">Live</div>
+                <div className="font-inter text-fpl-lime-100">FPL Data</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <div className="text-3xl font-bold text-yellow-300">No</div>
-                <div className="text-green-100">Registration</div>
+              <div className="backdrop-blur-fpl bg-white/10 rounded-fpl p-6">
+                <div className="text-3xl font-jakarta font-bold text-fpl-accent">No</div>
+                <div className="font-inter text-fpl-lime-100">Registration</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <div className="text-3xl font-bold text-yellow-300">Mobile</div>
-                <div className="text-green-100">Optimized</div>
+              <div className="backdrop-blur-fpl bg-white/10 rounded-fpl p-6">
+                <div className="text-3xl font-jakarta font-bold text-fpl-accent">Mobile</div>
+                <div className="font-inter text-fpl-lime-100">Optimized</div>
               </div>
             </div>
-            
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto">
-              <h3 className="text-2xl font-semibold mb-4 text-yellow-300">Get Started in Seconds</h3>
-              <p className="text-green-100 mb-6">Simply search for your team name or enter your FPL Manager ID above to access your personalized dashboard.</p>
-              <div className="text-sm text-green-200">
+
+            <div className="backdrop-blur-fpl bg-white/20 rounded-fpl p-8 max-w-2xl mx-auto">
+              <h3 className="text-2xl font-jakarta font-semibold mb-4 text-fpl-accent">Get Started in Seconds</h3>
+              <p className="font-inter text-fpl-lime-100 mb-6">Simply search for your team name or enter your FPL Manager ID above to access your personalized dashboard.</p>
+              <div className="text-sm font-inter text-fpl-lime-200">
                 💡 Find your Manager ID at fantasy.premierleague.com - it's the number in your URL!
               </div>
             </div>
@@ -204,16 +220,16 @@ function QuestionCard({ icon, question, answer, gradient }: {
   gradient?: string;
 }) {
   return (
-    <div className="group bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
-      <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mb-4 group-hover:scale-110 transition-transform duration-300`}>
+    <div className="group backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 hover:shadow-fpl-glow-violet transition-all duration-300 transform hover:-translate-y-1 border border-fpl-primary/20">
+      <div className={`inline-flex p-3 rounded-fpl bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mb-4 group-hover:scale-110 transition-transform duration-300`}>
         <div className="text-white">
           {icon}
         </div>
       </div>
-      <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
+      <h3 className="text-lg font-jakarta font-bold text-white mb-3 leading-tight">
         {question}
       </h3>
-      <p className="text-gray-600 text-sm leading-relaxed">
+      <p className="font-inter text-fpl-text-secondary text-sm leading-relaxed">
         {answer}
       </p>
     </div>
