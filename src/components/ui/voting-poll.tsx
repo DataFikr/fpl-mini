@@ -216,15 +216,15 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+      <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl p-6 border border-fpl-primary/20 shadow-fpl">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-8 bg-fpl-primary/20 rounded w-1/3 mb-4"></div>
           <div className="flex gap-2 mb-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-10 bg-gray-200 rounded flex-1"></div>
+              <div key={i} className="h-10 bg-fpl-primary/20 rounded flex-1"></div>
             ))}
           </div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-64 bg-fpl-primary/20 rounded"></div>
         </div>
       </div>
     );
@@ -234,17 +234,17 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
   const pieData = getPieChartData();
 
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+    <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl p-4 sm:p-6 border border-fpl-primary/20 shadow-fpl">
       {/* Tabs */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {(Object.keys(POLL_QUESTIONS) as PollType[]).map((pollId) => (
           <button
             key={pollId}
             onClick={() => setActiveTab(pollId)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-fpl text-sm font-jakarta font-semibold transition-all ${
               activeTab === pollId
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white shadow-fpl-glow-violet'
+                : 'bg-white/5 text-fpl-text-secondary hover:bg-white/10 border border-white/10'
             }`}
           >
             {pollId === 'high-scorer' && '🏆 High Scorer'}
@@ -255,16 +255,16 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
       </div>
 
       {/* Poll Header Info */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+      <div className="mb-6 p-4 bg-gradient-to-r from-fpl-primary/20 to-fpl-violet-700/20 rounded-fpl border border-fpl-primary/30 backdrop-blur-fpl">
         <div className="text-center">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+          <h3 className="text-lg sm:text-xl font-jakarta font-bold text-white mb-1">
             {POLL_QUESTIONS[activeTab]} {gameweek + 1}?
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm font-inter text-fpl-text-secondary">
             <strong>League:</strong> {leagueName} • <strong>Gameweek:</strong> {gameweek}
           </p>
           {leader && leader.votes > 0 && (
-            <p className="text-sm font-semibold text-blue-600 mt-2">
+            <p className="text-sm font-jakarta font-semibold text-fpl-accent mt-2">
               🥇 Current Leader: {leader.teamName} ({leader.votes} votes, {getVotePercentage(leader.votes).toFixed(1)}%)
             </p>
           )}
@@ -275,7 +275,7 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
       <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-6`}>
         {/* Pie Chart - On top for mobile, on right for desktop */}
         <div className={`${isMobile ? 'order-1' : 'order-2'}`}>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3 text-center">Vote Distribution</h4>
+          <h4 className="text-sm font-jakarta font-semibold text-fpl-text-secondary mb-3 text-center">Vote Distribution</h4>
           {pieData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -301,18 +301,18 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              <p>No votes yet. Be the first to vote!</p>
+            <div className="h-64 flex items-center justify-center text-fpl-text-secondary">
+              <p className="font-inter">No votes yet. Be the first to vote!</p>
             </div>
           )}
-          <div className="text-center mt-4 text-sm text-gray-600">
-            <span className="font-semibold">{getTotalVotes()}</span> of {teams.length} teams have voted
+          <div className="text-center mt-4 text-sm font-inter text-fpl-text-secondary">
+            <span className="font-jakarta font-semibold text-white">{getTotalVotes()}</span> of {teams.length} teams have voted
           </div>
         </div>
 
         {/* Voters List */}
         <div className={`${isMobile ? 'order-2' : 'order-1'}`}>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Cast Your Vote</h4>
+          <h4 className="text-sm font-jakarta font-semibold text-fpl-text-secondary mb-3">Cast Your Vote</h4>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {getCurrentPollData()
               .sort((a, b) => b.votes - a.votes)
@@ -325,32 +325,32 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
                     key={option.teamId}
                     onClick={() => handleVote(option.teamId)}
                     disabled={hasVoted[activeTab]}
-                    className={`w-full flex items-center p-3 rounded-lg border-2 transition-all relative overflow-hidden ${
+                    className={`w-full flex items-center p-3 rounded-fpl border-2 transition-all relative overflow-hidden ${
                       isUserVote
-                        ? 'border-blue-600 bg-blue-50'
+                        ? 'border-fpl-accent bg-fpl-accent/10 shadow-fpl-glow'
                         : hasVoted[activeTab]
-                        ? 'border-gray-200 bg-gray-50'
-                        : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
+                        ? 'border-fpl-primary/20 bg-fpl-dark/20'
+                        : 'border-fpl-primary/20 bg-fpl-dark/10 hover:border-fpl-accent/50 hover:shadow-fpl'
                     }`}
                   >
                     {/* Progress Bar */}
                     {hasVoted[activeTab] && (
                       <div
-                        className="absolute inset-0 bg-gradient-to-r from-blue-100 to-purple-100 opacity-30"
+                        className="absolute inset-0 bg-gradient-to-r from-fpl-primary/30 to-fpl-violet-700/30 opacity-50"
                         style={{ width: `${percentage}%` }}
                       />
                     )}
 
                     {/* Rank Badge */}
                     <div
-                      className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold mr-3 z-10 ${
+                      className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-jakarta font-bold mr-3 z-10 ${
                         index === 0
-                          ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white'
+                          ? 'bg-gradient-to-r from-fpl-accent to-fpl-lime-600 text-fpl-dark shadow-fpl-glow'
                           : index === 1
                           ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
                           : index === 2
                           ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white'
-                          : 'bg-gray-300 text-gray-700'
+                          : 'bg-fpl-primary/30 text-fpl-text-secondary'
                       }`}
                     >
                       {index + 1}
@@ -370,29 +370,29 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
 
                     {/* Team Info */}
                     <div className="flex-1 text-left z-10">
-                      <div className={`text-sm font-semibold ${isUserVote ? 'text-blue-600' : 'text-gray-900'}`}>
+                      <div className={`text-sm font-jakarta font-semibold ${isUserVote ? 'text-fpl-accent' : 'text-white'}`}>
                         {option.teamName}
                       </div>
-                      <div className="text-xs text-gray-600">{option.managerName}</div>
+                      <div className="text-xs font-inter text-fpl-text-secondary">{option.managerName}</div>
                     </div>
 
                     {/* Vote Count */}
                     <div className="flex flex-col items-end z-10">
                       {hasVoted[activeTab] ? (
                         <>
-                          <div className="text-lg font-bold text-blue-600">
+                          <div className="text-lg font-jakarta font-bold text-fpl-accent">
                             {percentage.toFixed(1)}%
                           </div>
-                          <div className="text-xs text-gray-600">{option.votes} votes</div>
+                          <div className="text-xs font-inter text-fpl-text-secondary">{option.votes} votes</div>
                         </>
                       ) : (
-                        <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <div className="text-xs font-inter text-fpl-text-secondary flex items-center gap-1">
                           <TrendingUp className="h-3 w-3" />
                           Vote
                         </div>
                       )}
                       {isUserVote && (
-                        <div className="text-xs text-blue-600 font-semibold mt-1">YOUR PICK</div>
+                        <div className="text-xs font-jakarta text-fpl-accent font-semibold mt-1">YOUR PICK</div>
                       )}
                     </div>
                   </button>
@@ -403,15 +403,15 @@ export function VotingPoll({ leagueId, leagueName, teams = [], gameweek = 6 }: V
       </div>
 
       {/* Poll Status */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+      <div className="mt-6 p-4 bg-gradient-to-r from-fpl-accent/10 to-fpl-primary/20 rounded-fpl border border-fpl-accent/30 backdrop-blur-fpl">
         <div className="flex justify-between items-center flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <BarChart3 className={`h-5 w-5 ${hasVoted[activeTab] ? 'text-green-600' : 'text-blue-600'}`} />
-            <span className="text-sm font-semibold text-gray-900">
+            <BarChart3 className={`h-5 w-5 ${hasVoted[activeTab] ? 'text-fpl-accent' : 'text-fpl-violet-500'}`} />
+            <span className="text-sm font-jakarta font-semibold text-white">
               {hasVoted[activeTab] ? '✅ Thanks for voting!' : '📊 Cast your vote above'}
             </span>
           </div>
-          <div className="text-xs text-gray-600">
+          <div className="text-xs font-inter text-fpl-text-secondary">
             Poll closes at GW{gameweek + 1} deadline
           </div>
         </div>

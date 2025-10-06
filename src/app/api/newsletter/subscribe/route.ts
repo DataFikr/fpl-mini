@@ -5,7 +5,7 @@ import { EmailService } from '@/services/email-service';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, leagueId, leagueName, stories, gameweek, subscriptionType = 'newsletter' } = await request.json();
+    const { email, leagueId, leagueName, stories, gameweek, subscriptionType = 'newsletter', rivalData } = await request.json();
 
     // Get current gameweek dynamically if not provided
     let currentGameweek = gameweek;
@@ -120,6 +120,47 @@ export async function POST(request: NextRequest) {
     const emailService = EmailService.getInstance();
 
     // Handle different subscription types
+    if (subscriptionType === 'rival-analysis') {
+      console.log(`📧 Rival analysis email requested for ${email} for league ${leagueId}, gameweek ${gameweek}`);
+
+      // Send rival analysis email with full table data
+      const emailResult = await emailService.sendRivalAnalysis(
+        email,
+        leagueName || `League ${leagueId}`,
+        currentGameweek,
+        rivalData || []
+      );
+
+      if (!emailResult.success) {
+        console.error('Failed to send rival analysis email:', emailResult.error);
+
+        // Check if it's a configuration issue
+        const isConfigurationError = emailResult.error?.includes('API key is invalid') ||
+                                     emailResult.error?.includes('not configured');
+
+        return NextResponse.json({
+          success: false,
+          message: isConfigurationError
+            ? 'Email service is currently in demo mode. Please configure RESEND_API_KEY for actual email delivery.'
+            : 'Failed to send email. Please try again later.',
+          error: emailResult.error,
+          isDemo: isConfigurationError
+        }, { status: isConfigurationError ? 200 : 500 });
+      }
+
+      // Update database with successful send
+      await prisma.newsletterSubscription.update({
+        where: { id: subscription.id },
+        data: { lastSentAt: new Date() }
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Rival analysis email sent successfully!',
+        emailId: emailResult.messageId
+      });
+    }
+
     if (subscriptionType === 'team-analysis' || (gameweek && !stories)) {
       console.log(`📧 Team analysis subscription confirmed for ${email} for league ${leagueId}, gameweek ${gameweek}`);
 

@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import GoogleAnalyticsWrapper from "@/components/analytics/GoogleAnalyticsWrapper";
 import CookieConsent from "@/components/analytics/CookieConsent";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -71,7 +86,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${plusJakartaSans.variable} ${inter.variable} ${geistSans.variable} ${geistMono.variable} font-jakarta antialiased`}
       >
         {gaId && <GoogleAnalyticsWrapper measurementId={gaId} />}
         {children}

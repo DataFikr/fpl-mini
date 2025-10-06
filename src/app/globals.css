@@ -24,4 +24,35 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Glassmorphism utilities */
+  .glass-card {
+    @apply backdrop-blur-fpl bg-white/10 rounded-fpl border border-white/20;
+  }
+
+  .glass-card-dark {
+    @apply backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl border border-fpl-primary/20;
+  }
+
+  /* Text gradients */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-fpl-accent to-fpl-lime-600 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-violet {
+    @apply bg-gradient-to-r from-fpl-violet-500 to-fpl-primary bg-clip-text text-transparent;
+  }
+
+  /* Animated backgrounds */
+  .bg-animated-gradient {
+    background: linear-gradient(45deg, #2B1654, #8B5CF6, #2B1654);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 }

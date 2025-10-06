@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { RankProgressionChart } from '@/components/charts/rank-progression-chart';
 import { EnhancedSquadTable } from '@/components/squad/enhanced-squad-table';
 import { PitchView } from '@/components/squad/pitch-view';
 import { EnhancedLeagueStorytelling } from '@/components/ui/enhanced-league-storytelling';
 import { BadgesAchievements } from '@/components/ui/badges-achievements';
 import { VotingPoll } from '@/components/ui/voting-poll';
-import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User } from 'lucide-react';
+import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User, Crown } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -181,7 +182,11 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       case 'team-analysis':
         return (
           <div>
-            <EnhancedSquadTable leagueId={leagueId} gameweek={league.currentGameweek} />
+            <EnhancedSquadTable
+              leagueId={leagueId}
+              leagueName={league.name}
+              gameweek={league.currentGameweek}
+            />
           </div>
         );
 
@@ -214,9 +219,9 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-fpl-dark via-fpl-primary/5 to-fpl-dark flex flex-col">
       {/* Top Navigation */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
+      <div className="backdrop-blur-fpl bg-fpl-dark/80 border-b border-fpl-primary/20 px-6 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <div className="bg-gradient-to-r from-green-500 to-blue-500 p-1.5 rounded-xl mr-3">
             <Image
@@ -231,28 +236,28 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{league.name}</h1>
-            <p className="text-sm text-gray-600">Gameweek {league.currentGameweek} • {league.teams.length} Teams</p>
+            <h1 className="text-xl font-jakarta font-bold text-white">{league.name}</h1>
+            <p className="text-sm font-inter text-fpl-text-secondary">Gameweek {league.currentGameweek} • {league.teams.length} Teams</p>
           </div>
         </div>
         <div className="flex items-center space-x-2 md:space-x-4">
-          <Link href="/" className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          <Link href="/" className="flex items-center px-2 md:px-4 py-2 text-fpl-text-secondary hover:text-white hover:bg-white/10 rounded-fpl transition-colors">
             <Home className="h-4 w-4 mr-1 md:mr-2" />
-            <span className="font-medium text-sm md:text-base">Home</span>
+            <span className="font-jakarta font-medium text-sm md:text-base">Home</span>
           </Link>
           <Link
             href={currentUserTeamId ? `/team/${currentUserTeamId}?team=${currentUserTeamId}` : "/"}
-            className="flex items-center px-2 md:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center px-2 md:px-4 py-2 text-fpl-text-secondary hover:text-white hover:bg-white/10 rounded-fpl transition-colors"
             title={currentUserTeamId ? "Go to your team page" : "Search for your team ID on the home page"}
           >
             <User className="h-4 w-4 mr-1 md:mr-2" />
-            <span className="font-medium text-sm md:text-base">My Leagues</span>
+            <span className="font-jakarta font-medium text-sm md:text-base">My Leagues</span>
           </Link>
         </div>
       </div>
 
       {/* Compact League Stats - Hidden on Mobile */}
-      <div className="hidden md:block bg-white border-b border-gray-200 px-3 md:px-6 py-2 md:py-4" style={{ minHeight: '8vh' }}>
+      <div className="hidden md:block backdrop-blur-fpl bg-fpl-dark/40 border-b border-fpl-primary/20 px-3 md:px-6 py-2 md:py-4" style={{ minHeight: '8vh' }}>
         <div className={`grid gap-2 md:gap-4 ${userTeamId ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 md:grid-cols-4'}`}>
           <StatCard
             icon={<Users className="h-5 w-5 text-blue-500" />}
@@ -306,34 +311,34 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       </div>
 
       {/* Top Tab Navigation */}
-      <div className="bg-white border-b border-gray-200 px-3 md:px-6">
-        <div className="flex overflow-hidden">
+      <div className="backdrop-blur-fpl bg-fpl-dark/60 border-b border-fpl-primary/20 px-3 md:px-6">
+        <div className="flex overflow-hidden gap-2 py-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
 
             return (
-              <button
+              <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col sm:flex-row items-center justify-center flex-1 px-1 sm:px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium transition-all duration-200 border-b-2 ${
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`flex flex-col sm:flex-row items-center justify-center flex-1 px-1 sm:px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-jakarta font-semibold transition-all duration-200 rounded-fpl ${
                   isActive
-                    ? 'text-blue-600 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
+                    ? 'bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white shadow-fpl-glow-violet'
+                    : 'bg-white/5 text-fpl-text-secondary hover:bg-white/10 border border-white/10'
                 }`}
               >
-                <Icon className={`h-3 md:h-4 w-3 md:w-4 mb-1 sm:mb-0 sm:mr-1 md:mr-2 ${
-                  isActive ? 'text-blue-600' : 'text-gray-500'
-                }`} />
+                <Icon className={`h-3 md:h-4 w-3 md:w-4 mb-1 sm:mb-0 sm:mr-1 md:mr-2`} />
                 <span className="text-xs sm:text-xs md:text-sm leading-tight text-center">{tab.name}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-3 md:p-6 overflow-hidden bg-white">
+      <div className="flex-1 p-3 md:p-6 overflow-hidden">
         <div className="h-full overflow-y-auto">
           {renderTabContent()}
         </div>
@@ -362,23 +367,26 @@ function StatCard({ icon, title, value, subtitle, gradient, compact = false }: {
   compact?: boolean;
 }) {
   return (
-    <div className={`group bg-white rounded-xl shadow-md ${compact ? 'p-3' : 'p-4'} h-full flex items-center hover:shadow-lg transition-all duration-300 border border-gray-100 min-w-0`}>
+    <motion.div
+      whileHover={{ scale: 1.05, y: -2 }}
+      className={`group backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl ${compact ? 'p-3' : 'p-4'} h-full flex items-center hover:shadow-fpl-glow-violet transition-all duration-300 border border-fpl-primary/20 min-w-0`}
+    >
       <div className={`inline-flex ${compact ? 'p-1.5' : 'p-2'} rounded-lg bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mr-3 group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
         <div className="text-white">
           {icon}
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className={`${compact ? 'text-xs' : 'text-sm'} font-semibold text-gray-700 truncate mb-0.5`}>
+        <h3 className={`${compact ? 'text-xs' : 'text-sm'} font-jakarta font-semibold text-fpl-text-secondary truncate mb-0.5`}>
           {title}
         </h3>
-        <div className={`${compact ? 'text-sm' : 'text-base'} font-bold text-gray-900 truncate mb-0.5`}>
+        <div className={`${compact ? 'text-sm' : 'text-base'} font-jakarta font-bold text-white truncate mb-0.5`}>
           {value}
         </div>
-        <div className={`${compact ? 'text-xs' : 'text-sm'} text-gray-600 truncate`}>
+        <div className={`${compact ? 'text-xs' : 'text-sm'} font-inter text-fpl-text-secondary truncate`}>
           {subtitle}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

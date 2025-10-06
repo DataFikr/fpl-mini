@@ -159,6 +159,22 @@ export class EmailService {
     });
   }
 
+  async sendRivalAnalysis(
+    email: string,
+    leagueName: string,
+    gameweek: number,
+    rivalData: any[]
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const subject = `📊 Rival Watch Analysis - ${leagueName} | Gameweek ${gameweek}`;
+    const html = this.generateRivalAnalysisHTML(email, leagueName, gameweek, rivalData);
+
+    return this.sendEmail({
+      to: email,
+      subject,
+      html,
+    });
+  }
+
   private generateGameweekSummaryHTML(leagueName: string, stories: any[], email: string, gameweek: number): string {
     const currentDate = new Date().toLocaleDateString('en-US', {
       weekday: 'long',
@@ -515,6 +531,9 @@ export class EmailService {
               <div class="checklist-item">
                 <strong>🩺 Check Injuries:</strong> Review injury news and press conferences
               </div>
+              <div class="checklist-item" style="background: #F0F9FF; border-left: 3px solid #3B82F6; padding: 10px; margin-left: -10px; padding-left: 13px;">
+                <strong>🗳️ Cast Your Vote:</strong> Don't miss out! Vote in the Community Poll for GW${upcomingGameweek} predictions
+              </div>
             </div>
 
             <div class="action-box">
@@ -528,13 +547,28 @@ export class EmailService {
               </a>
             </div>
 
+            <h3 style="color: #2d3436; margin-top: 30px;">🗳️ Community Poll - Make Your Predictions!</h3>
+            <div style="background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); padding: 20px; border-radius: 8px; border: 2px solid #3B82F6; margin-bottom: 20px;">
+              <p style="margin-top: 0; color: #1E40AF; font-weight: 600;">
+                🎯 Don't forget to cast your vote in this week's Community Polls!
+              </p>
+              <ul style="margin: 10px 0; padding-left: 20px; color: #3730A3;">
+                <li><strong>🏆 High Scorer:</strong> Who will score the most points in GW${upcomingGameweek}?</li>
+                <li><strong>👑 Captain Pick:</strong> Who will be the most popular captain choice?</li>
+                <li><strong>📈 Biggest Riser:</strong> Who will climb the most positions in the league?</li>
+              </ul>
+              <p style="margin-bottom: 0; color: #1E40AF;">
+                <strong>💡 Make your predictions now and see how you compare to other managers in ${leagueName}!</strong>
+              </p>
+            </div>
+
             <h3 style="color: #2d3436; margin-top: 30px;">📊 What to Expect This Gameweek</h3>
             <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; border-left: 4px solid #3B82F6;">
               <ul style="margin: 0; padding-left: 20px;">
                 <li><strong>Live Updates:</strong> Track all matches and player performances in real-time</li>
                 <li><strong>League Rankings:</strong> See how your rivals are doing throughout the gameweek</li>
                 <li><strong>Performance Tracking:</strong> Monitor captain choices, transfers, and team selections</li>
-                <li><strong>Community Polls:</strong> Participate in polls and see what other managers are thinking</li>
+                <li><strong>Poll Results:</strong> View live poll results and see what the league is predicting</li>
               </ul>
             </div>
 
@@ -558,6 +592,135 @@ export class EmailService {
             </div>
             <p style="font-size: 11px; opacity: 0.7; margin-top: 20px;">
               🔧 Powered by fplranker.com | Want to unsubscribe? Reply to this email
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private generateRivalAnalysisHTML(email: string, leagueName: string, gameweek: number, rivalData: any[]): string {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Generate table rows
+    const tableRows = rivalData.map((team, index) => `
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 8px; text-align: center;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: ${team.rank <= 3 ? 'linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%)' : '#F3F4F6'}; color: ${team.rank <= 3 ? '#78350F' : '#6B7280'}; font-weight: bold; font-size: 14px;">
+            ${team.rank}
+          </div>
+        </td>
+        <td style="padding: 12px 8px;">
+          <div style="font-weight: 600; color: #1F2937;">${team.team}</div>
+          <div style="font-size: 12px; color: #6B7280;">${team.manager}</div>
+        </td>
+        <td style="padding: 12px 8px; text-align: center;">
+          <div style="font-weight: bold; font-size: 18px; color: #10B981;">${team.gwTotalPoints}</div>
+        </td>
+        <td style="padding: 12px 8px; text-align: center;">
+          <div style="font-weight: 600; color: #374151;">${team.totalPoints.toLocaleString()}</div>
+        </td>
+        <td style="padding: 12px 8px; font-size: 12px; color: #4B5563; max-width: 250px;">
+          ${team.performanceAnalysis || 'Analysis not available'}
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rival Watch Analysis - ${leagueName}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+          .container { max-width: 800px; margin: 0 auto; background-color: white; }
+          .header { background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%); color: white; padding: 30px; text-align: center; }
+          .content { padding: 30px; }
+          .table-container { overflow-x: auto; margin: 20px 0; }
+          table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+          th { background: #F3F4F6; padding: 12px 8px; text-align: left; font-weight: 600; font-size: 12px; color: #6B7280; text-transform: uppercase; border-bottom: 2px solid #E5E7EB; }
+          .footer { background: #2d3436; color: white; padding: 20px; text-align: center; }
+          .info-box { background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #3B82F6; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
+            <h1>Rival Watch Analysis</h1>
+            <h2 style="margin-bottom: 0;">${leagueName}</h2>
+            <p style="font-size: 16px; opacity: 0.9;">Gameweek ${gameweek} | ${currentDate}</p>
+          </div>
+
+          <div class="content">
+            <div class="info-box">
+              <h3 style="color: #3B82F6; margin-top: 0; font-size: 18px;">📈 Complete Rival Analysis</h3>
+              <p style="margin-bottom: 0; color: #4B5563;">
+                Comprehensive breakdown of all teams in <strong>${leagueName}</strong> for Gameweek ${gameweek}.
+                Review each team's performance, squad composition, and key insights below.
+              </p>
+            </div>
+
+            <h3 style="color: #1F2937; margin-top: 30px; margin-bottom: 15px;">📋 League Standings & Analysis</h3>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align: center;">Rank</th>
+                    <th>Team / Manager</th>
+                    <th style="text-align: center;">GW${gameweek} Pts</th>
+                    <th style="text-align: center;">Total Pts</th>
+                    <th>Performance Analysis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background: #FFF7ED; border: 1px solid #FB923C; padding: 20px; border-radius: 8px; margin-top: 30px;">
+              <h3 style="color: #9A3412; margin-top: 0; font-size: 16px;">💡 Key Insights</h3>
+              <ul style="color: #9A3412; margin: 0; padding-left: 20px;">
+                <li><strong>Total Teams Analyzed:</strong> ${rivalData.length}</li>
+                <li><strong>Top Performer GW${gameweek}:</strong> ${rivalData[0]?.team || 'N/A'} (${rivalData[0]?.gwTotalPoints || 0} pts)</li>
+                <li><strong>Overall Leader:</strong> ${rivalData.find(t => t.rank === 1)?.team || 'N/A'} (${rivalData.find(t => t.rank === 1)?.totalPoints || 0} pts)</li>
+                <li><strong>Average GW Score:</strong> ${Math.round(rivalData.reduce((sum, t) => sum + t.gwTotalPoints, 0) / rivalData.length)} pts</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%); border-radius: 8px;">
+              <h3 style="color: #1F2937; margin-top: 0;">🏆 Visit fplranker.com</h3>
+              <p style="color: #6B7280; margin-bottom: 15px;">Get live updates, detailed squad views, and more insights</p>
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com'}"
+                 style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                View League Dashboard →
+              </a>
+            </div>
+
+            <p style="text-align: center; font-size: 16px; color: #6B7280; margin-top: 30px;">
+              Good luck for the upcoming gameweeks! 🍀⚽
+            </p>
+          </div>
+
+          <div class="footer">
+            <p style="font-size: 18px; margin-bottom: 10px;">📊 fplranker.com Rival Watch</p>
+            <p style="margin-bottom: 15px;">Comprehensive analysis for <strong>${leagueName}</strong></p>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+              <p style="margin: 0; font-size: 14px;">📧 Analysis sent to: ${email}</p>
+              <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.8;">Gameweek ${gameweek} | ${currentDate}</p>
+            </div>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 20px;">
+              🔧 Powered by fplranker.com
             </p>
           </div>
         </div>

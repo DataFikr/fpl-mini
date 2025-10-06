@@ -19,6 +19,7 @@ interface SquadAnalysisData {
 
 interface EnhancedSquadTableProps {
   leagueId: number;
+  leagueName: string;
   gameweek?: number;
 }
 
@@ -74,7 +75,7 @@ function formatSquadForDisplay(squad: any): string {
   return 'Squad data unavailable';
 }
 
-export function EnhancedSquadTable({ leagueId, gameweek }: EnhancedSquadTableProps) {
+export function EnhancedSquadTable({ leagueId, leagueName, gameweek }: EnhancedSquadTableProps) {
   const [squadData, setSquadData] = useState<SquadAnalysisData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -283,24 +284,25 @@ FPL Ranker Team`;
           email: email,
           leagueId: leagueId,
           gameweek: currentGameweek,
-          subscriptionType: 'team-analysis',
-          leagueName: 'Your League'
+          subscriptionType: 'rival-analysis',
+          leagueName: leagueName,
+          rivalData: squadData // Send full table data
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        alert('Successfully subscribed! You will receive weekly team analysis summaries.');
+        alert('Rival Analysis sent successfully! Check your inbox.');
         setShowNewsletterModal(false);
         setEmail('');
-        console.log('Team analysis subscription saved to database:', data);
+        console.log('Rival analysis email sent:', data);
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Failed to subscribe. Please try again.');
+        alert(errorData.error || 'Failed to send analysis. Please try again.');
       }
     } catch (error) {
-      console.error('Newsletter subscription error:', error);
-      alert('Failed to subscribe. Please try again.');
+      console.error('Rival analysis error:', error);
+      alert('Failed to send analysis. Please try again.');
     } finally {
       setIsSubscribing(false);
     }
@@ -392,7 +394,7 @@ FPL Ranker Team`;
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 ml-4 flex items-center gap-2 shadow-lg hover:shadow-xl"
           >
             <Mail className="h-4 w-4" />
-            Email
+            Get Rival Analysis
           </button>
         </div>
 
@@ -536,10 +538,10 @@ FPL Ranker Team`;
                 <Mail className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
-                <span>📧</span> Get Your League Newsletter!
+                <span>📊</span> Rival Watch Analysis
               </h3>
               <p className="text-gray-600">
-                Get this week's top headlines delivered to your inbox + weekly updates from {leagueId}
+                Get comprehensive rival analysis for <strong>{leagueName}</strong> delivered to your inbox
               </p>
             </div>
 

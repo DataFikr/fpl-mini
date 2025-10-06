@@ -176,8 +176,13 @@ The Thursday reminder email includes:
   - Verify formations
   - Monitor price changes
   - Check injuries
+  - **🗳️ Cast votes in Community Poll** (NEW!)
+- 🗳️ Community Poll reminder section with 3 poll categories:
+  - High Scorer prediction
+  - Captain Pick prediction
+  - Biggest Riser prediction
 - 🏆 Link to view league on fplranker.com
-- 📊 What to expect during the gameweek
+- 📊 What to expect during the gameweek (including poll results)
 - 💡 Pro tips for tracking live performance
 
 #### Manual Trigger (Development Only)
