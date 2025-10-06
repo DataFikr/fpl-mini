@@ -435,21 +435,21 @@ export function PitchView({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[98vh] sm:max-h-[95vh] overflow-hidden">
-        <div className="bg-white border-b border-gray-200 p-4 sm:p-6 flex justify-between items-start">
-          <div className="min-w-0 flex-1 pr-1">
+      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[96vh] sm:max-h-[95vh] overflow-hidden flex flex-col">
+        <div className="bg-white border-b border-gray-200 p-3 sm:p-6 flex justify-between items-start flex-shrink-0">
+          <div className="min-w-0 flex-1 pr-2">
             <h2 className="text-xs sm:text-lg lg:text-xl font-bold text-gray-900 leading-tight mb-0.5 sm:mb-1 break-words">{teamName}</h2>
             <p className="text-xs sm:text-sm text-gray-600 leading-tight break-words">Manager: {managerName} • GW {gameweek}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 sm:p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+            className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0 ml-2"
           >
             <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
 
-        <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(98vh-80px)] sm:max-h-[calc(95vh-80px)]">
+        <div className="p-2 sm:p-4 overflow-y-auto flex-1">
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -496,7 +496,7 @@ export function PitchView({
               </div>
 
               {/* Enhanced Pitch with optimized spacing for smaller cards */}
-              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-3 sm:p-4 h-[500px] sm:h-[600px] lg:h-[650px]">
+              <div className="relative bg-gradient-to-b from-green-400 to-green-600 rounded-lg mx-1 sm:mx-2 p-3 sm:p-4 h-[380px] sm:h-[600px] lg:h-[650px]">
                 {/* Pitch Markings */}
                 <div className="absolute inset-0 opacity-20">
                   <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
