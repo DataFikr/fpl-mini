@@ -223,18 +223,13 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       {/* Top Navigation */}
       <div className="backdrop-blur-fpl bg-fpl-dark/80 border-b border-fpl-primary/20 px-6 py-3 flex justify-between items-center">
         <div className="flex items-center">
-          <div className="bg-gradient-to-r from-green-500 to-blue-500 p-1.5 rounded-xl mr-3">
-            <Image
-              src="/favicon.ico"
-              alt="FPLRanker Logo"
-              width={24}
-              height={24}
-              className="rounded"
-              onError={(e) => {
-                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iNCIgZmlsbD0iIzAwN0M2NiIvPgo8dGV4dCB4PSIxMiIgeT0iMTYiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5GUEw8L3RleHQ+Cjwvc3ZnPg==';
-              }}
-            />
-          </div>
+          <Image
+            src="/images/fplranker.png"
+            alt="FPLRanker Logo"
+            width={32}
+            height={32}
+            className="rounded-lg mr-3"
+          />
           <div>
             <h1 className="text-xl font-jakarta font-bold text-white">{league.name}</h1>
             <p className="text-sm font-inter text-fpl-text-secondary">Gameweek {league.currentGameweek} • {league.teams.length} Teams</p>
