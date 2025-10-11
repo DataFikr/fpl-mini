@@ -1,13 +1,93 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Twitter, Instagram, Youtube, MessageCircle } from 'lucide-react';
+import { Instagram, Mail } from 'lucide-react';
+import { FaXTwitter, FaReddit } from 'react-icons/fa6';
 
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleNewsletterSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    setIsSubscribing(true);
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          subscriptionType: 'general-newsletter',
+        }),
+      });
+
+      if (response.ok) {
+        setSubscriptionStatus('success');
+        setEmail('');
+        setTimeout(() => setSubscriptionStatus('idle'), 5000);
+      } else {
+        setSubscriptionStatus('error');
+        setTimeout(() => setSubscriptionStatus('idle'), 5000);
+      }
+    } catch (error) {
+      console.error('Newsletter signup error:', error);
+      setSubscriptionStatus('error');
+      setTimeout(() => setSubscriptionStatus('idle'), 5000);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   return (
     <footer className="bg-gradient-to-r from-green-800 to-blue-800 text-white">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
+        {/* Newsletter Signup */}
+        <div className="text-center mb-12 max-w-2xl mx-auto">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+            <h3 className="text-2xl font-bold mb-3 flex items-center justify-center gap-2">
+              <Mail className="h-6 w-6 text-yellow-300" />
+              Get Weekly Updates
+            </h3>
+            <p className="text-green-100 mb-6">
+              Subscribe to get weekly updates and mini-league insights delivered to your inbox
+            </p>
+            <form onSubmit={handleNewsletterSignup} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@example.com"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                disabled={isSubscribing}
+              />
+              <button
+                type="submit"
+                disabled={isSubscribing}
+                className="px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+              </button>
+            </form>
+            {subscriptionStatus === 'success' && (
+              <p className="mt-3 text-green-300 font-semibold">Successfully subscribed! Check your inbox.</p>
+            )}
+            {subscriptionStatus === 'error' && (
+              <p className="mt-3 text-red-300 font-semibold">Failed to subscribe. Please try again.</p>
+            )}
+          </div>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">FPLRanker</h2>
@@ -69,13 +149,22 @@ export function Footer() {
         {/* Social Media Links */}
         <div className="mt-6 flex justify-center space-x-6">
           <a
-            href="https://twitter.com/FPLRanker"
+            href="https://x.com/fplranker"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-yellow-300 transition-colors"
-            aria-label="Follow us on Twitter"
+            aria-label="Follow us on X (Twitter)"
           >
-            <Twitter className="h-6 w-6" />
+            <FaXTwitter className="h-6 w-6" />
+          </a>
+          <a
+            href="https://www.reddit.com/user/fplranker/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white hover:text-yellow-300 transition-colors"
+            aria-label="Follow us on Reddit"
+          >
+            <FaReddit className="h-6 w-6" />
           </a>
           <a
             href="https://instagram.com/FPLRanker"
@@ -85,24 +174,6 @@ export function Footer() {
             aria-label="Follow us on Instagram"
           >
             <Instagram className="h-6 w-6" />
-          </a>
-          <a
-            href="https://youtube.com/FPLRanker"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white hover:text-yellow-300 transition-colors"
-            aria-label="Subscribe to our YouTube channel"
-          >
-            <Youtube className="h-6 w-6" />
-          </a>
-          <a
-            href="https://discord.gg/FPLRanker"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white hover:text-yellow-300 transition-colors"
-            aria-label="Join our Discord community"
-          >
-            <MessageCircle className="h-6 w-6" />
           </a>
         </div>
       </div>
