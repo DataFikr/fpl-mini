@@ -47,7 +47,7 @@ export function Header() {
               How it Works
             </Link>
             <Link
-              href="#find-team-id"
+              href="/find-team-id"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
               Find Team ID
@@ -101,7 +101,7 @@ export function Header() {
                 How it Works
               </Link>
               <Link
-                href="#find-team-id"
+                href="/find-team-id"
                 className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
