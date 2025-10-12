@@ -50,8 +50,8 @@ export default function FindTeamIDPage() {
                   <Image
                     src="/images/find-team-id/find_team_Id_1.png"
                     alt="FPL Website Homepage"
-                    width={1200}
-                    height={600}
+                    width={720}
+                    height={360}
                     className="w-full h-auto"
                   />
                 </div>
@@ -89,8 +89,8 @@ export default function FindTeamIDPage() {
                   <Image
                     src="/images/find-team-id/find_team_Id_2.png"
                     alt="Gameweek History Menu"
-                    width={1200}
-                    height={600}
+                    width={720}
+                    height={360}
                     className="w-full h-auto"
                   />
                 </div>
@@ -119,8 +119,8 @@ export default function FindTeamIDPage() {
                   <Image
                     src="/images/find-team-id/find_team_Id_3.png"
                     alt="Team ID in URL"
-                    width={1200}
-                    height={600}
+                    width={720}
+                    height={360}
                     className="w-full h-auto"
                   />
                 </div>
@@ -143,8 +143,8 @@ export default function FindTeamIDPage() {
                   <Image
                     src="/images/find-team-id/find_team_Id_4.png"
                     alt="Copy Team ID"
-                    width={1200}
-                    height={600}
+                    width={720}
+                    height={360}
                     className="w-full h-auto"
                   />
                 </div>
@@ -171,8 +171,8 @@ export default function FindTeamIDPage() {
                   <Image
                     src="/images/find-team-id/find_team_Id_5.png"
                     alt="Enter Team ID on FPLRanker"
-                    width={1200}
-                    height={600}
+                    width={720}
+                    height={360}
                     className="w-full h-auto"
                   />
                 </div>
@@ -195,8 +195,8 @@ export default function FindTeamIDPage() {
                   <Image
                     src="/images/find-team-id/find_team_Id_6.png"
                     alt="FPLRanker Dashboard"
-                    width={1200}
-                    height={600}
+                    width={720}
+                    height={360}
                     className="w-full h-auto"
                   />
                 </div>
