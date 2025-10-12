@@ -94,45 +94,29 @@ export function Footer() {
           <p className="text-green-100">Track, Rank & Compete in all your FPL mini-leagues</p>
         </div>
 
-        {/* Footer Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-          {/* Features Column */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4 text-yellow-300">Features</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/" className="hover:text-yellow-300 transition-colors">Live Standings</Link></li>
-              <li><Link href="/" className="hover:text-yellow-300 transition-colors">Progression</Link></li>
-              <li><Link href="/" className="hover:text-yellow-300 transition-colors">Rivals</Link></li>
-            </ul>
-          </div>
-
+        {/* Footer Links Grid - 3 Columns Centered */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 max-w-4xl mx-auto">
           {/* Company Column */}
-          <div>
+          <div className="text-center">
             <h3 className="font-semibold text-lg mb-4 text-yellow-300">Company</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/about" className="hover:text-yellow-300 transition-colors">About Us</Link></li>
-              <li><span className="text-gray-300">Blog (future)</span></li>
-              <li><span className="text-gray-300">Careers (opt)</span></li>
             </ul>
           </div>
 
           {/* Support Column */}
-          <div>
+          <div className="text-center">
             <h3 className="font-semibold text-lg mb-4 text-yellow-300">Support</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/contact" className="hover:text-yellow-300 transition-colors">Contact</Link></li>
-              <li><span className="text-gray-300">FAQ (future)</span></li>
-              <li><span className="text-gray-300">Help Center</span></li>
             </ul>
           </div>
 
           {/* Legal Column */}
-          <div>
+          <div className="text-center">
             <h3 className="font-semibold text-lg mb-4 text-yellow-300">Legal</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/privacy" className="hover:text-yellow-300 transition-colors">Privacy</Link></li>
-              <li><span className="text-gray-300">Terms</span></li>
-              <li><span className="text-gray-300">Cookies</span></li>
             </ul>
           </div>
         </div>

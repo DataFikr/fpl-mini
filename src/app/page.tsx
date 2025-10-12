@@ -2,23 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TeamSearch } from '@/components/search/team-search';
 import { WebsiteStructuredData, OrganizationStructuredData } from '@/components/seo/structured-data';
 import { Header } from '@/components/ui/header';
 import { Footer } from '@/components/ui/footer';
-import { FPLManagerEntry } from '@/types/fpl';
-import { Trophy, Users, TrendingUp, BarChart3, Star, Zap, Target, ArrowUp, Crown, Brain, Vote, CheckCircle, Play, Bell, Smartphone, Link as LinkIcon, Monitor } from 'lucide-react';
+import { Trophy, Users, TrendingUp, BarChart3, Star, Zap, Target, Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {
-  const [selectedTeam, setSelectedTeam] = useState<FPLManagerEntry | null>(null);
   const router = useRouter();
-
-  const handleTeamSelect = (team: FPLManagerEntry) => {
-    setSelectedTeam(team);
-    router.push(`/team/${team.id}`);
-  };
 
   return (
     <>
@@ -66,30 +58,51 @@ export default function Home() {
               Track your mini league progress, get ESPN-style headlines, and monitor rank changes in real-time.
             </p>
 
-            <div className="mb-8">
-              <TeamSearch onTeamSelect={handleTeamSelect} />
+            <div className="mb-8 max-w-4xl">
+              <div className="flex flex-col sm:flex-row gap-4 items-start">
+                <div className="relative flex-1 w-full">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <input
+                    type="text"
+                    id="manager-id-input"
+                    placeholder="Enter FPL Manager ID..."
+                    className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors text-black"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        const input = e.currentTarget;
+                        const managerId = input.value.trim();
+                        if (managerId && /^\d+$/.test(managerId)) {
+                          router.push(`/team/${managerId}`);
+                        }
+                      }
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const input = document.getElementById('manager-id-input') as HTMLInputElement;
+                    const managerId = input?.value.trim();
+                    if (managerId && /^\d+$/.test(managerId)) {
+                      router.push(`/team/${managerId}`);
+                    }
+                  }}
+                  className="px-8 py-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors whitespace-nowrap"
+                >
+                  Search
+                </button>
+              </div>
+              <div className="mt-4">
+                <Link
+                  href="/find-team-id"
+                  className="inline-flex items-center gap-2 text-fpl-accent hover:text-fpl-violet-400 transition-colors font-inter text-sm"
+                >
+                  <span>Not sure what is your team ID?</span>
+                  <span className="underline font-semibold">Find Team ID here</span>
+                </Link>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 mb-8">
-              <Link
-                href="#cta"
-                className="px-8 py-4 bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white font-jakarta font-bold text-lg rounded-fpl hover:shadow-fpl-glow-violet transition-all transform hover:scale-105"
-              >
-                Start Free Trial
-              </Link>
-              <button
-                onClick={() => {
-                  const videoSection = document.getElementById('how-it-works');
-                  videoSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="px-8 py-4 backdrop-blur-fpl bg-white/10 text-white font-jakarta font-semibold text-lg rounded-fpl border-2 border-fpl-primary/40 hover:bg-white/20 transition-all flex items-center gap-2"
-              >
-                <Play className="h-5 w-5" />
-                Watch Demo Video
-              </button>
-            </div>
-
-            <div className="mt-4 flex flex-wrap justify-start gap-6 text-sm">
+            <div className="flex flex-wrap justify-between gap-8 max-w-2xl text-sm">
               <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
                 <Star className="h-5 w-5 text-fpl-accent mr-2" />
                 <span className="font-jakarta font-medium text-white">Live FPL Data</span>
@@ -144,60 +157,6 @@ export default function Home() {
               description="Get exciting news updates tailored for your league with broadcast-quality summaries"
               gradient="from-yellow-500 to-orange-500"
             />
-          </div>
-
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-jakarta font-bold text-white mb-6">
-              Ever <span className="text-fpl-accent">Wondered</span> About Your League?
-            </h2>
-            <p className="text-lg font-inter text-fpl-text-secondary max-w-3xl mx-auto">
-              Get instant answers to the questions that matter most to FPL managers
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <QuestionCard
-              icon={<ArrowUp className="h-8 w-8 text-green-500" />}
-              question="Wonder which team in your mini league has progressed the most?"
-              answer="Track rank movements across gameweeks with our interactive progression charts"
-              gradient="from-green-500 to-emerald-500"
-            />
-            <QuestionCard
-              icon={<Brain className="h-8 w-8 text-blue-500" />}
-              question="Which manager made the smartest move using their chip?"
-              answer="Analyze chip usage timing and effectiveness across all teams in your league"
-              gradient="from-blue-500 to-cyan-500"
-            />
-            <QuestionCard
-              icon={<Crown className="h-8 w-8 text-yellow-500" />}
-              question="Which manager picked the captain with the most points?"
-              answer="Compare captaincy choices and see who's making the best decisions"
-              gradient="from-yellow-500 to-orange-500"
-            />
-            <QuestionCard
-              icon={<TrendingUp className="h-8 w-8 text-purple-500" />}
-              question="How has your team progressed throughout the gameweeks?"
-              answer="Visualize your rank journey with detailed performance analytics"
-              gradient="from-purple-500 to-pink-500"
-            />
-            <QuestionCard
-              icon={<Vote className="h-8 w-8 text-indigo-500" />}
-              question="Want your vote to count in the community poll?"
-              answer="Participate in weekly predictions and see how your league thinks"
-              gradient="from-indigo-500 to-purple-500"
-            />
-            <QuestionCard
-              icon={<BarChart3 className="h-8 w-8 text-rose-500" />}
-              question="Ready to gain an edge over your rivals?"
-              answer="Deep-dive squad analysis reveals hidden patterns and opportunities"
-              gradient="from-rose-500 to-pink-500"
-            />
-          </div>
-
-          <div className="text-center mt-12">
-            <div className="bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white px-8 py-4 rounded-fpl inline-block shadow-fpl-glow-violet">
-              <div className="text-lg font-jakarta font-semibold">🚀 All answers are just one search away!</div>
-            </div>
           </div>
         </div>
       </section>
@@ -577,29 +536,6 @@ function FeatureCard({ icon, title, description, gradient }: {
       </h3>
       <p className="font-inter text-fpl-text-secondary leading-relaxed">
         {description}
-      </p>
-    </div>
-  );
-}
-
-function QuestionCard({ icon, question, answer, gradient }: {
-  icon: React.ReactNode;
-  question: string;
-  answer: string;
-  gradient?: string;
-}) {
-  return (
-    <div className="group backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 hover:shadow-fpl-glow-violet transition-all duration-300 transform hover:-translate-y-1 border border-fpl-primary/20">
-      <div className={`inline-flex p-3 rounded-fpl bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-        <div className="text-white">
-          {icon}
-        </div>
-      </div>
-      <h3 className="text-lg font-jakarta font-bold text-white mb-3 leading-tight">
-        {question}
-      </h3>
-      <p className="font-inter text-fpl-text-secondary text-sm leading-relaxed">
-        {answer}
       </p>
     </div>
   );
