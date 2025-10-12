@@ -35,13 +35,13 @@ export function Header() {
               Home
             </Link>
             <Link
-              href="#features"
+              href="/#features"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
               Features
             </Link>
             <Link
-              href="#how-it-works"
+              href="/#how-it-works"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
               How it Works
@@ -53,13 +53,13 @@ export function Header() {
               Find Team ID
             </Link>
             <Link
-              href="#faq"
+              href="/#faq"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
               FAQ
             </Link>
             <Link
-              href="#cta"
+              href="/#cta"
               className="px-6 py-2.5 bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white font-jakarta font-semibold rounded-fpl hover:shadow-fpl-glow-violet transition-all"
             >
               Start Free Trial
@@ -87,14 +87,14 @@ export function Header() {
                 Home
               </Link>
               <Link
-                href="#features"
+                href="/#features"
                 className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Features
               </Link>
               <Link
-                href="#how-it-works"
+                href="/#how-it-works"
                 className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -108,14 +108,14 @@ export function Header() {
                 Find Team ID
               </Link>
               <Link
-                href="#faq"
+                href="/#faq"
                 className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 FAQ
               </Link>
               <Link
-                href="#cta"
+                href="/#cta"
                 className="px-6 py-2.5 bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white font-jakarta font-semibold rounded-fpl hover:shadow-fpl-glow-violet transition-all text-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
