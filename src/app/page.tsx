@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { WebsiteStructuredData, OrganizationStructuredData } from '@/components/seo/structured-data';
 import { Header } from '@/components/ui/header';
 import { Footer } from '@/components/ui/footer';
-import { Trophy, Users, TrendingUp, BarChart3, Star, Zap, Target, Search } from 'lucide-react';
+import { Trophy, Users, TrendingUp, BarChart3, Star, Zap, Target, Search, Monitor, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
