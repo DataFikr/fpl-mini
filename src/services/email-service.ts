@@ -57,7 +57,7 @@ export class EmailService {
     try {
       const resendInstance = getResendInstance();
       const result = await resendInstance.emails.send({
-        from: options.from || process.env.FROM_EMAIL || 'noreply@fplranker.com',
+        from: options.from || process.env.FROM_EMAIL || 'info@fplranker.com',
         to: options.to,
         subject: options.subject,
         html: options.html,
@@ -139,7 +139,7 @@ export class EmailService {
       to: 'support@fplranker.com',
       subject,
       html,
-      from: process.env.FROM_EMAIL || 'noreply@fplranker.com',
+      from: process.env.FROM_EMAIL || 'info@fplranker.com',
     });
   }
 

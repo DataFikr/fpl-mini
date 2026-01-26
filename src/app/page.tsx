@@ -22,100 +22,100 @@ export default function Home() {
       <section className="relative overflow-hidden min-h-screen flex items-center" id="hero">
         <div className="absolute inset-0 bg-animated-gradient opacity-20"></div>
 
-        {/* Large Icon on Left */}
-        <div className="absolute left-0 top-0 bottom-0 w-1/3 hidden lg:flex items-center justify-center">
-          <div className="relative w-full h-full flex items-center justify-center">
-            <Image
-              src="/images/fplranker.png"
-              alt="FPL Ranker Logo"
-              width={500}
-              height={500}
-              className="rounded-3xl shadow-fpl-glow opacity-90"
-            />
-          </div>
-        </div>
+        {/* Two Column Layout */}
+        <div className="relative container mx-auto px-4 py-20">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
 
-        {/* Content */}
-        <div className="relative container mx-auto px-4 py-20 lg:pl-[40%]">
-          <div className="mb-12">
-            {/* Mobile Icon */}
-            <div className="flex justify-center mb-6 lg:hidden">
-              <div className="relative">
-                <Image
-                  src="/images/fplranker.png"
-                  alt="FPL Ranker Logo"
-                  width={120}
-                  height={120}
-                  className="rounded-2xl shadow-fpl-glow"
-                />
-              </div>
-            </div>
+            {/* Left Column - 60% */}
+            <div className="w-full lg:w-[60%]">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-jakarta font-bold text-white mb-6 leading-tight">
+                Ultimate Weekly <span className="text-gradient-primary">Fantasy Premier League</span> Mini-League Analysis Tool
+              </h1>
+              <p className="text-lg md:text-xl text-fpl-text-secondary mb-8 max-w-2xl leading-relaxed">
+                Track your mini league progress, get ESPN-style headlines, and monitor rank changes in real-time.
+              </p>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-jakarta font-bold text-white mb-6 leading-tight">
-              Ultimate Weekly <span className="text-gradient-primary">Fantasy Premier League</span> Mini-League Analysis Tool
-            </h1>
-            <p className="text-lg md:text-xl text-fpl-text-secondary mb-8 max-w-3xl leading-relaxed">
-              Track your mini league progress, get ESPN-style headlines, and monitor rank changes in real-time.
-            </p>
-
-            <div className="mb-8 max-w-4xl">
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <div className="relative flex-1 w-full">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    id="manager-id-input"
-                    placeholder="Enter FPL Manager ID..."
-                    className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors text-black"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        const input = e.currentTarget;
-                        const managerId = input.value.trim();
-                        if (managerId && /^\d+$/.test(managerId)) {
-                          router.push(`/team/${managerId}`);
+              <div className="mb-8 max-w-xl">
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                      type="text"
+                      id="manager-id-input"
+                      placeholder="Enter FPL Manager ID..."
+                      className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors text-black"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const input = e.currentTarget;
+                          const managerId = input.value.trim();
+                          if (managerId && /^\d+$/.test(managerId)) {
+                            router.push(`/team/${managerId}`);
+                          }
                         }
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      const input = document.getElementById('manager-id-input') as HTMLInputElement;
+                      const managerId = input?.value.trim();
+                      if (managerId && /^\d+$/.test(managerId)) {
+                        router.push(`/team/${managerId}`);
                       }
                     }}
-                  />
+                    className="px-8 py-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors whitespace-nowrap"
+                  >
+                    Search
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    const input = document.getElementById('manager-id-input') as HTMLInputElement;
-                    const managerId = input?.value.trim();
-                    if (managerId && /^\d+$/.test(managerId)) {
-                      router.push(`/team/${managerId}`);
-                    }
-                  }}
-                  className="px-8 py-4 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors whitespace-nowrap"
-                >
-                  Search
-                </button>
+                <div className="mt-4">
+                  <Link
+                    href="/find-team-id"
+                    className="inline-flex items-center gap-2 text-fpl-accent hover:text-fpl-violet-400 transition-colors font-inter text-sm"
+                  >
+                    <span>Not sure what is your team ID?</span>
+                    <span className="underline font-semibold">Find Team ID here</span>
+                  </Link>
+                </div>
               </div>
-              <div className="mt-4">
-                <Link
-                  href="/find-team-id"
-                  className="inline-flex items-center gap-2 text-fpl-accent hover:text-fpl-violet-400 transition-colors font-inter text-sm"
-                >
-                  <span>Not sure what is your team ID?</span>
-                  <span className="underline font-semibold">Find Team ID here</span>
-                </Link>
+
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
+                  <Star className="h-5 w-5 text-fpl-accent mr-2" />
+                  <span className="font-jakarta font-medium text-white">Live FPL Data</span>
+                </div>
+                <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
+                  <Zap className="h-5 w-5 text-fpl-accent mr-2" />
+                  <span className="font-jakarta font-medium text-white">Instant Analytics</span>
+                </div>
+                <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
+                  <Target className="h-5 w-5 text-fpl-accent mr-2" />
+                  <span className="font-jakarta font-medium text-white">100% Free</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-between gap-8 max-w-2xl text-sm">
-              <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
-                <Star className="h-5 w-5 text-fpl-accent mr-2" />
-                <span className="font-jakarta font-medium text-white">Live FPL Data</span>
-              </div>
-              <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
-                <Zap className="h-5 w-5 text-fpl-accent mr-2" />
-                <span className="font-jakarta font-medium text-white">Instant Analytics</span>
-              </div>
-              <div className="flex items-center backdrop-blur-fpl bg-fpl-dark/40 px-4 py-2 rounded-fpl border border-fpl-primary/20">
-                <Target className="h-5 w-5 text-fpl-accent mr-2" />
-                <span className="font-jakarta font-medium text-white">100% Free</span>
+            {/* Right Column - 40% - YouTube Short */}
+            <div className="w-full lg:w-[40%] flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[320px]">
+                {/* Video Container with 9:16 aspect ratio */}
+                <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-fpl-primary/30" style={{ aspectRatio: '9/16' }}>
+                  <iframe
+                    src="https://www.youtube.com/embed/2kpeUOg0wwQ?loop=1&playlist=2kpeUOg0wwQ"
+                    title="FPL Ranker Demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
+                {/* Caption below video */}
+                <div className="mt-4 text-center">
+                  <p className="text-fpl-accent font-jakarta font-semibold text-lg">Watch: How it Works</p>
+                  <p className="text-fpl-text-secondary font-inter text-sm">Short video showcasing FPLRanker in action</p>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>

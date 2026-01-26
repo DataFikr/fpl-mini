@@ -53,6 +53,12 @@ export function Header() {
               Find Team ID
             </Link>
             <Link
+              href="/blog"
+              className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
+            >
+              Blogs
+            </Link>
+            <Link
               href="/#faq"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
@@ -106,6 +112,13 @@ export function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Find Team ID
+              </Link>
+              <Link
+                href="/blog"
+                className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Blogs
               </Link>
               <Link
                 href="/#faq"

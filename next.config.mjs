@@ -50,12 +50,6 @@ const nextConfig = {
       }
     ]
   },
-  // Simplified experimental configuration - remove problematic features
-  experimental: {
-    workerThreads: false,
-    cpus: 1,
-  },
-  // Simplified webpack configuration to prevent worker conflicts
   webpack: (config, { isServer }) => {
     // Basic fallback configuration
     if (!isServer) {
@@ -87,22 +81,8 @@ const nextConfig = {
       });
     }
 
-    // Disable caching to prevent worker issues
-    config.cache = false;
-
-    // Single threaded mode
-    config.parallelism = 1;
-
-    // Reduce logging noise
-    config.infrastructureLogging = {
-      level: 'error',
-    };
-
     return config;
   },
-  outputFileTracingRoot: __dirname,
-  // Add output configuration to prevent build worker issues
-  output: 'standalone',
 };
 
 export default nextConfig;
