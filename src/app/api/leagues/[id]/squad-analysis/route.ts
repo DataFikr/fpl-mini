@@ -300,10 +300,36 @@ async function generateRealSquadAnalysisData(leagueId: number, gameweek: number)
         // Get gameweek points
         const gwHistory = history.current.find(h => h.event === gameweek);
         const gwPoints = gwHistory?.points || Math.floor(Math.random() * 80) + 30;
-        
+
+        // Calculate total transfers & consecutive green arrows
+        const totalSeasonTransfers = history.current.reduce((sum: number, gw: any) => sum + (gw.event_transfers || 0), 0);
+        let consecutiveGreenArrows = 0;
+        const sortedHistory = [...(history.current || [])].sort((a: any, b: any) => b.event - a.event);
+        for (const gw of sortedHistory) {
+          if (gw.rank < (gw.overall_rank || Infinity)) {
+            consecutiveGreenArrows++;
+          } else {
+            break;
+          }
+        }
+
         // Generate detailed squad from picks
         const squad = await generateRealSquadFromPicks(picks, bootstrap, gameweek);
         const analysis = generateRealPerformanceAnalysis(gwPoints, standing.teamName, squad);
+
+        // Get player ownership data from bootstrap for differential detection
+        const startingPlayerIds = picks.picks.filter((p: any) => p.position <= 11).map((p: any) => p.element);
+        const playerOwnership = startingPlayerIds.map((id: number) => {
+          const player = bootstrap.elements.find((p: any) => p.id === id);
+          return player ? { name: player.web_name, ownership: parseFloat(player.selected_by_percent || '0'), points: 0 } : null;
+        }).filter(Boolean);
+
+        // Match ownership data with actual points from squad
+        const allStarting = [...(squad.starting.GKP || []), ...(squad.starting.DEF || []), ...(squad.starting.MID || []), ...(squad.starting.FWD || [])];
+        playerOwnership.forEach((po: any) => {
+          const matchingPlayer = allStarting.find((p: any) => p.name === po.name);
+          if (matchingPlayer) po.points = matchingPlayer.points;
+        });
 
         return {
           rank: standing.rank,
@@ -321,7 +347,12 @@ async function generateRealSquadAnalysisData(leagueId: number, gameweek: number)
             points: squad.captain.points * squad.captain.multiplier,
             rawPoints: squad.captain.points
           } : null,
-          benchPoints: squad.subs ? squad.subs.reduce((sum: number, sub: any) => sum + (sub.points || 0), 0) : 0
+          benchPoints: squad.subs ? squad.subs.reduce((sum: number, sub: any) => sum + (sub.points || 0), 0) : 0,
+          transfersCount: gwHistory?.event_transfers || 0,
+          transfersCost: gwHistory?.event_transfers_cost || 0,
+          totalSeasonTransfers,
+          consecutiveGreenArrows,
+          playerOwnership,
         };
       } catch (error) {
         console.warn(`Could not fetch squad data for ${standing.teamName}:`, error);

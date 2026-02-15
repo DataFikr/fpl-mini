@@ -447,6 +447,27 @@ export class FPLApiService {
     }
   }
 
+  async getManagerTransfers(managerId: number): Promise<any[]> {
+    try {
+      return await this.fetchWithCache(
+        `${this.baseUrl}/entry/${managerId}/transfers/`,
+        `fpl:manager:${managerId}:transfers`,
+        1800 // 30 minutes
+      );
+    } catch (error) {
+      console.warn(`Failed to fetch transfers for manager ${managerId}:`, error);
+      return [];
+    }
+  }
+
+  async getLeagueStandingsByPhase(leagueId: number, phaseId: number): Promise<any> {
+    return this.fetchWithCache(
+      `${this.baseUrl}/leagues-classic/${leagueId}/standings/?phase=${phaseId}`,
+      `fpl:league:${leagueId}:standings:phase:${phaseId}`,
+      1800 // 30 minutes
+    );
+  }
+
   async getManagerLeagues(managerId: number): Promise<any> {
     console.log(`Fetching live leagues data for manager ${managerId}`);
 

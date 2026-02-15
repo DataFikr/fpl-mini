@@ -35,6 +35,12 @@ export function Header() {
               Home
             </Link>
             <Link
+              href="/master-the-league"
+              className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
+            >
+              Master the League
+            </Link>
+            <Link
               href="/#features"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
@@ -91,6 +97,13 @@ export function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Home
+              </Link>
+              <Link
+                href="/master-the-league"
+                className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Master the League
               </Link>
               <Link
                 href="/#features"
