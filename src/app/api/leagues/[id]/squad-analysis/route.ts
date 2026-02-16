@@ -475,12 +475,13 @@ async function generateRealSquadFromPicks(picks: any, bootstrap: any, gameweek: 
       console.log(`POINTS MISMATCH - ${player.web_name}: using ${realPoints} (${pointsSource}) vs bootstrap ${player.event_points}`);
     }
     
-    // Final fallback: if player has 0 points and no live data, check if they should have 0 (injured/not playing)
+    // Final fallback: if player has 0 points and no live data, check bootstrap event_points
     if (realPoints === 0 && !liveData) {
-      // Check if player has valid status - only give mock points if player is expected to play
-      // If player appears injured/suspended (status indicates unavailable), keep 0 points
-      if (player.status && (player.status === 'i' || player.status === 's' || player.status === 'u')) {
-        // Player is injured, suspended, or unavailable - keep 0 points
+      // First check if bootstrap has actual event_points (player may have played despite status)
+      if (player.event_points > 0) {
+        realPoints = player.event_points;
+        pointsSource = 'bootstrap-event-points';
+      } else if (player.status && (player.status === 'i' || player.status === 's' || player.status === 'u')) {
         realPoints = 0;
         pointsSource = 'injured-unavailable';
       } else {
@@ -494,23 +495,17 @@ async function generateRealSquadFromPicks(picks: any, bootstrap: any, gameweek: 
       }
     }
     
-    // Automatic injury detection based on FPL data
+    // Only zero out points if the player genuinely did not play (0 minutes AND 0 points)
+    // Players can be flagged as injured/unavailable AFTER playing (e.g., injury during match)
     let finalPoints = realPoints;
     let finalStatus = player.status;
     let finalMinutes = minutesPlayed;
-    
-    // Check if player is injured/unavailable or didn't play
-    const isInjuredOrUnavailable = player.status && ['i', 's', 'u', 'd', 'n'].includes(player.status);
-    const didNotPlay = minutesPlayed === 0;
-    
-    // Apply automatic corrections for injured/unavailable players
-    if (isInjuredOrUnavailable || didNotPlay) {
+
+    if (minutesPlayed === 0 && realPoints === 0) {
       finalPoints = 0;
-      finalStatus = isInjuredOrUnavailable ? player.status : 'n'; // 'n' for did not play
+      const isInjuredOrUnavailable = player.status && ['i', 's', 'u', 'd', 'n'].includes(player.status);
+      finalStatus = isInjuredOrUnavailable ? player.status : 'n';
       finalMinutes = 0;
-      
-      // Debug logging for corrected players
-      console.log(`AUTO-CORRECT ${player.web_name}: status=${player.status}, minutes=${minutesPlayed}, realPoints=${realPoints} → finalPoints=${finalPoints}, finalStatus=${finalStatus}`);
     }
 
     const playerData = {

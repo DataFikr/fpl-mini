@@ -277,16 +277,14 @@ export function PitchView({
           }
           
           let finalPoints = Math.max(0, points);
-          
-          // Automatic injury/unavailability detection
-          const isInjuredOrUnavailable = player.status && ['i', 's', 'u', 'd', 'n'].includes(player.status);
-          const didNotPlay = minutes === 0;
-          
-          if (isInjuredOrUnavailable || didNotPlay) {
+
+          // Only zero out points if the player genuinely did not play (0 minutes)
+          // Players can be flagged as injured/unavailable AFTER playing (e.g., injury during match)
+          if (minutes === 0 && points === 0) {
             finalPoints = 0;
-            playerData.status = isInjuredOrUnavailable ? player.status : 'n'; // 'n' for did not play
+            const isInjuredOrUnavailable = player.status && ['i', 's', 'u', 'd', 'n'].includes(player.status);
+            playerData.status = isInjuredOrUnavailable ? player.status : 'n';
             playerData.minutes = 0;
-            console.log(`PITCH VIEW AUTO-CORRECT ${player.web_name}: status=${player.status}, minutes=${minutes}, originalPoints=${points} → finalPoints=0`);
           }
           
           playerData.points = finalPoints;
@@ -297,25 +295,19 @@ export function PitchView({
           playerData.status = player.status || 'n'; // Default to 'n' for did not play
         }
       } else {
-        // Automatic injury/unavailability detection for fallback section
-        const isInjuredOrUnavailable = player.status && ['i', 's', 'u', 'd', 'n'].includes(player.status);
+        // No live data available - use event_points from bootstrap if available
         let fallbackPoints = 0;
-        
-        if (isInjuredOrUnavailable) {
-          // Player is injured/unavailable - set to 0 points
-          fallbackPoints = 0;
-          playerData.status = player.status;
+
+        if (player.event_points !== undefined && player.event_points > 0) {
+          // Player has points from bootstrap data - use them regardless of status
+          fallbackPoints = player.event_points;
+          playerData.status = player.status || 'a';
           playerData.minutes = 0;
-          console.log(`PITCH VIEW FALLBACK AUTO-CORRECT ${player.web_name}: status=${player.status} → points=0`);
         } else {
-          // No live data available - use actual event points if available from player data
-          if (player.event_points !== undefined) {
-            fallbackPoints = player.event_points;
-          } else {
-            // Last resort: assume player didn't play
-            fallbackPoints = 0;
-          }
-          playerData.status = player.status || 'n';
+          // No points available - check status
+          const isInjuredOrUnavailable = player.status && ['i', 's', 'u', 'd', 'n'].includes(player.status);
+          fallbackPoints = 0;
+          playerData.status = isInjuredOrUnavailable ? player.status : (player.status || 'n');
           playerData.minutes = 0;
         }
         

@@ -119,6 +119,26 @@ interface FixtureData {
   players: FixturePlayer[];
 }
 
+interface TransferHistoryGW {
+  gameweek: number;
+  isCurrent: boolean;
+  count: number;
+  cost: number;
+  details: {
+    playerIn: { id: number; name: string; team: string; teamCode: number; points: number; cost: number };
+    playerOut: { id: number; name: string; team: string; teamCode: number; points: number; cost: number };
+    time: string;
+  }[];
+  totalPointsIn: number;
+  totalPointsOut: number;
+}
+
+interface TransferHistoryData {
+  teamId: number;
+  currentGameweek: number;
+  gameweeks: TransferHistoryGW[];
+}
+
 interface TeamPageClientProps {
   teamId: number;
   initialData: {
@@ -139,6 +159,8 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [fixtureData, setFixtureData] = useState<FixtureData | null>(null);
   const [fixtureLoading, setFixtureLoading] = useState(false);
+  const [transferHistory, setTransferHistory] = useState<TransferHistoryData | null>(null);
+  const [transferHistoryLoading, setTransferHistoryLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -169,6 +191,20 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
       console.warn('Failed to fetch fixtures:', error);
     }
     setFixtureLoading(false);
+  };
+
+  const fetchTransferHistory = async () => {
+    if (transferHistory) return;
+    setTransferHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/teams/${teamId}/transfer-history`);
+      if (res.ok) {
+        setTransferHistory(await res.json());
+      }
+    } catch (error) {
+      console.warn('Failed to fetch transfer history:', error);
+    }
+    setTransferHistoryLoading(false);
   };
 
   const getFDRColor = (difficulty: number) => {
@@ -359,13 +395,42 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
         </div>
 
         {/* ═══════════════════════════════════════════════════
+            MINI-LEAGUES
+            ═══════════════════════════════════════════════════ */}
+        {data.header.leagues.length > 0 && (
+          <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl p-6 mb-6 border border-fpl-primary/20">
+            <h3 className="text-lg font-jakarta font-bold text-white mb-4">Your Mini-Leagues</h3>
+            <div className="grid md:grid-cols-2 gap-3">
+              {data.header.leagues.map(league => {
+                const movement = league.lastRank - league.rank;
+                return (
+                  <Link
+                    key={league.id}
+                    href={`/league/${league.id}?team=${teamId}`}
+                    className="flex items-center justify-between p-3 rounded-lg bg-fpl-dark/40 border border-fpl-primary/10 hover:border-fpl-accent/30 transition-all"
+                  >
+                    <span className="font-inter text-white text-sm truncate mr-2">{league.name}</span>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-jakarta font-medium text-white">#{league.rank}</span>
+                      {movement > 0 && <span className="text-fpl-accent text-xs">↑{movement}</span>}
+                      {movement < 0 && <span className="text-red-400 text-xs">↓{Math.abs(movement)}</span>}
+                      {movement === 0 && <span className="text-fpl-text-secondary text-xs">—</span>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════
             TAB NAVIGATION
             ═══════════════════════════════════════════════════ */}
         <div className="flex gap-1 mb-6 backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl p-1 border border-fpl-primary/20 overflow-x-auto">
           {tabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => { setActiveTab(tab.key); if (tab.key === 'fixtures') fetchFixtures(); }}
+              onClick={() => { setActiveTab(tab.key); if (tab.key === 'fixtures') fetchFixtures(); if (tab.key === 'transfers') fetchTransferHistory(); }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-jakarta font-medium text-sm transition-all flex-shrink-0 ${
                 activeTab === tab.key
                   ? 'bg-fpl-accent/20 text-fpl-accent border border-fpl-accent/30'
@@ -383,17 +448,22 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
             ═══════════════════════════════════════════════════ */}
         {activeTab === 'team' && data.squad && (
           <div className="space-y-6">
-            {/* Chip Banner */}
-            {data.squad.activeChip && (
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-fpl p-3 text-center">
-                <span className="text-yellow-400 font-jakarta font-bold uppercase text-sm">
-                  {formatChipName(data.squad.activeChip)} Active
-                </span>
-              </div>
-            )}
-
             {/* Interactive Pitch */}
             <div className="relative bg-gradient-to-b from-green-500 to-green-700 rounded-fpl mx-auto p-4 h-[480px] sm:h-[620px] lg:h-[680px] max-w-4xl overflow-hidden">
+              {/* Active Chip Badge */}
+              {data.squad.activeChip && (
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40">
+                  <div className={`px-4 py-1.5 rounded-full font-jakarta font-bold text-sm uppercase tracking-wide shadow-lg border backdrop-blur-sm ${
+                    data.squad.activeChip === '3xc' ? 'bg-yellow-500/90 text-black border-yellow-300'
+                    : data.squad.activeChip === 'bboost' ? 'bg-blue-500/90 text-white border-blue-300'
+                    : data.squad.activeChip === 'freehit' ? 'bg-purple-500/90 text-white border-purple-300'
+                    : data.squad.activeChip === 'wildcard' ? 'bg-red-500/90 text-white border-red-300'
+                    : 'bg-yellow-500/90 text-black border-yellow-300'
+                  }`}>
+                    {formatChipName(data.squad.activeChip)} Active
+                  </div>
+                </div>
+              )}
               {/* Pitch Markings */}
               <div className="absolute inset-0 opacity-20">
                 <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -456,30 +526,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
               </div>
             </div>
 
-            {/* Mini-Leagues Quick View */}
-            <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl p-6 border border-fpl-primary/20">
-              <h3 className="text-lg font-jakarta font-bold text-white mb-4">Your Mini-Leagues</h3>
-              <div className="grid md:grid-cols-2 gap-3">
-                {data.header.leagues.map(league => {
-                  const movement = league.lastRank - league.rank;
-                  return (
-                    <Link
-                      key={league.id}
-                      href={`/league/${league.id}?team=${teamId}`}
-                      className="flex items-center justify-between p-3 rounded-lg bg-fpl-dark/40 border border-fpl-primary/10 hover:border-fpl-accent/30 transition-all"
-                    >
-                      <span className="font-inter text-white text-sm truncate mr-2">{league.name}</span>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="font-jakarta font-medium text-white">#{league.rank}</span>
-                        {movement > 0 && <span className="text-fpl-accent text-xs">↑{movement}</span>}
-                        {movement < 0 && <span className="text-red-400 text-xs">↓{Math.abs(movement)}</span>}
-                        {movement === 0 && <span className="text-fpl-text-secondary text-xs">—</span>}
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         )}
 
@@ -488,10 +534,12 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
             ═══════════════════════════════════════════════════ */}
         {activeTab === 'transfers' && (
           <div className="space-y-6">
+            {/* Current GW Transfer Impact (from dashboard data) */}
             <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 border border-fpl-primary/20">
               <h2 className="text-xl font-jakarta font-bold text-white mb-2 flex items-center gap-2">
                 <ArrowRightLeft className="w-5 h-5 text-fpl-accent" />
                 GW {data.currentGameweek} Transfer Impact
+                <span className="ml-auto text-xs px-2 py-1 rounded-full bg-fpl-accent/20 text-fpl-accent font-inter">Current</span>
               </h2>
 
               {data.transfers.count === 0 ? (
@@ -501,7 +549,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                 </div>
               ) : (
                 <>
-                  {/* Transfer Summary */}
                   <div className="flex flex-wrap gap-3 mb-6">
                     <div className="px-3 py-1.5 rounded-full bg-fpl-primary/20 border border-fpl-primary/30 text-sm font-inter text-white">
                       {data.transfers.count} transfer{data.transfers.count > 1 ? 's' : ''}
@@ -513,11 +560,9 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                     )}
                   </div>
 
-                  {/* Transfer Details */}
                   <div className="space-y-3 mb-6">
                     {data.transfers.details.map((transfer, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-fpl-dark/40 border border-fpl-primary/10">
-                        {/* Player In */}
                         <div className="flex-1 flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-fpl-accent flex-shrink-0" />
                           <img
@@ -527,14 +572,11 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                           />
                           <div className="min-w-0">
                             <div className="font-inter text-white text-sm font-medium truncate">{transfer.playerIn.name}</div>
-                            <div className="text-xs text-fpl-text-secondary">{transfer.playerIn.team}</div>
+                            <div className="text-xs text-fpl-text-secondary">{transfer.playerIn.team} | £{transfer.playerIn.cost}m</div>
                           </div>
                           <div className="ml-auto font-jakarta font-bold text-fpl-accent">{transfer.playerIn.points} pts</div>
                         </div>
-
                         <div className="text-fpl-text-secondary text-xs px-2">vs</div>
-
-                        {/* Player Out */}
                         <div className="flex-1 flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
                           <img
@@ -544,7 +586,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                           />
                           <div className="min-w-0">
                             <div className="font-inter text-white text-sm font-medium truncate">{transfer.playerOut.name}</div>
-                            <div className="text-xs text-fpl-text-secondary">{transfer.playerOut.team}</div>
+                            <div className="text-xs text-fpl-text-secondary">{transfer.playerOut.team} | £{transfer.playerOut.cost}m</div>
                           </div>
                           <div className="ml-auto font-jakarta font-bold text-red-400">{transfer.playerOut.points} pts</div>
                         </div>
@@ -552,33 +594,22 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                     ))}
                   </div>
 
-                  {/* Net Impact */}
                   {(() => {
                     const netGain = data.transfers.totalPointsIn - data.transfers.totalPointsOut;
                     const netAfterHit = netGain - data.transfers.cost;
                     const badge = getTransferBadge(netAfterHit);
-
                     return (
                       <div className="space-y-4">
-                        {/* Visual Comparison Bar */}
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm font-inter">
                             <span className="text-fpl-accent">IN: {data.transfers.totalPointsIn} pts</span>
                             <span className="text-red-400">OUT: {data.transfers.totalPointsOut} pts</span>
                           </div>
                           <div className="h-3 bg-fpl-dark/60 rounded-full overflow-hidden flex">
-                            <div
-                              className="bg-gradient-to-r from-fpl-accent to-green-400 rounded-l-full transition-all"
-                              style={{ width: `${Math.max(5, (data.transfers.totalPointsIn / Math.max(1, data.transfers.totalPointsIn + data.transfers.totalPointsOut)) * 100)}%` }}
-                            />
-                            <div
-                              className="bg-gradient-to-r from-red-400 to-red-500 rounded-r-full transition-all"
-                              style={{ width: `${Math.max(5, (data.transfers.totalPointsOut / Math.max(1, data.transfers.totalPointsIn + data.transfers.totalPointsOut)) * 100)}%` }}
-                            />
+                            <div className="bg-gradient-to-r from-fpl-accent to-green-400 rounded-l-full transition-all" style={{ width: `${Math.max(5, (data.transfers.totalPointsIn / Math.max(1, data.transfers.totalPointsIn + data.transfers.totalPointsOut)) * 100)}%` }} />
+                            <div className="bg-gradient-to-r from-red-400 to-red-500 rounded-r-full transition-all" style={{ width: `${Math.max(5, (data.transfers.totalPointsOut / Math.max(1, data.transfers.totalPointsIn + data.transfers.totalPointsOut)) * 100)}%` }} />
                           </div>
                         </div>
-
-                        {/* Net Result */}
                         <div className="flex items-center justify-between p-4 rounded-fpl bg-fpl-dark/60 border border-fpl-primary/20">
                           <div>
                             <div className="text-sm text-fpl-text-secondary font-inter">Net Transfer Gain</div>
@@ -591,7 +622,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                               </div>
                             )}
                           </div>
-                          {/* Transfer Badge */}
                           <div className={`px-4 py-2 rounded-fpl text-center ${badge.bg}`}>
                             <div className="text-lg">{badge.emoji}</div>
                             <div className={`text-sm font-jakarta font-bold ${badge.textColor}`}>{badge.label}</div>
@@ -601,6 +631,144 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                     );
                   })()}
                 </>
+              )}
+            </div>
+
+            {/* Transfer History - All Previous GWs */}
+            <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 border border-fpl-primary/20">
+              <h2 className="text-xl font-jakarta font-bold text-white mb-4 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-fpl-accent" />
+                Transfer History
+              </h2>
+
+              {transferHistoryLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fpl-accent mx-auto mb-3" />
+                  <p className="text-fpl-text-secondary font-inter text-sm">Loading transfer history...</p>
+                </div>
+              ) : !transferHistory || transferHistory.gameweeks.length === 0 ? (
+                <div className="text-center py-8">
+                  <ArrowRightLeft className="w-10 h-10 text-fpl-text-secondary/30 mx-auto mb-3" />
+                  <p className="text-fpl-text-secondary font-inter">No transfer history available</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Season Summary */}
+                  {(() => {
+                    const totalTransfers = transferHistory.gameweeks.reduce((s, gw) => s + gw.count, 0);
+                    const totalHits = transferHistory.gameweeks.reduce((s, gw) => s + gw.cost, 0);
+                    const totalNetGain = transferHistory.gameweeks.reduce((s, gw) => s + (gw.totalPointsIn - gw.totalPointsOut), 0);
+                    return (
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <div className="p-3 rounded-lg bg-fpl-dark/60 border border-fpl-primary/10 text-center">
+                          <div className="text-2xl font-jakarta font-bold text-white">{totalTransfers}</div>
+                          <div className="text-xs text-fpl-text-secondary font-inter">Total Transfers</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-fpl-dark/60 border border-fpl-primary/10 text-center">
+                          <div className={`text-2xl font-jakarta font-bold ${totalHits > 0 ? 'text-red-400' : 'text-fpl-accent'}`}>-{totalHits}</div>
+                          <div className="text-xs text-fpl-text-secondary font-inter">Hits Taken</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-fpl-dark/60 border border-fpl-primary/10 text-center">
+                          <div className={`text-2xl font-jakarta font-bold ${totalNetGain >= 0 ? 'text-fpl-accent' : 'text-red-400'}`}>
+                            {totalNetGain >= 0 ? '+' : ''}{totalNetGain}
+                          </div>
+                          <div className="text-xs text-fpl-text-secondary font-inter">Net Points</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* GW-by-GW History (skip current GW since it's shown above) */}
+                  {transferHistory.gameweeks
+                    .filter(gw => !gw.isCurrent)
+                    .map((gw) => {
+                      const netGain = gw.totalPointsIn - gw.totalPointsOut;
+                      const netAfterHit = netGain - gw.cost;
+                      const badge = getTransferBadge(netAfterHit);
+
+                      return (
+                        <div key={gw.gameweek} className="rounded-lg bg-fpl-dark/30 border border-fpl-primary/10 overflow-hidden">
+                          {/* GW Header */}
+                          <div className="flex items-center justify-between px-4 py-3 bg-fpl-primary/5 border-b border-fpl-primary/10">
+                            <div className="flex items-center gap-2">
+                              <span className="font-jakarta font-bold text-white text-sm">GW {gw.gameweek}</span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-fpl-primary/20 text-fpl-text-secondary font-inter">
+                                {gw.count} transfer{gw.count > 1 ? 's' : ''}
+                              </span>
+                              {gw.cost > 0 && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 font-inter">
+                                  -{gw.cost} pts hit
+                                </span>
+                              )}
+                            </div>
+                            <div className={`px-2.5 py-1 rounded-full text-xs font-jakarta font-bold ${badge.bg} ${badge.textColor}`}>
+                              {badge.emoji} {badge.label}
+                            </div>
+                          </div>
+
+                          {/* Transfer Details */}
+                          <div className="p-4 space-y-2">
+                            {gw.details.map((transfer, i) => (
+                              <div key={i} className="flex items-center gap-2 p-2.5 rounded-lg bg-fpl-dark/40 border border-fpl-primary/5">
+                                {/* Player In */}
+                                <div className="flex-1 flex items-center gap-2 min-w-0">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-fpl-accent flex-shrink-0" />
+                                  <img
+                                    src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${transfer.playerIn.teamCode}-66.png`}
+                                    alt={transfer.playerIn.team}
+                                    className="w-7 h-7 object-contain flex-shrink-0"
+                                  />
+                                  <div className="min-w-0 flex-1">
+                                    <div className="font-inter text-white text-xs font-medium truncate">{transfer.playerIn.name}</div>
+                                    <div className="text-[10px] text-fpl-text-secondary">{transfer.playerIn.team} | £{transfer.playerIn.cost}m</div>
+                                  </div>
+                                  <span className="font-jakarta font-bold text-fpl-accent text-xs flex-shrink-0">{transfer.playerIn.points}</span>
+                                </div>
+
+                                <ArrowRightLeft className="w-3 h-3 text-fpl-text-secondary/40 flex-shrink-0" />
+
+                                {/* Player Out */}
+                                <div className="flex-1 flex items-center gap-2 min-w-0">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                                  <img
+                                    src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${transfer.playerOut.teamCode}-66.png`}
+                                    alt={transfer.playerOut.team}
+                                    className="w-7 h-7 object-contain flex-shrink-0"
+                                  />
+                                  <div className="min-w-0 flex-1">
+                                    <div className="font-inter text-white text-xs font-medium truncate">{transfer.playerOut.name}</div>
+                                    <div className="text-[10px] text-fpl-text-secondary">{transfer.playerOut.team} | £{transfer.playerOut.cost}m</div>
+                                  </div>
+                                  <span className="font-jakarta font-bold text-red-400 text-xs flex-shrink-0">{transfer.playerOut.points}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* GW Net Impact Bar */}
+                          <div className="px-4 pb-3">
+                            <div className="flex justify-between text-xs font-inter mb-1">
+                              <span className="text-fpl-accent">IN: {gw.totalPointsIn}</span>
+                              <span className={`font-jakarta font-bold ${netGain >= 0 ? 'text-fpl-accent' : 'text-red-400'}`}>
+                                Net: {netGain >= 0 ? '+' : ''}{netGain}
+                              </span>
+                              <span className="text-red-400">OUT: {gw.totalPointsOut}</span>
+                            </div>
+                            <div className="h-2 bg-fpl-dark/60 rounded-full overflow-hidden flex">
+                              <div
+                                className="bg-gradient-to-r from-fpl-accent to-green-400 rounded-l-full"
+                                style={{ width: `${Math.max(5, (gw.totalPointsIn / Math.max(1, gw.totalPointsIn + gw.totalPointsOut)) * 100)}%` }}
+                              />
+                              <div
+                                className="bg-gradient-to-r from-red-400 to-red-500 rounded-r-full"
+                                style={{ width: `${Math.max(5, (gw.totalPointsOut / Math.max(1, gw.totalPointsIn + gw.totalPointsOut)) * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               )}
             </div>
           </div>
