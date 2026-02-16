@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import {
   TrendingUp, TrendingDown, Crown, Target, ArrowRightLeft,
-  BarChart3, Users, ChevronDown, ChevronUp, Shield, X,
-  Zap, Trophy, AlertTriangle, Medal, Calendar
+  BarChart3, ChevronDown, ChevronUp, Shield, X,
+  Zap, AlertTriangle, CalendarDays
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -88,33 +88,35 @@ interface DashboardData {
   };
 }
 
-interface LeaderboardEntry {
-  rank: number;
-  teamName: string;
-  managerName: string;
-  entryId: number;
-  totalPoints: number;
-  eventTotal: number;
+interface FixtureItem {
+  event: number;
+  opponent_short: string;
+  is_home: boolean;
+  difficulty: number;
 }
 
-interface MonthlyLeaderboard {
-  phaseId: number;
-  phaseName: string;
-  startEvent: number;
-  stopEvent: number;
-  top3: LeaderboardEntry[];
-}
-
-interface LeagueLeaderboard {
-  leagueId: number;
-  leagueName: string;
-  months: MonthlyLeaderboard[];
-}
-
-interface LeaderboardData {
+interface FixturePlayer {
+  id: number;
+  name: string;
+  position: string;
+  positionOrder: number;
+  price: string;
   teamId: number;
-  phases: { id: number; name: string; startEvent: number; stopEvent: number }[];
-  leagueLeaderboards: LeagueLeaderboard[];
+  teamName: string;
+  teamShort: string;
+  teamCode: number;
+  photo: string | null;
+  isCaptain: boolean;
+  isViceCaptain: boolean;
+  isStarting: boolean;
+  pickPosition: number;
+  fixtures: FixtureItem[];
+}
+
+interface FixtureData {
+  currentGameweek: number;
+  gwColumns: { id: number; name: string; deadline: string | null }[];
+  players: FixturePlayer[];
 }
 
 interface TeamPageClientProps {
@@ -132,12 +134,11 @@ interface TeamPageClientProps {
 export default function TeamPageClient({ teamId, initialData }: TeamPageClientProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'team' | 'transfers' | 'analysis' | 'rivals' | 'leaderboard'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'transfers' | 'analysis' | 'fixtures'>('team');
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null);
-  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
-  const [selectedLeague, setSelectedLeague] = useState<number>(0);
+  const [fixtureData, setFixtureData] = useState<FixtureData | null>(null);
+  const [fixtureLoading, setFixtureLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -156,22 +157,29 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
     setIsLoading(false);
   };
 
-  const fetchLeaderboard = async () => {
-    if (leaderboardData) return; // Already fetched
-    setLeaderboardLoading(true);
+  const fetchFixtures = async () => {
+    if (fixtureData) return;
+    setFixtureLoading(true);
     try {
-      const res = await fetch(`/api/teams/${teamId}/leaderboard`);
+      const res = await fetch(`/api/teams/${teamId}/fixtures`);
       if (res.ok) {
-        const lbData = await res.json();
-        setLeaderboardData(lbData);
-        if (lbData.leagueLeaderboards?.length > 0) {
-          setSelectedLeague(0);
-        }
+        setFixtureData(await res.json());
       }
     } catch (error) {
-      console.warn('Failed to fetch leaderboard:', error);
+      console.warn('Failed to fetch fixtures:', error);
     }
-    setLeaderboardLoading(false);
+    setFixtureLoading(false);
+  };
+
+  const getFDRColor = (difficulty: number) => {
+    switch (difficulty) {
+      case 1: return 'bg-[#257d5a] text-white';
+      case 2: return 'bg-[#00ff87] text-gray-900';
+      case 3: return 'bg-[#ebebe4] text-gray-900';
+      case 4: return 'bg-[#ff1751] text-white';
+      case 5: return 'bg-[#861d46] text-white';
+      default: return 'bg-gray-600 text-white';
+    }
   };
 
   const toggleSection = (key: string) => {
@@ -201,8 +209,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
     { key: 'team' as const, label: 'Team', icon: Shield },
     { key: 'transfers' as const, label: 'Transfers', icon: ArrowRightLeft },
     { key: 'analysis' as const, label: 'Analysis', icon: BarChart3 },
-    { key: 'rivals' as const, label: 'Rivals', icon: Users },
-    { key: 'leaderboard' as const, label: 'Leaderboard', icon: Medal },
+    { key: 'fixtures' as const, label: 'Fixtures', icon: CalendarDays },
   ];
 
   if (isLoading) {
@@ -358,7 +365,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
           {tabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => { setActiveTab(tab.key); if (tab.key === 'leaderboard') fetchLeaderboard(); }}
+              onClick={() => { setActiveTab(tab.key); if (tab.key === 'fixtures') fetchFixtures(); }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-jakarta font-medium text-sm transition-all flex-shrink-0 ${
                 activeTab === tab.key
                   ? 'bg-fpl-accent/20 text-fpl-accent border border-fpl-accent/30'
@@ -747,236 +754,174 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
         {/* ═══════════════════════════════════════════════════
             SECTION 5: RIVAL RADAR (Rivals Tab)
             ═══════════════════════════════════════════════════ */}
-        {activeTab === 'rivals' && (
-          <div className="space-y-6">
-            <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 border border-fpl-primary/20">
-              <h2 className="text-xl font-jakarta font-bold text-white mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-fpl-accent" />
-                League Standings
-              </h2>
-
-              {data.header.leagues.length === 0 ? (
-                <div className="text-center py-8 text-fpl-text-secondary font-inter">
-                  No mini-league data available
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {data.header.leagues.slice(0, 8).map(league => {
-                    const movement = league.lastRank - league.rank;
-                    return (
-                      <Link
-                        key={league.id}
-                        href={`/league/${league.id}?team=${teamId}`}
-                        className="block p-4 rounded-lg bg-fpl-dark/40 border border-fpl-primary/10 hover:border-fpl-accent/30 transition-all"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="min-w-0 flex-1 mr-3">
-                            <div className="font-jakarta font-medium text-white truncate">{league.name}</div>
-                            <div className="text-xs text-fpl-text-secondary font-inter mt-1">
-                              {movement > 0 && <span className="text-fpl-accent">Gained {movement} place{movement > 1 ? 's' : ''} this GW</span>}
-                              {movement < 0 && <span className="text-red-400">Dropped {Math.abs(movement)} place{Math.abs(movement) > 1 ? 's' : ''} this GW</span>}
-                              {movement === 0 && <span>Position unchanged</span>}
-                            </div>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <div className="font-jakarta font-bold text-white text-lg">#{league.rank}</div>
-                            <div className="flex items-center gap-1 justify-end">
-                              {movement > 0 && <TrendingUp className="w-3 h-3 text-fpl-accent" />}
-                              {movement < 0 && <TrendingDown className="w-3 h-3 text-red-400" />}
-                              {movement !== 0 && (
-                                <span className={`text-xs ${movement > 0 ? 'text-fpl-accent' : 'text-red-400'}`}>
-                                  {Math.abs(movement)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-
-              {data.header.leagues.length > 8 && (
-                <div className="mt-4 text-center text-sm text-fpl-text-secondary font-inter">
-                  +{data.header.leagues.length - 8} more leagues
-                </div>
-              )}
-            </div>
-
-            {/* Outperformance Badge */}
-            <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl p-6 border border-fpl-primary/20 text-center">
-              <div className="text-sm text-fpl-text-secondary font-inter mb-2">Your GW Performance</div>
-              {data.header.pointsAboveAvg > 0 ? (
-                <>
-                  <div className="text-fpl-accent font-jakarta font-bold text-lg mb-1">
-                    <Trophy className="w-5 h-5 inline mr-1" />
-                    Above Average
-                  </div>
-                  <div className="text-sm text-fpl-text-secondary font-inter">
-                    You scored {data.header.gwPoints} pts vs the {data.header.averageScore} average
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-orange-400 font-jakarta font-bold text-lg mb-1">Below Average</div>
-                  <div className="text-sm text-fpl-text-secondary font-inter">
-                    You scored {data.header.gwPoints} pts vs the {data.header.averageScore} average
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
         {/* ═══════════════════════════════════════════════════
-            SECTION 6: MONTHLY LEADERBOARD (Leaderboard Tab)
+            SECTION 5: FIXTURES (Fixtures Tab)
             ═══════════════════════════════════════════════════ */}
-        {activeTab === 'leaderboard' && (
-          <div className="space-y-6">
-            {leaderboardLoading ? (
+        {activeTab === 'fixtures' && (
+          <div className="space-y-4">
+            {fixtureLoading ? (
               <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 border border-fpl-primary/20 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-fpl-accent mx-auto mb-3" />
-                <p className="text-fpl-text-secondary font-inter">Loading monthly leaderboards...</p>
+                <p className="text-fpl-text-secondary font-inter">Loading fixtures...</p>
               </div>
-            ) : !leaderboardData || leaderboardData.leagueLeaderboards.length === 0 ? (
+            ) : !fixtureData || fixtureData.players.length === 0 ? (
               <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 border border-fpl-primary/20 text-center">
-                <Medal className="w-10 h-10 text-fpl-text-secondary mx-auto mb-3 opacity-50" />
-                <p className="text-fpl-text-secondary font-inter">No leaderboard data available</p>
+                <CalendarDays className="w-10 h-10 text-fpl-text-secondary mx-auto mb-3 opacity-50" />
+                <p className="text-fpl-text-secondary font-inter">No fixture data available</p>
               </div>
-            ) : (
-              <>
-                {/* League Selector */}
-                {leaderboardData.leagueLeaderboards.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-1">
-                    {leaderboardData.leagueLeaderboards.map((league, idx) => (
-                      <button
-                        key={league.leagueId}
-                        onClick={() => setSelectedLeague(idx)}
-                        className={`px-4 py-2 rounded-fpl font-jakarta font-medium text-sm whitespace-nowrap transition-all ${
-                          selectedLeague === idx
-                            ? 'bg-fpl-accent/20 text-fpl-accent border border-fpl-accent/30'
-                            : 'bg-fpl-dark/40 text-fpl-text-secondary hover:text-white hover:bg-white/5 border border-fpl-primary/20'
-                        }`}
-                      >
-                        {league.leagueName}
-                      </button>
-                    ))}
+            ) : (() => {
+              const { gwColumns, players } = fixtureData;
+              const positionLabels: Record<string, string> = { GKP: 'Goalkeeper', DEF: 'Defenders', MID: 'Midfielders', FWD: 'Strikers' };
+              const starters = players.filter(p => p.isStarting).sort((a, b) => a.positionOrder - b.positionOrder || a.pickPosition - b.pickPosition);
+              const subs = players.filter(p => !p.isStarting).sort((a, b) => a.pickPosition - b.pickPosition);
+
+              // Group starters by position
+              const grouped: { label: string; players: FixturePlayer[] }[] = [];
+              let lastPos = '';
+              for (const p of starters) {
+                if (p.position !== lastPos) {
+                  grouped.push({ label: positionLabels[p.position] || p.position, players: [] });
+                  lastPos = p.position;
+                }
+                grouped[grouped.length - 1].players.push(p);
+              }
+              if (subs.length > 0) {
+                grouped.push({ label: 'Substitutes', players: subs });
+              }
+
+              return (
+                <>
+                  {/* FDR Key */}
+                  <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-4 border border-fpl-primary/20">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-xs font-jakarta font-semibold text-fpl-text-secondary">FDR Key:</span>
+                      <div className="flex items-center gap-1.5">
+                        {[1, 2, 3, 4, 5].map(d => (
+                          <div key={d} className={`w-7 h-7 rounded flex items-center justify-center text-xs font-bold ${getFDRColor(d)}`}>{d}</div>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-fpl-text-secondary font-inter">Easy</span>
+                      <span className="text-[10px] text-fpl-text-secondary font-inter ml-auto">Hard</span>
+                    </div>
                   </div>
-                )}
 
-                {/* Selected League Leaderboard */}
-                {(() => {
-                  const league = leaderboardData.leagueLeaderboards[selectedLeague];
-                  if (!league) return null;
-
-                  return (
-                    <div className="space-y-4">
-                      <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 border border-fpl-primary/20">
-                        <h2 className="text-xl font-jakarta font-bold text-white mb-1 flex items-center gap-2">
-                          <Trophy className="w-5 h-5 text-yellow-400" />
-                          {league.leagueName}
-                        </h2>
-                        <p className="text-sm text-fpl-text-secondary font-inter mb-5">Monthly top 3 performers</p>
-
-                        <div className="space-y-5">
-                          {league.months.map((month) => {
-                            const winner = month.top3[0];
-                            const runnersUp = month.top3.slice(1);
-                            const winnerHighlight = winner?.entryId === teamId ? 'border-fpl-accent/40' : 'border-yellow-500/30';
-
-                            return (
-                              <div key={month.phaseId} className="rounded-lg bg-fpl-dark/40 border border-fpl-primary/10 overflow-hidden">
-                                {/* Month Header */}
-                                <div className="flex items-center gap-2 px-4 py-3 bg-fpl-primary/10 border-b border-fpl-primary/10">
-                                  <Calendar className="w-4 h-4 text-fpl-accent" />
-                                  <span className="font-jakarta font-semibold text-white text-sm">{month.phaseName}</span>
-                                  <span className="text-xs text-fpl-text-secondary font-inter ml-auto">
-                                    GW {month.startEvent}–{month.stopEvent}
-                                  </span>
+                  {/* Fixture Table */}
+                  <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl border border-fpl-primary/20 overflow-x-auto">
+                    <table className="w-full text-sm">
+                      {/* Table Header */}
+                      <thead>
+                        <tr className="border-b border-fpl-primary/20">
+                          <th className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-12">Pos</th>
+                          <th className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-10"></th>
+                          <th className="sticky left-[5.5rem] z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[90px]">Player</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-14">Price</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[60px]">Team</th>
+                          {gwColumns.map(gw => (
+                            <th key={gw.id} className="bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[68px]">
+                              <div>{gw.name}</div>
+                              {gw.deadline && (
+                                <div className="text-[8px] font-inter font-normal text-fpl-text-secondary/60">
+                                  {new Date(gw.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                                 </div>
-
-                                {/* Two-column layout: Winner + Trophy | Runners-up */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-0">
-                                  {/* LEFT: 1st Place with Trophy */}
-                                  {winner && (
-                                    <div className={`flex items-center gap-3 p-4 border-b md:border-b-0 md:border-r border-fpl-primary/10 bg-gradient-to-br from-yellow-500/5 to-fpl-dark/20 ${winnerHighlight}`}>
-                                      {/* Trophy Image */}
-                                      <div className="flex-shrink-0 w-20 h-28 sm:w-24 sm:h-32 relative">
-                                        <Image
-                                          src="/images/manager_of_the_month_trophy.png"
-                                          alt="Manager of the Month Trophy"
-                                          fill
-                                          className="object-contain"
-                                          sizes="96px"
-                                        />
-                                      </div>
-
-                                      {/* Winner Info */}
-                                      <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1.5 mb-1">
-                                          <span className="text-lg">🥇</span>
-                                          <span className="font-inter text-white text-sm font-bold truncate">
-                                            {winner.teamName}
-                                          </span>
-                                        </div>
-                                        <div className="text-xs text-fpl-text-secondary font-inter truncate mb-2">
-                                          {winner.managerName}
-                                        </div>
-                                        <div className="font-jakarta font-bold text-xl text-yellow-400">
-                                          {winner.totalPoints} <span className="text-sm font-normal text-fpl-text-secondary">pts</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* RIGHT: 2nd & 3rd Place */}
-                                  <div className="divide-y divide-fpl-primary/10">
-                                    {runnersUp.map((entry) => {
-                                      const bgHighlight = entry.entryId === teamId ? 'bg-fpl-accent/5 border-l-2 border-l-fpl-accent' : '';
-                                      return (
-                                        <div
-                                          key={entry.entryId}
-                                          className={`flex items-center gap-3 px-4 py-3 ${bgHighlight}`}
-                                        >
-                                          <div className={`w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0 ${
-                                            entry.rank === 2 ? 'bg-gray-300/20' : 'bg-amber-600/20'
-                                          }`}>
-                                            <span className="font-jakarta font-bold text-sm">
-                                              {entry.rank === 2 ? '🥈' : '🥉'}
-                                            </span>
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <div className="font-inter text-white text-sm font-medium truncate">
-                                              {entry.teamName}
-                                            </div>
-                                            <div className="text-xs text-fpl-text-secondary font-inter truncate">
-                                              {entry.managerName}
-                                            </div>
-                                          </div>
-                                          <div className="text-right flex-shrink-0">
-                                            <div className="font-jakarta font-bold text-white">{entry.totalPoints}</div>
-                                            <div className="text-xs text-fpl-text-secondary font-inter">pts</div>
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                    {runnersUp.length === 0 && (
-                                      <div className="px-4 py-6 text-center text-fpl-text-secondary font-inter text-sm">
-                                        No runners-up data
+                              )}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {grouped.map((group) => (
+                          <>
+                            {/* Position Group Header */}
+                            <tr key={`header-${group.label}`} className="bg-fpl-primary/5">
+                              <td colSpan={5 + gwColumns.length} className="px-3 py-1.5">
+                                <span className="font-jakarta font-bold text-xs text-fpl-accent uppercase tracking-wider">{group.label}</span>
+                              </td>
+                            </tr>
+                            {group.players.map((player) => (
+                              <tr key={player.id} className="border-b border-fpl-primary/5 hover:bg-white/[0.02] transition-colors">
+                                {/* Position */}
+                                <td className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2">
+                                  <span className="text-[10px] font-jakarta font-medium text-fpl-text-secondary">{player.position}</span>
+                                </td>
+                                {/* Player Photo */}
+                                <td className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-1">
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-fpl-primary/20 flex-shrink-0 relative">
+                                    {player.photo ? (
+                                      <Image
+                                        src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo}`}
+                                        alt={player.name}
+                                        fill
+                                        className="object-cover object-top"
+                                        sizes="32px"
+                                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center text-fpl-text-secondary text-[10px] font-bold">
+                                        {player.name.charAt(0)}
                                       </div>
                                     )}
                                   </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
-            )}
+                                </td>
+                                {/* Player Name */}
+                                <td className="sticky left-[5.5rem] z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2">
+                                  <div className="font-inter text-white text-xs font-medium truncate max-w-[100px]">
+                                    {player.name}
+                                    {player.isCaptain && <span className="text-yellow-400 ml-0.5">(C)</span>}
+                                    {player.isViceCaptain && <span className="text-fpl-text-secondary ml-0.5">(V)</span>}
+                                  </div>
+                                </td>
+                                {/* Price */}
+                                <td className="px-2 py-2 text-center">
+                                  <span className="font-inter text-fpl-text-secondary text-xs">&pound;{player.price}</span>
+                                </td>
+                                {/* Team */}
+                                <td className="px-2 py-2 text-center">
+                                  <div className="flex items-center justify-center gap-1">
+                                    <Image
+                                      src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
+                                      alt={player.teamShort}
+                                      width={16}
+                                      height={16}
+                                      className="flex-shrink-0"
+                                    />
+                                    <span className="font-inter text-fpl-text-secondary text-[10px]">{player.teamShort}</span>
+                                  </div>
+                                </td>
+                                {/* Fixture Cells */}
+                                {gwColumns.map(gw => {
+                                  const fixtures = player.fixtures.filter(f => f.event === gw.id);
+                                  if (fixtures.length === 0) {
+                                    return (
+                                      <td key={gw.id} className="px-1 py-2 text-center">
+                                        <div className="bg-gray-700/50 rounded px-1 py-1.5 text-[10px] text-fpl-text-secondary font-inter">-</div>
+                                      </td>
+                                    );
+                                  }
+                                  return (
+                                    <td key={gw.id} className="px-1 py-2 text-center">
+                                      <div className="flex flex-col gap-0.5">
+                                        {fixtures.map((fix, fi) => (
+                                          <div
+                                            key={fi}
+                                            className={`rounded px-1 py-1.5 text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}
+                                          >
+                                            {fix.opponent_short} ({fix.is_home ? 'H' : 'A'})
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
       </div>

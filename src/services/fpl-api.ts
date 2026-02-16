@@ -435,6 +435,14 @@ export class FPLApiService {
     return filtered;
   }
 
+  async getFixtures(): Promise<any[]> {
+    return this.fetchWithCache(
+      `${this.baseUrl}/fixtures/`,
+      'fpl:fixtures',
+      21600 // 6 hours
+    );
+  }
+
   async getCurrentGameweek(): Promise<number> {
     try {
       const bootstrap = await this.getBootstrapData();

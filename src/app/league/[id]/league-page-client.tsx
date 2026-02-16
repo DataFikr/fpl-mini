@@ -6,9 +6,9 @@ import { RankProgressionChart } from '@/components/charts/rank-progression-chart
 import { EnhancedSquadTable } from '@/components/squad/enhanced-squad-table';
 import { PitchView } from '@/components/squad/pitch-view';
 import { EnhancedLeagueStorytelling } from '@/components/ui/enhanced-league-storytelling';
-import { BadgesAchievements } from '@/components/ui/badges-achievements';
 import { VotingPoll } from '@/components/ui/voting-poll';
-import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User, Crown } from 'lucide-react';
+import { ManagerOfTheMonth } from '@/components/ui/manager-of-the-month';
+import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User, Crown, Medal } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -20,7 +20,7 @@ interface LeaguePageClientProps {
   userTeamId?: number;
 }
 
-type TabType = 'headlines' | 'league-progression' | 'team-analysis' | 'badges-achievements' | 'community-poll';
+type TabType = 'headlines' | 'league-progression' | 'team-analysis' | 'manager-of-the-month' | 'community-poll';
 
 export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, userTeamId }: LeaguePageClientProps) {
   const [selectedTeam, setSelectedTeam] = useState<{name: string; manager: string} | null>(null);
@@ -134,10 +134,10 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       description: 'Analyze team squads and player performance'
     },
     {
-      id: 'badges-achievements' as TabType,
-      name: 'Badges',
-      icon: Award,
-      description: 'Track achievements and league milestones'
+      id: 'manager-of-the-month' as TabType,
+      name: 'Manager of the Month',
+      icon: Medal,
+      description: 'Monthly top performers in your league'
     },
     {
       id: 'community-poll' as TabType,
@@ -190,13 +190,13 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
           </div>
         );
 
-      case 'badges-achievements':
+      case 'manager-of-the-month':
         return (
           <div>
-            <BadgesAchievements
+            <ManagerOfTheMonth
               leagueId={leagueId}
-              teams={league.standings}
-              gameweek={league.currentGameweek}
+              leagueName={league.name}
+              userTeamId={currentUserTeamId || undefined}
             />
           </div>
         );
