@@ -94,10 +94,9 @@ export async function GET(
       };
     }).filter(Boolean);
 
-    // Build GW columns from currentGW to 38 (max 10 columns shown)
+    // Build GW columns from currentGW to GW 38
     const gwColumns = [];
-    const maxGW = Math.min(currentGW + 9, 38);
-    for (let gw = currentGW; gw <= maxGW; gw++) {
+    for (let gw = currentGW; gw <= 38; gw++) {
       const event = bootstrap.events.find((e: any) => e.id === gw);
       gwColumns.push({
         id: gw,

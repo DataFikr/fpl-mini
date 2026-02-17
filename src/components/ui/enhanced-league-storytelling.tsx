@@ -71,7 +71,7 @@ const STORY_CONFIGS: Record<string, { icon: React.ReactNode; color: string; bgCo
     icon: <Ghost className="h-6 w-6" />,
     color: '#6B7280',
     bgColor: '#F9FAFB',
-    image: '/images/headlines/news_clone_wars.png'
+    image: '/images/headlines/news_ghost_ship.png'
   },
   panic_merchant: {
     icon: <ShoppingCart className="h-6 w-6" />,

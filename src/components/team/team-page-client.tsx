@@ -706,6 +706,27 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                             </div>
                           </div>
 
+                          {/* IN / NET / OUT Bar — right below header */}
+                          <div className="px-4 py-3 border-b border-fpl-primary/10">
+                            <div className="flex justify-between text-xs font-inter mb-1.5">
+                              <span className="text-fpl-accent font-jakarta font-bold">IN: {gw.totalPointsIn}</span>
+                              <span className={`font-jakarta font-bold ${netGain >= 0 ? 'text-fpl-accent' : 'text-red-400'}`}>
+                                Net: {netGain >= 0 ? '+' : ''}{netGain}
+                              </span>
+                              <span className="text-red-400 font-jakarta font-bold">OUT: {gw.totalPointsOut}</span>
+                            </div>
+                            <div className="h-2.5 bg-fpl-dark/60 rounded-full overflow-hidden flex">
+                              <div
+                                className="bg-gradient-to-r from-fpl-accent to-green-400 rounded-l-full"
+                                style={{ width: `${Math.max(5, (gw.totalPointsIn / Math.max(1, gw.totalPointsIn + gw.totalPointsOut)) * 100)}%` }}
+                              />
+                              <div
+                                className="bg-gradient-to-r from-red-400 to-red-500 rounded-r-full"
+                                style={{ width: `${Math.max(5, (gw.totalPointsOut / Math.max(1, gw.totalPointsIn + gw.totalPointsOut)) * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+
                           {/* Transfer Details */}
                           <div className="p-4 space-y-2">
                             {gw.details.map((transfer, i) => (
@@ -722,9 +743,10 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                     <div className="font-inter text-white text-xs font-medium truncate">{transfer.playerIn.name}</div>
                                     <div className="text-[10px] text-fpl-text-secondary">{transfer.playerIn.team} | £{transfer.playerIn.cost}m</div>
                                   </div>
-                                  <span className="font-jakarta font-bold text-fpl-accent text-xs flex-shrink-0">{transfer.playerIn.points}</span>
                                 </div>
 
+                                {/* Points In (center) */}
+                                <span className="font-jakarta font-bold text-fpl-accent text-xs flex-shrink-0">{transfer.playerIn.points}</span>
                                 <ArrowRightLeft className="w-3 h-3 text-fpl-text-secondary/40 flex-shrink-0" />
 
                                 {/* Player Out */}
@@ -739,31 +761,12 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                     <div className="font-inter text-white text-xs font-medium truncate">{transfer.playerOut.name}</div>
                                     <div className="text-[10px] text-fpl-text-secondary">{transfer.playerOut.team} | £{transfer.playerOut.cost}m</div>
                                   </div>
-                                  <span className="font-jakarta font-bold text-red-400 text-xs flex-shrink-0">{transfer.playerOut.points}</span>
                                 </div>
+
+                                {/* Points Out (far right) */}
+                                <span className="font-jakarta font-bold text-red-400 text-xs flex-shrink-0">{transfer.playerOut.points}</span>
                               </div>
                             ))}
-                          </div>
-
-                          {/* GW Net Impact Bar */}
-                          <div className="px-4 pb-3">
-                            <div className="flex justify-between text-xs font-inter mb-1">
-                              <span className="text-fpl-accent">IN: {gw.totalPointsIn}</span>
-                              <span className={`font-jakarta font-bold ${netGain >= 0 ? 'text-fpl-accent' : 'text-red-400'}`}>
-                                Net: {netGain >= 0 ? '+' : ''}{netGain}
-                              </span>
-                              <span className="text-red-400">OUT: {gw.totalPointsOut}</span>
-                            </div>
-                            <div className="h-2 bg-fpl-dark/60 rounded-full overflow-hidden flex">
-                              <div
-                                className="bg-gradient-to-r from-fpl-accent to-green-400 rounded-l-full"
-                                style={{ width: `${Math.max(5, (gw.totalPointsIn / Math.max(1, gw.totalPointsIn + gw.totalPointsOut)) * 100)}%` }}
-                              />
-                              <div
-                                className="bg-gradient-to-r from-red-400 to-red-500 rounded-r-full"
-                                style={{ width: `${Math.max(5, (gw.totalPointsOut / Math.max(1, gw.totalPointsIn + gw.totalPointsOut)) * 100)}%` }}
-                              />
-                            </div>
                           </div>
                         </div>
                       );
