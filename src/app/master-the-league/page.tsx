@@ -15,10 +15,69 @@ export const metadata: Metadata = {
   },
 };
 
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How do I keep my FPL mini-league active after Christmas?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Implementation of Monthly Leaderboards is the most effective way to prevent manager dropout. By resetting the competitive focus every four weeks, managers who have fallen behind in the overall rank get a fresh chance to win 'Manager of the Month' honors and stay engaged.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Which FPL site shows live bonus points (BPS) for my mini-league rivals?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'FPLRanker provides a live bonus point (BPS) tracker for every manager in your mini-league. It calculates provisional bonus points in real-time, allowing you to see the exact points gain your rivals are getting before the official scores are finalized by FPL.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How can I find the biggest bench disaster in my FPL league?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "You can identify the biggest bench disaster using the FPLRanker 'Bench Regret' tool. It automatically flags instances where a manager leaves double-digit points on the sidelines while their starters blank, making it perfect ammunition for league banter.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How to track FPL rank changes in real-time during matches?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "To track rank changes live, use FPLRanker's live ranker tool. It calculates 'Effective Rank' by factoring in live scores, provisional bonus points, and predicted autosubs, providing a projected standing long before the official FPL app updates.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Are there automated FPL newsletter tools for private mini-leagues?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Yes, FPLRanker offers an automated league newsletter. It sends a weekly recap to your mini-league members, featuring the week's top scorers, 'ESPN-style' headlines, and rival analysis to keep the community active without manual work from the Commissioner.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What are the best fun ways to roast FPL rivals using gameweek data?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "The best way to roast rivals is by using automated 'Banter Highlights' like 'Captain Calamity' or 'Panic Merchant.' Sharing visual rank progression charts that show a rival's steep decline provides undeniable data-driven proof for your group chat.",
+      },
+    },
+  ],
+};
+
 export default function MasterTheLeaguePage() {
   return (
     <>
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="min-h-screen bg-gradient-to-br from-fpl-dark via-fpl-primary/5 to-fpl-dark pt-20">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="container mx-auto px-4 pt-6">
