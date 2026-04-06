@@ -92,6 +92,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <meta name="impact-site-verification" content="f38e1dd9-edfa-4790-a5fc-dc23d5b1527e" />
+      </head>
       <body
         className={`${plusJakartaSans.variable} ${inter.variable} ${geistSans.variable} ${geistMono.variable} font-jakarta antialiased`}
       >

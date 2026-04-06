@@ -10,6 +10,7 @@ export interface FPLEvent {
   is_current: boolean;
   is_next: boolean;
   finished: boolean;
+  deadline_time: string;
 }
 
 export interface FPLTeam {

@@ -468,6 +468,14 @@ export class FPLApiService {
     }
   }
 
+  async getElementSummary(playerId: number): Promise<any> {
+    return this.fetchWithCache(
+      `${this.baseUrl}/element-summary/${playerId}/`,
+      `fpl:element:${playerId}:summary`,
+      3600 // 1 hour
+    );
+  }
+
   async getLeagueStandingsByPhase(leagueId: number, phaseId: number): Promise<any> {
     return this.fetchWithCache(
       `${this.baseUrl}/leagues-classic/${leagueId}/standings/?phase=${phaseId}`,

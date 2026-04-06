@@ -147,10 +147,11 @@ export class EmailService {
     email: string,
     leagueName: string,
     leagueId: number,
-    upcomingGameweek: number
+    upcomingGameweek: number,
+    deadlineTime?: string
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     const subject = `⏰ FPL Deadline Reminder - Gameweek ${upcomingGameweek} | ${leagueName}`;
-    const html = this.generateThursdayReminderHTML(email, leagueName, leagueId, upcomingGameweek);
+    const html = this.generateThursdayReminderHTML(email, leagueName, leagueId, upcomingGameweek, deadlineTime);
 
     return this.sendEmail({
       to: email,
@@ -454,7 +455,7 @@ export class EmailService {
     `;
   }
 
-  private generateThursdayReminderHTML(email: string, leagueName: string, leagueId: number, upcomingGameweek: number): string {
+  private generateThursdayReminderHTML(email: string, leagueName: string, leagueId: number, upcomingGameweek: number, deadlineTime?: string): string {
     const currentDate = new Date().toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -462,8 +463,13 @@ export class EmailService {
       day: 'numeric'
     });
 
-    // Calculate deadline (typically Friday 18:30 UK time)
-    const deadline = 'Friday 18:30 UK time';
+    // Use actual deadline from FPL API if provided
+    const deadline = deadlineTime
+      ? new Date(deadlineTime).toLocaleString('en-GB', {
+          weekday: 'long', day: 'numeric', month: 'long',
+          hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London'
+        }) + ' UK time'
+      : 'Check FPL app for deadline';
 
     return `
       <!DOCTYPE html>

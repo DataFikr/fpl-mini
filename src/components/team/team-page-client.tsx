@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import {
   TrendingUp, TrendingDown, Crown, Target, ArrowRightLeft,
   BarChart3, ChevronDown, ChevronUp, Shield, X,
-  Zap, AlertTriangle, CalendarDays
+  Zap, AlertTriangle, CalendarDays, Flame
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getKitbagUrl } from '@/utils/kitbag-urls';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -154,13 +155,15 @@ interface TeamPageClientProps {
 export default function TeamPageClient({ teamId, initialData }: TeamPageClientProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'team' | 'transfers' | 'analysis' | 'fixtures'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'transfers' | 'form-fdr' | 'analysis' | 'fixtures'>('team');
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [fixtureData, setFixtureData] = useState<FixtureData | null>(null);
   const [fixtureLoading, setFixtureLoading] = useState(false);
   const [transferHistory, setTransferHistory] = useState<TransferHistoryData | null>(null);
   const [transferHistoryLoading, setTransferHistoryLoading] = useState(false);
+  const [formFdrData, setFormFdrData] = useState<any>(null);
+  const [formFdrLoading, setFormFdrLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -207,6 +210,20 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
     setTransferHistoryLoading(false);
   };
 
+  const fetchFormFdr = async () => {
+    if (formFdrData) return;
+    setFormFdrLoading(true);
+    try {
+      const res = await fetch(`/api/teams/${teamId}/form-fdr`);
+      if (res.ok) {
+        setFormFdrData(await res.json());
+      }
+    } catch (error) {
+      console.warn('Failed to fetch form & FDR:', error);
+    }
+    setFormFdrLoading(false);
+  };
+
   const getFDRColor = (difficulty: number) => {
     switch (difficulty) {
       case 1: return 'bg-[#257d5a] text-white';
@@ -244,6 +261,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
   const tabs = [
     { key: 'team' as const, label: 'Team', icon: Shield },
     { key: 'transfers' as const, label: 'Transfers', icon: ArrowRightLeft },
+    { key: 'form-fdr' as const, label: 'Form & FDR', icon: Flame },
     { key: 'analysis' as const, label: 'Analysis', icon: BarChart3 },
     { key: 'fixtures' as const, label: 'Fixtures', icon: CalendarDays },
   ];
@@ -430,7 +448,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
           {tabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => { setActiveTab(tab.key); if (tab.key === 'fixtures') fetchFixtures(); if (tab.key === 'transfers') fetchTransferHistory(); }}
+              onClick={() => { setActiveTab(tab.key); if (tab.key === 'fixtures') fetchFixtures(); if (tab.key === 'transfers') fetchTransferHistory(); if (tab.key === 'form-fdr') fetchFormFdr(); }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-jakarta font-medium text-sm transition-all flex-shrink-0 ${
                 activeTab === tab.key
                   ? 'bg-fpl-accent/20 text-fpl-accent border border-fpl-accent/30'
@@ -774,6 +792,214 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════
+            SECTION: FORM & FDR (Form & FDR Tab)
+            ═══════════════════════════════════════════════════ */}
+        {activeTab === 'form-fdr' && (
+          <div className="space-y-4">
+            {formFdrLoading ? (
+              <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 border border-fpl-primary/20 text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-fpl-accent mx-auto mb-3" />
+                <p className="text-fpl-text-secondary font-inter">Loading form & FDR data...</p>
+              </div>
+            ) : !formFdrData || formFdrData.players.length === 0 ? (
+              <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 border border-fpl-primary/20 text-center">
+                <Flame className="w-10 h-10 text-fpl-text-secondary mx-auto mb-3 opacity-50" />
+                <p className="text-fpl-text-secondary font-inter">No form & FDR data available</p>
+              </div>
+            ) : (() => {
+              const { formGwColumns, upcomingGwColumns, players: fdrPlayers } = formFdrData;
+              const positionLabels: Record<string, string> = { GKP: 'Goalkeeper', DEF: 'Defenders', MID: 'Midfielders', FWD: 'Strikers' };
+              const starters = fdrPlayers.filter((p: any) => p.isStarting).sort((a: any, b: any) => a.positionOrder - b.positionOrder || a.pickPosition - b.pickPosition);
+              const subs = fdrPlayers.filter((p: any) => !p.isStarting).sort((a: any, b: any) => a.pickPosition - b.pickPosition);
+
+              const grouped: { label: string; players: any[] }[] = [];
+              let lastPos = '';
+              for (const p of starters) {
+                if (p.position !== lastPos) {
+                  grouped.push({ label: positionLabels[p.position] || p.position, players: [] });
+                  lastPos = p.position;
+                }
+                grouped[grouped.length - 1].players.push(p);
+              }
+              if (subs.length > 0) {
+                grouped.push({ label: 'Substitutes', players: subs });
+              }
+
+              const getFormColor = (pts: number) => {
+                if (pts >= 8) return 'bg-[#257d5a] text-white';
+                if (pts >= 5) return 'bg-[#00ff87] text-gray-900';
+                if (pts >= 3) return 'bg-[#ebebe4] text-gray-900';
+                return 'bg-[#ff1751] text-white';
+              };
+
+              const getRecBadge = (rec: string) => {
+                if (rec === 'keep') return { label: 'Keep', bg: 'bg-green-500/20 text-green-400 border-green-500/30' };
+                if (rec === 'monitor') return { label: 'Monitor', bg: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
+                return { label: 'Transfer Out', bg: 'bg-red-500/20 text-red-400 border-red-500/30' };
+              };
+
+              return (
+                <>
+                  {/* FDR Key */}
+                  <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-4 border border-fpl-primary/20">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-xs font-jakarta font-semibold text-fpl-text-secondary">FDR Key:</span>
+                      <div className="flex items-center gap-1.5">
+                        {[1, 2, 3, 4, 5].map(d => (
+                          <div key={d} className={`w-7 h-7 rounded flex items-center justify-center text-xs font-bold ${getFDRColor(d)}`}>{d}</div>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-fpl-text-secondary font-inter">Easy</span>
+                      <span className="text-[10px] text-fpl-text-secondary font-inter ml-auto">Hard</span>
+                    </div>
+                  </div>
+
+                  {/* Form & FDR Table */}
+                  <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl border border-fpl-primary/20 overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-fpl-primary/20">
+                          <th className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-12">Pos</th>
+                          <th className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[90px]">Player</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-14">Price</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[50px]">Team</th>
+                          {/* Form columns */}
+                          {formGwColumns.map((gw: any) => (
+                            <th key={`form-${gw.id}`} className="bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-orange-400 uppercase tracking-wider min-w-[50px]">
+                              {gw.name}
+                            </th>
+                          ))}
+                          {/* Upcoming FDR columns */}
+                          {upcomingGwColumns.map((gw: any) => (
+                            <th key={`fdr-${gw.id}`} className="bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[68px]">
+                              <div>{gw.name}</div>
+                              {gw.deadline && (
+                                <div className="text-[8px] font-inter font-normal text-fpl-text-secondary/60">
+                                  {new Date(gw.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                                </div>
+                              )}
+                            </th>
+                          ))}
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[80px]">Planner</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[120px]">Alternative</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {grouped.map((group) => (
+                          <>
+                            <tr key={`header-${group.label}`} className="bg-fpl-primary/5">
+                              <td colSpan={4 + formGwColumns.length + upcomingGwColumns.length + 2} className="px-3 py-1.5">
+                                <span className="font-jakarta font-bold text-xs text-fpl-accent uppercase tracking-wider">{group.label}</span>
+                              </td>
+                            </tr>
+                            {group.players.map((player: any) => {
+                              const recBadge = getRecBadge(player.recommendation);
+                              return (
+                                <tr key={player.id} className="border-b border-fpl-primary/5 hover:bg-white/[0.02] transition-colors">
+                                  <td className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2">
+                                    <span className="text-[10px] font-jakarta font-medium text-fpl-text-secondary">{player.position}</span>
+                                  </td>
+                                  <td className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2">
+                                    <div className="flex items-center gap-1.5">
+                                      <img
+                                        src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`}
+                                        alt={player.teamShort}
+                                        className="w-6 h-6 object-contain flex-shrink-0"
+                                      />
+                                      <div className="font-inter text-white text-xs font-medium truncate max-w-[80px]">
+                                        {player.name}
+                                        {player.isCaptain && <span className="text-yellow-400 ml-0.5">(C)</span>}
+                                        {player.isViceCaptain && <span className="text-fpl-text-secondary ml-0.5">(V)</span>}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-2 py-2 text-center">
+                                    <span className="font-inter text-fpl-text-secondary text-xs">&pound;{player.price}</span>
+                                  </td>
+                                  <td className="px-2 py-2 text-center">
+                                    <span className="font-inter text-fpl-text-secondary text-[10px]">{player.teamShort}</span>
+                                  </td>
+                                  {/* Form cells - last 3 GW points with opponent crest */}
+                                  {formGwColumns.map((gw: any) => {
+                                    const formEntry = player.form.find((f: any) => f.gw === gw.id);
+                                    return (
+                                      <td key={`form-${gw.id}`} className="px-1 py-2 text-center">
+                                        {formEntry ? (
+                                          <div className={`rounded px-1 py-1 text-[10px] font-inter font-bold ${getFormColor(formEntry.points)}`}>
+                                            <div className="flex items-center justify-center gap-0.5 mb-0.5">
+                                              {formEntry.opponentCode > 0 && (
+                                                <img
+                                                  src={`https://resources.premierleague.com/premierleague/badges/20/t${formEntry.opponentCode}.png`}
+                                                  alt={formEntry.opponent}
+                                                  className="w-3.5 h-3.5 object-contain"
+                                                />
+                                              )}
+                                              <span>{formEntry.opponent}</span>
+                                            </div>
+                                            <div>{formEntry.points}pts</div>
+                                          </div>
+                                        ) : (
+                                          <div className="bg-gray-700/50 rounded px-1 py-1.5 text-[10px] text-fpl-text-secondary font-inter">-</div>
+                                        )}
+                                      </td>
+                                    );
+                                  })}
+                                  {/* Upcoming FDR cells */}
+                                  {upcomingGwColumns.map((gw: any) => {
+                                    const fix = player.upcomingFixtures.find((f: any) => f.event === gw.id);
+                                    return (
+                                      <td key={`fdr-${gw.id}`} className="px-1 py-2 text-center">
+                                        {fix ? (
+                                          <div className={`rounded px-1 py-1.5 text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}>
+                                            {fix.opponent} ({fix.isHome ? 'H' : 'A'})
+                                          </div>
+                                        ) : (
+                                          <div className="bg-gray-700/50 rounded px-1 py-1.5 text-[10px] text-fpl-text-secondary font-inter">-</div>
+                                        )}
+                                      </td>
+                                    );
+                                  })}
+                                  {/* Recommendation */}
+                                  <td className="px-2 py-2 text-center">
+                                    <div className={`inline-block px-2 py-1 rounded-full text-[10px] font-jakarta font-bold border ${recBadge.bg}`} title={player.recommendationReason}>
+                                      {recBadge.label}
+                                    </div>
+                                  </td>
+                                  {/* Alternative */}
+                                  <td className="px-2 py-2 text-center">
+                                    {player.alternative ? (
+                                      <div className="text-[10px] font-inter">
+                                        <div className="flex items-center justify-center gap-1">
+                                          {player.alternative.teamCode > 0 && (
+                                            <img
+                                              src={`https://resources.premierleague.com/premierleague/badges/20/t${player.alternative.teamCode}.png`}
+                                              alt={player.alternative.team}
+                                              className="w-3.5 h-3.5 object-contain"
+                                            />
+                                          )}
+                                          <span className="text-white font-medium">{player.alternative.name}</span>
+                                        </div>
+                                        <div className="text-fpl-text-secondary">{player.alternative.avgFormPoints} avg / &pound;{player.alternative.price}</div>
+                                      </div>
+                                    ) : (
+                                      <span className="text-[10px] text-fpl-text-secondary font-inter">-</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
 
@@ -1217,6 +1443,33 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
             {!player.goals && !player.assists && !player.cleanSheet && !player.saves && !player.yellowCards && !player.redCards && (
               <div className="text-sm text-fpl-text-secondary font-inter text-center py-2">No notable events</div>
             )}
+          </div>
+
+          {/* Merchandise Banner */}
+          <div className="rounded-fpl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 overflow-hidden">
+            <div className="flex items-center gap-3 p-4">
+              <img
+                src={`https://resources.premierleague.com/premierleague/badges/50/t${player.teamCode}.png`}
+                alt={player.team}
+                className="w-10 h-10 object-contain flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-jakarta font-bold text-white truncate">
+                  {player.name} Kit
+                </div>
+                <div className="text-xs text-fpl-text-secondary font-inter">
+                  Official kits, prints & more
+                </div>
+              </div>
+            </div>
+            <a
+              href={getKitbagUrl(player.team)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-jakarta font-bold text-center transition-colors"
+            >
+              Get player&apos;s merchandise &rarr;
+            </a>
           </div>
         </div>
       </div>
