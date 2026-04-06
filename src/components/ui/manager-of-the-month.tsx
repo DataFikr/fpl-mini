@@ -139,47 +139,49 @@ export function ManagerOfTheMonth({ leagueId, leagueName, userTeamId }: ManagerO
 
             {/* Two-column layout: Winner + Trophy + Highlights | Runners-up */}
             <div className="grid grid-cols-1 md:grid-cols-2">
-              {/* LEFT: 1st Place with Trophy + Highlights side by side */}
+              {/* LEFT: 1st Place — 3 columns: Trophy | Winner Info | Highlights */}
               {winner && (
                 <div className={`p-5 md:p-6 border-b md:border-b-0 md:border-r border-fpl-primary/10 bg-gradient-to-br from-yellow-500/10 via-fpl-dark/10 to-fpl-dark/20 ${
                   winner.entryId === userTeamId ? 'ring-1 ring-fpl-accent/40' : ''
                 }`}>
-                  <div className="flex items-start gap-4">
-                    {/* Trophy Image */}
-                    <div className="flex-shrink-0 w-24 h-32 sm:w-28 sm:h-36 relative">
+                  <div className="flex items-start gap-3">
+                    {/* Col 1: Trophy Image */}
+                    <div className="flex-shrink-0 w-20 h-28 sm:w-24 sm:h-32 relative">
                       <Image
                         src="/images/manager_of_the_month_trophy.png"
                         alt="Manager of the Month Trophy"
                         fill
                         className="object-contain drop-shadow-lg"
-                        sizes="112px"
+                        sizes="96px"
                       />
                     </div>
 
-                    {/* Winner Info + Highlights */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl">🥇</span>
+                    {/* Col 2: Winner Info */}
+                    <div className="flex-shrink-0 min-w-0">
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-lg">🥇</span>
                       </div>
-                      <div className="font-jakarta text-white text-base font-bold truncate leading-tight">
+                      <div className="font-jakarta text-white text-sm font-bold truncate leading-tight max-w-[140px]">
                         {winner.teamName}
                       </div>
-                      <div className="text-xs text-fpl-text-secondary font-inter truncate mt-0.5">
+                      <div className="text-[11px] text-fpl-text-secondary font-inter truncate mt-0.5 max-w-[140px]">
                         {winner.managerName}
                       </div>
                       <div className="mt-2">
                         <span className="font-jakarta font-black text-2xl text-yellow-400">{winner.totalPoints}</span>
-                        <span className="text-sm font-inter text-fpl-text-secondary ml-1">pts</span>
+                        <span className="text-xs font-inter text-fpl-text-secondary ml-1">pts</span>
                       </div>
+                    </div>
 
-                      {/* Highlights inline with winner info */}
+                    {/* Col 3: Key Highlights */}
+                    <div className="flex-1 min-w-0 border-l border-fpl-primary/10 pl-3">
                       {isHighlightsLoading ? (
-                        <div className="mt-3 pt-3 border-t border-fpl-primary/10 flex items-center gap-2 text-fpl-text-secondary">
+                        <div className="flex items-center gap-2 text-fpl-text-secondary py-2">
                           <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-fpl-accent" />
-                          <span className="text-[10px] font-inter">Loading highlights...</span>
+                          <span className="text-[10px] font-inter">Loading...</span>
                         </div>
                       ) : phaseHighlights.length > 0 ? (
-                        <div className="mt-3 pt-3 border-t border-fpl-primary/10">
+                        <>
                           <div className="text-[9px] font-jakarta font-semibold text-yellow-400 uppercase tracking-wider mb-1.5">Key Highlights</div>
                           <div className="space-y-1">
                             {phaseHighlights.map((h, i) => (
@@ -191,8 +193,10 @@ export function ManagerOfTheMonth({ leagueId, leagueName, userTeamId }: ManagerO
                               </div>
                             ))}
                           </div>
-                        </div>
-                      ) : null}
+                        </>
+                      ) : (
+                        <div className="text-[10px] text-fpl-text-secondary font-inter py-2">No highlights yet</div>
+                      )}
                     </div>
                   </div>
                 </div>
