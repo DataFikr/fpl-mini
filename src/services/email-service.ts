@@ -96,6 +96,47 @@ export class EmailService {
     }
   }
 
+  async sendBatch(emails: EmailOptions[]): Promise<{ success: boolean; successCount: number; failureCount: number; error?: string }> {
+    if (!this.isConfigured) {
+      console.log(`📧 Email service not configured — simulating batch send of ${emails.length} emails`);
+      return { success: false, successCount: 0, failureCount: emails.length, error: 'Email service not configured' };
+    }
+
+    const start = Date.now();
+    let successCount = 0;
+    let failureCount = 0;
+
+    // Resend batch.send supports up to 100 emails per call
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < emails.length; i += BATCH_SIZE) {
+      const chunk = emails.slice(i, i + BATCH_SIZE);
+      try {
+        const resendInstance = getResendInstance();
+        const payload = chunk.map(e => ({
+          from: e.from || process.env.FROM_EMAIL || 'info@fplranker.com',
+          to: e.to,
+          subject: e.subject,
+          html: e.html,
+        }));
+        const result = await resendInstance.batch.send(payload);
+
+        if (result.error) {
+          console.error(`❌ Batch send error (chunk ${i / BATCH_SIZE + 1}):`, JSON.stringify(result.error));
+          failureCount += chunk.length;
+        } else {
+          successCount += chunk.length;
+          console.log(`✅ Batch chunk ${i / BATCH_SIZE + 1} sent: ${chunk.length} emails`);
+        }
+      } catch (error) {
+        console.error(`❌ Batch send exception (chunk ${i / BATCH_SIZE + 1}):`, error instanceof Error ? error.message : String(error));
+        failureCount += chunk.length;
+      }
+    }
+
+    console.log(`📊 Batch completed in ${Date.now() - start}ms — success: ${successCount}, failed: ${failureCount}`);
+    return { success: failureCount === 0, successCount, failureCount };
+  }
+
   async sendGameweekSummary(
     email: string,
     leagueName: string,

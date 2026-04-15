@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Crown, Target, AlertTriangle, Zap, Users, Mail, Send, X, Flame, Skull, Copy, Swords, Ghost, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import { ShareAction } from '@/components/ui/share-action';
 
 // ─── Story Configuration ────────────────────────────────────
 
@@ -481,6 +482,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
   const [selectedStory, setSelectedStory] = useState<EnhancedStory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  const [selectedGw, setSelectedGw] = useState<number>(gameweek);
 
   useEffect(() => {
     const generateStories = async () => {
@@ -490,7 +492,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
         // Fetch squad analysis data
         let squadData: any = null;
         try {
-          const res = await fetch(`/api/leagues/${leagueId}/squad-analysis?gameweek=${gameweek}`);
+          const res = await fetch(`/api/leagues/${leagueId}/squad-analysis?gameweek=${selectedGw}`);
           squadData = res.ok ? await res.json() : null;
         } catch {
           console.warn('Squad analysis unavailable');
@@ -880,7 +882,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
     };
 
     generateStories();
-  }, [leagueId, gameweek, teams, leagueName]);
+  }, [leagueId, selectedGw, teams, leagueName]);
 
   // ─── Render ───────────────────────────────────────────────
 
@@ -910,17 +912,38 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Top Headlines</h2>
-              <p className="text-sm text-gray-600">All the drama from Gameweek {gameweek}</p>
+              <p className="text-sm text-gray-600">All the drama from Gameweek {selectedGw}</p>
             </div>
           </div>
 
-          <button
-            onClick={() => setShowNewsletterModal(true)}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-          >
-            <Mail className="h-5 w-5" />
-            <span>Get Newsletter</span>
-          </button>
+          <div className="flex items-center gap-3">
+            {/* GW Selector Dropdown */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500 font-medium hidden sm:inline">Previous GW headlines</span>
+              <select
+                value={selectedGw}
+                onChange={(e) => setSelectedGw(Number(e.target.value))}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+              >
+                {Array.from({ length: gameweek }, (_, i) => gameweek - i).map(gw => (
+                  <option key={gw} value={gw}>GW {gw}</option>
+                ))}
+              </select>
+            </div>
+
+            <ShareAction
+              title={`FPLRanker - GW${selectedGw} Headlines`}
+              text={`Check out the GW${selectedGw} headlines for ${leagueName} on FPLRanker!`}
+            />
+
+            <button
+              onClick={() => setShowNewsletterModal(true)}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+            >
+              <Mail className="h-5 w-5" />
+              <span>Get Newsletter</span>
+            </button>
+          </div>
         </div>
 
         {/* Story Cards Grid */}

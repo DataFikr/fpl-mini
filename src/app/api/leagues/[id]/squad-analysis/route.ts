@@ -315,7 +315,6 @@ async function generateRealSquadAnalysisData(leagueId: number, gameweek: number)
 
         // Generate detailed squad from picks
         const squad = await generateRealSquadFromPicks(picks, bootstrap, gameweek);
-        const analysis = generateRealPerformanceAnalysis(gwPoints, standing.teamName, squad);
 
         // Get player ownership data from bootstrap for differential detection
         const startingPlayerIds = picks.picks.filter((p: any) => p.position <= 11).map((p: any) => p.element);
@@ -330,6 +329,9 @@ async function generateRealSquadAnalysisData(leagueId: number, gameweek: number)
           const matchingPlayer = allStarting.find((p: any) => p.name === po.name);
           if (matchingPlayer) po.points = matchingPlayer.points;
         });
+
+        // Generate performance analysis with full context
+        const analysis = generateRealPerformanceAnalysis(gwPoints, standing.teamName, squad, playerOwnership, gwHistory);
 
         return {
           rank: standing.rank,
@@ -533,31 +535,77 @@ async function generateRealSquadFromPicks(picks: any, bootstrap: any, gameweek: 
   return squad;
 }
 
-function generateRealPerformanceAnalysis(gwPoints: number, teamName: string, squad: any): string {
-  const analyses = [];
-  
-  // Captain analysis
+function generateRealPerformanceAnalysis(
+  gwPoints: number,
+  teamName: string,
+  squad: any,
+  playerOwnership?: any[],
+  gwHistory?: any
+): Array<{ type: string; icon: string; text: string }> {
+  const insights: Array<{ type: string; icon: string; text: string }> = [];
+
+  // 1. Captain Performance
   if (squad.captain) {
     const captainPoints = squad.captain.points * squad.captain.multiplier;
-    if (captainPoints > 16) {
-      analyses.push(`Captain ${squad.captain.name} delivered brilliantly with ${captainPoints} points!`);
-    } else if (captainPoints > 10) {
-      analyses.push(`Captain ${squad.captain.name} contributed well (${captainPoints} points).`);
-    } else {
-      analyses.push(`Captain ${squad.captain.name} had a quiet game (${captainPoints} points).`);
+    const assessment = captainPoints > 16 ? 'delivered brilliantly'
+      : captainPoints > 10 ? 'contributed well'
+      : captainPoints > 4 ? 'had a quiet game'
+      : 'disappointed';
+    insights.push({
+      type: 'captain',
+      icon: '👑',
+      text: `Captain ${squad.captain.name} ${assessment} with ${captainPoints} pts`,
+    });
+  }
+
+  // 2. Differential Picks
+  if (playerOwnership && playerOwnership.length > 0) {
+    const differentials = playerOwnership.filter((p: any) => p.ownership < 15 && p.points >= 6);
+    if (differentials.length > 0) {
+      const best = differentials.sort((a: any, b: any) => b.points - a.points)[0];
+      insights.push({
+        type: 'differential',
+        icon: '🎲',
+        text: `${best.name} (${best.ownership.toFixed(1)}% owned) delivered ${best.points} pts`,
+      });
     }
   }
-  
-  // Overall assessment
-  if (gwPoints >= 75) {
-    analyses.push('Exceptional gameweek performance!');
-  } else if (gwPoints >= 60) {
-    analyses.push('Very solid points haul this week.');
-  } else if (gwPoints >= 50) {
-    analyses.push('Decent performance overall.');
-  } else {
-    analyses.push('Room for improvement next week.');
+
+  // 3. Defensive Returns
+  const defenders = [...(squad.starting?.GKP || []), ...(squad.starting?.DEF || [])];
+  if (defenders.length > 0) {
+    const defPoints = defenders.reduce((sum: number, p: any) => sum + (p.points || 0), 0);
+    const bonusTotal = defenders.reduce((sum: number, p: any) => sum + (p.bonus || 0), 0);
+    const cleanSheets = defenders.filter((p: any) => p.cleanSheet > 0).length;
+    if (defPoints > 0) {
+      let text = `Defence earned ${defPoints} pts`;
+      const parts: string[] = [];
+      if (cleanSheets > 0) parts.push(`${cleanSheets} clean sheet${cleanSheets > 1 ? 's' : ''}`);
+      if (bonusTotal > 0) parts.push(`${bonusTotal} bonus`);
+      if (parts.length > 0) text += ` (${parts.join(', ')})`;
+      insights.push({ type: 'defensive', icon: '🛡️', text });
+    }
   }
-  
-  return analyses.join(' ');
+
+  // 4. Chip Usage
+  if (gwHistory?.active_chip) {
+    const chipNames: Record<string, string> = {
+      '3xc': 'Triple Captain', 'freehit': 'Free Hit',
+      'wildcard': 'Wildcard', 'bboost': 'Bench Boost',
+    };
+    const chipName = chipNames[gwHistory.active_chip] || gwHistory.active_chip;
+    insights.push({
+      type: 'chip',
+      icon: '🃏',
+      text: `Used ${chipName} chip this gameweek (${gwPoints} pts total)`,
+    });
+  }
+
+  // Fallback
+  if (insights.length === 0) {
+    const assessment = gwPoints >= 60 ? 'Strong performance' : gwPoints >= 45 ? 'Decent week' : 'Room for improvement';
+    insights.push({ type: 'overall', icon: '📊', text: `${assessment} with ${gwPoints} pts` });
+  }
+
+  return insights;
 }

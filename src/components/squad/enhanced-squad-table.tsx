@@ -6,6 +6,12 @@ import { Crown, Star, TrendingUp, Users, Mail, Bell, X } from 'lucide-react';
 import { PitchView } from './pitch-view';
 // Removed FPLApiService import to avoid Redis dependency in client components
 
+interface PerformanceInsight {
+  type: string;
+  icon: string;
+  text: string;
+}
+
 interface SquadAnalysisData {
   rank: number;
   team: string;
@@ -14,7 +20,7 @@ interface SquadAnalysisData {
   gwTotalPoints: number;
   totalPoints: number;
   squad: string;
-  performanceAnalysis: string;
+  performanceAnalysis: string | PerformanceInsight[];
 }
 
 interface EnhancedSquadTableProps {
@@ -489,8 +495,19 @@ FPL Ranker Team`;
                   </div>
                 </td>
                 <td className="py-4 px-2">
-                  <div className="text-sm text-gray-700 leading-relaxed max-w-64">
-                    {data.performanceAnalysis}
+                  <div className="text-sm text-gray-700 leading-relaxed max-w-72">
+                    {Array.isArray(data.performanceAnalysis) ? (
+                      <ul className="space-y-1.5">
+                        {(data.performanceAnalysis as PerformanceInsight[]).map((insight, i) => (
+                          <li key={i} className="flex items-start gap-1.5">
+                            <span className="flex-shrink-0 text-sm">{insight.icon}</span>
+                            <span className="text-xs leading-relaxed">{insight.text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span>{data.performanceAnalysis}</span>
+                    )}
                   </div>
                 </td>
               </tr>

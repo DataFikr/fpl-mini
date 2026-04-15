@@ -8,7 +8,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getKitbagUrl } from '@/utils/kitbag-urls';
+import { getKitbagUrl, teamPrimaryColors } from '@/utils/kitbag-urls';
+import { ComparePlayersModal } from './compare-players-modal';
+import { ShareAction } from '@/components/ui/share-action';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -17,7 +19,10 @@ interface PlayerData {
   name: string;
   team: string;
   teamCode: number;
+  teamId: number;
+  position: string;
   points: number;
+  photo?: string | null;
   isCaptain?: boolean;
   isViceCaptain?: boolean;
   multiplier: number;
@@ -164,6 +169,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
   const [transferHistoryLoading, setTransferHistoryLoading] = useState(false);
   const [formFdrData, setFormFdrData] = useState<any>(null);
   const [formFdrLoading, setFormFdrLoading] = useState(false);
+  const [compareModal, setCompareModal] = useState<{ player: any; alternative: any } | null>(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -261,7 +267,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
   const tabs = [
     { key: 'team' as const, label: 'Team', icon: Shield },
     { key: 'transfers' as const, label: 'Transfers', icon: ArrowRightLeft },
-    { key: 'form-fdr' as const, label: 'Form & FDR', icon: Flame },
+    { key: 'form-fdr' as const, label: 'Planner', icon: Flame },
     { key: 'analysis' as const, label: 'Analysis', icon: BarChart3 },
     { key: 'fixtures' as const, label: 'Fixtures', icon: CalendarDays },
   ];
@@ -829,13 +835,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                 grouped.push({ label: 'Substitutes', players: subs });
               }
 
-              const getFormColor = (pts: number) => {
-                if (pts >= 8) return 'bg-[#257d5a] text-white';
-                if (pts >= 5) return 'bg-[#00ff87] text-gray-900';
-                if (pts >= 3) return 'bg-[#ebebe4] text-gray-900';
-                return 'bg-[#ff1751] text-white';
-              };
-
               const getRecBadge = (rec: string) => {
                 if (rec === 'keep') return { label: 'Keep', bg: 'bg-green-500/20 text-green-400 border-green-500/30' };
                 if (rec === 'monitor') return { label: 'Monitor', bg: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
@@ -844,7 +843,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
 
               return (
                 <>
-                  {/* FDR Key */}
+                  {/* FDR Key + Share */}
                   <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-4 border border-fpl-primary/20">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-xs font-jakarta font-semibold text-fpl-text-secondary">FDR Key:</span>
@@ -854,28 +853,48 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                         ))}
                       </div>
                       <span className="text-[10px] text-fpl-text-secondary font-inter">Easy</span>
-                      <span className="text-[10px] text-fpl-text-secondary font-inter ml-auto">Hard</span>
+                      <span className="text-[10px] text-fpl-text-secondary font-inter">Hard</span>
+                      <div className="ml-auto">
+                        <ShareAction
+                          title="FPLRanker - My Planner"
+                          text="Check out my FPL Planner on FPLRanker!"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Form & FDR Table */}
                   <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl border border-fpl-primary/20 overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead>
+                      <thead className="sticky top-0 z-20">
+                        {/* Group header row */}
+                        <tr className="border-b border-fpl-primary/10">
+                          <th colSpan={4} className="bg-fpl-dark/95"></th>
+                          <th colSpan={formGwColumns.length} className="bg-fpl-dark/95 text-center text-[10px] font-jakarta font-semibold text-yellow-400 uppercase tracking-wider border-l-2 border-r-2 border-t-2 border-yellow-400/50 pt-1.5 pb-0.5">
+                            GW Form
+                          </th>
+                          <th colSpan={upcomingGwColumns.length} className="bg-fpl-dark/95 text-center text-[10px] font-jakarta font-semibold text-cyan-400 uppercase tracking-wider border-l-2 border-r-2 border-t-2 border-cyan-400/50 pt-1.5 pb-0.5">
+                            Fixtures
+                          </th>
+                          <th className="bg-fpl-dark/95"></th>
+                          <th className="bg-fpl-dark/95"></th>
+                          <th className="bg-fpl-dark/95"></th>
+                        </tr>
+                        {/* Individual column headers */}
                         <tr className="border-b border-fpl-primary/20">
                           <th className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-12">Pos</th>
                           <th className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[90px]">Player</th>
                           <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-14">Price</th>
                           <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[50px]">Team</th>
                           {/* Form columns */}
-                          {formGwColumns.map((gw: any) => (
-                            <th key={`form-${gw.id}`} className="bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-orange-400 uppercase tracking-wider min-w-[50px]">
+                          {formGwColumns.map((gw: any, i: number) => (
+                            <th key={`form-${gw.id}`} className={`bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-yellow-400 uppercase tracking-wider min-w-[55px] ${i === 0 ? 'border-l-2 border-yellow-400/50' : ''} ${i === formGwColumns.length - 1 ? 'border-r-2 border-yellow-400/50' : ''}`}>
                               {gw.name}
                             </th>
                           ))}
                           {/* Upcoming FDR columns */}
-                          {upcomingGwColumns.map((gw: any) => (
-                            <th key={`fdr-${gw.id}`} className="bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[68px]">
+                          {upcomingGwColumns.map((gw: any, i: number) => (
+                            <th key={`fdr-${gw.id}`} className={`bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-cyan-400 uppercase tracking-wider min-w-[68px] ${i === 0 ? 'border-l-2 border-cyan-400/50' : ''} ${i === upcomingGwColumns.length - 1 ? 'border-r-2 border-cyan-400/50' : ''}`}>
                               <div>{gw.name}</div>
                               {gw.deadline && (
                                 <div className="text-[8px] font-inter font-normal text-fpl-text-secondary/60">
@@ -885,14 +904,15 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                             </th>
                           ))}
                           <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[80px]">Planner</th>
-                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[120px]">Alternative</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[100px]">Alternative</th>
+                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[80px]">Compare</th>
                         </tr>
                       </thead>
                       <tbody>
                         {grouped.map((group) => (
                           <>
                             <tr key={`header-${group.label}`} className="bg-fpl-primary/5">
-                              <td colSpan={4 + formGwColumns.length + upcomingGwColumns.length + 2} className="px-3 py-1.5">
+                              <td colSpan={4 + formGwColumns.length + upcomingGwColumns.length + 3} className="px-3 py-1.5">
                                 <span className="font-jakarta font-bold text-xs text-fpl-accent uppercase tracking-wider">{group.label}</span>
                               </td>
                             </tr>
@@ -925,22 +945,26 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                   </td>
                                   {/* Form cells - last 3 GW points with opponent crest */}
                                   {formGwColumns.map((gw: any) => {
-                                    const formEntry = player.form.find((f: any) => f.gw === gw.id);
+                                    const gwFormEntries = player.form.filter((f: any) => f.gw === gw.id);
                                     return (
                                       <td key={`form-${gw.id}`} className="px-1 py-2 text-center">
-                                        {formEntry ? (
-                                          <div className={`rounded px-1 py-1 text-[10px] font-inter font-bold ${getFormColor(formEntry.points)}`}>
-                                            <div className="flex items-center justify-center gap-0.5 mb-0.5">
-                                              {formEntry.opponentCode > 0 && (
-                                                <img
-                                                  src={`https://resources.premierleague.com/premierleague/badges/20/t${formEntry.opponentCode}.png`}
-                                                  alt={formEntry.opponent}
-                                                  className="w-3.5 h-3.5 object-contain"
-                                                />
-                                              )}
-                                              <span>{formEntry.opponent}</span>
-                                            </div>
-                                            <div>{formEntry.points}pts</div>
+                                        {gwFormEntries.length > 0 ? (
+                                          <div className="flex flex-col gap-0.5">
+                                            {gwFormEntries.map((formEntry: any, feIdx: number) => (
+                                              <div key={feIdx} className={`rounded px-1 py-1 text-[10px] font-inter font-bold ${getFDRColor(formEntry.difficulty || 3)}`}>
+                                                <div className="flex items-center justify-center gap-0.5 mb-0.5">
+                                                  {formEntry.opponentCode > 0 && (
+                                                    <img
+                                                      src={`https://resources.premierleague.com/premierleague/badges/20/t${formEntry.opponentCode}.png`}
+                                                      alt={formEntry.opponent}
+                                                      className="w-3.5 h-3.5 object-contain"
+                                                    />
+                                                  )}
+                                                  <span>{formEntry.opponent}</span>
+                                                </div>
+                                                <div>{formEntry.points}pts</div>
+                                              </div>
+                                            ))}
                                           </div>
                                         ) : (
                                           <div className="bg-gray-700/50 rounded px-1 py-1.5 text-[10px] text-fpl-text-secondary font-inter">-</div>
@@ -950,12 +974,26 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                   })}
                                   {/* Upcoming FDR cells */}
                                   {upcomingGwColumns.map((gw: any) => {
-                                    const fix = player.upcomingFixtures.find((f: any) => f.event === gw.id);
+                                    const gwFixtures = player.upcomingFixtures.filter((f: any) => f.event === gw.id);
                                     return (
                                       <td key={`fdr-${gw.id}`} className="px-1 py-2 text-center">
-                                        {fix ? (
-                                          <div className={`rounded px-1 py-1.5 text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}>
-                                            {fix.opponent} ({fix.isHome ? 'H' : 'A'})
+                                        {gwFixtures.length > 0 ? (
+                                          <div className="flex flex-col gap-0.5">
+                                            {gwFixtures.map((fix: any, fixIdx: number) => (
+                                              <div key={fixIdx} className={`rounded px-1 py-1 text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}>
+                                                <div className="flex items-center justify-center gap-0.5 mb-0.5">
+                                                  {fix.opponentCode > 0 && (
+                                                    <img
+                                                      src={`https://resources.premierleague.com/premierleague/badges/20/t${fix.opponentCode}.png`}
+                                                      alt={fix.opponent}
+                                                      className="w-3.5 h-3.5 object-contain"
+                                                    />
+                                                  )}
+                                                  <span>{fix.opponent}</span>
+                                                </div>
+                                                <div className="text-[9px]">{fix.isHome ? 'H' : 'A'}</div>
+                                              </div>
+                                            ))}
                                           </div>
                                         ) : (
                                           <div className="bg-gray-700/50 rounded px-1 py-1.5 text-[10px] text-fpl-text-secondary font-inter">-</div>
@@ -985,6 +1023,20 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                         </div>
                                         <div className="text-fpl-text-secondary">{player.alternative.avgFormPoints} avg / &pound;{player.alternative.price}</div>
                                       </div>
+                                    ) : (
+                                      <span className="text-[10px] text-fpl-text-secondary font-inter">-</span>
+                                    )}
+                                  </td>
+                                  {/* Compare */}
+                                  <td className="px-2 py-2 text-center">
+                                    {player.alternative ? (
+                                      <button
+                                        onClick={() => setCompareModal({ player, alternative: player.alternative })}
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-fpl-accent/15 text-fpl-accent border border-fpl-accent/30 text-[10px] font-jakarta font-bold hover:bg-fpl-accent/25 transition-colors"
+                                      >
+                                        <ArrowRightLeft className="w-3 h-3" />
+                                        Compare
+                                      </button>
                                     ) : (
                                       <span className="text-[10px] text-fpl-text-secondary font-inter">-</span>
                                     )}
@@ -1329,6 +1381,17 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
       {selectedPlayer && (
         <PlayerDrawer player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
       )}
+
+      {/* Compare Players Modal */}
+      {compareModal && formFdrData && (
+        <ComparePlayersModal
+          player={compareModal.player}
+          alternative={compareModal.alternative}
+          formGwColumns={formFdrData.formGwColumns}
+          upcomingGwColumns={formFdrData.upcomingGwColumns}
+          onClose={() => setCompareModal(null)}
+        />
+      )}
     </div>
   );
 }
@@ -1382,6 +1445,9 @@ function PitchPlayerCard({ player, isSub = false, onClick }: { player: PlayerDat
 }
 
 function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => void }) {
+  const teamColor = teamPrimaryColors[player.teamId] || '#37003c';
+  const playerLastName = player.name.split(' ').pop() || player.name;
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50" />
@@ -1389,40 +1455,58 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
         className="relative w-full max-w-sm bg-fpl-dark border-l border-fpl-primary/20 overflow-y-auto animate-slide-in"
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="sticky top-0 bg-fpl-dark/95 backdrop-blur-fpl border-b border-fpl-primary/20 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`}
-              alt={player.team}
-              className="w-10 h-10 object-contain"
-            />
-            <div>
-              <h3 className="font-jakarta font-bold text-white">{player.name}</h3>
-              <p className="text-sm text-fpl-text-secondary font-inter">{player.team}</p>
+        {/* Hero Player Card Header */}
+        <div className="relative overflow-hidden" style={{ backgroundColor: teamColor }}>
+          {/* Close button */}
+          <button onClick={onClose} className="absolute top-3 right-3 z-10 p-1.5 bg-black/30 hover:bg-black/50 rounded-full transition-colors">
+            <X className="w-4 h-4 text-white" />
+          </button>
+
+          <div className="flex items-end justify-between px-4 pt-4 pb-0">
+            {/* Left: Player Info */}
+            <div className="pb-4 flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <img
+                  src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
+                  alt={player.team}
+                  className="w-5 h-5 object-contain"
+                />
+                <span className="text-xs font-inter text-white/80">{player.team} | {player.position}</span>
+              </div>
+              <h3 className="font-jakarta font-bold text-white text-xl leading-tight truncate">{player.name}</h3>
+              <div className="mt-2">
+                <span className="font-jakarta font-black text-3xl text-white">{player.points * player.multiplier}</span>
+                <span className="text-sm font-inter text-white/70 ml-1">pts</span>
+              </div>
+              {player.multiplier > 1 && (
+                <div className="text-xs text-white/60 font-inter mt-0.5">
+                  {player.points} base x{player.multiplier} {player.isCaptain ? '(C)' : '(TC)'}
+                </div>
+              )}
+            </div>
+
+            {/* Right: Player Headshot */}
+            <div className="flex-shrink-0 w-28 h-36 relative -mb-1">
+              <img
+                src={player.photo
+                  ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo}`
+                  : `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.id}.png`
+                }
+                alt={player.name}
+                className="w-full h-full object-contain drop-shadow-lg"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`;
+                  (e.target as HTMLImageElement).className = 'w-20 h-20 object-contain mt-4 mx-auto';
+                }}
+              />
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-5 h-5 text-fpl-text-secondary" />
-          </button>
         </div>
 
         {/* Stats */}
         <div className="p-4 space-y-4">
-          {/* Points */}
-          <div className="text-center p-4 rounded-fpl bg-fpl-accent/10 border border-fpl-accent/20">
-            <div className="text-3xl font-jakarta font-bold text-fpl-accent">
-              {player.points * player.multiplier} pts
-            </div>
-            {player.multiplier > 1 && (
-              <div className="text-sm text-fpl-text-secondary font-inter">
-                {player.points} base x{player.multiplier} {player.isCaptain ? '(Captain)' : '(Triple Captain)'}
-              </div>
-            )}
-          </div>
-
           {/* Key Stats Grid */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <StatBox label="xG" value={parseFloat(player.xG || '0').toFixed(2)} />
             <StatBox label="xA" value={parseFloat(player.xA || '0').toFixed(2)} />
             <StatBox label="Bonus" value={player.bonus?.toString() || '0'} />
@@ -1445,31 +1529,40 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
             )}
           </div>
 
-          {/* Merchandise Banner */}
+          {/* Impulse Buy CTA Block */}
           <div className="rounded-fpl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 overflow-hidden">
             <div className="flex items-center gap-3 p-4">
+              {/* Kit Icon */}
               <img
-                src={`https://resources.premierleague.com/premierleague/badges/50/t${player.teamCode}.png`}
-                alt={player.team}
-                className="w-10 h-10 object-contain flex-shrink-0"
+                src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`}
+                alt={`${player.team} kit`}
+                className="w-12 h-12 object-contain flex-shrink-0 drop-shadow-md"
               />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-jakarta font-bold text-white truncate">
-                  {player.name} Kit
+                <div className="text-sm font-jakarta font-bold text-white">
+                  Get {playerLastName}&apos;s 25/26 Kit
                 </div>
-                <div className="text-xs text-fpl-text-secondary font-inter">
+                <div className="text-[11px] text-fpl-text-secondary font-inter">
                   Official kits, prints & more
                 </div>
               </div>
             </div>
             <a
-              href={getKitbagUrl(player.team)}
+              href={getKitbagUrl(player.teamId)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-jakarta font-bold text-center transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-jakarta font-bold text-center transition-colors"
             >
-              Get player&apos;s merchandise &rarr;
+              <img
+                src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
+                alt={player.team}
+                className="w-4 h-4 object-contain"
+              />
+              Shop on Kitbag
             </a>
+            <div className="text-center py-1.5 text-[9px] text-gray-500 font-inter">
+              A commission is earned on purchases.
+            </div>
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { PitchView } from '@/components/squad/pitch-view';
 import { EnhancedLeagueStorytelling } from '@/components/ui/enhanced-league-storytelling';
 import { VotingPoll } from '@/components/ui/voting-poll';
 import { ManagerOfTheMonth } from '@/components/ui/manager-of-the-month';
+import { ShareAction } from '@/components/ui/share-action';
 import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User, Crown, Medal } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -175,6 +176,13 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       case 'league-progression':
         return (
           <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">League Progression</h3>
+              <ShareAction
+                title="FPLRanker - League Progression"
+                text={`Check out the league progression for ${league.name} on FPLRanker!`}
+              />
+            </div>
             <RankProgressionChart leagueId={leagueId} />
           </div>
         );

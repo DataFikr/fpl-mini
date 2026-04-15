@@ -88,6 +88,18 @@ export async function GET(
       summaryMap[es.id] = es.summary;
     }
 
+    // Build historical fixtures lookup: key = "teamH_teamA_event" → { team_h_difficulty, team_a_difficulty }
+    const historicalFixtureLookup: Record<string, { team_h_difficulty: number; team_a_difficulty: number }> = {};
+    for (const f of fixtures) {
+      if (f.event) {
+        const key = `${f.team_h}_${f.team_a}_${f.event}`;
+        historicalFixtureLookup[key] = {
+          team_h_difficulty: f.team_h_difficulty,
+          team_a_difficulty: f.team_a_difficulty,
+        };
+      }
+    }
+
     // Determine last 3 finished GWs
     const finishedGWs = bootstrap.events
       .filter((e: any) => e.finished)
@@ -105,7 +117,7 @@ export async function GET(
     }
 
     // Build form-fdr data for each squad player
-    const players = picks.map((pick: any) => {
+    const players = (await Promise.all(picks.map(async (pick: any) => {
       const player = bootstrap.elements.find((el: any) => el.id === pick.element);
       if (!player) return null;
 
@@ -113,18 +125,32 @@ export async function GET(
       const summary = summaryMap[player.id];
 
       // Extract last 3 GW points from element summary history
-      const form: { gw: number; points: number; opponent: string; opponentCode: number }[] = [];
+      const form: { gw: number; points: number; opponent: string; opponentCode: number; difficulty: number; wasHome: boolean }[] = [];
       if (summary?.history) {
         const recentHistory = summary.history
           .filter((h: any) => finishedGWs.includes(h.round))
           .sort((a: any, b: any) => a.round - b.round);
 
         for (const h of recentHistory) {
+          const wasHome = h.was_home;
+          // Look up fixture difficulty from historical fixtures
+          let difficulty = 3; // default
+          if (h.opponent_team) {
+            const fixtureKey = wasHome
+              ? `${player.team}_${h.opponent_team}_${h.round}`
+              : `${h.opponent_team}_${player.team}_${h.round}`;
+            const fixtureLookup = historicalFixtureLookup[fixtureKey];
+            if (fixtureLookup) {
+              difficulty = wasHome ? fixtureLookup.team_h_difficulty : fixtureLookup.team_a_difficulty;
+            }
+          }
           form.push({
             gw: h.round,
             points: h.total_points,
             opponent: h.opponent_team ? (teamLookup[h.opponent_team]?.short_name || '?') : '?',
             opponentCode: h.opponent_team ? (teamLookup[h.opponent_team]?.code || 0) : 0,
+            difficulty,
+            wasHome,
           });
         }
       }
@@ -172,28 +198,62 @@ export async function GET(
             const elAvgFDR = elFixtures.length > 0
               ? elFixtures.reduce((s: number, f: any) => s + f.difficulty, 0) / elFixtures.length
               : 3;
-            // Use FPL 'form' field (avg points per match over recent games)
             const avgFormPoints = parseFloat(el.form || '0');
             return {
               id: el.id,
               name: el.web_name,
               team: elTeam?.short_name || '?',
+              teamId: el.team,
               teamCode: elTeam?.code || 1,
               price: (el.now_cost / 10).toFixed(1),
               avgFormPoints: Math.round(avgFormPoints * 10) / 10,
               totalPoints: el.total_points,
               avgFDR: Math.round(elAvgFDR * 10) / 10,
+              upcomingFixtures: elFixtures,
             };
           })
           .sort((a: any, b: any) => {
-            // Prefer good FDR + high total points
             const aScore = a.totalPoints * (4 - a.avgFDR);
             const bScore = b.totalPoints * (4 - b.avgFDR);
             return bScore - aScore;
           });
 
         if (candidates.length > 0) {
-          alternative = candidates[0];
+          const best = candidates[0];
+          // Fetch element summary for alternative's form history
+          try {
+            const altSummary = await fplApi.getElementSummary(best.id);
+            const altForm: { gw: number; points: number; opponent: string; opponentCode: number; difficulty: number; wasHome: boolean }[] = [];
+            if (altSummary?.history) {
+              const altRecentHistory = altSummary.history
+                .filter((h: any) => finishedGWs.includes(h.round))
+                .sort((a: any, b: any) => a.round - b.round);
+              for (const h of altRecentHistory) {
+                const wasHome = h.was_home;
+                let difficulty = 3;
+                if (h.opponent_team) {
+                  const fKey = wasHome
+                    ? `${best.teamId}_${h.opponent_team}_${h.round}`
+                    : `${h.opponent_team}_${best.teamId}_${h.round}`;
+                  const fLookup = historicalFixtureLookup[fKey];
+                  if (fLookup) {
+                    difficulty = wasHome ? fLookup.team_h_difficulty : fLookup.team_a_difficulty;
+                  }
+                }
+                altForm.push({
+                  gw: h.round,
+                  points: h.total_points,
+                  opponent: h.opponent_team ? (teamLookup[h.opponent_team]?.short_name || '?') : '?',
+                  opponentCode: h.opponent_team ? (teamLookup[h.opponent_team]?.code || 0) : 0,
+                  difficulty,
+                  wasHome,
+                });
+              }
+            }
+            alternative = { ...best, form: altForm };
+          } catch {
+            alternative = { ...best, form: [] };
+          }
         }
       }
 
@@ -204,6 +264,7 @@ export async function GET(
         positionOrder: player.element_type,
         price: (player.now_cost / 10).toFixed(1),
         teamShort: team?.short_name || '?',
+        teamId: player.team,
         teamCode: team?.code || 1,
         isStarting: pick.position <= 11,
         isCaptain: pick.is_captain,
@@ -217,7 +278,7 @@ export async function GET(
         recommendationReason,
         alternative,
       };
-    }).filter(Boolean);
+    }))).filter(Boolean);
 
     // Build GW columns for form (last 3) and upcoming (next 4)
     const formGwColumns = finishedGWs.sort((a: number, b: number) => a - b).map((gw: number) => ({

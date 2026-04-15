@@ -38,6 +38,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Ensure bonus points are finalized (data_checked = true)
+    if (!lastFinished.data_checked) {
+      console.log(`⏳ GW${lastFinished.id} finished but data_checked is false — waiting for bonus points to finalize`);
+      return NextResponse.json({
+        success: true,
+        message: `GW${lastFinished.id} data not yet confirmed (data_checked: false)`,
+        sent: 0
+      });
+    }
+
     // Check if next GW deadline exists to estimate when last GW finished
     // A GW is considered "just finished" if the next GW deadline is more than 1 day away
     // and the current GW is finished
@@ -120,13 +130,17 @@ export async function POST(request: NextRequest) {
     let successCount = 0;
     let failureCount = 0;
 
+    // Collect all emails, then batch send
+    const allEmails: { to: string; subject: string; html: string }[] = [];
+    const subIdsToUpdate: string[] = [];
+
     for (const [leagueId, leagueSubs] of leagueSubscriptions.entries()) {
       try {
         const leagueResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/leagues/${leagueId}`);
         const leagueData = await leagueResponse.json();
         const leagueName = leagueData.name || `League ${leagueId}`;
 
-        console.log(`📨 Sending GW${lastFinished.id} summary for ${leagueName} (${leagueSubs.length} subscribers)`);
+        console.log(`📨 Preparing GW${lastFinished.id} summary for ${leagueName} (${leagueSubs.length} subscribers)`);
 
         // Fetch league storytelling data for richer summaries
         let stories: any[] = [];
@@ -144,33 +158,33 @@ export async function POST(request: NextRequest) {
         }
 
         for (const sub of leagueSubs) {
-          try {
-            const result = await emailService.sendGameweekSummary(
-              sub.email,
-              leagueName,
-              stories,
-              lastFinished.id
-            );
-
-            if (result.success) {
-              successCount++;
-              await prisma.newsletterSubscription.update({
-                where: { id: sub.id },
-                data: { lastSentAt: new Date() }
-              });
-              console.log(`✅ Summary sent to ${sub.email}`);
-            } else {
-              failureCount++;
-              console.error(`❌ Failed to send to ${sub.email}:`, result.error);
-            }
-          } catch (emailError) {
-            failureCount++;
-            console.error(`❌ Error sending to ${sub.email}:`, emailError);
-          }
+          const subject = `📰 ${leagueName} - Gameweek ${lastFinished.id} Summary`;
+          const html = (emailService as any).generateGameweekSummaryHTML(leagueName, stories, sub.email, lastFinished.id);
+          allEmails.push({ to: sub.email, subject, html });
+          subIdsToUpdate.push(sub.id);
         }
       } catch (leagueError) {
-        console.error(`❌ Error processing league ${leagueId}:`, leagueError);
+        console.error(`❌ Error processing league ${leagueId}:`, JSON.stringify(leagueError instanceof Error ? leagueError.message : leagueError));
         failureCount += leagueSubs.length;
+      }
+    }
+
+    if (allEmails.length > 0) {
+      console.log(`📤 Batch sending ${allEmails.length} summary emails...`);
+      const batchResult = await emailService.sendBatch(allEmails);
+      successCount = batchResult.successCount;
+      failureCount += batchResult.failureCount;
+
+      // Update lastSentAt for successful sends
+      if (batchResult.successCount > 0) {
+        try {
+          await prisma.newsletterSubscription.updateMany({
+            where: { id: { in: subIdsToUpdate } },
+            data: { lastSentAt: new Date() }
+          });
+        } catch (dbError) {
+          console.error('❌ Failed to update lastSentAt:', dbError instanceof Error ? dbError.message : String(dbError));
+        }
       }
     }
 

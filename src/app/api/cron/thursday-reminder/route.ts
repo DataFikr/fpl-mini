@@ -88,40 +88,34 @@ export async function POST(request: NextRequest) {
     let successCount = 0;
     let failureCount = 0;
 
+    // Collect all emails, then batch send
+    const allEmails: { to: string; subject: string; html: string }[] = [];
+
     for (const [leagueId, leagueSubs] of leagueSubscriptions.entries()) {
       try {
         const leagueResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/leagues/${leagueId}`);
         const leagueData = await leagueResponse.json();
         const leagueName = leagueData.name || `League ${leagueId}`;
 
-        console.log(`📨 Sending deadline reminders for ${leagueName} (${leagueSubs.length} subscribers)`);
+        console.log(`📨 Preparing deadline reminders for ${leagueName} (${leagueSubs.length} subscribers)`);
 
         for (const sub of leagueSubs) {
-          try {
-            const result = await emailService.sendThursdayReminder(
-              sub.email,
-              leagueName,
-              leagueId,
-              nextEvent.id,
-              nextEvent.deadline_time
-            );
-
-            if (result.success) {
-              successCount++;
-              console.log(`✅ Reminder sent to ${sub.email}`);
-            } else {
-              failureCount++;
-              console.error(`❌ Failed to send reminder to ${sub.email}:`, result.error);
-            }
-          } catch (emailError) {
-            failureCount++;
-            console.error(`❌ Error sending reminder to ${sub.email}:`, emailError);
-          }
+          // Build the email payload without sending yet
+          const subject = `⏰ FPL Deadline Reminder - Gameweek ${nextEvent.id} | ${leagueName}`;
+          const html = (emailService as any).generateThursdayReminderHTML(sub.email, leagueName, leagueId, nextEvent.id, nextEvent.deadline_time);
+          allEmails.push({ to: sub.email, subject, html });
         }
       } catch (leagueError) {
-        console.error(`❌ Error processing league ${leagueId}:`, leagueError);
+        console.error(`❌ Error processing league ${leagueId}:`, JSON.stringify(leagueError instanceof Error ? leagueError.message : leagueError));
         failureCount += leagueSubs.length;
       }
+    }
+
+    if (allEmails.length > 0) {
+      console.log(`📤 Batch sending ${allEmails.length} reminder emails...`);
+      const batchResult = await emailService.sendBatch(allEmails);
+      successCount = batchResult.successCount;
+      failureCount += batchResult.failureCount;
     }
 
     // Mark as sent to prevent duplicates
