@@ -94,37 +94,6 @@ interface DashboardData {
   };
 }
 
-interface FixtureItem {
-  event: number;
-  opponent_short: string;
-  is_home: boolean;
-  difficulty: number;
-}
-
-interface FixturePlayer {
-  id: number;
-  name: string;
-  position: string;
-  positionOrder: number;
-  price: string;
-  teamId: number;
-  teamName: string;
-  teamShort: string;
-  teamCode: number;
-  photo: string | null;
-  isCaptain: boolean;
-  isViceCaptain: boolean;
-  isStarting: boolean;
-  pickPosition: number;
-  fixtures: FixtureItem[];
-}
-
-interface FixtureData {
-  currentGameweek: number;
-  gwColumns: { id: number; name: string; deadline: string | null }[];
-  players: FixturePlayer[];
-}
-
 interface TransferHistoryGW {
   gameweek: number;
   isCurrent: boolean;
@@ -160,11 +129,9 @@ interface TeamPageClientProps {
 export default function TeamPageClient({ teamId, initialData }: TeamPageClientProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'team' | 'transfers' | 'form-fdr' | 'analysis' | 'fixtures'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'transfers' | 'form-fdr' | 'analysis'>('team');
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-  const [fixtureData, setFixtureData] = useState<FixtureData | null>(null);
-  const [fixtureLoading, setFixtureLoading] = useState(false);
   const [transferHistory, setTransferHistory] = useState<TransferHistoryData | null>(null);
   const [transferHistoryLoading, setTransferHistoryLoading] = useState(false);
   const [formFdrData, setFormFdrData] = useState<any>(null);
@@ -186,20 +153,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
       console.warn('Failed to fetch dashboard:', error);
     }
     setIsLoading(false);
-  };
-
-  const fetchFixtures = async () => {
-    if (fixtureData) return;
-    setFixtureLoading(true);
-    try {
-      const res = await fetch(`/api/teams/${teamId}/fixtures`);
-      if (res.ok) {
-        setFixtureData(await res.json());
-      }
-    } catch (error) {
-      console.warn('Failed to fetch fixtures:', error);
-    }
-    setFixtureLoading(false);
   };
 
   const fetchTransferHistory = async () => {
@@ -269,7 +222,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
     { key: 'transfers' as const, label: 'Transfers', icon: ArrowRightLeft },
     { key: 'form-fdr' as const, label: 'Planner', icon: Flame },
     { key: 'analysis' as const, label: 'Analysis', icon: BarChart3 },
-    { key: 'fixtures' as const, label: 'Fixtures', icon: CalendarDays },
   ];
 
   if (isLoading) {
@@ -454,7 +406,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
           {tabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => { setActiveTab(tab.key); if (tab.key === 'fixtures') fetchFixtures(); if (tab.key === 'transfers') fetchTransferHistory(); if (tab.key === 'form-fdr') fetchFormFdr(); }}
+              onClick={() => { setActiveTab(tab.key); if (tab.key === 'transfers') fetchTransferHistory(); if (tab.key === 'form-fdr') fetchFormFdr(); }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-jakarta font-medium text-sm transition-all flex-shrink-0 ${
                 activeTab === tab.key
                   ? 'bg-fpl-accent/20 text-fpl-accent border border-fpl-accent/30'
@@ -1203,176 +1155,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
         {/* ═══════════════════════════════════════════════════
             SECTION 5: RIVAL RADAR (Rivals Tab)
             ═══════════════════════════════════════════════════ */}
-        {/* ═══════════════════════════════════════════════════
-            SECTION 5: FIXTURES (Fixtures Tab)
-            ═══════════════════════════════════════════════════ */}
-        {activeTab === 'fixtures' && (
-          <div className="space-y-4">
-            {fixtureLoading ? (
-              <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 border border-fpl-primary/20 text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-fpl-accent mx-auto mb-3" />
-                <p className="text-fpl-text-secondary font-inter">Loading fixtures...</p>
-              </div>
-            ) : !fixtureData || fixtureData.players.length === 0 ? (
-              <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 border border-fpl-primary/20 text-center">
-                <CalendarDays className="w-10 h-10 text-fpl-text-secondary mx-auto mb-3 opacity-50" />
-                <p className="text-fpl-text-secondary font-inter">No fixture data available</p>
-              </div>
-            ) : (() => {
-              const { gwColumns, players } = fixtureData;
-              const positionLabels: Record<string, string> = { GKP: 'Goalkeeper', DEF: 'Defenders', MID: 'Midfielders', FWD: 'Strikers' };
-              const starters = players.filter(p => p.isStarting).sort((a, b) => a.positionOrder - b.positionOrder || a.pickPosition - b.pickPosition);
-              const subs = players.filter(p => !p.isStarting).sort((a, b) => a.pickPosition - b.pickPosition);
-
-              // Group starters by position
-              const grouped: { label: string; players: FixturePlayer[] }[] = [];
-              let lastPos = '';
-              for (const p of starters) {
-                if (p.position !== lastPos) {
-                  grouped.push({ label: positionLabels[p.position] || p.position, players: [] });
-                  lastPos = p.position;
-                }
-                grouped[grouped.length - 1].players.push(p);
-              }
-              if (subs.length > 0) {
-                grouped.push({ label: 'Substitutes', players: subs });
-              }
-
-              return (
-                <>
-                  {/* FDR Key */}
-                  <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-4 border border-fpl-primary/20">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-xs font-jakarta font-semibold text-fpl-text-secondary">FDR Key:</span>
-                      <div className="flex items-center gap-1.5">
-                        {[1, 2, 3, 4, 5].map(d => (
-                          <div key={d} className={`w-7 h-7 rounded flex items-center justify-center text-xs font-bold ${getFDRColor(d)}`}>{d}</div>
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-fpl-text-secondary font-inter">Easy</span>
-                      <span className="text-[10px] text-fpl-text-secondary font-inter ml-auto">Hard</span>
-                    </div>
-                  </div>
-
-                  {/* Fixture Table */}
-                  <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl border border-fpl-primary/20 overflow-x-auto">
-                    <table className="w-full text-sm">
-                      {/* Table Header */}
-                      <thead>
-                        <tr className="border-b border-fpl-primary/20">
-                          <th className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-12">Pos</th>
-                          <th className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-10"></th>
-                          <th className="sticky left-[5.5rem] z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2 text-left text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[90px]">Player</th>
-                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider w-14">Price</th>
-                          <th className="bg-fpl-dark/95 px-2 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[60px]">Team</th>
-                          {gwColumns.map(gw => (
-                            <th key={gw.id} className="bg-fpl-dark/95 px-1 py-2 text-center text-[10px] font-jakarta font-semibold text-fpl-text-secondary uppercase tracking-wider min-w-[68px]">
-                              <div>{gw.name}</div>
-                              {gw.deadline && (
-                                <div className="text-[8px] font-inter font-normal text-fpl-text-secondary/60">
-                                  {new Date(gw.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                                </div>
-                              )}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {grouped.map((group) => (
-                          <>
-                            {/* Position Group Header */}
-                            <tr key={`header-${group.label}`} className="bg-fpl-primary/5">
-                              <td colSpan={5 + gwColumns.length} className="px-3 py-1.5">
-                                <span className="font-jakarta font-bold text-xs text-fpl-accent uppercase tracking-wider">{group.label}</span>
-                              </td>
-                            </tr>
-                            {group.players.map((player) => (
-                              <tr key={player.id} className="border-b border-fpl-primary/5 hover:bg-white/[0.02] transition-colors">
-                                {/* Position */}
-                                <td className="sticky left-0 z-10 bg-fpl-dark/95 backdrop-blur-sm px-3 py-2">
-                                  <span className="text-[10px] font-jakarta font-medium text-fpl-text-secondary">{player.position}</span>
-                                </td>
-                                {/* Player Photo */}
-                                <td className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-1">
-                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-fpl-primary/20 flex-shrink-0 relative">
-                                    {player.photo ? (
-                                      <Image
-                                        src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo}`}
-                                        alt={player.name}
-                                        fill
-                                        className="object-cover object-top"
-                                        sizes="32px"
-                                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center text-fpl-text-secondary text-[10px] font-bold">
-                                        {player.name.charAt(0)}
-                                      </div>
-                                    )}
-                                  </div>
-                                </td>
-                                {/* Player Name */}
-                                <td className="sticky left-[5.5rem] z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2">
-                                  <div className="font-inter text-white text-xs font-medium truncate max-w-[100px]">
-                                    {player.name}
-                                    {player.isCaptain && <span className="text-yellow-400 ml-0.5">(C)</span>}
-                                    {player.isViceCaptain && <span className="text-fpl-text-secondary ml-0.5">(V)</span>}
-                                  </div>
-                                </td>
-                                {/* Price */}
-                                <td className="px-2 py-2 text-center">
-                                  <span className="font-inter text-fpl-text-secondary text-xs">&pound;{player.price}</span>
-                                </td>
-                                {/* Team */}
-                                <td className="px-2 py-2 text-center">
-                                  <div className="flex items-center justify-center gap-1">
-                                    <Image
-                                      src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
-                                      alt={player.teamShort}
-                                      width={16}
-                                      height={16}
-                                      className="flex-shrink-0"
-                                    />
-                                    <span className="font-inter text-fpl-text-secondary text-[10px]">{player.teamShort}</span>
-                                  </div>
-                                </td>
-                                {/* Fixture Cells */}
-                                {gwColumns.map(gw => {
-                                  const fixtures = player.fixtures.filter(f => f.event === gw.id);
-                                  if (fixtures.length === 0) {
-                                    return (
-                                      <td key={gw.id} className="px-1 py-2 text-center">
-                                        <div className="bg-gray-700/50 rounded px-1 py-1.5 text-[10px] text-fpl-text-secondary font-inter">-</div>
-                                      </td>
-                                    );
-                                  }
-                                  return (
-                                    <td key={gw.id} className="px-1 py-2 text-center">
-                                      <div className="flex flex-col gap-0.5">
-                                        {fixtures.map((fix, fi) => (
-                                          <div
-                                            key={fi}
-                                            className={`rounded px-1 py-1.5 text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}
-                                          >
-                                            {fix.opponent_short} ({fix.is_home ? 'H' : 'A'})
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </td>
-                                  );
-                                })}
-                              </tr>
-                            ))}
-                          </>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        )}
       </div>
 
       {/* ═══════════════════════════════════════════════════

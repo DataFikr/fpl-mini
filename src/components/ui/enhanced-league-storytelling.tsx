@@ -905,7 +905,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
     <>
       <div className="bg-white rounded-xl shadow-lg p-6">
         {/* Header with Newsletter Button */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div className="bg-red-600 text-white p-2 rounded-lg">
               <Flame className="h-5 w-5" />
@@ -916,14 +916,14 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             {/* GW Selector Dropdown */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500 font-medium hidden sm:inline">Previous GW headlines</span>
               <select
                 value={selectedGw}
                 onChange={(e) => setSelectedGw(Number(e.target.value))}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer flex-1 sm:flex-none"
               >
                 {Array.from({ length: gameweek }, (_, i) => gameweek - i).map(gw => (
                   <option key={gw} value={gw}>GW {gw}</option>
@@ -931,18 +931,20 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
               </select>
             </div>
 
-            <ShareAction
-              title={`FPLRanker - GW${selectedGw} Headlines`}
-              text={`Check out the GW${selectedGw} headlines for ${leagueName} on FPLRanker!`}
-            />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <ShareAction
+                title={`FPLRanker - GW${selectedGw} Headlines`}
+                text={`Check out the GW${selectedGw} headlines for ${leagueName} on FPLRanker!`}
+              />
 
-            <button
-              onClick={() => setShowNewsletterModal(true)}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-            >
-              <Mail className="h-5 w-5" />
-              <span>Get Newsletter</span>
-            </button>
+              <button
+                onClick={() => setShowNewsletterModal(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl flex-1 sm:flex-none"
+              >
+                <Mail className="h-5 w-5" />
+                <span>Get Newsletter</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -952,10 +954,10 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
             <button
               key={story.id}
               onClick={() => setSelectedStory(story)}
-              className="group bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-lg transition-all duration-200 text-left h-64 overflow-hidden"
+              className="group bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-lg transition-all duration-200 text-left min-h-[320px] flex flex-col"
             >
               {/* Story Image */}
-              <div className="relative h-32 mb-4 rounded-lg overflow-hidden">
+              <div className="relative h-36 mb-4 rounded-lg overflow-hidden flex-shrink-0">
                 <Image
                   src={story.image}
                   alt={story.headline}
@@ -973,28 +975,21 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 <div className="absolute bottom-2 left-2 text-white">
                   {story.icon}
                 </div>
+                {/* GW Tag */}
+                <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] font-jakarta font-bold px-2 py-0.5 rounded">
+                  GW{selectedGw}
+                </div>
               </div>
 
               {/* Story Content */}
-              <div className="space-y-2">
-                <h3 className="font-bold text-sm text-gray-900 leading-tight" style={{
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
-                }}>
+              <div className="space-y-2 flex-1 flex flex-col">
+                <h3 className="font-bold text-sm text-gray-900 leading-tight">
                   {story.headline}
                 </h3>
-                <p className="text-xs font-semibold" style={{
-                  color: story.color,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
-                }}>
+                <p className="text-xs font-semibold" style={{ color: story.color }}>
                   {story.subheadline}
                 </p>
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500 mt-auto pt-2">
                   <span>{story.teamName}</span>
                   {story.points && <span className="font-bold">{story.points} pts</span>}
                 </div>

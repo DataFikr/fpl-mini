@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Trophy, Calendar, Medal } from 'lucide-react';
 import Image from 'next/image';
+import { ShareAction } from '@/components/ui/share-action';
 
 interface LeaderboardEntry {
   rank: number;
@@ -108,11 +109,19 @@ export function ManagerOfTheMonth({ leagueId, leagueName, userTeamId }: ManagerO
     <div className="space-y-6">
       {/* Header */}
       <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-6 border border-fpl-primary/20">
-        <h2 className="text-2xl font-jakarta font-bold text-white mb-1 flex items-center gap-2">
-          <Trophy className="w-6 h-6 text-yellow-400" />
-          {leagueName}
-        </h2>
-        <p className="text-sm text-fpl-text-secondary font-inter">Monthly top 3 performers</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-jakarta font-bold text-white mb-1 flex items-center gap-2">
+              <Trophy className="w-6 h-6 text-yellow-400" />
+              {leagueName}
+            </h2>
+            <p className="text-sm text-fpl-text-secondary font-inter">Monthly top 3 performers</p>
+          </div>
+          <ShareAction
+            title={`FPLRanker - Manager of the Month`}
+            text={`Check out the Manager of the Month standings for ${leagueName} on FPLRanker!`}
+          />
+        </div>
       </div>
 
       {/* Monthly Cards */}
