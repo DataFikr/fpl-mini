@@ -21,36 +21,37 @@ interface Player {
   risk: 'High' | 'Medium';
   teamId: number;
   photo: string | null;
+  photoAlt: string;
   p1: string;
   p2: string;
 }
 
 const players: Player[] = [
-  { id: 'haaland', name: 'Erling Haaland', first: 'Haaland', club: 'Manchester City', color: '#6CABDD', nation: 'Norway', pos: 'FWD', risk: 'High', teamId: 13, photo: '/images/blog/players/haaland.jpg',
-    p1: 'Norway are at a World Cup for the first time since 1998, and they are not there to make up the numbers — Haaland and Odegaard give them genuine knockout ambition. Expect Haaland to play every minute he is fit for as the focal point of the attack.',
-    p2: 'That is exactly the problem for early FPL. A premium striker carrying a deep tournament run into a four-week turnaround is the classic slow-starter profile. Pep has history resting returning internationals — back Haaland long-term, but think twice about the GW1 armband.' },
-  { id: 'saka', name: 'Bukayo Saka', first: 'Saka', club: 'Arsenal', color: '#EF0107', nation: 'England', pos: 'MID', risk: 'High', teamId: 1, photo: '/images/blog/players/saka.webp',
+  { id: 'haaland', name: 'Erling Haaland', first: 'Haaland', club: 'Manchester City', color: '#6CABDD', nation: 'Norway', pos: 'FWD', risk: 'High', teamId: 13, photo: '/images/blog/players/haaland.jpg', photoAlt: 'Erling Haaland in a Manchester City sky-blue home shirt, arms outstretched celebrating a Premier League goal — Norway forward and FPL premium striker rated high fatigue risk for GW1 2026/27',
+    p1: 'Norway are at a World Cup for the first time since 1998, and they are not there to make up the numbers — Haaland and Odegaard give them genuine knockout ambition. Expect Haaland to play every minute he is fit for as the focal point of the attack. A premium striker carrying a deep tournament run into a four-week turnaround is the classic slow-starter profile.',
+    p2: 'That is especially important because this will be Haaland\u2019s first season without Guardiola at Manchester City, so there will already be questions about rhythm, role, and adaptation. Add World Cup fatigue on top of that, and he becomes a player whose early-season minutes may need careful monitoring.' },
+  { id: 'saka', name: 'Bukayo Saka', first: 'Saka', club: 'Arsenal', color: '#EF0107', nation: 'England', pos: 'MID', risk: 'High', teamId: 1, photo: '/images/blog/players/saka.webp', photoAlt: 'Bukayo Saka wearing the Arsenal red and white home kit, dribbling past a defender — England winger and FPL midfielder rated high fatigue risk for GW1 2026/27',
     p1: "England will fancy a deep run, and Saka is now the first name on the team sheet. He has also carried niggling muscle issues in recent seasons — a heavy summer load is the last thing his hamstrings want.",
     p2: "Arteta protects Saka in pre-season at the best of times. A semi-final or final means he likely returns late, eased in off the bench through August. Elite asset, but his price may be a GW1 trap." },
-  { id: 'rice', name: 'Declan Rice', first: 'Rice', club: 'Arsenal', color: '#EF0107', nation: 'England', pos: 'MID', risk: 'Medium', teamId: 1, photo: '/images/blog/players/rice.jpg',
+  { id: 'rice', name: 'Declan Rice', first: 'Rice', club: 'Arsenal', color: '#EF0107', nation: 'England', pos: 'MID', risk: 'Medium', teamId: 1, photo: '/images/blog/players/rice.jpg', photoAlt: 'Declan Rice in an Arsenal home shirt driving forward with the ball — England midfielder and FPL set-piece threat rated medium fatigue risk for GW1 2026/27',
     p1: "Rice is England's engine and almost undroppable — minutes will pile up. The flip side is that his game is built on a freakish physical base that tends to shrug off heavy schedules better than most.",
     p2: "His set-piece threat keeps him FPL-relevant even at 80%. Lower ceiling than the forwards means less captaincy temptation, so the fatigue risk hurts your team less. Monitor, don't panic." },
-  { id: 'odegaard', name: 'Martin Odegaard', first: 'Odegaard', club: 'Arsenal', color: '#EF0107', nation: 'Norway', pos: 'MID', risk: 'High', teamId: 1, photo: '/images/blog/players/odegaard.jpg',
+  { id: 'odegaard', name: 'Martin Odegaard', first: 'Odegaard', club: 'Arsenal', color: '#EF0107', nation: 'Norway', pos: 'MID', risk: 'High', teamId: 1, photo: '/images/blog/players/odegaard.jpg', photoAlt: 'Martin Odegaard wearing the Arsenal captain armband and red home kit, orchestrating play in midfield — Norway captain and FPL creative midfielder rated high fatigue risk for GW1 2026/27',
     p1: "Norway's captain and creative heartbeat alongside Haaland. If Norway go deep, Odegaard plays the full 90 every round — and he is coming off a season already disrupted by ankle trouble.",
     p2: "A short turnaround for a player whose value is built on rhythm and chance creation is a red flag. His underlying numbers are elite when fresh; the question is simply when \"fresh\" actually arrives this season." },
-  { id: 'watkins', name: 'Ollie Watkins', first: 'Watkins', club: 'Aston Villa', color: '#670E36', nation: 'England', pos: 'FWD', risk: 'Medium', teamId: 2, photo: '/images/blog/players/watkins.jpg',
+  { id: 'watkins', name: 'Ollie Watkins', first: 'Watkins', club: 'Aston Villa', color: '#670E36', nation: 'England', pos: 'FWD', risk: 'Medium', teamId: 2, photo: '/images/blog/players/watkins.jpg', photoAlt: 'Ollie Watkins in an Aston Villa claret and blue home shirt celebrating a goal — England striker and FPL differential forward rated medium fatigue risk for GW1 2026/27',
     p1: "Watkins is in England's squad but, realistically, as an impact sub behind the first-choice striker. That rotation is a gift for FPL — tournament involvement without the full 90-minute grind.",
     p2: "A player who banks rest on the bench in June could be the freshest premium forward in the league come GW1. At a friendlier price than the headline names, Watkins is a sharp differential pick." },
-  { id: 'bruno', name: 'Bruno Fernandes', first: 'Bruno', club: 'Manchester United', color: '#DA291C', nation: 'Portugal', pos: 'MID', risk: 'High', teamId: 14, photo: '/images/blog/players/bruno.jpg',
+  { id: 'bruno', name: 'Bruno Fernandes', first: 'Bruno', club: 'Manchester United', color: '#DA291C', nation: 'Portugal', pos: 'MID', risk: 'High', teamId: 14, photo: '/images/blog/players/bruno.jpg', photoAlt: 'Bruno Fernandes in a Manchester United red home shirt pointing to direct a set piece — Portugal captain and FPL penalty taker rated high fatigue risk for GW1 2026/27',
     p1: "Portugal are perennial contenders and Bruno never comes off — he is the most reliable 90-minute man in this entire list, club or country. A deep run means maximum minutes in the heat.",
     p2: "The saving grace: Bruno thrives on volume and rarely looks physically spent. But penalties and set pieces only carry you so far if United ease him in. A monitor that leans high." },
-  { id: 'gakpo', name: 'Cody Gakpo', first: 'Gakpo', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'MID', risk: 'Medium', teamId: 12, photo: '/images/blog/players/gakpo.jpg',
+  { id: 'gakpo', name: 'Cody Gakpo', first: 'Gakpo', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'MID', risk: 'Medium', teamId: 12, photo: '/images/blog/players/gakpo.jpg', photoAlt: 'Cody Gakpo in a Liverpool red home shirt running into the box — Netherlands forward and FPL rotation-risk attacker rated medium fatigue risk for GW1 2026/27',
     p1: "Gakpo is a Netherlands regular but operates in a rotation-heavy front line — minutes are not guaranteed across every knockout tie. That uncertainty actually softens his fatigue exposure.",
     p2: "For FPL, the read is about Liverpool's congested attack as much as the World Cup. If he returns fresh and nails down a starting role, the early-season points are there at a tidy price." },
-  { id: 'vandijk', name: 'Virgil van Dijk', first: 'Van Dijk', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'DEF', risk: 'High', teamId: 12, photo: '/images/blog/players/vandijk.jpg',
+  { id: 'vandijk', name: 'Virgil van Dijk', first: 'Van Dijk', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'DEF', risk: 'High', teamId: 12, photo: '/images/blog/players/vandijk.jpg', photoAlt: 'Virgil van Dijk in a Liverpool red home shirt commanding the defensive line — Netherlands captain and FPL premium defender rated high fatigue risk for GW1 2026/27',
     p1: "The Netherlands captain plays every minute and marshals the whole defence — no rest, maximum responsibility, and now into his thirties. A deep run is a serious physical ask.",
     p2: "As a premium defender his appeal is clean sheets plus the odd header. Fatigue rarely shows up as a missed game for Van Dijk, but it can dent the attacking threat that justifies his price tag." },
-  { id: 'wirtz', name: 'Florian Wirtz', first: 'Wirtz', club: 'Liverpool', color: '#C8102E', nation: 'Germany', pos: 'MID', risk: 'High', teamId: 12, photo: '/images/blog/players/wirtz.jpg',
+  { id: 'wirtz', name: 'Florian Wirtz', first: 'Wirtz', club: 'Liverpool', color: '#C8102E', nation: 'Germany', pos: 'MID', risk: 'High', teamId: 12, photo: '/images/blog/players/wirtz.jpg', photoAlt: 'Florian Wirtz in a Liverpool red home shirt on the ball during his debut Premier League season — Germany playmaker and FPL new-signing midfielder rated high fatigue risk for GW1 2026/27',
     p1: "Germany will expect to go far, and Wirtz is central to everything they do. In his first full season adapting to the Premier League, a draining summer is the worst possible preparation.",
     p2: "New league, new intensity, no real pre-season — a lot is stacked against an explosive GW1. The talent is undeniable; patience may be rewarded with a lower entry price once the slow start scares owners off." },
 ];
@@ -62,12 +63,12 @@ const riskStyles = {
 
 // ─── Kitbag Ad Assets per Team ──────────────────────────────
 
-const kitbagAds: Record<number, { href: string; imgSrc: string; w: number; h: number }> = {
-  1:  { href: 'https://kitbag.evyy.net/c/7163127/3903207/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3903207', w: 394, h: 206 },   // Arsenal
-  2:  { href: 'https://kitbag.evyy.net/c/7163127/3914242/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3914242', w: 413, h: 232 },   // Aston Villa
-  12: { href: 'https://kitbag.evyy.net/c/7163127/3903226/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3903226', w: 424, h: 222 },   // Liverpool
-  13: { href: 'https://kitbag.evyy.net/c/7163127/3904780/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3904780', w: 300, h: 250 },   // Manchester City
-  14: { href: 'https://kitbag.evyy.net/c/7163127/3898196/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3898196', w: 398, h: 208 },   // Manchester United
+const kitbagAds: Record<number, { href: string; imgSrc: string; w: number; h: number; alt: string }> = {
+  1:  { href: 'https://kitbag.evyy.net/c/7163127/3903207/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3903207', w: 394, h: 206, alt: 'Official Adidas Arsenal 2026/27 home authentic jersey in better scarlet red and white sleeves featuring textured Emirates Stadium architectural graphics — buy online at Kitbag' },
+  2:  { href: 'https://kitbag.evyy.net/c/7163127/3914242/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3914242', w: 413, h: 232, alt: 'Official Castore Aston Villa 2026/27 home kit in traditional claret body with sky-blue sleeves and a woven club crest — buy online at Kitbag' },
+  12: { href: 'https://kitbag.evyy.net/c/7163127/3903226/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3903226', w: 424, h: 222, alt: 'Official Nike Liverpool FC 2026/27 home jersey in classic red with subtle tonal pinstripe detailing and the Liverbird crest — buy online at Kitbag' },
+  13: { href: 'https://kitbag.evyy.net/c/7163127/3904780/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3904780', w: 300, h: 250, alt: 'Official Puma Manchester City 2026/27 home kit featuring a smooth sky-blue gradient transition from dark shoulders to a light hem with a metallic monochrome crest — buy online at Kitbag' },
+  14: { href: 'https://kitbag.evyy.net/c/7163127/3898196/11316', imgSrc: '//a.impactradius-go.com/display-ad/11316-3898196', w: 398, h: 208, alt: 'Official Adidas Manchester United 2026/27 home shirt in classic red with black collar detailing and a centred club badge — buy online at Kitbag' },
 };
 
 // ─── Flag SVGs ───────────────────────────────────────────────
@@ -278,7 +279,7 @@ export default function WorldCupFatiguePage() {
                             {pl.photo && (
                               <Image
                                 src={pl.photo}
-                                alt={pl.name}
+                                alt={pl.photoAlt}
                                 fill
                                 className="object-cover object-top"
                                 sizes="180px"
@@ -322,7 +323,7 @@ export default function WorldCupFatiguePage() {
                             <div className="rounded-lg shrink-0 overflow-hidden border border-fpl-accent/25">
                               {ad ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={`https:${ad.imgSrc}`} alt={`${pl.club} kit`} width={80} height={Math.round(80 * ad.h / ad.w)} className="object-contain" />
+                                <img src={`https:${ad.imgSrc}`} alt={ad.alt} width={80} height={Math.round(80 * ad.h / ad.w)} className="object-contain" />
                               ) : (
                                 <div className="w-16 h-16 flex items-center justify-center" style={{
                                   backgroundColor: '#15102b',
