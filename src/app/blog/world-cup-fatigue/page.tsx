@@ -47,7 +47,7 @@ const players: Player[] = [
   { id: 'gakpo', name: 'Cody Gakpo', first: 'Gakpo', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'MID', risk: 'Medium', teamId: 12, photo: '/images/blog/players/gakpo.jpg',
     p1: "Gakpo is a Netherlands regular but operates in a rotation-heavy front line — minutes are not guaranteed across every knockout tie. That uncertainty actually softens his fatigue exposure.",
     p2: "For FPL, the read is about Liverpool's congested attack as much as the World Cup. If he returns fresh and nails down a starting role, the early-season points are there at a tidy price." },
-  { id: 'vandijk', name: 'Virgil van Dijk', first: 'Van Dijk', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'DEF', risk: 'High', teamId: 12, photo: '/images/blog/players/vandijk.jfif',
+  { id: 'vandijk', name: 'Virgil van Dijk', first: 'Van Dijk', club: 'Liverpool', color: '#C8102E', nation: 'Netherlands', pos: 'DEF', risk: 'High', teamId: 12, photo: '/images/blog/players/vandijk.jpg',
     p1: "The Netherlands captain plays every minute and marshals the whole defence — no rest, maximum responsibility, and now into his thirties. A deep run is a serious physical ask.",
     p2: "As a premium defender his appeal is clean sheets plus the odd header. Fatigue rarely shows up as a missed game for Van Dijk, but it can dent the attacking threat that justifies his price tag." },
   { id: 'wirtz', name: 'Florian Wirtz', first: 'Wirtz', club: 'Liverpool', color: '#C8102E', nation: 'Germany', pos: 'MID', risk: 'High', teamId: 12, photo: '/images/blog/players/wirtz.jpg',
