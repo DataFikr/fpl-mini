@@ -21,6 +21,8 @@ openAI_API_Key.txt
 
 # Cache directories
 .fpl_cache/
+scripts/fpl-predictor/.cache/
+scripts/fpl-predictor/out/
 
 # Python files (development scripts)
 *.py

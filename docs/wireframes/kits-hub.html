@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe: Kit & Merchandise Hub — /kits</title>
+  <style>
+    :root {
+      --bg-dark: #0C0C0C;
+      --bg-card: rgba(43, 22, 84, 0.25);
+      --border: rgba(139, 92, 246, 0.20);
+      --accent: #78FF9E;
+      --violet: #8B5CF6;
+      --primary: #2B1654;
+      --text: #F8FAFC;
+      --text-secondary: #9BA1B0;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); }
+    .annotation {
+      background: #FBBF24;
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── HEADER ─── */
+    .header-placeholder {
+      height: 64px;
+      background: rgba(12,12,12,0.95);
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-placeholder span { color: var(--accent); font-weight: 800; font-size: 18px; }
+
+    /* ─── HERO ─── */
+    .hero {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 32px 20px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(120,255,158,0.1);
+      border: 1px solid rgba(120,255,158,0.3);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.08;
+      max-width: 700px;
+      margin-bottom: 16px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), #4ADE80);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .hero-search {
+      display: flex;
+      max-width: 400px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .hero-search input {
+      flex: 1;
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .hero-search button {
+      padding: 12px 20px;
+      background: var(--primary);
+      border: none;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* ─── FEATURED KITS (TOP 5) ─── */
+    .featured-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .section-header h2 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .section-header .see-all {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    .kit-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .kit-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--violet);
+    }
+    .kit-image {
+      aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #1A0E35, #2B1654);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .kit-image .placeholder {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      line-height: 1.6;
+    }
+    .kit-image .club-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #fff;
+      ring: 2px solid rgba(255,255,255,0.15);
+    }
+    .kit-image .new-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--accent);
+      color: var(--bg-dark);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .kit-info {
+      padding: 16px;
+    }
+    .kit-info .club-name {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .kit-info .kit-detail {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .kit-info .shop-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      background: rgba(120,255,158,0.08);
+      border: 1px solid rgba(120,255,158,0.25);
+      border-radius: 8px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .kit-info .sponsor-tag {
+      font-size: 9px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* ─── ALL CLUBS GRID ─── */
+    .all-clubs-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+    }
+    .all-clubs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .club-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .club-row:hover { border-color: var(--violet); }
+    .club-row .badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .club-row .club-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .club-row .club-text .name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .club-row .club-text .maker {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .club-row .shop-link {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* ─── PROMO BANNER ─── */
+    .promo-banner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+    }
+    .promo-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .promo-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      backdrop-filter: blur(12px);
+    }
+    .promo-card .tag {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .promo-card h3 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .promo-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .promo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* ─── DISCLOSURE ─── */
+    .disclosure {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 32px;
+    }
+    .disclosure-inner {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer-placeholder {
+      border-top: 1px solid var(--border);
+      padding: 32px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    /* ─── CURSOR-TRACKING GLOW ─── */
+    .glow-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .glow-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(120, 255, 158, 0.06),
+        transparent 40%
+      );
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .glow-card:hover::before { opacity: 1; }
+
+    /* ─── SKELETON LOADING ─── */
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: #1e293b;
+      border-radius: var(--radius);
+    }
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .skeleton-image { aspect-ratio: 3/4; }
+    .skeleton-text { height: 14px; width: 60%; border-radius: 4px; }
+    .skeleton-text.sm { height: 12px; width: 40%; }
+    .skeleton-btn { height: 40px; width: 100%; border-radius: 8px; margin-top: 12px; }
+
+    /* ─── MOBILE TAB BAR ─── */
+    .mobile-tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(12,12,12,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      gap: 2px;
+      cursor: pointer;
+    }
+    .tab-item .tab-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .tab-item .tab-label { font-size: 10px; font-weight: 500; }
+    .tab-item.active { color: var(--accent); }
+    .tab-item:not(.active) { color: var(--text-secondary); }
+
+    /* ─── STICKY MOBILE CTA ─── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      background: rgba(12,12,12,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(139,92,246,0.15);
+      padding: 12px 16px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+    .sticky-cta-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: var(--bg-dark);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      text-align: center;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(120,255,158,0.3);
+      text-decoration: none;
+    }
+
+    /* ─── REDUCED MOTION ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton::after { animation: none; }
+      .kit-card { transition: none; }
+      .kit-card:hover { transform: none; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .featured-grid { grid-template-columns: repeat(3, 1fr); }
+      .all-clubs-grid { grid-template-columns: repeat(2, 1fr); }
+      .promo-inner { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .featured-grid { grid-template-columns: repeat(2, 1fr); }
+      .all-clubs-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 28px; }
+    }
+    @media (min-width: 1024px) {
+      .mobile-tab-bar { display: none; }
+      .sticky-cta { display: none; }
+    }
+
+/* ─── PREMIUM ENHANCEMENTS v2.0 ─── */
+
+/* Noise texture */
+.noise-overlay { position: relative; }
+.noise-overlay::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  opacity: 0.015; mix-blend-mode: overlay; pointer-events: none; z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat; background-size: 256px 256px;
+}
+
+/* 3D card tilt */
+.tilt-container { perspective: 1000px; }
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tilt-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+/* Animated gradient border for featured kits */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.gradient-border { position: relative; }
+.gradient-border::before {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit;
+  background: conic-gradient(from var(--angle), #8B5CF6, #78FF9E, #6D28D9, #78FF9E, #8B5CF6);
+  z-index: -1; opacity: 0; transition: opacity 0.3s ease;
+}
+.gradient-border:hover::before, .gradient-border.is-featured::before {
+  opacity: 1; animation: borderRotate 4s linear infinite;
+}
+@keyframes borderRotate { to { --angle: 360deg; } }
+
+/* Kit card enhanced hover */
+.kit-card-enhanced {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+}
+.kit-card-enhanced:hover {
+  transform: scale(1.02) translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.kit-card-enhanced .kit-img {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.kit-card-enhanced:hover .kit-img {
+  transform: scale(1.06);
+}
+
+/* Magnetic button */
+.magnetic-btn {
+  transition: transform 0.1s ease-out;
+  position: relative;
+}
+
+/* Search input focus glow */
+.search-glow:focus-within {
+  border-color: rgba(120,255,158,0.5);
+  box-shadow: 0 0 0 3px rgba(120,255,158,0.1), 0 0 20px rgba(120,255,158,0.08);
+  transition: border-color 0.2s, box-shadow 0.3s;
+}
+
+/* Page enter */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: pageEnter 200ms ease-out forwards; }
+
+/* Scroll reveal with stagger */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 400ms ease-out, transform 400ms cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+.reveal-stagger > .reveal { transition-delay: calc(var(--stagger-index, 0) * 80ms); }
+
+/* Skeleton loading */
+.skeleton { position: relative; overflow: hidden; background: #1e293b; border-radius: 12px; }
+.skeleton::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* Enhanced glass with saturate */
+.glass-enhanced {
+  backdrop-filter: saturate(1.5) blur(12px);
+  -webkit-backdrop-filter: saturate(1.5) blur(12px);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after, .reveal, .page-enter, .gradient-border::before, .kit-card-enhanced {
+    animation: none !important; transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .kit-card-enhanced:hover { transform: none; }
+}
+  </style>
+</head>
+<body class="page-enter noise-overlay">
+
+  <!-- ═══ ANNOTATION: DESIGN NOTES ═══ -->
+  <div style="background:#1a1a2e; padding:20px 32px; border-bottom:2px solid var(--accent);">
+    <span class="annotation">Wireframe</span>
+    <h2 style="font-size:16px; margin-bottom:8px;">Kit & Merchandise Hub — <code>/kits</code></h2>
+    <p style="font-size:12px; color:var(--text-secondary); max-width:700px;">
+      Top-level commercial landing page. All 20 PL clubs with Kitbag affiliate deep-links.
+      Featured section highlights clubs with active blog content (Arsenal, Liverpool, Man City, Man Utd, Villa).
+      Every kit image has deeply descriptive alt text for AI carousel indexing.
+      Affiliate disclosure footer per FTC guidelines.
+    </p>
+    <p style="font-size:11px; color:var(--accent); margin-top:8px;">
+      Target keywords: "new Premier League kits 2026/27 buy online", "Arsenal 2026/27 kit buy Adidas",
+      "Liverpool 2026/27 kit Florian Wirtz shirt". All links use rel="sponsored".
+    </p>
+  </div>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header-placeholder">
+    <span>FPLRanker</span>
+    <span class="annotation" style="margin-left:auto;">Reuse existing Header component</span>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <span class="annotation">Hero with search — filter clubs by name</span>
+    <div class="hero-badge">2026/27 Season</div>
+    <h1>
+      Premier League <span class="gradient">New Season Kits</span>
+    </h1>
+    <p>
+      Browse and shop the official 2026/27 kits for all 20 Premier League clubs. Updated as new kits are released.
+    </p>
+    <div class="hero-search search-glow">
+      <input type="text" placeholder="Search clubs...">
+      <button>Search</button>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURED KITS ─ TOP 5 ═══ -->
+  <section class="featured-section">
+    <span class="annotation">Featured 5 — clubs with active Kitbag ad assets and blog content. Card links are affiliate hrefs with rel="sponsored".</span>
+
+    <div class="section-header">
+      <h2>Featured Kits</h2>
+      <span class="see-all">See all 20 clubs &darr;</span>
+    </div>
+
+    <div class="featured-grid tilt-container reveal-stagger">
+
+      <!-- Arsenal -->
+      <a class="kit-card tilt-card gradient-border kit-card-enhanced reveal" style="--stagger-index: 0" href="https://kitbag.evyy.net/c/7163127/3903207/11316" rel="sponsored" target="_blank">
+        <div style="overflow:hidden; border-radius:12px 12px 0 0;">
+          <div class="kit-image kit-img">
+            <div class="club-badge" style="background:#EF0107;">ARS</div>
+            <div class="new-badge">New</div>
+            <div class="placeholder">Kit Image<br>(Impact display ad<br>or local asset)</div>
+          </div>
+        </div>
+        <div class="kit-info">
+          <div class="club-name">Arsenal</div>
+          <div class="kit-detail">Adidas Home Kit 2026/27</div>
+          <div class="shop-btn magnetic-btn">Shop Kit &rarr;</div>
+          <div class="sponsor-tag">Kitbag &middot; Ad</div>
+        </div>
+      </a>
+
+      <!-- Liverpool -->
+      <a class="kit-card tilt-card gradient-border kit-card-enhanced reveal" style="--stagger-index: 1" href="https://kitbag.evyy.net/c/7163127/3903226/11316" rel="sponsored" target="_blank">
+        <div style="overflow:hidden; border-radius:12px 12px 0 0;">
+          <div class="kit-image kit-img">
+            <div class="club-badge" style="background:#C8102E;">LIV</div>
+            <div class="new-badge">New</div>
+            <div class="placeholder">Kit Image<br>(Wirtz shirt<br>angle)</div>
+          </div>
+        </div>
+        <div class="kit-info">
+          <div class="club-name">Liverpool</div>
+          <div class="kit-detail">Nike Home Kit 2026/27</div>
+          <div class="shop-btn magnetic-btn">Shop Kit &rarr;</div>
+          <div class="sponsor-tag">Kitbag &middot; Ad</div>
+        </div>
+      </a>
+
+      <!-- Man City -->
+      <a class="kit-card tilt-card gradient-border kit-card-enhanced reveal" style="--stagger-index: 2" href="https://kitbag.evyy.net/c/7163127/3904780/11316" rel="sponsored" target="_blank">
+        <div style="overflow:hidden; border-radius:12px 12px 0 0;">
+          <div class="kit-image kit-img">
+            <div class="club-badge" style="background:#6CABDD;">MCI</div>
+            <div class="new-badge">New</div>
+            <div class="placeholder">Kit Image<br>(Gradient<br>design)</div>
+          </div>
+        </div>
+        <div class="kit-info">
+          <div class="club-name">Manchester City</div>
+          <div class="kit-detail">Puma Home Kit 2026/27</div>
+          <div class="shop-btn magnetic-btn">Shop Kit &rarr;</div>
+          <div class="sponsor-tag">Kitbag &middot; Ad</div>
+        </div>
+      </a>
+
+      <!-- Man Utd -->
+      <a class="kit-card tilt-card gradient-border kit-card-enhanced reveal" style="--stagger-index: 3" href="https://kitbag.evyy.net/c/7163127/3898196/11316" rel="sponsored" target="_blank">
+        <div style="overflow:hidden; border-radius:12px 12px 0 0;">
+          <div class="kit-image kit-img">
+            <div class="club-badge" style="background:#DA291C;">MUN</div>
+            <div class="new-badge">New</div>
+            <div class="placeholder">Kit Image<br>(Classic red)</div>
+          </div>
+        </div>
+        <div class="kit-info">
+          <div class="club-name">Manchester United</div>
+          <div class="kit-detail">Adidas Home Kit 2026/27</div>
+          <div class="shop-btn magnetic-btn">Shop Kit &rarr;</div>
+          <div class="sponsor-tag">Kitbag &middot; Ad</div>
+        </div>
+      </a>
+
+      <!-- Villa -->
+      <a class="kit-card tilt-card gradient-border kit-card-enhanced reveal" style="--stagger-index: 4" href="https://kitbag.evyy.net/c/7163127/3914242/11316" rel="sponsored" target="_blank">
+        <div style="overflow:hidden; border-radius:12px 12px 0 0;">
+          <div class="kit-image kit-img">
+            <div class="club-badge" style="background:#670E36;">AVL</div>
+            <div class="new-badge">New</div>
+            <div class="placeholder">Kit Image<br>(Claret &amp; blue)</div>
+          </div>
+        </div>
+        <div class="kit-info">
+          <div class="club-name">Aston Villa</div>
+          <div class="kit-detail">Castore Home Kit 2026/27</div>
+          <div class="shop-btn magnetic-btn">Shop Kit &rarr;</div>
+          <div class="sponsor-tag">Kitbag &middot; Ad</div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══ ALL 20 CLUBS GRID ═══ -->
+  <section class="all-clubs-section">
+    <span class="annotation">All 20 clubs — compact rows. Each links to getKitbagUrl(teamId). Alphabetical order. Includes 3 promoted teams (Coventry, Hull, Ipswich).</span>
+
+    <div class="section-header" style="margin-bottom:16px;">
+      <h2>All Premier League Clubs</h2>
+    </div>
+
+    <div class="all-clubs-grid">
+      <div class="club-row">
+        <div class="badge" style="background:#EF0107;">ARS</div>
+        <div class="club-text"><div class="name">Arsenal</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#670E36;">AVL</div>
+        <div class="club-text"><div class="name">Aston Villa</div><div class="maker">Castore</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#0057B8;">BHA</div>
+        <div class="club-text"><div class="name">Brighton</div><div class="maker">Nike</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#034694;">CHE</div>
+        <div class="club-text"><div class="name">Chelsea</div><div class="maker">Nike</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#1976D2;">COV</div>
+        <div class="club-text"><div class="name">Coventry City</div><div class="maker">Hummel</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#1B458F;">CRY</div>
+        <div class="club-text"><div class="name">Crystal Palace</div><div class="maker">Macron</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#003399;">EVE</div>
+        <div class="club-text"><div class="name">Everton</div><div class="maker">Castore</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#EE2737;">FUL</div>
+        <div class="club-text"><div class="name">Fulham</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#F5A623;">HUL</div>
+        <div class="club-text"><div class="name">Hull City</div><div class="maker">Umbro</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#0044FF;">IPS</div>
+        <div class="club-text"><div class="name">Ipswich Town</div><div class="maker">Umbro</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#FFCD00; color:#1D428A;">LEE</div>
+        <div class="club-text"><div class="name">Leeds United</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#C8102E;">LIV</div>
+        <div class="club-text"><div class="name">Liverpool</div><div class="maker">Nike</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#6CABDD;">MCI</div>
+        <div class="club-text"><div class="name">Manchester City</div><div class="maker">Puma</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#DA291C;">MUN</div>
+        <div class="club-text"><div class="name">Manchester United</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#241F20;">NEW</div>
+        <div class="club-text"><div class="name">Newcastle</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#E53233;">NFO</div>
+        <div class="club-text"><div class="name">Nottingham Forest</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#EB172B;">SUN</div>
+        <div class="club-text"><div class="name">Sunderland</div><div class="maker">Nike</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#132257;">TOT</div>
+        <div class="club-text"><div class="name">Tottenham</div><div class="maker">Nike</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#7A263A;">WHU</div>
+        <div class="club-text"><div class="name">West Ham</div><div class="maker">Umbro</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+      <div class="club-row">
+        <div class="badge" style="background:#003399;">LEI</div>
+        <div class="club-text"><div class="name">Leicester City</div><div class="maker">Adidas</div></div>
+        <div class="shop-link">Shop &rarr;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PROMO BANNERS ═══ -->
+  <section class="promo-banner">
+    <span class="annotation">Cross-sell banners — link to fatigue blog and team pages for deeper engagement</span>
+
+    <div class="promo-inner">
+      <div class="promo-card">
+        <div class="tag">World Cup Watch</div>
+        <h3>Will fatigue wreck your GW1 squad?</h3>
+        <p>See which kit-wearing stars are carrying the highest World Cup fatigue risk into the new season.</p>
+        <a href="/blog/world-cup-fatigue" class="promo-link">Read the fatigue report &rarr;</a>
+      </div>
+      <div class="promo-card">
+        <div class="tag">New Arrivals</div>
+        <h3>Florian Wirtz joins Liverpool</h3>
+        <p>The 116M man from Leverkusen. Get the new Liverpool home kit with Wirtz on the back.</p>
+        <a href="https://kitbag.evyy.net/c/7163127/3903226/11316" class="promo-link" rel="sponsored">Shop Liverpool kit &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ AFFILIATE DISCLOSURE ═══ -->
+  <div class="disclosure">
+    <span class="annotation">FTC-compliant affiliate disclosure — always visible</span>
+    <div class="disclosure-inner">
+      <strong>Affiliate Disclosure:</strong> FPLRanker earns a commission from qualifying purchases made through the Kitbag links on this page.
+      This does not affect the price you pay. All kit information and imagery is provided by Kitbag via Impact Radius.
+      We only recommend products we believe are relevant to FPL managers.
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer-placeholder">
+    <span class="annotation">Reuse existing Footer component</span>
+    <p>fplranker.com &copy; 2026</p>
+  </div>
+
+<!-- ─── SKELETON LOADING STATE ─── -->
+<section style="max-width:1280px; margin:48px auto; padding:0 32px;">
+  <span class="annotation">Loading State</span>
+  <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:20px; font-weight:700; margin-bottom:16px;">Skeleton Loading Preview</h2>
+  <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:16px;">
+    <div class="skeleton" style="aspect-ratio:3/4;"></div>
+    <div class="skeleton" style="aspect-ratio:3/4;"></div>
+    <div class="skeleton" style="aspect-ratio:3/4;"></div>
+    <div class="skeleton" style="aspect-ratio:3/4;"></div>
+    <div class="skeleton" style="aspect-ratio:3/4;"></div>
+  </div>
+</section>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Desktop-only interactions
+if (!window.matchMedia('(pointer: coarse)').matches) {
+  // 3D tilt
+  document.querySelectorAll('.tilt-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const rotateX = ((e.clientY - (rect.top + rect.height/2)) / (rect.height/2)) * -8;
+      const rotateY = ((e.clientX - (rect.left + rect.width/2)) / (rect.width/2)) * 8;
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+      card.style.transform = 'rotateX(0) rotateY(0)';
+      setTimeout(() => card.style.transition = 'transform 0.15s ease-out', 400);
+    });
+  });
+
+  // Magnetic button
+  document.querySelectorAll('.magnetic-btn').forEach(btn => {
+    const parent = btn.parentElement || document.body;
+    parent.addEventListener('mousemove', e => {
+      const rect = btn.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const distX = e.clientX - centerX;
+      const distY = e.clientY - centerY;
+      const distance = Math.sqrt(distX * distX + distY * distY);
+      if (distance < 80) {
+        const pull = (1 - distance / 80) * 4;
+        btn.style.transform = `translate(${distX * pull / 80}px, ${distY * pull / 80}px)`;
+      } else {
+        btn.style.transform = 'translate(0, 0)';
+      }
+    });
+    parent.addEventListener('mouseleave', () => {
+      btn.style.transition = 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)';
+      btn.style.transform = 'translate(0, 0)';
+      setTimeout(() => btn.style.transition = 'transform 0.1s ease-out', 300);
+    });
+  });
+}
+</script>
+
+</body>
+</html>

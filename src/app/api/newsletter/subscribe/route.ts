@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
 import { FPLApiService } from '@/services/fpl-api';
 import { EmailService } from '@/services/email-service';
+import { findPlayerPhotoInText, type BootstrapElementLike } from '@/lib/fpl-images';
 
 export async function POST(request: NextRequest) {
   try {
@@ -201,11 +202,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Enrich stories with official player action photos (best-effort).
+    let enrichedStories = stories || [];
+    try {
+      const fplApi = new FPLApiService();
+      const bootstrap = await fplApi.getBootstrapData();
+      const elements = (bootstrap.elements || []) as BootstrapElementLike[];
+      enrichedStories = enrichedStories.map((story: any) => {
+        if (story.imageUrl) return story;
+        const text = `${story.headline || ''} ${story.subheadline || ''} ${story.details || story.content || ''}`;
+        const found = findPlayerPhotoInText(text, elements);
+        return found ? { ...story, imageUrl: found.photoUrl, playerName: found.playerName } : story;
+      });
+    } catch (e) {
+      console.warn('Could not enrich stories with player photos:', e instanceof Error ? e.message : e);
+    }
+
     // Send gameweek summary newsletter
     const emailResult = await emailService.sendGameweekSummary(
       email,
       leagueName || `League ${leagueId}`,
-      stories || [],
+      enrichedStories,
       currentGameweek
     );
 

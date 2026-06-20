@@ -52,16 +52,53 @@ export const teamPrimaryColors: { [key: number]: string } = {
 };
 
 /**
- * Generate an affiliate deep-link for a player's team on Kitbag.
- * Uses the Impact.com tracking base URL with an encoded destination.
+ * Map FPL team SHORT NAME to Kitbag's URL path.
+ *
+ * Prefer this over the id-keyed map: FPL team `id` is reassigned every season
+ * (promotions/relegations shuffle the alphabetical order), so id-based lookups
+ * go stale, whereas `short_name` is stable per club. Same verified paths.
+ */
+const kitbagPathByShort: { [short: string]: string } = {
+  ARS: 'arsenal/o-54310484+t-47520158+z-81-746375396',
+  AVL: 'aston-villa/o-32205917+t-42657593+z-990-600420455',
+  BOU: 'bournemouth/o-19766981+t-69106041+z-93-2775263124',
+  BRE: 'brentford/o-42767070+t-92873730+z-93-3457121921',
+  BHA: 'brighton-and-hove-albion/o-42093692+t-58988263+z-8-2514150529',
+  BUR: 'burnley/o-10643751+t-98211304+z-901-2807681147',
+  CHE: 'chelsea/o-10206073+t-43996280+z-987-1427068653',
+  CRY: 'crystal-palace/o-87754862+t-98471470+z-84-2177508385',
+  EVE: 'everton/o-32207140+t-42212343+z-902-4145335992',
+  FUL: 'fulham/o-08873136+t-70433725+z-91-2453526142',
+  LEE: 'leeds-united/o-21087106+t-98622396+z-980-2037644477',
+  LIV: 'liverpool/o-76979384+t-69751129+z-84-3221256297',
+  MCI: 'manchester-city/o-10868273+t-36978944+z-960-2746739175',
+  MUN: 'manchester-united/o-43084851+t-69861246+z-929-1306218906',
+  NEW: 'newcastle-united/o-10754839+t-81316813+z-978-1772729556',
+  NFO: 'nottingham-forest/o-10648284+t-65639334+z-995-2041109111',
+  SUN: 'sunderland/o-65426028+t-64105319+z-82-1688433481',
+  TOT: 'tottenham-hotspur/o-87316006+t-25979625+z-7-1190775184',
+  WHU: 'west-ham-united/o-32202684+t-98773409+z-905-852504840',
+  WOL: 'wolverhampton-wanderers/o-32647195+t-76510091+z-906-1145136771',
+};
+
+function buildAffiliateUrl(teamPath: string | undefined): string {
+  if (!teamPath) return KITBAG_AFFILIATE_BASE; // fallback to base affiliate link
+  const destinationUrl = `https://www.kitbag.com/en/premier-league/${teamPath}`;
+  return `${KITBAG_AFFILIATE_BASE}?u=${encodeURIComponent(destinationUrl)}`;
+}
+
+/**
+ * Generate an affiliate deep-link for a club's page on Kitbag, by FPL team
+ * short name (e.g. "ARS"). Season-stable — preferred for new code.
+ */
+export function getKitbagUrlByShort(short: string): string {
+  return buildAffiliateUrl(kitbagPathByShort[(short || '').toUpperCase()]);
+}
+
+/**
+ * Generate an affiliate deep-link for a player's team on Kitbag, by FPL team id.
+ * NOTE: id is season-volatile — prefer getKitbagUrlByShort where a short name is available.
  */
 export function getKitbagUrl(teamId: number): string {
-  const teamPath = kitbagTeamMapping[teamId];
-  if (!teamPath) {
-    // Fallback to base affiliate link
-    return KITBAG_AFFILIATE_BASE;
-  }
-  const destinationUrl = `https://www.kitbag.com/en/premier-league/${teamPath}`;
-  const encodedUrl = encodeURIComponent(destinationUrl);
-  return `${KITBAG_AFFILIATE_BASE}?u=${encodedUrl}`;
+  return buildAffiliateUrl(kitbagTeamMapping[teamId]);
 }

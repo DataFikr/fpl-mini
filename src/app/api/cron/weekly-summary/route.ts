@@ -3,6 +3,7 @@ import { prisma } from '@/lib/database';
 import { EmailService } from '@/services/email-service';
 import { FPLApiService } from '@/services/fpl-api';
 import redis from '@/lib/redis';
+import { findPlayerPhotoInText, type BootstrapElementLike } from '@/lib/fpl-images';
 
 /**
  * Gameweek Summary Email Cron Job
@@ -11,8 +12,12 @@ import redis from '@/lib/redis';
  * Sends summary emails 1 day after gameweek completion.
  *
  * vercel.json schedule: "0 10 * * *" (daily at 10:00 AM UTC)
+ *
+ * NOTE: Vercel Cron invokes this endpoint with a GET request and attaches
+ * `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
+ * Both GET and POST run the same job so the cron actually fires in production.
  */
-export async function POST(request: NextRequest) {
+async function runSummaryJob(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -157,9 +162,18 @@ export async function POST(request: NextRequest) {
           ];
         }
 
+        // Attach official player action photos to stories that name a PL player.
+        const elements = (bootstrap.elements || []) as BootstrapElementLike[];
+        const storiesWithPhotos = stories.map((story: any) => {
+          if (story.imageUrl) return story;
+          const text = `${story.headline || ''} ${story.subheadline || ''} ${story.details || story.description || ''}`;
+          const found = findPlayerPhotoInText(text, elements);
+          return found ? { ...story, imageUrl: found.photoUrl, playerName: found.playerName } : story;
+        });
+
         for (const sub of leagueSubs) {
           const subject = `📰 ${leagueName} - Gameweek ${lastFinished.id} Summary`;
-          const html = (emailService as any).generateGameweekSummaryHTML(leagueName, stories, sub.email, lastFinished.id);
+          const html = (emailService as any).generateGameweekSummaryHTML(leagueName, storiesWithPhotos, sub.email, lastFinished.id);
           allEmails.push({ to: sub.email, subject, html });
           subIdsToUpdate.push(sub.id);
         }
@@ -214,9 +228,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Vercel Cron uses GET — this is the primary production trigger.
 export async function GET(request: NextRequest) {
-  if (process.env.NODE_ENV !== 'development') {
-    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
-  }
-  return POST(request);
+  return runSummaryJob(request);
+}
+
+// POST kept for manual triggers / local testing.
+export async function POST(request: NextRequest) {
+  return runSummaryJob(request);
 }

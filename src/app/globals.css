@@ -27,7 +27,7 @@ body {
 
   /* Glassmorphism utilities */
   .glass-card {
-    @apply backdrop-blur-fpl bg-white/10 rounded-fpl border border-white/20;
+    @apply backdrop-blur-fpl bg-white/[0.06] rounded-fpl border border-white/10;
   }
 
   .glass-card-dark {
@@ -56,6 +56,74 @@ body {
     100% { background-position: 0% 50%; }
   }
 
+  /* Elevated glass — premium interactive surface */
+  .glass-card-elevated {
+    @apply backdrop-blur-fpl bg-white/[0.06] rounded-fpl border border-white/10;
+    @apply shadow-fpl backdrop-saturate-150;
+  }
+
+  /* Noise texture overlay for premium surfaces */
+  .noise-overlay {
+    position: relative;
+  }
+  .noise-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0.015;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  /* Cursor-tracking glow for glass cards */
+  .glow-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .glow-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(120, 255, 158, 0.06),
+      transparent 40%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Scroll reveal utility */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 400ms ease-out, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #1e293b;
+    border-radius: 12px;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
   /* Slide-in animation for drawers */
   .animate-slide-in {
     animation: slideIn 0.3s ease-out;
@@ -64,5 +132,42 @@ body {
   @keyframes slideIn {
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Page transition */
+  @keyframes pageEnter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .page-enter {
+    animation: pageEnter 200ms ease-out forwards;
+  }
+
+  /* Animated gradient border */
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes borderRotate {
+    to { --angle: 360deg; }
+  }
+
+  /* Reduced motion overrides */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton::after,
+    .reveal,
+    .page-enter,
+    [class*="animate-"] {
+      animation: none !important;
+      transition-duration: 0.01ms !important;
+    }
+    .reveal { opacity: 1; transform: none; }
   }
 }

@@ -29,7 +29,10 @@
       "Bash(where vercel)",
       "Bash(npx vercel:*)",
       "Read(//c/Users/Family/Downloads/**)",
-      "Bash(npm cache clean:*)"
+      "Bash(npm cache clean:*)",
+      "Bash(ls:*)",
+      "Bash(cd:*)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []

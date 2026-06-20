@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe: Player Comparison Tool — /tools/compare</title>
+  <style>
+    :root {
+      --bg-dark: #0C0C0C;
+      --bg-page: #020617;
+      --bg-card: rgba(15, 23, 42, 0.80);
+      --border: rgba(51, 65, 85, 0.50);
+      --accent: #78FF9E;
+      --accent-dim: rgba(120, 255, 158, 0.15);
+      --violet: #8B5CF6;
+      --violet-700: #6D28D9;
+      --primary: #2B1654;
+      --text: #F8FAFC;
+      --text-secondary: #9BA1B0;
+      --amber: #FBBF24;
+      --emerald: #34D399;
+      --red: #EF4444;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-page);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-jakarta { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', 'SF Mono', monospace; }
+
+    .annotation {
+      background: #FBBF24; color: #000; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .annotation.violet { background: var(--violet); color: #fff; }
+    .annotation.green { background: var(--accent); color: #000; }
+    .annotation.red { background: var(--red); color: #fff; }
+
+    /* ─── NOISE TEXTURE ─── */
+    .noise-overlay { position: relative; }
+    .noise-overlay::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      opacity: 0.015; mix-blend-mode: overlay; pointer-events: none; z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 256px 256px;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      height: 64px; background: rgba(12,12,12,0.85);
+      backdrop-filter: saturate(1.5) blur(12px);
+      -webkit-backdrop-filter: saturate(1.5) blur(12px);
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; padding: 0 32px; gap: 12px;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .header .logo { color: var(--accent); font-weight: 800; font-size: 18px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .header .nav-link { color: var(--text-secondary); font-size: 13px; text-decoration: none; margin-left: 24px; }
+    .header .nav-link:hover { color: #fff; }
+
+    /* ─── PAGE LAYOUT ─── */
+    .page { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+    .page-enter { animation: pageEnter 200ms ease-out forwards; }
+    @keyframes pageEnter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header { margin-bottom: 40px; }
+    .page-header h1 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .page-header h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), #4ADE80);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .page-header p { font-size: 16px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ─── PLAYER SELECTION ─── */
+    .player-select-row {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px;
+      align-items: center; margin-bottom: 48px;
+    }
+    .player-search {
+      position: relative;
+    }
+    .player-search label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 8px;
+    }
+    .player-search input {
+      width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
+      color: var(--text); font-size: 14px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.3s;
+    }
+    .player-search input:focus {
+      border-color: rgba(120,255,158,0.5);
+      box-shadow: 0 0 0 3px rgba(120,255,158,0.1), 0 0 20px rgba(120,255,158,0.08);
+    }
+    .player-search input::placeholder { color: rgba(155,161,176,0.6); }
+
+    /* Autocomplete dropdown */
+    .autocomplete-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: rgba(15,23,42,0.95);
+      backdrop-filter: saturate(1.5) blur(12px);
+      -webkit-backdrop-filter: saturate(1.5) blur(12px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
+      overflow: hidden; z-index: 30;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .autocomplete-item {
+      padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: background 0.1s;
+    }
+    .autocomplete-item:hover { background: rgba(30,41,59,0.5); }
+    .autocomplete-item .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary); display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--text-secondary);
+    }
+    .autocomplete-item .name { font-weight: 600; font-size: 14px; }
+    .autocomplete-item .meta { font-size: 12px; color: var(--text-secondary); }
+
+    .vs-badge {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--violet), var(--violet-700));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 800; font-size: 16px; color: #fff;
+      box-shadow: 0 0 20px rgba(139,92,246,0.3);
+      flex-shrink: 0;
+    }
+
+    /* ─── PLAYER CARDS (Sorare-style) ─── */
+    .comparison-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+      margin-bottom: 48px; perspective: 1000px;
+    }
+
+    .player-card-wrapper { perspective: 1000px; }
+
+    .player-card {
+      background: var(--bg-card);
+      backdrop-filter: saturate(1.5) blur(12px);
+      -webkit-backdrop-filter: saturate(1.5) blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius); overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out, box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+    }
+    .player-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+    /* Animated gradient border on cards */
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    .player-card::before {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit;
+      background: conic-gradient(from var(--angle), #8B5CF6, #78FF9E, #6D28D9, #78FF9E, #8B5CF6);
+      z-index: -1; opacity: 0; transition: opacity 0.3s ease;
+    }
+    .player-card:hover::before {
+      opacity: 1; animation: borderRotate 4s linear infinite;
+    }
+    @keyframes borderRotate { to { --angle: 360deg; } }
+
+    .player-card .image-zone {
+      aspect-ratio: 16/9; background: linear-gradient(135deg, var(--primary), rgba(139,92,246,0.2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; color: rgba(255,255,255,0.1); position: relative; overflow: hidden;
+    }
+    .player-card .image-zone .silhouette {
+      font-size: 80px; opacity: 0.15;
+    }
+    .player-card .position-badge {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .player-card .price-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--accent-dim); border: 1px solid rgba(120,255,158,0.3);
+      padding: 4px 10px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+      color: var(--accent);
+    }
+    .player-card .card-body { padding: 20px; }
+    .player-card .player-name {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 20px; font-weight: 800; margin-bottom: 4px;
+    }
+    .player-card .player-team { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+
+    .player-card .mini-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .mini-stat {
+      text-align: center; padding: 8px 4px;
+      background: rgba(255,255,255,0.03); border-radius: 8px;
+    }
+    .mini-stat .label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-secondary); margin-bottom: 4px; display: block;
+    }
+    .mini-stat .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px; font-weight: 700; display: block;
+    }
+
+    /* ─── COMPARISON BARS ─── */
+    .comparison-section { margin-bottom: 48px; }
+    .comparison-section h2 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 20px; font-weight: 700; margin-bottom: 24px;
+    }
+
+    .comparison-row {
+      display: grid; grid-template-columns: 1fr 100px 1fr;
+      align-items: center; gap: 0; margin-bottom: 12px;
+    }
+
+    .bar-left {
+      display: flex; justify-content: flex-end; align-items: center; gap: 12px;
+    }
+    .bar-right {
+      display: flex; justify-content: flex-start; align-items: center; gap: 12px;
+    }
+
+    .bar-track {
+      height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06);
+      overflow: hidden; flex: 1; max-width: 300px;
+    }
+    .bar-fill-left {
+      height: 100%; border-radius: 4px; float: right;
+      transition: width 700ms ease-out;
+    }
+    .bar-fill-right {
+      height: 100%; border-radius: 4px;
+      transition: width 700ms ease-out;
+    }
+
+    .bar-fill-winner { background: linear-gradient(90deg, rgba(120,255,158,0.3), var(--accent)); }
+    .bar-fill-loser { background: rgba(155,161,176,0.3); }
+
+    .bar-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 700; min-width: 40px;
+    }
+    .bar-value.winner { color: var(--accent); }
+    .bar-value.loser { color: var(--text-secondary); }
+
+    .stat-name {
+      text-align: center; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-secondary); padding: 0 8px;
+    }
+
+    /* Winner badge glow */
+    .winner-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3);
+      color: var(--amber);
+    }
+
+    /* ─── VERDICT CARD ─── */
+    .verdict-card {
+      background: var(--bg-card);
+      backdrop-filter: saturate(1.5) blur(12px);
+      -webkit-backdrop-filter: saturate(1.5) blur(12px);
+      border: 1px solid rgba(120,255,158,0.2);
+      border-radius: var(--radius); padding: 32px; text-align: center;
+      margin-bottom: 48px; position: relative;
+    }
+    .verdict-card::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      opacity: 0.015; mix-blend-mode: overlay; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 256px 256px;
+    }
+    .verdict-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .verdict-name {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 4px;
+    }
+    .verdict-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 48px; font-weight: 800; color: var(--accent);
+      text-shadow: 0 0 30px rgba(120,255,158,0.3);
+    }
+    .verdict-sub {
+      font-size: 14px; color: var(--text-secondary); margin-top: 12px;
+    }
+
+    /* ─── SHARE CARD PREVIEW ─── */
+    .share-section { margin-bottom: 48px; }
+    .share-section h2 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 20px; font-weight: 700; margin-bottom: 16px;
+    }
+    .share-card {
+      width: 520px; height: 300px; border-radius: 16px;
+      background: linear-gradient(135deg, #1A0E35, #2B1654, #0f172a);
+      border: 1px solid rgba(139,92,246,0.3);
+      padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .share-card::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      opacity: 0.02; mix-blend-mode: overlay; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 256px 256px;
+    }
+    .share-card .share-header {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 14px; font-weight: 700; color: var(--accent);
+    }
+    .share-card .share-vs {
+      display: flex; align-items: center; justify-content: center; gap: 24px;
+    }
+    .share-card .share-player {
+      text-align: center;
+    }
+    .share-card .share-player-name {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 18px; font-weight: 800;
+    }
+    .share-card .share-player-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px; font-weight: 800;
+    }
+    .share-card .share-player-score.winner-score { color: var(--accent); }
+    .share-card .share-player-score.loser-score { color: var(--text-secondary); }
+    .share-card .share-footer {
+      font-size: 11px; color: var(--text-secondary);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    /* ─── EMPTY / SELECT STATE ─── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 80px 16px; text-align: center;
+      background: var(--bg-card); border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+    }
+    .empty-state .icon {
+      width: 64px; height: 64px; color: var(--text-secondary); opacity: 0.2;
+      margin-bottom: 16px; font-size: 48px;
+    }
+    .empty-state h3 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 700; font-size: 18px; margin-bottom: 8px;
+    }
+    .empty-state p {
+      font-size: 14px; color: var(--text-secondary); max-width: 320px; margin-bottom: 24px;
+    }
+    .empty-state button {
+      background: var(--accent); color: var(--bg-dark); border: none;
+      padding: 10px 24px; border-radius: 20px; font-weight: 700;
+      font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ─── SKELETON ─── */
+    .skeleton {
+      position: relative; overflow: hidden; background: #1e293b; border-radius: 12px;
+    }
+    .skeleton::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 400ms ease-out, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .player-select-row { grid-template-columns: 1fr; }
+      .vs-badge { margin: 0 auto; }
+      .comparison-cards { grid-template-columns: 1fr; }
+      .comparison-row { grid-template-columns: 1fr; gap: 8px; }
+      .bar-left, .bar-right { justify-content: center; }
+      .share-card { width: 100%; height: auto; aspect-ratio: 520/300; }
+    }
+
+    /* ─── REDUCED MOTION ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .page-enter, .player-card::before, .skeleton::after, .reveal {
+        animation: none !important; transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+      .bar-fill-left, .bar-fill-right { transition-duration: 0.01ms; }
+    }
+  </style>
+</head>
+<body class="noise-overlay">
+
+<!-- ─── HEADER ─── -->
+<header class="header">
+  <span class="logo font-jakarta">FPL Ranker</span>
+  <a href="#" class="nav-link">Dashboard</a>
+  <a href="#" class="nav-link">Tools</a>
+  <a href="#" class="nav-link">Kits</a>
+</header>
+
+<div class="page page-enter">
+
+  <!-- ─── PAGE HEADER ─── -->
+  <div class="page-header">
+    <span class="annotation green">Player Comparison Tool</span>
+    <h1 class="font-jakarta">Compare <span class="gradient">Players</span></h1>
+    <p>Head-to-head stat comparison with animated bars, winner badges, and shareable results.</p>
+  </div>
+
+  <!-- ─── PLAYER SELECTION ─── -->
+  <div class="player-select-row">
+    <div class="player-search">
+      <label>Player A</label>
+      <input type="text" placeholder="Search player..." value="Mohamed Salah">
+      <!-- Autocomplete dropdown preview -->
+      <div class="autocomplete-dropdown" style="display:none;">
+        <div class="autocomplete-item">
+          <div class="avatar">MS</div>
+          <div>
+            <div class="name">Mohamed Salah</div>
+            <div class="meta">Liverpool — MID — £13.2</div>
+          </div>
+        </div>
+        <div class="autocomplete-item">
+          <div class="avatar">MB</div>
+          <div>
+            <div class="name">Marcus Rashford</div>
+            <div class="meta">Man Utd — MID — £7.1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vs-badge">VS</div>
+
+    <div class="player-search">
+      <label>Player B</label>
+      <input type="text" placeholder="Search player..." value="Cole Palmer">
+    </div>
+  </div>
+
+  <!-- ─── PLAYER CARDS ─── -->
+  <section class="comparison-cards">
+    <span class="annotation" style="grid-column: span 2;">Sorare-Style Player Cards with 3D Tilt</span>
+
+    <div class="player-card-wrapper">
+      <div class="player-card tilt-card">
+        <div class="image-zone">
+          <span class="silhouette">⚽</span>
+          <span class="position-badge">MID</span>
+          <span class="price-badge">£13.2</span>
+        </div>
+        <div class="card-body">
+          <div class="player-name font-jakarta">Mohamed Salah</div>
+          <div class="player-team">Liverpool</div>
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <span class="label">Pts</span>
+              <span class="value" style="color:var(--accent);">247</span>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Goals</span>
+              <span class="value">19</span>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Assists</span>
+              <span class="value">13</span>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Form</span>
+              <span class="value" style="color:var(--emerald);">8.2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-card-wrapper">
+      <div class="player-card tilt-card">
+        <div class="image-zone">
+          <span class="silhouette">⚽</span>
+          <span class="position-badge">MID</span>
+          <span class="price-badge">£11.5</span>
+        </div>
+        <div class="card-body">
+          <div class="player-name font-jakarta">Cole Palmer</div>
+          <div class="player-team">Chelsea</div>
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <span class="label">Pts</span>
+              <span class="value" style="color:var(--accent);">221</span>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Goals</span>
+              <span class="value">22</span>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Assists</span>
+              <span class="value">11</span>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Form</span>
+              <span class="value" style="color:var(--emerald);">7.8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COMPARISON BARS ─── -->
+  <section class="comparison-section reveal">
+    <span class="annotation violet">Animated Comparison Bars</span>
+    <h2 class="font-jakarta">Head-to-Head Stats</h2>
+
+    <!-- Total Points -->
+    <div class="comparison-row">
+      <div class="bar-left">
+        <span class="bar-value winner font-mono">247</span>
+        <span class="winner-badge">★</span>
+        <div class="bar-track"><div class="bar-fill-left bar-fill-winner" style="width:100%;"></div></div>
+      </div>
+      <div class="stat-name">Total Pts</div>
+      <div class="bar-right">
+        <div class="bar-track"><div class="bar-fill-right bar-fill-loser" style="width:89%;"></div></div>
+        <span class="bar-value loser font-mono">221</span>
+      </div>
+    </div>
+
+    <!-- Goals -->
+    <div class="comparison-row">
+      <div class="bar-left">
+        <span class="bar-value loser font-mono">19</span>
+        <div class="bar-track"><div class="bar-fill-left bar-fill-loser" style="width:86%;"></div></div>
+      </div>
+      <div class="stat-name">Goals</div>
+      <div class="bar-right">
+        <div class="bar-track"><div class="bar-fill-right bar-fill-winner" style="width:100%;"></div></div>
+        <span class="winner-badge">★</span>
+        <span class="bar-value winner font-mono">22</span>
+      </div>
+    </div>
+
+    <!-- Assists -->
+    <div class="comparison-row">
+      <div class="bar-left">
+        <span class="bar-value winner font-mono">13</span>
+        <span class="winner-badge">★</span>
+        <div class="bar-track"><div class="bar-fill-left bar-fill-winner" style="width:100%;"></div></div>
+      </div>
+      <div class="stat-name">Assists</div>
+      <div class="bar-right">
+        <div class="bar-track"><div class="bar-fill-right bar-fill-loser" style="width:85%;"></div></div>
+        <span class="bar-value loser font-mono">11</span>
+      </div>
+    </div>
+
+    <!-- xG -->
+    <div class="comparison-row">
+      <div class="bar-left">
+        <span class="bar-value loser font-mono">16.4</span>
+        <div class="bar-track"><div class="bar-fill-left bar-fill-loser" style="width:82%;"></div></div>
+      </div>
+      <div class="stat-name">xG</div>
+      <div class="bar-right">
+        <div class="bar-track"><div class="bar-fill-right bar-fill-winner" style="width:100%;"></div></div>
+        <span class="winner-badge">★</span>
+        <span class="bar-value winner font-mono">20.1</span>
+      </div>
+    </div>
+
+    <!-- xA -->
+    <div class="comparison-row">
+      <div class="bar-left">
+        <span class="bar-value winner font-mono">11.8</span>
+        <span class="winner-badge">★</span>
+        <div class="bar-track"><div class="bar-fill-left bar-fill-winner" style="width:100%;"></div></div>
+      </div>
+      <div class="stat-name">xA</div>
+      <div class="bar-right">
+        <div class="bar-track"><div class="bar-fill-right bar-fill-loser" style="width:76%;"></div></div>
+        <span class="bar-value loser font-mono">9.0</span>
+      </div>
+    </div>
+
+    <!-- PPG -->
+    <div class="comparison-row">
+      <div class="bar-left">
+        <span class="bar-value winner font-mono">6.5</span>
+        <span class="winner-badge">★</span>
+        <div class="bar-track"><div class="bar-fill-left bar-fill-winner" style="width:100%;"></div></div>
+      </div>
+      <div class="stat-name">PPG</div>
+      <div class="bar-right">
+        <div class="bar-track"><div class="bar-fill-right bar-fill-loser" style="width:90%;"></div></div>
+        <span class="bar-value loser font-mono">5.8</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── VERDICT ─── -->
+  <section class="reveal">
+    <span class="annotation green">Overall Verdict</span>
+    <div class="verdict-card">
+      <div class="verdict-label">Composite Score Winner</div>
+      <div class="verdict-name font-jakarta">Mohamed Salah</div>
+      <div class="verdict-score counter" data-target="82">0</div>
+      <div class="verdict-sub">Wins 4 of 6 categories — Better overall value at his price point</div>
+    </div>
+  </section>
+
+  <!-- ─── SHARE CARD ─── -->
+  <section class="share-section reveal">
+    <span class="annotation violet">Share Card (520×300 Export)</span>
+    <h2 class="font-jakarta">Share Result</h2>
+    <div class="share-card">
+      <div class="share-header">FPL Ranker — Player Comparison</div>
+      <div class="share-vs">
+        <div class="share-player">
+          <div class="share-player-name" style="color:#fff;">Salah</div>
+          <div class="share-player-score winner-score">247</div>
+        </div>
+        <div class="vs-badge" style="width:36px; height:36px; font-size:12px;">VS</div>
+        <div class="share-player">
+          <div class="share-player-name" style="color:var(--text-secondary);">Palmer</div>
+          <div class="share-player-score loser-score">221</div>
+        </div>
+      </div>
+      <div class="share-footer">
+        <span>GW38 — 2025/26</span>
+        <span style="color:var(--accent);">fplranker.com</span>
+      </div>
+    </div>
+    <button style="margin-top:16px; background:var(--primary); color:#fff; border:1px solid var(--violet); padding:10px 20px; border-radius:20px; font-weight:600; font-size:13px; cursor:pointer;">
+      📋 Copy to Clipboard
+    </button>
+  </section>
+
+  <!-- ─── EMPTY STATE ─── -->
+  <section class="reveal" style="margin-bottom:48px;">
+    <span class="annotation red">Empty State — No Player Selected</span>
+    <div class="empty-state">
+      <div class="icon">👥</div>
+      <h3>Select Players to Compare</h3>
+      <p>Search for two players above to see a detailed head-to-head statistical comparison.</p>
+      <button>Browse Players</button>
+    </div>
+  </section>
+
+  <!-- ─── SKELETON LOADING ─── -->
+  <section style="margin-bottom:48px;">
+    <span class="annotation">Skeleton Loading State</span>
+    <h2 class="font-jakarta" style="font-size:20px; font-weight:700; margin-bottom:16px;">Loading Preview</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:24px;">
+      <div class="skeleton" style="height:320px;"></div>
+      <div class="skeleton" style="height:320px;"></div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="skeleton" style="height:40px;"></div>
+      <div class="skeleton" style="height:40px;"></div>
+      <div class="skeleton" style="height:40px;"></div>
+      <div class="skeleton" style="height:40px;"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Animated counter
+function animateCounter(el, target, duration = 800) {
+  const start = performance.now();
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(easeOut(progress) * target);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Scroll reveal + counter trigger
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      entry.target.querySelectorAll('.counter').forEach(c => {
+        const target = parseInt(c.dataset.target);
+        if (target) animateCounter(c, target);
+      });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Desktop-only: 3D tilt on player cards
+if (!window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('.tilt-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const rotateX = ((e.clientY - (rect.top + rect.height/2)) / (rect.height/2)) * -8;
+      const rotateY = ((e.clientX - (rect.left + rect.width/2)) / (rect.width/2)) * 8;
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+      card.style.transform = 'rotateX(0) rotateY(0)';
+      setTimeout(() => card.style.transition = 'transform 0.15s ease-out', 400);
+    });
+  });
+}
+</script>
+
+</body>
+</html>

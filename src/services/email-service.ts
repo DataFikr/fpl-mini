@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { getStoryTheme } from '@/lib/fpl-images';
 
 let resend: Resend | null = null;
 
@@ -275,9 +276,16 @@ export class EmailService {
             </div>
 
             <h3 style="color: #2c3e50; border-bottom: 2px solid #667eea; padding-bottom: 10px;">🔥 Top Headlines</h3>
-            ${stories.slice(0, 6).map((story, index) => `
+            ${stories.slice(0, 6).map((story, index) => {
+              const theme = getStoryTheme(story.type || 'rivalry');
+              // Official player action photo when available, themed badge otherwise.
+              const media = story.imageUrl
+                ? `<img src="${story.imageUrl}" alt="${(story.playerName || story.managerName || 'FPL player')}" width="56" height="56" style="width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top center;border:3px solid ${theme.accent};background:${theme.gradient};flex-shrink:0;margin-right:12px;" />`
+                : `<div style="width:56px;height:56px;border-radius:50%;background:${theme.gradient};color:#fff;font-size:26px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px;">${theme.emoji}</div>`;
+              return `
               <div class="story">
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                  ${media}
                   <span class="story-number">${index + 1}</span>
                   <div class="story-title">${story.headline || `Gameweek ${gameweek} Update`}</div>
                 </div>
@@ -286,7 +294,8 @@ export class EmailService {
                 ${story.points ? `<p style="background: #f0f8ff; padding: 8px; border-radius: 4px; margin: 10px 0;"><strong>🎯 Points: ${story.points}</strong></p>` : ''}
                 <p style="font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 8px; margin-top: 12px;"><em>👤 ${story.teamName ? `Team: ${story.teamName}` : `League: ${leagueName}`} ${story.managerName ? `| Manager: ${story.managerName}` : ''}</em></p>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
 
             <div class="action-box">
               <h3 style="color: #28a745; margin-top: 0;">🚀 Coming Up</h3>
@@ -655,6 +664,20 @@ export class EmailService {
       day: 'numeric'
     });
 
+    // performanceAnalysis may be a plain string OR an array of insight objects
+    // ({ icon, text }). Flatten to readable HTML so it never renders as
+    // "[object Object]" in the email.
+    const renderAnalysis = (analysis: any): string => {
+      if (!analysis) return 'Analysis not available';
+      if (Array.isArray(analysis)) {
+        return analysis
+          .map((i: any) => (typeof i === 'string' ? i : `${i.icon ? i.icon + ' ' : ''}${i.text ?? i.label ?? ''}`))
+          .filter(Boolean)
+          .join('<br/>') || 'Analysis not available';
+      }
+      return String(analysis);
+    };
+
     // Generate table rows
     const tableRows = rivalData.map((team, index) => `
       <tr style="border-bottom: 1px solid #e5e7eb;">
@@ -674,7 +697,7 @@ export class EmailService {
           <div style="font-weight: 600; color: #374151;">${team.totalPoints.toLocaleString()}</div>
         </td>
         <td style="padding: 12px 8px; font-size: 12px; color: #4B5563; max-width: 250px;">
-          ${team.performanceAnalysis || 'Analysis not available'}
+          ${renderAnalysis(team.performanceAnalysis)}
         </td>
       </tr>
     `).join('');

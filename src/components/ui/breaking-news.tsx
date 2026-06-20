@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, AlertCircle, Users, Trophy, Zap } from 'lucide-react';
+import { getStoryTheme } from '@/lib/fpl-images';
 
 interface NewsItem {
   id: string;
@@ -11,6 +12,10 @@ interface NewsItem {
   icon: React.ReactNode;
   color: string;
   bgColor: string;
+  /** PL player name to resolve into an official action photo (captain stories). */
+  playerName?: string;
+  /** Resolved official Premier League player photo URL. */
+  imageUrl?: string;
 }
 
 interface BreakingNewsProps {
@@ -71,7 +76,8 @@ export function BreakingNews({ leagueId, teams = [], gameweek = 6 }: BreakingNew
               description: `${bestCaptain.teamName}'s captain ${bestCaptain.captainInfo.name} delivered ${bestCaptain.captainInfo.points} points. Masterful selection!`,
               icon: <Zap className="h-5 w-5" />,
               color: '#F59E0B',
-              bgColor: '#FFFBEB'
+              bgColor: '#FFFBEB',
+              playerName: bestCaptain.captainInfo.name
             });
           }
         }
@@ -149,6 +155,31 @@ export function BreakingNews({ leagueId, teams = [], gameweek = 6 }: BreakingNew
 
     generateNewsItems();
   }, [leagueId, teams, gameweek]);
+
+  // Resolve official Premier League action photos for player-based stories.
+  useEffect(() => {
+    const needsPhoto = newsItems.filter((n) => n.playerName && !n.imageUrl);
+    if (needsPhoto.length === 0) return;
+
+    let cancelled = false;
+    const names = Array.from(new Set(needsPhoto.map((n) => n.playerName!))).join(',');
+
+    fetch(`/api/players/photo?names=${encodeURIComponent(names)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.photos) return;
+        setNewsItems((prev) =>
+          prev.map((n) =>
+            n.playerName && !n.imageUrl && data.photos[n.playerName]
+              ? { ...n, imageUrl: data.photos[n.playerName] }
+              : n
+          )
+        );
+      })
+      .catch(() => {/* keep themed fallback */});
+
+    return () => { cancelled = true; };
+  }, [newsItems]);
 
   // Rotate news items every 5 seconds
   useEffect(() => {
@@ -243,13 +274,39 @@ export function BreakingNews({ leagueId, teams = [], gameweek = 6 }: BreakingNew
         alignItems: 'center',
         transition: 'all 0.5s ease-in-out'
       }}>
-        <div style={{
-          color: currentNews.color,
-          marginRight: '0.75rem',
-          flexShrink: 0
-        }}>
-          {currentNews.icon}
-        </div>
+        {currentNews.imageUrl ? (
+          <img
+            src={currentNews.imageUrl}
+            alt={currentNews.playerName || 'FPL player'}
+            style={{
+              width: '3rem',
+              height: '3rem',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              objectPosition: 'top center',
+              border: `2px solid ${currentNews.color}`,
+              background: getStoryTheme(currentNews.type).gradient,
+              marginRight: '0.75rem',
+              flexShrink: 0
+            }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          />
+        ) : (
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            borderRadius: '50%',
+            background: getStoryTheme(currentNews.type).gradient,
+            color: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '0.75rem',
+            flexShrink: 0
+          }}>
+            {currentNews.icon}
+          </div>
+        )}
         <div style={{ flex: 1 }}>
           <h3 style={{
             fontSize: '0.875rem',

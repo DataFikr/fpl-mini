@@ -1,0 +1,112 @@
+/* ============================================================
+   SPORTIFY × FPL RANKER — re-skin design system
+   Extracted from the Sportify (Community) Figma kit:
+   palette, type, and the signature pointed-hexagon geometry.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap');
+
+:root{
+  /* core palette (from Components/Colors) */
+  --red:#FF5050;        --red-dark:#CC4040;
+  --ink:#150000;        --ink-2:#2F0000;     --charcoal:#322D2D;
+  --navy:#12233F;       --navy-deep:#001B58;
+  --bg:#FAFAFA;         --white:#FFFFFF;
+  --line:#D6D5D5;       --line-2:#EEEDED;
+  --t2:#5B5757;         --t3:#848181;        --t4:#ADABAB;
+  --green:#009C54;      --yellow:#FFD100;    --lav:#CABFFF;
+  /* type */
+  --display:'Bebas Neue', Impact, sans-serif;
+  --body:'Manrope', system-ui, sans-serif;
+  --alt:'IBM Plex Sans', system-ui, sans-serif;
+  --mono:'JetBrains Mono', monospace;
+  /* geometry */
+  --pt:8px;          /* hexagon point depth */
+  --shadow:0 12px 34px -14px rgba(21,0,0,.28);
+}
+
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+
+/* ---------- pointed-hexagon banner (the Sportify signature) ---------- */
+/* points on left & right mid-edges, depth = --pt */
+.hex{
+  clip-path:polygon(var(--pt) 0, calc(100% - var(--pt)) 0, 100% 50%,
+                    calc(100% - var(--pt)) 100%, var(--pt) 100%, 0 50%);
+}
+/* notched: corners cut top-left + bottom-right (dropdown / panel style) */
+.notch{
+  clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px),
+                    calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+/* tab/banner cut on right end only */
+.tab-cut{ clip-path:polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+
+/* ---------- buttons ---------- */
+.s-btn{
+  font-family:var(--display);font-size:15px;letter-spacing:.04em;
+  color:var(--bg);background:var(--ink);border:0;cursor:pointer;
+  padding:11px 26px;display:inline-flex;align-items:center;gap:7px;
+  text-transform:uppercase;line-height:1;
+}
+.s-btn.hex{padding-left:30px;padding-right:30px;}
+.s-btn--red{background:var(--red);}
+.s-btn--ghost{background:var(--line-2);color:var(--ink);}
+.s-btn--navy{background:var(--navy);}
+
+/* ---------- chips / category tags ---------- */
+.chip-row{display:flex;gap:10px;overflow:hidden;}
+.chip{
+  font-family:var(--body);font-weight:700;font-size:13px;
+  padding:9px 16px;background:var(--line-2);color:var(--charcoal);
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;line-height:1;
+}
+.chip .box{width:13px;height:13px;background:var(--ink);flex:0 0 auto;}
+.chip.is-active{background:var(--red);color:#fff;}
+.chip.is-active .box{background:#fff;}
+
+/* ---------- cards & surfaces ---------- */
+.card{background:var(--white);border:1px solid var(--line);}
+.card-navy{background:var(--navy);color:#fff;}
+.tag{font-family:var(--body);font-weight:700;font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;padding:4px 8px;background:var(--ink);color:#fff;display:inline-block;}
+.tag--red{background:var(--red);}
+.tag--ghost{background:var(--line-2);color:var(--charcoal);}
+
+/* ---------- type helpers ---------- */
+.d1{font-family:var(--display);font-weight:400;line-height:.92;letter-spacing:.005em;}
+.kicker{font-family:var(--body);font-weight:700;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--red);}
+.mono{font-family:var(--mono);}
+
+/* ---------- tab underline ---------- */
+.s-tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);}
+.s-tabs a{font-family:var(--body);font-weight:600;font-size:14px;color:var(--t3);
+  padding:0 0 11px;position:relative;text-decoration:none;cursor:pointer;}
+.s-tabs a.is-active{color:var(--ink);}
+.s-tabs a.is-active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;
+  height:3px;background:var(--red);}
+
+/* ---------- stat bar (match-stat style) ---------- */
+.statbar{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;}
+.statbar .track{flex:1;height:6px;background:var(--ink);position:relative;overflow:hidden;}
+.statbar .fill{position:absolute;left:0;top:0;bottom:0;background:var(--red);}
+
+/* ---------- crest / avatar placeholder ---------- */
+.crest{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--display);font-size:16px;color:#fff;flex:0 0 auto;letter-spacing:.02em;}
+
+/* ---------- image placeholder ---------- */
+.ph{position:relative;background:
+   repeating-linear-gradient(135deg,#ececec 0 10px,#f6f6f6 10px 20px);
+   display:grid;place-items:center;overflow:hidden;}
+.ph span{font-family:var(--mono);font-size:10px;color:#9a9a9a;letter-spacing:.04em;
+   text-transform:lowercase;background:rgba(250,250,250,.7);padding:3px 7px;}
+.ph--dark{background:repeating-linear-gradient(135deg,#1a2b46 0 10px,#16263f 10px 20px);}
+.ph--dark span{color:#9fb0c9;background:rgba(18,35,63,.55);}
+
+/* movement arrows */
+.mv{font-family:var(--mono);font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:2px;}
+.mv.up{color:var(--green);}
+.mv.down{color:var(--red);}
+.mv.flat{color:var(--t4);}

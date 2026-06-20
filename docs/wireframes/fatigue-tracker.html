@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe: World Cup Minutes Fatigue Tracker — /tools/fatigue-tracker</title>
+  <style>
+    :root {
+      --bg-dark: #0C0C0C;
+      --bg-card: rgba(43, 22, 84, 0.25);
+      --border: rgba(139, 92, 246, 0.20);
+      --accent: #78FF9E;
+      --violet: #8B5CF6;
+      --primary: #2B1654;
+      --text: #F8FAFC;
+      --text-secondary: #9BA1B0;
+      --rose: #F43F5E;
+      --amber: #FBBF24;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); }
+    .annotation {
+      background: #FBBF24;
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── HEADER PLACEHOLDER ─── */
+    .header-placeholder {
+      height: 64px;
+      background: rgba(12,12,12,0.95);
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-placeholder span { color: var(--accent); font-weight: 800; font-size: 18px; }
+
+    /* ─── HERO ─── */
+    .hero {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 32px 40px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139,92,246,0.15);
+      border: 1px solid rgba(139,92,246,0.3);
+      color: var(--violet);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+    .hero-live-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--rose);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.08;
+      max-width: 720px;
+      margin-bottom: 16px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), #4ADE80);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    /* ─── SUMMARY STAT CARDS ─── */
+    .stat-row {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 32px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+    .stat-card .label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .stat-card .value {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .stat-card .sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ─── FILTERS ─── */
+    .filter-bar {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: rgba(139,92,246,0.2);
+      border-color: var(--violet);
+      color: #fff;
+    }
+    .filter-chip.high { border-color: var(--rose); color: var(--rose); }
+    .filter-chip.medium { border-color: var(--amber); color: var(--amber); }
+
+    /* ─── PLAYER TABLE ─── */
+    .table-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+    }
+    .player-table {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+    .table-header {
+      display: grid;
+      grid-template-columns: 48px 200px 120px 100px 140px 100px 120px 1fr;
+      padding: 14px 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      background: rgba(43, 22, 84, 0.35);
+    }
+    .table-row {
+      display: grid;
+      grid-template-columns: 48px 200px 120px 100px 140px 100px 120px 1fr;
+      padding: 16px 20px;
+      align-items: center;
+      border-bottom: 1px solid rgba(139,92,246,0.08);
+      transition: background 0.15s;
+    }
+    .table-row:hover { background: rgba(139,92,246,0.08); }
+    .table-row:last-child { border-bottom: none; }
+
+    .player-photo {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid rgba(255,255,255,0.15);
+      overflow: hidden;
+    }
+    .player-name {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+    }
+    .player-club { font-size: 12px; color: var(--text-secondary); }
+    .minutes-bar-container { width: 100%; }
+    .minutes-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .minutes-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+    .minutes-label { font-size: 13px; font-weight: 600; color: #fff; margin-top: 4px; }
+
+    .risk-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .risk-chip.high {
+      background: rgba(244,63,94,0.15);
+      color: #FDA4AF;
+      border: 1px solid rgba(244,63,94,0.4);
+    }
+    .risk-chip.medium {
+      background: rgba(251,191,36,0.15);
+      color: #FDE68A;
+      border: 1px solid rgba(251,191,36,0.4);
+    }
+    .risk-chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .risk-chip.high .dot { background: #F43F5E; }
+    .risk-chip.medium .dot { background: #FBBF24; }
+
+    .fatigue-score {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .fatigue-high { color: var(--rose); }
+    .fatigue-medium { color: var(--amber); }
+    .fatigue-low { color: var(--accent); }
+
+    .gw1-verdict {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .verdict-fade { background: rgba(244,63,94,0.12); color: #FDA4AF; }
+    .verdict-monitor { background: rgba(251,191,36,0.12); color: #FDE68A; }
+    .verdict-back { background: rgba(120,255,158,0.12); color: var(--accent); }
+
+    /* ─── SHARE CARD PREVIEW ─── */
+    .share-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+    }
+    .share-card {
+      background: linear-gradient(135deg, #1A0E35, #2B1654);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      max-width: 520px;
+      position: relative;
+      overflow: hidden;
+    }
+    .share-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(120,255,158,0.12), transparent 60%);
+    }
+    .share-card .watermark {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(120,255,158,0.5);
+      letter-spacing: 0.5px;
+    }
+    .share-card h3 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .share-player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .share-player-row:last-child { border: none; }
+
+    .share-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .share-btn {
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .share-btn.primary {
+      background: linear-gradient(135deg, var(--primary), var(--violet));
+      color: #fff;
+    }
+    .share-btn.secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text-secondary);
+    }
+
+    /* ─── CTA BANNER ─── */
+    .cta-banner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+    }
+    .cta-inner {
+      background: linear-gradient(135deg, rgba(43,22,84,0.6), rgba(139,92,246,0.3));
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+    }
+    .cta-inner h3 {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .cta-inner p { color: var(--text-secondary); margin-bottom: 20px; }
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--accent), #4ADE80);
+      color: var(--bg-dark);
+      font-weight: 800;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    /* ─── FOOTER PLACEHOLDER ─── */
+    .footer-placeholder {
+      border-top: 1px solid var(--border);
+      padding: 32px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    /* ─── SKELETON LOADING ─── */
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: #1e293b;
+      border-radius: var(--radius);
+    }
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .skeleton-text { height: 16px; width: 60%; border-radius: 4px; }
+    .skeleton-text.sm { height: 12px; width: 40%; }
+    .skeleton-value { height: 32px; width: 50%; border-radius: 6px; margin-top: 8px; }
+
+    /* ─── ANIMATED COUNTER ─── */
+    .counter-animated {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── TOAST NOTIFICATION ─── */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      z-index: 60;
+      background: rgba(12,12,12,0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;
+      max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      animation: toastEnter 200ms ease-out forwards;
+    }
+    .toast.exit { animation: toastExit 150ms ease-in forwards; }
+    .toast-icon { width: 20px; height: 20px; flex-shrink: 0; }
+    .toast-icon.success { color: #4ADE80; }
+    .toast-icon.error { color: #F43F5E; }
+    .toast-message { font-size: 13px; font-weight: 600; color: #fff; }
+    @keyframes toastEnter {
+      from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes toastExit {
+      from { opacity: 1; transform: translateX(-50%) translateY(0); }
+      to { opacity: 0; transform: translateX(-50%) translateY(16px); }
+    }
+
+    /* ─── MOBILE TAB BAR ─── */
+    .mobile-tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(12,12,12,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      gap: 2px;
+      cursor: pointer;
+    }
+    .tab-item .tab-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .tab-item .tab-label { font-size: 10px; font-weight: 500; }
+    .tab-item.active { color: var(--accent); }
+    .tab-item:not(.active) { color: var(--text-secondary); }
+
+    /* ─── REDUCED MOTION ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton::after { animation: none; }
+      .toast { animation: none; opacity: 1; }
+      .minutes-bar-fill { transition: none; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .table-header, .table-row {
+        grid-template-columns: 40px 1fr 80px 80px;
+      }
+      .table-header > :nth-child(n+5), .table-row > :nth-child(n+5) { display: none; }
+      .hero h1 { font-size: 28px; }
+      .toast { bottom: 80px; }
+    }
+    @media (min-width: 1024px) {
+      .mobile-tab-bar { display: none; }
+    }
+
+/* ─── PREMIUM ENHANCEMENTS v2.0 ─── */
+
+/* Noise texture overlay */
+.noise-overlay { position: relative; }
+.noise-overlay::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  opacity: 0.015; mix-blend-mode: overlay; pointer-events: none; z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat; background-size: 256px 256px;
+}
+
+/* 3D card tilt */
+.tilt-container { perspective: 1000px; }
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out, box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tilt-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+/* Page enter */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: pageEnter 200ms ease-out forwards; }
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 400ms ease-out, transform 400ms cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+
+/* Animated counter */
+@keyframes counterPop {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.counter-animate { animation: counterPop 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Skeleton loading */
+.skeleton { position: relative; overflow: hidden; background: #1e293b; border-radius: 12px; }
+.skeleton::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* Parallax hero */
+.parallax-hero { position: relative; overflow: hidden; }
+.parallax-bg {
+  position: absolute; inset: -20%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.12) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(120,255,158,0.06) 0%, transparent 50%);
+  will-change: transform; z-index: 0;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 64px 16px; text-align: center; color: var(--text-secondary);
+}
+.empty-state svg { width: 64px; height: 64px; opacity: 0.2; margin-bottom: 16px; }
+
+/* Progress bar with gradient fill */
+.progress-bar { height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.progress-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, #78FF9E, #65a30d);
+  transition: width 700ms ease-out;
+}
+
+/* Enhanced glass with saturate */
+.glass-enhanced {
+  backdrop-filter: saturate(1.5) blur(12px);
+  -webkit-backdrop-filter: saturate(1.5) blur(12px);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after, .reveal, .page-enter, .counter-animate { animation: none !important; transition-duration: 0.01ms !important; }
+  .reveal { opacity: 1; transform: none; }
+  .progress-fill { transition-duration: 0.01ms; }
+}
+  </style>
+</head>
+<body class="page-enter noise-overlay">
+
+  <!-- ═══ ANNOTATION: DESIGN NOTES ═══ -->
+  <div style="background:#1a1a2e; padding:20px 32px; border-bottom:2px solid var(--amber);">
+    <span class="annotation">Wireframe</span>
+    <h2 style="font-size:16px; margin-bottom:8px;">World Cup Minutes Fatigue Tracker — <code>/tools/fatigue-tracker</code></h2>
+    <p style="font-size:12px; color:var(--text-secondary); max-width:700px;">
+      Live extension of the static blog post at /blog/world-cup-fatigue. Updates as WC matches complete.
+      Tracks cumulative minutes, calculates fatigue score, projects GW1 readiness.
+      Shareable card with fplranker.com watermark for social media screenshots.
+    </p>
+    <p style="font-size:11px; color:var(--amber); margin-top:8px;">
+      Design system: FR-DLS (glassmorphism cards, backdrop-blur-fpl, violet primary, lime accent).
+      Fonts: Plus Jakarta Sans (headings), Inter (body). Corner radius: 12px.
+    </p>
+  </div>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header-placeholder">
+    <span>FPLRanker</span>
+    <span class="annotation" style="margin-left:auto;">Reuse existing Header component</span>
+  </div>
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <section class="hero parallax-hero">
+    <div class="parallax-bg"></div>
+    <span class="annotation">Hero with live indicator</span>
+    <div class="hero-badge">
+      <span class="hero-live-dot"></span>
+      Live Tool — Updated after each match
+    </div>
+    <h1>
+      World Cup <span class="gradient">Fatigue Tracker</span>
+    </h1>
+    <p>
+      Real-time minute tracking for 9 premium FPL assets at the 2026 World Cup.
+      See who's burning out and who's staying fresh for Gameweek 1.
+    </p>
+  </section>
+
+  <!-- ═══ SKELETON STATE: SUMMARY STAT CARDS ═══ -->
+  <div class="stat-row" style="margin-bottom:0; padding-bottom:16px;">
+    <span class="annotation" style="grid-column:1/-1;">Skeleton state — shown while data loads. Shimmer overlay animates left→right.</span>
+
+    <div class="stat-card">
+      <div class="skeleton skeleton-text sm" style="margin-bottom:12px;"></div>
+      <div class="skeleton skeleton-value"></div>
+      <div class="skeleton skeleton-text sm" style="margin-top:8px; width:50%;"></div>
+    </div>
+    <div class="stat-card">
+      <div class="skeleton skeleton-text sm" style="margin-bottom:12px;"></div>
+      <div class="skeleton skeleton-value"></div>
+      <div class="skeleton skeleton-text sm" style="margin-top:8px; width:50%;"></div>
+    </div>
+    <div class="stat-card">
+      <div class="skeleton skeleton-text sm" style="margin-bottom:12px;"></div>
+      <div class="skeleton skeleton-value"></div>
+      <div class="skeleton skeleton-text sm" style="margin-top:8px; width:50%;"></div>
+    </div>
+    <div class="stat-card">
+      <div class="skeleton skeleton-text sm" style="margin-bottom:12px;"></div>
+      <div class="skeleton skeleton-value"></div>
+      <div class="skeleton skeleton-text sm" style="margin-top:8px; width:50%;"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SUMMARY STAT CARDS (LOADED STATE) ═══ -->
+  <div class="stat-row tilt-container">
+    <span class="annotation" style="grid-column:1/-1;">4 summary cards — update live. Values use AnimatedCounter (count 0→target, 800ms ease-out, 150ms stagger).</span>
+
+    <div class="stat-card tilt-card reveal" style="--stagger-index: 0">
+      <div class="label">Players Tracked</div>
+      <div class="value">9</div>
+      <div class="sub">Across 5 PL clubs</div>
+    </div>
+    <div class="stat-card tilt-card reveal" style="--stagger-index: 1">
+      <div class="label">Avg. WC Minutes</div>
+      <div class="value">342</div>
+      <div class="sub">+90 after Round of 16</div>
+    </div>
+    <div class="stat-card tilt-card reveal" style="--stagger-index: 2">
+      <div class="label">High Risk</div>
+      <div class="value" style="color:var(--rose);">6</div>
+      <div class="sub">Likely rested GW1</div>
+    </div>
+    <div class="stat-card tilt-card reveal" style="--stagger-index: 3">
+      <div class="label">Days to GW1</div>
+      <div class="value" style="color:var(--accent);">31</div>
+      <div class="sub">Aug 10, 2026</div>
+    </div>
+  </div>
+
+  <!-- ═══ FILTER BAR ═══ -->
+  <div class="filter-bar">
+    <span class="annotation">Filter chips — toggle risk level and nation</span>
+    <div class="filter-chip active">All Players</div>
+    <div class="filter-chip high">High Risk</div>
+    <div class="filter-chip medium">Medium Risk</div>
+    <div class="filter-chip">England</div>
+    <div class="filter-chip">Norway</div>
+    <div class="filter-chip">Netherlands</div>
+    <div class="filter-chip">Portugal</div>
+    <div class="filter-chip">Germany</div>
+  </div>
+
+  <!-- ═══ PLAYER TABLE ═══ -->
+  <div class="table-container">
+    <span class="annotation">Sortable table — click headers to sort. Minutes bar fills proportionally (max 630 = 7 full games).</span>
+
+    <div class="player-table">
+      <div class="table-header">
+        <div></div>
+        <div>Player</div>
+        <div>Nation</div>
+        <div>Minutes</div>
+        <div>Minutes Load</div>
+        <div>Risk</div>
+        <div>Fatigue Score</div>
+        <div>GW1 Verdict</div>
+      </div>
+
+      <!-- Row 1: Haaland -->
+      <div class="table-row">
+        <div class="player-photo"></div>
+        <div>
+          <div class="player-name">Erling Haaland</div>
+          <div class="player-club">Manchester City</div>
+        </div>
+        <div style="font-size:13px;">Norway</div>
+        <div style="font-size:14px; font-weight:700;">360'</div>
+        <div class="minutes-bar-container">
+          <div class="minutes-bar">
+            <div class="minutes-bar-fill" style="width:57%; background: linear-gradient(90deg, var(--amber), var(--rose));"></div>
+          </div>
+        </div>
+        <div><span class="risk-chip high"><span class="dot"></span>High</span></div>
+        <div><span class="fatigue-score fatigue-high">8.2</span><span style="font-size:10px; color:var(--text-secondary);">/10</span></div>
+        <div><span class="gw1-verdict verdict-fade">Fade GW1</span></div>
+      </div>
+
+      <!-- Row 2: Saka -->
+      <div class="table-row">
+        <div class="player-photo"></div>
+        <div>
+          <div class="player-name">Bukayo Saka</div>
+          <div class="player-club">Arsenal</div>
+        </div>
+        <div style="font-size:13px;">England</div>
+        <div style="font-size:14px; font-weight:700;">450'</div>
+        <div class="minutes-bar-container">
+          <div class="minutes-bar">
+            <div class="minutes-bar-fill" style="width:71%; background: linear-gradient(90deg, var(--amber), var(--rose));"></div>
+          </div>
+        </div>
+        <div><span class="risk-chip high"><span class="dot"></span>High</span></div>
+        <div><span class="fatigue-score fatigue-high">9.1</span><span style="font-size:10px; color:var(--text-secondary);">/10</span></div>
+        <div><span class="gw1-verdict verdict-fade">Fade GW1</span></div>
+      </div>
+
+      <!-- Row 3: Rice -->
+      <div class="table-row">
+        <div class="player-photo"></div>
+        <div>
+          <div class="player-name">Declan Rice</div>
+          <div class="player-club">Arsenal</div>
+        </div>
+        <div style="font-size:13px;">England</div>
+        <div style="font-size:14px; font-weight:700;">390'</div>
+        <div class="minutes-bar-container">
+          <div class="minutes-bar">
+            <div class="minutes-bar-fill" style="width:62%; background: linear-gradient(90deg, var(--accent), var(--amber));"></div>
+          </div>
+        </div>
+        <div><span class="risk-chip medium"><span class="dot"></span>Medium</span></div>
+        <div><span class="fatigue-score fatigue-medium">5.8</span><span style="font-size:10px; color:var(--text-secondary);">/10</span></div>
+        <div><span class="gw1-verdict verdict-monitor">Monitor</span></div>
+      </div>
+
+      <!-- Row 4: Watkins -->
+      <div class="table-row">
+        <div class="player-photo"></div>
+        <div>
+          <div class="player-name">Ollie Watkins</div>
+          <div class="player-club">Aston Villa</div>
+        </div>
+        <div style="font-size:13px;">England</div>
+        <div style="font-size:14px; font-weight:700;">145'</div>
+        <div class="minutes-bar-container">
+          <div class="minutes-bar">
+            <div class="minutes-bar-fill" style="width:23%; background: var(--accent);"></div>
+          </div>
+        </div>
+        <div><span class="risk-chip medium"><span class="dot"></span>Medium</span></div>
+        <div><span class="fatigue-score fatigue-low">3.2</span><span style="font-size:10px; color:var(--text-secondary);">/10</span></div>
+        <div><span class="gw1-verdict verdict-back">Back GW1</span></div>
+      </div>
+
+      <!-- Row 5: Wirtz -->
+      <div class="table-row">
+        <div class="player-photo"></div>
+        <div>
+          <div class="player-name">Florian Wirtz</div>
+          <div class="player-club">Liverpool</div>
+        </div>
+        <div style="font-size:13px;">Germany</div>
+        <div style="font-size:14px; font-weight:700;">380'</div>
+        <div class="minutes-bar-container">
+          <div class="minutes-bar">
+            <div class="minutes-bar-fill" style="width:60%; background: linear-gradient(90deg, var(--amber), var(--rose));"></div>
+          </div>
+        </div>
+        <div><span class="risk-chip high"><span class="dot"></span>High</span></div>
+        <div><span class="fatigue-score fatigue-high">8.7</span><span style="font-size:10px; color:var(--text-secondary);">/10</span></div>
+        <div><span class="gw1-verdict verdict-fade">Fade GW1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SHAREABLE CARD ═══ -->
+  <div class="share-section">
+    <span class="annotation">Shareable card — screenshot-optimized. Watermark bottom-right. Share buttons trigger Web Share API / copy-to-clipboard.</span>
+
+    <div class="share-card">
+      <h3>My WC Fatigue Watchlist</h3>
+
+      <div class="share-player-row">
+        <span style="font-size:14px; font-weight:600;">Haaland</span>
+        <span class="risk-chip high" style="font-size:10px;"><span class="dot"></span>8.2</span>
+      </div>
+      <div class="share-player-row">
+        <span style="font-size:14px; font-weight:600;">Saka</span>
+        <span class="risk-chip high" style="font-size:10px;"><span class="dot"></span>9.1</span>
+      </div>
+      <div class="share-player-row">
+        <span style="font-size:14px; font-weight:600;">Watkins</span>
+        <span class="risk-chip medium" style="font-size:10px;"><span class="dot"></span>3.2</span>
+      </div>
+
+      <div class="watermark">fplranker.com</div>
+    </div>
+
+    <div class="share-buttons">
+      <button class="share-btn primary">Share to WhatsApp</button>
+      <button class="share-btn secondary">Copy Link</button>
+      <button class="share-btn secondary">Download Image</button>
+    </div>
+  </div>
+
+  <!-- ═══ CTA: READ THE BLOG ═══ -->
+  <div class="cta-banner">
+    <span class="annotation">Cross-link to the static blog for full analysis per player + Kitbag affiliate CTAs</span>
+    <div class="cta-inner">
+      <h3>Read the full fatigue analysis</h3>
+      <p>Deep dives on all 9 players, GW1 verdict, and links to shop the latest kits.</p>
+      <a href="/blog/world-cup-fatigue" class="cta-btn">Read the blog post &rarr;</a>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST NOTIFICATION PATTERN ═══ -->
+  <div style="max-width:1280px; margin:0 auto; padding:0 32px 48px;">
+    <span class="annotation">Toast pattern — triggered after share button click. Singleton (max 1 visible). Auto-dismiss 2.5s.</span>
+
+    <div class="toast" style="position:relative; bottom:auto; left:auto; transform:none;">
+      <span class="toast-icon success">✓</span>
+      <span class="toast-message">Link copied to clipboard</span>
+    </div>
+    <p style="font-size:11px; color:var(--text-secondary); margin-top:12px;">
+      Position: fixed bottom-20 (mobile, above tab bar) / bottom-6 (desktop). Centered horizontally.
+      Enter: translateY(16px)→0 in 200ms. Exit: reverse in 150ms.
+    </p>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer-placeholder" style="margin-bottom:60px;">
+    <span class="annotation">Reuse existing Footer component. Add margin-bottom on mobile for tab bar clearance.</span>
+    <p>fplranker.com &copy; 2026</p>
+  </div>
+
+  <!-- ═══ MOBILE TAB BAR ═══ -->
+  <div class="mobile-tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">📊</div>
+      <div class="tab-label">Dashboard</div>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">🔧</div>
+      <div class="tab-label">Tools</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">👕</div>
+      <div class="tab-label">Kits</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">⋯</div>
+      <div class="tab-label">More</div>
+    </div>
+  </div>
+  <div style="background:#1a1a2e; padding:12px 32px; border-top:2px solid var(--amber);">
+    <span class="annotation">Mobile Tab Bar</span>
+    <p style="font-size:11px; color:var(--text-secondary);">
+      Fixed bottom, visible below lg (1024px). 4 items: Dashboard, Tools (active), Kits, More.
+      48px min touch target. pb-[env(safe-area-inset-bottom)] for iOS safe area.
+      Icons: lucide-react (LayoutDashboard, Wrench, ShoppingBag, MoreHorizontal).
+    </p>
+  </div>
+
+<!-- ─── SKELETON LOADING STATE ─── -->
+<section style="max-width:1280px; margin:48px auto; padding:0 32px;">
+  <span class="annotation">Loading State</span>
+  <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:20px; font-weight:700; margin-bottom:16px;">Skeleton Loading Preview</h2>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+    <div class="skeleton" style="height:120px;"></div>
+    <div class="skeleton" style="height:120px;"></div>
+    <div class="skeleton" style="height:120px;"></div>
+    <div class="skeleton" style="height:120px;"></div>
+  </div>
+  <div class="skeleton" style="height:400px; margin-bottom:24px;"></div>
+</section>
+
+<!-- ─── EMPTY STATE ─── -->
+<section style="max-width:1280px; margin:0 auto; padding:0 32px 48px;">
+  <span class="annotation">Empty State</span>
+  <div class="empty-state" style="background:rgba(43,22,84,0.25); border:1px solid rgba(139,92,246,0.2); border-radius:12px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h18M3 8h18M3 12h12M3 16h8"/></svg>
+    <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:18px; color:#F8FAFC; margin-bottom:8px;">No Players Match Filters</h3>
+    <p style="font-size:14px; max-width:320px; margin-bottom:24px;">Try adjusting your risk level or position filters to see more results.</p>
+    <button style="background:#78FF9E; color:#0C0C0C; border:none; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">Clear Filters</button>
+  </div>
+</section>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// 3D tilt (desktop only)
+if (!window.matchMedia('(pointer: coarse)').matches) {
+  document.querySelectorAll('.tilt-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const rotateX = ((e.clientY - (rect.top + rect.height/2)) / (rect.height/2)) * -8;
+      const rotateY = ((e.clientX - (rect.left + rect.width/2)) / (rect.width/2)) * 8;
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+      card.style.transform = 'rotateX(0) rotateY(0)';
+      setTimeout(() => card.style.transition = 'transform 0.15s ease-out', 400);
+    });
+  });
+}
+
+// Parallax (desktop only)
+if (!window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const parallaxBg = document.querySelector('.parallax-bg');
+  if (parallaxBg) {
+    window.addEventListener('scroll', () => {
+      const hero = parallaxBg.parentElement;
+      const rect = hero.getBoundingClientRect();
+      const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      parallaxBg.style.transform = `translateY(${Math.max(0, Math.min(1, progress)) * -60}px)`;
+    }, { passive: true });
+  }
+}
+</script>
+
+</body>
+</html>
