@@ -30,21 +30,12 @@ export async function getManagerLeaguesData(teamId: number): Promise<LeaguesData
   const fpl = new FPLApiService();
   const res = await fpl.getManagerLeagues(teamId);
   const classic: any[] = res?.leagues?.classic || [];
-  const h2h: any[] = res?.leagues?.h2h || [];
 
-  const fromClassic = classic.map((l) => ({
-    raw: l,
-    isCustom: l.league_type === 'x',
-    type: l.league_type === 'x' ? 'Mini-league' : 'Global',
-  }));
-  const fromH2h = h2h.map((l) => ({ raw: l, isCustom: true, type: 'Head-to-head' }));
-
-  const merged = [...fromClassic, ...fromH2h]
-    // Private mini-leagues / H2H first, then global; smaller leagues first within a group.
-    .sort((a, b) => {
-      if (a.isCustom !== b.isCustom) return a.isCustom ? -1 : 1;
-      return (a.raw.rank_count || 0) - (b.raw.rank_count || 0);
-    });
+  // Only private mini-leagues (classic, league_type 'x') — drop global ('s') and H2H.
+  const merged = classic
+    .filter((l) => l.league_type === 'x')
+    .map((l) => ({ raw: l, isCustom: true, type: 'Mini-league' }))
+    .sort((a, b) => (a.raw.rank_count || 0) - (b.raw.rank_count || 0));
 
   const leagues: ManagerLeague[] = merged.map(({ raw, isCustom, type }, i) => ({
     id: raw.id,

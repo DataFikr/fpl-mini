@@ -11,7 +11,8 @@ const TRANSFER_DELTA = 5;   // projected-pts gap (over the run) that flags a tra
 const MONITOR_DELTA = 3;     // ~+1 pt/GW edge before we even surface an alternative
 export const POS_LABEL: Record<number, string> = { 1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD' };
 
-export interface PredRow { pos: string; cur: string; tm: string; cxp: number; pick: string; pxp: number; act: 'keep' | 'monitor' | 'transfer'; why: string }
+export interface PredFactors { outForm: number; inForm: number; outMins: number; inMins: number; outPrice: number; inPrice: number; pickTm: string }
+export interface PredRow { pos: string; cur: string; tm: string; cxp: number; pick: string; pxp: number; act: 'keep' | 'monitor' | 'transfer'; why: string; factors?: PredFactors }
 export interface PredictionData { live: boolean; horizon: string; cur: number; opt: number; rows: PredRow[] }
 
 export interface Proj { perGw: number; xp: number; minsCert: number; games: number }
@@ -133,10 +134,20 @@ export function buildPrediction({ picks, bootstrap, fixtures, entry, currentGame
       why = `${el.web_name} — ${s.alt.web_name} projects +${s.delta}, but not worth a hit on its own; monitor.`;
     }
 
+    const factors: PredFactors | undefined = s.alt ? {
+      outForm: +(parseFloat(el.points_per_game) || 0).toFixed(1),
+      inForm: +(parseFloat(s.alt.points_per_game) || 0).toFixed(1),
+      outMins: el.minutes || 0,
+      inMins: s.alt.minutes || 0,
+      outPrice: (el.now_cost || 0) / 10,
+      inPrice: (s.alt.now_cost || 0) / 10,
+      pickTm: (teams.get(s.alt.team) || {}).short_name || '',
+    } : undefined;
+
     curTotal += s.cur.xp; optTotal += pxp;
     rows.push({
       pos: POS_LABEL[el.element_type], cur: el.web_name, tm: team.short_name || '',
-      cxp: s.cur.xp, pick: pickEl.web_name, pxp, act, why,
+      cxp: s.cur.xp, pick: pickEl.web_name, pxp, act, why, factors,
     });
   }
 

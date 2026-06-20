@@ -51,8 +51,9 @@
 .v2-title{margin:0;font-family:var(--display);font-weight:400;line-height:.82;letter-spacing:.02em;}
 .v2-title span{display:block;font-size:23px;white-space:nowrap;text-shadow:0 2px 16px rgba(0,0,0,.75);}
 .v2-title em{display:block;font-style:normal;color:var(--red);font-size:37px;white-space:nowrap;text-shadow:0 0 30px rgba(255,80,80,.55),0 2px 12px rgba(0,0,0,.6);}
-.v2-photo{position:relative;z-index:1;height:336px;}
-.v2-photo>img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 28%;
+/* mobile: show the full hero (all three players) at natural aspect — no side crop */
+.v2-photo{position:relative;z-index:1;height:auto;}
+.v2-photo>img{display:block;width:100%;height:auto;object-fit:cover;object-position:50% 28%;
   -webkit-mask-image:linear-gradient(180deg,#000 87%,rgba(0,0,0,0) 100%);
   mask-image:linear-gradient(180deg,#000 87%,rgba(0,0,0,0) 100%);}
 .live-pin{position:absolute;left:14px;bottom:26px;z-index:3;display:inline-flex;align-items:center;gap:7px;
@@ -216,6 +217,64 @@
 .fsocial a svg{width:18px;height:18px;}
 .fbottom{border-top:1px solid rgba(255,255,255,.12);padding-top:16px;font-family:var(--body);font-size:11px;color:#9a8e8e;line-height:1.6;}
 
+/* ============ standings: header row + overall-rank column ============ */
+.st-head{display:grid;grid-template-columns:22px 34px 1fr 42px 56px 44px;gap:9px;padding:0 12px 6px;
+  font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.04em;color:var(--t4);}
+.st-head .r,.st-head .c{text-align:center;}
+.st-row{grid-template-columns:22px 34px 1fr 42px 56px 44px;gap:9px;}
+.st-row .gw{text-align:center;}
+.st-row .ovr{font-family:var(--mono);font-weight:700;font-size:11px;color:var(--t3);text-align:center;}
+.st-row .mv{min-width:0;justify-content:center;}
+
+/* ============ player card (squad pitch) ============ */
+.pcard-backdrop{position:fixed;inset:0;z-index:80;background:rgba(10,4,5,.55);animation:menuIn .15s ease;}
+.pcard{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(440px,100vw);z-index:85;background:#fff;
+  animation:sheetUp .22s ease;clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%,0 16px);}
+.pcard .pc-top{background:var(--ink);color:#fff;padding:20px 22px;display:flex;align-items:center;gap:16px;position:relative;}
+.pcard .pc-photo{width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:top center;border:3px solid var(--red);background:var(--red);flex:0 0 auto;}
+.pcard .pc-name{font-family:var(--display);font-weight:400;font-size:30px;letter-spacing:.02em;line-height:.95;}
+.pcard .pc-meta{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:#cfc6c6;margin-top:5px;}
+.pcard .pc-cap{display:inline-block;background:var(--yellow);color:#150000;font-family:var(--display);font-size:12px;letter-spacing:.04em;padding:2px 9px;margin-top:7px;}
+.pcard .pc-x{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);border:0;color:#fff;cursor:pointer;font-size:13px;}
+.pcard .pc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.pcard .pc-stat{background:#fff;padding:15px 8px;text-align:center;}
+.pcard .pc-stat .v{font-family:var(--display);font-size:24px;color:var(--ink);line-height:.9;}
+.pcard .pc-stat .l{font-family:var(--mono);font-size:8.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-top:6px;}
+.pcard .pc-foot{padding:16px 20px 20px;}
+@media (min-width:1024px){.pcard{bottom:auto;top:50%;transform:translate(-50%,-50%);}}
+
+/* ============ WC fatigue detail ============ */
+.fat-detail{background:#fff;border:1px solid var(--line);border-top:0;padding:16px 18px;margin-bottom:7px;animation:fatfade .25s ease;}
+.fat-detail .fd-top{display:flex;gap:14px;align-items:flex-start;}
+.fat-detail .fd-photo{width:78px;height:78px;flex:0 0 auto;object-fit:cover;object-position:top center;border:2px solid var(--red);background:var(--line-2);}
+.fat-detail .fd-story{font-family:var(--body);font-size:13px;line-height:1.55;color:var(--t2);margin:0;}
+.fat-matches{display:flex;gap:8px;flex-wrap:wrap;}
+.fat-match{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);padding:8px 11px;}
+.fat-match .md{font-family:var(--mono);font-size:8.5px;color:var(--t3);text-transform:uppercase;}
+.fat-match .fl{font-size:15px;line-height:1;}
+.fat-match .sc{font-family:var(--mono);font-weight:700;font-size:12.5px;}
+@keyframes fatfade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* ============ transfer suggestion cards ============ */
+.tcard{background:#fff;border:1px solid var(--line);padding:16px 18px;margin-bottom:10px;}
+.tcard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.tcard-delta{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--green);background:rgba(0,156,84,.1);padding:4px 10px;}
+.tcard-move{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.tcard-move .t-side{display:flex;align-items:center;gap:7px;font-family:var(--body);font-weight:800;font-size:15px;color:var(--ink);}
+.tcard-move .t-side small{font-family:var(--mono);font-weight:600;font-size:9.5px;color:var(--t3);text-transform:uppercase;}
+.tcard-move .t-side .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+.tcard-move .dot.out{background:var(--red);}
+.tcard-move .dot.in{background:var(--green);}
+.tcard-move .t-arrow{font-family:var(--display);font-size:20px;color:var(--t3);}
+.tcard-factors{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);margin-bottom:12px;}
+.tf{background:var(--bg);padding:11px 8px;text-align:center;}
+.tf-l{font-family:var(--mono);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+.tf-v{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--ink);}
+.tf-v b.up{color:var(--green);}.tf-v b.dn{color:var(--red);}
+.tcard-why{font-family:var(--body);font-size:12.5px;line-height:1.5;color:var(--t2);margin:0 0 10px;}
+.tcard-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.ttag{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0a7a3f;background:#e6f6ec;padding:5px 9px;}
+
 /* ============================================================
    DESKTOP (>=1024px) — sidebar shell + multi-column reflows.
    The mobile markup is reused; only layout changes.
@@ -277,7 +336,8 @@
   .pod .nm{font-size:15px;}
   .pod .pts{font-size:20px;}
   .stand{gap:8px;}
-  .st-row{padding:13px 18px;grid-template-columns:30px 38px 1fr auto auto;}
+  .st-row{padding:13px 18px;grid-template-columns:30px 38px 1fr 60px 80px 60px;}
+  .st-head{grid-template-columns:30px 38px 1fr 60px 80px 60px;padding:0 18px 8px;font-size:9px;}
   .motm{padding:22px 26px;}
   .motm .nm{font-size:26px;}
   .kpi .k{padding:16px 14px;}
@@ -308,6 +368,7 @@
   .v2-title span{font-size:clamp(30px,3.6vw,46px);}
   .v2-title em{font-size:clamp(54px,7vw,94px);margin:2px 0;}
   .v2-photo{max-width:1000px;margin:0 auto;height:460px;}
+  .v2-photo>img{height:100%;}
   .v2-overlay{top:18%;}
   .id-field input{width:248px;font-size:15px;padding:14px 0;}
   .id-field .s-btn{font-size:14px;padding:11px 22px;}

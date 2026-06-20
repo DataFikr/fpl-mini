@@ -5,7 +5,9 @@ import { computeVerdict, type SquadVerdict } from './rmt-analyze';
 
 export interface PitchPlayer {
   id: number;
+  code: number;         // element code (for the official player photo)
   name: string;
+  team: string;         // full club name
   pos: number;          // element_type: 1 GK, 2 DEF, 3 MID, 4 FWD
   teamCode: number;
   teamShort: string;
@@ -14,6 +16,12 @@ export interface PitchPlayer {
   multiplier: number;
   isCaptain: boolean;
   isVice: boolean;
+  // season stats for the player card
+  price: number;        // £m
+  totalPoints: number;
+  ppg: number;
+  form: number;
+  ownership: number;    // selected-by %
 }
 
 export interface SquadData {
@@ -55,7 +63,9 @@ export async function getSquadData(teamId: number, gw?: number): Promise<SquadDa
     const pos = el.element_type ?? 4;
     return {
       id: pick.element,
+      code: el.code ?? 0,
       name: el.web_name ?? 'Unknown',
+      team: team.name ?? '',
       pos,
       teamCode: team.code ?? 0,
       teamShort: team.short_name ?? '',
@@ -64,6 +74,11 @@ export async function getSquadData(teamId: number, gw?: number): Promise<SquadDa
       multiplier: pick.multiplier ?? 1,
       isCaptain: !!pick.is_captain,
       isVice: !!pick.is_vice_captain,
+      price: (el.now_cost ?? 0) / 10,
+      totalPoints: el.total_points ?? 0,
+      ppg: parseFloat(el.points_per_game) || 0,
+      form: parseFloat(el.form) || 0,
+      ownership: parseFloat(el.selected_by_percent) || 0,
     };
   };
 

@@ -2,17 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TPLAN } from '../_lib/screen-data';
 import type { SquadData, PitchPlayer } from '../_lib/squad-data';
+import type { PredRow } from '../_lib/prediction';
 import { PredictionBlock } from './PredictionBlock';
+import { PlayerCard } from './PlayerCard';
 import { toast } from './Toast';
 
 type SqTab = 'team' | 'transfers' | 'prediction';
 
-function Shirt({ p }: { p: PitchPlayer }) {
-  const contribution = p.points * (p.multiplier || 1);
+function Shirt({ p, onOpen }: { p: PitchPlayer; onOpen: (p: PitchPlayer) => void }) {
   return (
-    <div className="player" onClick={() => toast(`${p.name} — ${contribution} pts${p.isCaptain ? ' (C)' : ''}`)}>
+    <div className="player" onClick={() => onOpen(p)}>
       {p.isCaptain && <span className="capt">C</span>}
       {p.isVice && !p.isCaptain && <span className="capt" style={{ background: '#cfd8e3', color: '#111' }}>V</span>}
       {p.shirt ? (
@@ -54,9 +54,67 @@ function TeamIdPrompt() {
   );
 }
 
+function TransferCard({ r, primary }: { r: PredRow; primary?: boolean }) {
+  const f = r.factors!;
+  const delta = r.pxp - r.cxp;
+  return (
+    <div className="tcard">
+      <div className="tcard-head">
+        <span className="tag tab-cut" style={{ paddingRight: 16, background: primary ? '#FF5050' : 'var(--ink)' }}>{primary ? 'Transfer' : 'Monitor'}</span>
+        <span className="tcard-delta">+{delta} xP</span>
+      </div>
+      <div className="tcard-move">
+        <span className="t-side"><span className="dot out" />{r.cur} <small>{r.tm}</small></span>
+        <span className="t-arrow">→</span>
+        <span className="t-side"><span className="dot in" />{r.pick} <small>{f.pickTm}</small></span>
+      </div>
+      <div className="tcard-factors">
+        <div className="tf"><div className="tf-l">Form · pts/game</div><div className="tf-v"><b className={f.inForm >= f.outForm ? 'up' : 'dn'}>{f.outForm} → {f.inForm}</b></div></div>
+        <div className="tf"><div className="tf-l">Season minutes</div><div className="tf-v"><b className={f.inMins >= f.outMins ? 'up' : 'dn'}>{f.outMins.toLocaleString()} → {f.inMins.toLocaleString()}</b></div></div>
+        <div className="tf"><div className="tf-l">Price</div><div className="tf-v">£{f.outPrice.toFixed(1)} → £{f.inPrice.toFixed(1)}</div></div>
+      </div>
+      <p className="tcard-why">{r.why}</p>
+      <div className="tcard-tags"><span className="ttag">✓ Within budget</span><span className="ttag">✓ No −4 hit</span></div>
+    </div>
+  );
+}
+
+function TransfersView({ data }: { data: SquadData }) {
+  const rows = data.prediction.rows
+    .filter((r) => r.factors && r.pick !== r.cur && r.pxp > r.cxp)
+    .sort((a, b) => (b.pxp - b.cxp) - (a.pxp - a.cxp));
+  const transfer = rows.find((r) => r.act === 'transfer');
+  const watch = rows.filter((r) => r !== transfer);
+  const seasonOver = data.prediction.horizon.toLowerCase().includes('form');
+
+  return (
+    <div style={{ marginTop: 6 }}>
+      <p className="tp-intro">
+        {seasonOver
+          ? `Season complete (GW${data.team.gw}). Suggested moves are ranked on full-season form, minutes and price — fixture difficulty resumes when 2026/27 opens. Every pick fits your budget with a single free transfer (no −4 hit).`
+          : `Model-optimal moves for the run — ranked on recent form, fixtures and minutes, within your budget and free transfer (no −4 hit).`}
+      </p>
+      {rows.length === 0 ? (
+        <div className="info-card"><h3>No transfer needed</h3><p>Your XI is within a point or two of the model&rsquo;s best — hold your transfers.</p></div>
+      ) : (
+        <>
+          {transfer && <TransferCard r={transfer} primary />}
+          {watch.length > 0 && (
+            <>
+              <div className="lbl-row" style={{ marginTop: 16 }}><span className="l">ON THE WATCHLIST</span></div>
+              {watch.map((r, i) => <TransferCard key={i} r={r} />)}
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function SquadScreen({ data }: { data?: SquadData }) {
   const router = useRouter();
   const [tab, setTab] = useState<SqTab>('team');
+  const [selected, setSelected] = useState<PitchPlayer | null>(null);
   const tabs: [SqTab, string][] = [['team', 'Squad'], ['transfers', 'Transfers'], ['prediction', 'Prediction']];
 
   const sub = data
@@ -88,14 +146,14 @@ export function SquadScreen({ data }: { data?: SquadData }) {
             </div>
             <div className="pitch">
               <div className="pline" /><div className="circ" />
-              <div className="prow">{data.starters.gk.map((p) => <Shirt key={p.id} p={p} />)}</div>
-              <div className="prow">{data.starters.def.map((p) => <Shirt key={p.id} p={p} />)}</div>
-              <div className="prow">{data.starters.mid.map((p) => <Shirt key={p.id} p={p} />)}</div>
-              <div className="prow">{data.starters.fwd.map((p) => <Shirt key={p.id} p={p} />)}</div>
+              <div className="prow">{data.starters.gk.map((p) => <Shirt key={p.id} p={p} onOpen={setSelected} />)}</div>
+              <div className="prow">{data.starters.def.map((p) => <Shirt key={p.id} p={p} onOpen={setSelected} />)}</div>
+              <div className="prow">{data.starters.mid.map((p) => <Shirt key={p.id} p={p} onOpen={setSelected} />)}</div>
+              <div className="prow">{data.starters.fwd.map((p) => <Shirt key={p.id} p={p} onOpen={setSelected} />)}</div>
             </div>
             <div className="lbl-row"><span className="l">BENCH</span>{data.activeChip ? <span className="more">{data.activeChip.replace(/^./, (c) => c.toUpperCase())} active</span> : null}</div>
             <div className="bench-strip">
-              {data.bench.map((b) => <div className="b" key={b.id}><div className="bn">{b.name}</div><div className="bp">{b.points}</div></div>)}
+              {data.bench.map((b) => <div className="b" key={b.id} style={{ cursor: 'pointer' }} onClick={() => setSelected(b)}><div className="bn">{b.name}</div><div className="bp">{b.points}</div></div>)}
             </div>
 
             <div className="scr-head" style={{ marginTop: 22, marginBottom: 10 }}>
@@ -124,41 +182,11 @@ export function SquadScreen({ data }: { data?: SquadData }) {
         )
       )}
 
-      {tab === 'transfers' && (
-        <>
-          <div className="tp-intro">Your model-optimal moves over the next 3 gameweeks, with the live price overlay on. <b>(demo)</b></div>
-          <div className="tp-bank">
-            <div><div className="tp-bank-l">In the bank</div><div className="tp-bank-v">{TPLAN.bank}</div></div>
-            <div style={{ textAlign: 'right' }}><div className="tp-bank-l">Free transfers</div><div className="tp-bank-v" style={{ color: 'var(--red)' }}>{TPLAN.ft}</div></div>
-          </div>
-          <div className="tp-cols">
-            {TPLAN.cols.map((c, i) => (
-              <div className="tp-col" key={i}>
-                <div className="gw">GW{(data?.team.gw ?? TPLAN.gwStart) + i}</div>
-                {c.moves.map((m, j) => (
-                  <div className="tp-move" key={j}>
-                    <div className="io"><span className={`dot ${m.io}`} />{m.n}</div>
-                    <div className="price">{m.pr} <b className={m.dir}>{m.d}</b></div>
-                  </div>
-                ))}
-                <div className="proj"><div className="v">{c.proj}</div><div className="l">proj pts</div></div>
-              </div>
-            ))}
-          </div>
-          <div className="chart-card" style={{ marginTop: 4 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-              <span className="chart-lbl">Wirtz price trend</span>
-              <span style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: 11, color: 'var(--green)' }}>£8.6 ▲</span>
-            </div>
-            <svg viewBox="0 0 300 50" width="100%" height={46} preserveAspectRatio="none">
-              <polyline points="4,40 50,38 96,34 142,30 188,24 234,18 296,10" fill="none" stroke="#009C54" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="296" cy="10" r="4" fill="#009C54" />
-            </svg>
-          </div>
-        </>
-      )}
+      {tab === 'transfers' && data && <TransfersView data={data} />}
 
       {tab === 'prediction' && <div style={{ marginTop: 6 }}><PredictionBlock data={data?.prediction} /></div>}
+
+      {selected && <PlayerCard player={selected} onClose={() => setSelected(null)} />}
     </>
   );
 }

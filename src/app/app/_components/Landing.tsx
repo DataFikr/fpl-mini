@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from './Toast';
 import { DEMO_TEAM } from '../_lib/screen-data';
 import { AppMenu } from './AppMenu';
-import { Faq } from './Faq';
 import { AppFooter } from './AppFooter';
 
 export function Landing() {
@@ -72,10 +71,6 @@ export function Landing() {
           </div>
         </div>
 
-        <div className="v2-explore" style={{ marginTop: 28 }}>
-          <span className="kicker">Frequently asked</span>
-          <div style={{ marginTop: 12 }}><Faq /></div>
-        </div>
       </div>
 
       <AppFooter />

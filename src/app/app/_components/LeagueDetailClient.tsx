@@ -3,12 +3,12 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { LeagueAppData, AppManager } from '../_lib/league-data';
-import { standingsAt, motm, analyticsFor, headlinesFrom, ordinal, type StandingRow } from '../_lib/compute';
+import { standingsAt, motm, analyticsFor, headlinesFrom, ordinal, formatRank, type StandingRow } from '../_lib/compute';
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
 
-type Tab = 'standings' | 'headlines' | 'analytics';
+type Tab = 'standings' | 'headlines' | 'analytics' | 'monthly';
 
 function Crest({ m, size }: { m: { crestBg: string; crestFg: string; init: string }; size?: number }) {
   return (
@@ -22,6 +22,35 @@ function MoveTag({ mv }: { mv: number }) {
   if (mv > 0) return <span className="mv up">▲ {mv}</span>;
   if (mv < 0) return <span className="mv down">▼ {-mv}</span>;
   return <span className="mv flat">— 0</span>;
+}
+
+/* ---------------- Manager of the Month ---------------- */
+function MonthlyTab({ managers, gw, focusId }: { managers: AppManager[]; gw: number; focusId: number | null }) {
+  const blocks: { label: string; winner: AppManager & { pts: number } }[] = [];
+  for (let start = 1; start <= gw; start += 4) {
+    const end = Math.min(start + 3, gw);
+    const ranked = managers
+      .map((m) => ({ ...m, pts: m.gwPts.slice(start - 1, end).reduce((a, b) => a + b, 0) }))
+      .sort((a, b) => b.pts - a.pts);
+    if (ranked[0]) blocks.push({ label: start === end ? `GW${start}` : `GW${start}–${end}`, winner: ranked[0] });
+  }
+  blocks.reverse();
+  return (
+    <>
+      <p className="kit-intro" style={{ marginTop: 6 }}>
+        Manager of the Month — the top scorer over each four-gameweek block. A fresh race every month keeps the whole table fighting for something.
+      </p>
+      {blocks.map((b, i) => (
+        <div className="motm" key={i} style={b.winner.id === focusId ? { outline: '2px solid var(--red)', outlineOffset: -2 } : undefined}>
+          <div className="trophy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12v3a6 6 0 0 1-12 0z" /><path d="M6 5H3v1a3 3 0 0 0 3 3M18 5h3v1a3 3 0 0 1-3 3" /><path d="M9 19h6M10 13v3a2 2 0 0 1-1 2M14 13v3a2 2 0 0 0 1 2" /></svg>
+          </div>
+          <div><div className="lbl">{b.label}</div><div className="nm">{b.winner.team}</div><div className="mt">{b.winner.mgr}</div></div>
+          <div className="pts"><div className="v">{b.winner.pts}</div><div className="l">pts</div></div>
+        </div>
+      ))}
+    </>
+  );
 }
 
 export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
@@ -55,7 +84,7 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
     <AppShell
       navActive="leagues"
       title={league.name}
-      backHref="/app"
+      backHref={`/app/leagues${focusTeamId ? `?teamId=${focusTeamId}` : ''}`}
       meta={`${league.type} · ${league.size} managers`}
       teamId={focusTeamId ?? undefined}
       youName={focus?.team}
@@ -65,15 +94,14 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
         {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
       </div>
       <div className="s-tabs ld-tabs">
-        {(['standings', 'headlines', 'analytics'] as Tab[]).map((id) => (
-          <a key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>
-            {id[0].toUpperCase() + id.slice(1)}
-          </a>
+        {([['standings', 'Standings'], ['headlines', 'Headlines'], ['monthly', 'Monthly'], ['analytics', 'Analytics']] as [Tab, string][]).map(([id, label]) => (
+          <a key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>{label}</a>
         ))}
       </div>
 
       {tab === 'standings' && <StandingsTab managers={managers} gw={gw} focusId={focusTeamId} gwSelect={gwSelect} />}
       {tab === 'headlines' && <HeadlinesTab managers={managers} gw={gw} leagueName={league.name} />}
+      {tab === 'monthly' && <MonthlyTab managers={managers} gw={currentGameweek} focusId={focusTeamId} />}
       {tab === 'analytics' && <AnalyticsTab managers={managers} gw={gw} focus={focus} />}
     </AppShell>
   );
@@ -90,7 +118,7 @@ function StandingsTab({ managers, gw, focusId, gwSelect }: { managers: AppManage
       {s.length >= 3 && (
         <div className="podium" style={{ margin: '4px 0' }}>
           {podium.map((m, i) => (
-            <div key={m.id} className={`pod ${[ 'sil','gold','brz'][i]}`}>
+            <div key={m.id} className={`pod ${['sil', 'gold', 'brz'][i]}`} style={{ cursor: 'pointer' }} onClick={() => router.push(`/app/squad?teamId=${m.id}`)}>
               <div className="pos">{String(m.rank).padStart(2, '0')}</div>
               <Crest m={m} />
               <div className="nm">{m.team}</div>
@@ -100,16 +128,23 @@ function StandingsTab({ managers, gw, focusId, gwSelect }: { managers: AppManage
         </div>
       )}
       <div className="lbl-row"><span className="l">TABLE</span>{gwSelect}</div>
+      <div className="st-head">
+        <span className="r">#</span><span /><span>Team</span><span className="c">GW</span><span className="c">Overall</span><span className="c">Move</span>
+      </div>
       <div className="stand">
-        {(rest.length ? rest : s).map((m) => (
-          <div key={m.id} className={`st-row ${m.id === focusId ? 'is-you' : ''}`} onClick={() => router.push(`/app/squad?teamId=${m.id}`)}>
-            <div className="r">{m.rank}</div>
-            <Crest m={m} size={34} />
-            <div className="who"><div className="nm">{m.team}</div><div className="mgr">{m.mgr}</div></div>
-            <div className="gw">{m.gw}</div>
-            <MoveTag mv={m.move} />
-          </div>
-        ))}
+        {(rest.length ? rest : s).map((m) => {
+          const ovr = m.overallRank?.[gw - 1] ?? m.overallRank?.[m.overallRank.length - 1] ?? 0;
+          return (
+            <div key={m.id} className={`st-row ${m.id === focusId ? 'is-you' : ''}`} onClick={() => router.push(`/app/squad?teamId=${m.id}`)}>
+              <div className="r">{m.rank}</div>
+              <Crest m={m} size={34} />
+              <div className="who"><div className="nm">{m.team}</div><div className="mgr">{m.mgr}</div></div>
+              <div className="gw">{m.gw}</div>
+              <div className="ovr">{formatRank(ovr)}</div>
+              <MoveTag mv={m.move} />
+            </div>
+          );
+        })}
       </div>
     </>
   );
