@@ -5,6 +5,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Serve the new responsive app at the root domain. Temporary (307) so it's
+  // easily reversible; switch to permanent once fully cut over.
+  async redirects() {
+    return [
+      { source: '/', destination: '/app', permanent: false },
+    ];
+  },
   eslint: {
     // Disable ESLint during builds for production deployment
     ignoreDuringBuilds: true,

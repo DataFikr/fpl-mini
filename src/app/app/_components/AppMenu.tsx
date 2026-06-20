@@ -5,15 +5,15 @@ import { useRouter } from 'next/navigation';
 import { FaXTwitter, FaReddit, FaInstagram } from 'react-icons/fa6';
 
 const PRIMARY = [
-  { label: 'Master the League', href: '/master-the-league' },
-  { label: 'Find Team ID', href: '/find-team-id' },
+  { label: 'Master the League', href: '/app/master-the-league' },
+  { label: 'Find Team ID', href: '/app/find-team-id' },
   { label: 'Blog', href: '/app/blog' },
   { label: 'FAQ', href: '/app/faq' },
 ];
 const MORE = [
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Privacy', href: '/privacy' },
+  { label: 'About', href: '/app/about' },
+  { label: 'Contact', href: '/app/contact' },
+  { label: 'Privacy', href: '/app/privacy' },
 ];
 
 export function AppMenu({ light = false }: { light?: boolean }) {

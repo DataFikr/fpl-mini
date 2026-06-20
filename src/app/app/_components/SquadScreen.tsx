@@ -48,7 +48,7 @@ function TeamIdPrompt() {
         <button type="submit" className="s-btn s-btn--red hex">Load</button>
       </form>
       <p style={{ fontFamily: 'var(--body)', fontSize: 11, color: '#9a8e8e', margin: '10px 0 0' }}>
-        Don&rsquo;t know it? <a href="/find-team-id" style={{ color: 'var(--red)', fontWeight: 700 }}>Find your team ID ›</a>
+        Don&rsquo;t know it? <a href="/app/find-team-id" style={{ color: 'var(--red)', fontWeight: 700 }}>Find your team ID ›</a>
       </p>
     </div>
   );

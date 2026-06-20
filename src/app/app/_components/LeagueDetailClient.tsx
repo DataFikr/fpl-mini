@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { LeagueAppData, AppManager } from '../_lib/league-data';
 import { standingsAt, motm, analyticsFor, headlinesFrom, ordinal, type StandingRow } from '../_lib/compute';
 import { toast } from './Toast';
-import { BottomNav } from './BottomNav';
-import { ToastHost } from './Toast';
-import { AppMenu } from './AppMenu';
+import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
 
 type Tab = 'standings' | 'headlines' | 'analytics';
@@ -27,7 +25,6 @@ function MoveTag({ mv }: { mv: number }) {
 }
 
 export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
-  const router = useRouter();
   const { managers, currentGameweek, league, focusTeamId } = data;
   const [gw, setGw] = useState(currentGameweek);
   const [tab, setTab] = useState<Tab>('standings');
@@ -55,40 +52,30 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
   }, [managers, currentGameweek, focusTeamId]);
 
   return (
-    <>
-      <div className="app-head">
-        <div className="ah-left">
-          <button className="back" aria-label="Back" onClick={() => router.push('/app')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#150000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
-          <div className="ah-title">{league.name}</div>
-        </div>
-        <AppMenu />
+    <AppShell
+      navActive="leagues"
+      title={league.name}
+      backHref="/app"
+      meta={`${league.type} · ${league.size} managers`}
+      teamId={focusTeamId ?? undefined}
+      youName={focus?.team}
+      actions={<ShareLeagueButton leagueId={league.id} leagueName={league.name} teamId={focusTeamId} rank={shareInfo.rank} size={shareInfo.size} />}
+    >
+      <div className="ld-meta">
+        {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
+      </div>
+      <div className="s-tabs ld-tabs">
+        {(['standings', 'headlines', 'analytics'] as Tab[]).map((id) => (
+          <a key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>
+            {id[0].toUpperCase() + id.slice(1)}
+          </a>
+        ))}
       </div>
 
-      <div className="app-scroll">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, margin: '-2px 0 14px' }}>
-          <div className="ld-meta" style={{ margin: 0 }}>
-            {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
-          </div>
-          <ShareLeagueButton leagueId={league.id} leagueName={league.name} teamId={focusTeamId} rank={shareInfo.rank} size={shareInfo.size} />
-        </div>
-        <div className="s-tabs ld-tabs">
-          {(['standings', 'headlines', 'analytics'] as Tab[]).map((id) => (
-            <a key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>
-              {id[0].toUpperCase() + id.slice(1)}
-            </a>
-          ))}
-        </div>
-
-        {tab === 'standings' && <StandingsTab managers={managers} gw={gw} focusId={focusTeamId} gwSelect={gwSelect} />}
-        {tab === 'headlines' && <HeadlinesTab managers={managers} gw={gw} leagueName={league.name} />}
-        {tab === 'analytics' && <AnalyticsTab managers={managers} gw={gw} focus={focus} />}
-      </div>
-
-      <BottomNav active="leagues" teamId={focusTeamId ?? undefined} />
-      <ToastHost />
-    </>
+      {tab === 'standings' && <StandingsTab managers={managers} gw={gw} focusId={focusTeamId} gwSelect={gwSelect} />}
+      {tab === 'headlines' && <HeadlinesTab managers={managers} gw={gw} leagueName={league.name} />}
+      {tab === 'analytics' && <AnalyticsTab managers={managers} gw={gw} focus={focus} />}
+    </AppShell>
   );
 }
 

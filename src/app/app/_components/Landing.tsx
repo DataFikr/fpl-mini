@@ -50,7 +50,7 @@ export function Landing() {
               autoComplete="off" value={teamId} onChange={(e) => setTeamId(e.target.value)} />
             <button type="submit" className="s-btn s-btn--red hex">Rank it</button>
           </form>
-          <p className="v2-hint">Don&rsquo;t know your ID? Try the demo: <a onClick={() => analyze(String(DEMO_TEAM))}>{DEMO_TEAM}</a> · <a href="/find-team-id">find your ID</a></p>
+          <p className="v2-hint">Don&rsquo;t know your ID? Try the demo: <a onClick={() => analyze(String(DEMO_TEAM))}>{DEMO_TEAM}</a> · <a href="/app/find-team-id">find your ID</a></p>
         </div>
       </div>
 

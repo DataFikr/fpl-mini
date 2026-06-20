@@ -18,5 +18,5 @@ export default async function Page({ searchParams }: { searchParams: { teamId?: 
     console.error('Failed to load squad data:', e);
   }
 
-  return <AppShell navActive="squad" teamId={teamId}><SquadScreen data={data} /></AppShell>;
+  return <AppShell navActive="squad" teamId={teamId} youName={data?.team.name} meta={data ? `${data.team.name} · GW${data.team.gw}` : undefined}><SquadScreen data={data} /></AppShell>;
 }

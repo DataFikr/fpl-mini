@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const FAQS: { q: string; a: React.ReactNode }[] = [
-  { q: 'How do I find my FPL team ID?', a: <>Your team ID is the number in your Fantasy Premier League team URL (<code>fantasy.premierleague.com/entry/<b>1234567</b>/…</code>). The <Link href="/find-team-id">Find Team ID</Link> guide walks you through it step by step.</> },
+  { q: 'How do I find my FPL team ID?', a: <>Your team ID is the number in your Fantasy Premier League team URL (<code>fantasy.premierleague.com/entry/<b>1234567</b>/…</code>). The <Link href="/app/find-team-id">Find Team ID</Link> guide walks you through it step by step.</> },
   { q: 'What can I do with FPL Ranker?', a: 'Enter your team ID to see your live squad and gameweek points, a Rank My Team verdict, your mini-league standings with ESPN-style headlines and rank analytics, plus tools like the World Cup fatigue tracker and the Kit Hub.' },
   { q: 'Is FPL Ranker free?', a: 'Yes — free forever. We may earn a small commission from official kit links, which keeps the tools free for everyone.' },
   { q: 'How is the Rank My Team verdict calculated?', a: 'It grades your XI on the full 2025/26 season using each player’s points-per-game, form and minutes, then projects upcoming gameweeks from form × fixture difficulty × minutes certainty.' },

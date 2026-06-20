@@ -76,7 +76,7 @@ export async function getLeagueAppData(
     league: {
       id: leagueId,
       name: standings.league.name,
-      type: standings.league.league_type === 'x' ? 'Head-to-head' : 'Classic',
+      type: 'Classic', // loaded via the classic-standings endpoint
       size: results.length,
     },
     currentGameweek,

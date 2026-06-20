@@ -17,5 +17,5 @@ export default async function Page({ searchParams }: { searchParams: { teamId?: 
     console.error('Failed to load manager leagues:', e);
   }
 
-  return <AppShell navActive="leagues" teamId={teamId}><LeaguesScreen data={data} /></AppShell>;
+  return <AppShell navActive="leagues" teamId={teamId} youName={data?.manager.team}><LeaguesScreen data={data} /></AppShell>;
 }

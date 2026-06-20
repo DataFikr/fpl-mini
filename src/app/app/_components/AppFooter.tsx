@@ -10,18 +10,18 @@ export function AppFooter() {
       <div className="fcols">
         <div className="fcol">
           <h4>Company</h4>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/app/about">About</Link>
+          <Link href="/app/contact">Contact</Link>
         </div>
         <div className="fcol">
           <h4>Support</h4>
           <Link href="/app/faq">FAQ</Link>
-          <Link href="/find-team-id">Find Team ID</Link>
-          <Link href="/master-the-league">Master the League</Link>
+          <Link href="/app/find-team-id">Find Team ID</Link>
+          <Link href="/app/master-the-league">Master the League</Link>
         </div>
         <div className="fcol">
           <h4>Legal</h4>
-          <Link href="/privacy">Privacy</Link>
+          <Link href="/app/privacy">Privacy</Link>
           <Link href="/app/blog">Blog</Link>
         </div>
       </div>
