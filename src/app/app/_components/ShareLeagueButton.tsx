@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Share2, Link2, Download, Check } from 'lucide-react';
+import { Share2, Link2, Download, Check, Mail } from 'lucide-react';
 import { FaXTwitter, FaWhatsapp } from 'react-icons/fa6';
 import { trackEvent } from '@/lib/analytics';
 import { toast } from './Toast';
@@ -45,7 +45,32 @@ export function ShareLeagueButton({ leagueId, leagueName, teamId, rank, size }: 
   };
   const whatsapp = () => { window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${shareUrl}`)}`, '_blank'); track('whatsapp'); setOpen(false); };
   const x = () => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`, '_blank'); track('x'); setOpen(false); };
-  const saveCard = () => { window.open(ogUrl, '_blank'); track('save_image'); setOpen(false); };
+
+  const email = () => {
+    const absImg = typeof window !== 'undefined' ? `${window.location.origin}${ogUrl}` : ogUrl;
+    const subject = encodeURIComponent(`${leagueName} — mini-league update on FPL Ranker`);
+    const body = encodeURIComponent(`${text}\n\nThe full table, the latest headlines and what's coming next gameweek:\n${shareUrl}\n\nShareable infographic:\n${absImg}`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    track('email'); setOpen(false);
+  };
+
+  // Download the league infographic (the OG image) as a PNG file.
+  const download = async () => {
+    try {
+      const res = await fetch(ogUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${leagueName.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-fplranker.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast('Infographic downloaded');
+    } catch {
+      window.open(ogUrl, '_blank');
+    }
+    track('download'); setOpen(false);
+  };
 
   const canNative = typeof navigator !== 'undefined' && !!(navigator as any).share;
 
@@ -60,14 +85,16 @@ export function ShareLeagueButton({ leagueId, leagueName, teamId, rank, size }: 
           <div className="share-backdrop" onClick={() => setOpen(false)} />
           <div className="share-sheet" role="dialog" aria-modal="true">
             <div className="ss-head"><span>Share {leagueName}</span><button className="ss-x" aria-label="Close" onClick={() => setOpen(false)}>✕</button></div>
+            <div className="ss-sub">A bite-size infographic — table, headlines &amp; what&apos;s next</div>
             <div className="ss-grid">
-              {canNative && (
-                <button className="ss-opt" onClick={nativeShare}><span className="ss-ic" style={{ background: 'var(--ink)' }}><Share2 size={18} /></span>Share</button>
-              )}
               <button className="ss-opt" onClick={whatsapp}><span className="ss-ic" style={{ background: '#25D366' }}><FaWhatsapp size={18} /></span>WhatsApp</button>
+              <button className="ss-opt" onClick={email}><span className="ss-ic" style={{ background: '#EA4335' }}><Mail size={18} /></span>Email</button>
+              <button className="ss-opt" onClick={download}><span className="ss-ic" style={{ background: 'var(--red)' }}><Download size={18} /></span>Download</button>
+              {canNative && (
+                <button className="ss-opt" onClick={nativeShare}><span className="ss-ic" style={{ background: 'var(--ink)' }}><Share2 size={18} /></span>More</button>
+              )}
               <button className="ss-opt" onClick={x}><span className="ss-ic" style={{ background: '#000' }}><FaXTwitter size={16} /></span>Post on X</button>
               <button className="ss-opt" onClick={copy}><span className="ss-ic" style={{ background: 'var(--navy)' }}>{copied ? <Check size={18} /> : <Link2 size={18} />}</span>{copied ? 'Copied' : 'Copy link'}</button>
-              <button className="ss-opt" onClick={saveCard}><span className="ss-ic" style={{ background: 'var(--red)' }}><Download size={18} /></span>Save card</button>
             </div>
           </div>
         </>

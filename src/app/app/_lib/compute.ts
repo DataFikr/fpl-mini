@@ -32,6 +32,43 @@ export function standingsAt(managers: AppManager[], gw: number): StandingRow[] {
     .sort((a, b) => a.rank - b.rank);
 }
 
+export interface ProgPoint {
+  gw: number;
+  rank: number;   // mini-league position after this GW (1 = top)
+  gwPts: number;  // points scored this GW
+  total: number;  // cumulative net total after this GW
+}
+
+/**
+ * Mini-league rank for every manager, gameweek by gameweek.
+ * Returns id -> rank[] where index 0 = GW1 (rank 1 = top of the table).
+ */
+export function rankMatrix(managers: AppManager[], upto: number): Map<number, number[]> {
+  const map = new Map<number, number[]>();
+  managers.forEach((m) => map.set(m.id, []));
+  for (let g = 1; g <= upto; g++) {
+    standingsAt(managers, g).forEach((row) => map.get(row.id)?.push(row.rank));
+  }
+  return map;
+}
+
+/** A manager's per-GW progression over [from, to], pairing mini-league rank with points. */
+export function progressionFor(
+  m: AppManager,
+  rankRow: number[],
+  from: number,
+  to: number
+): ProgPoint[] {
+  const out: ProgPoint[] = [];
+  for (let g = from; g <= to; g++) {
+    const rank = rankRow[g - 1];
+    if (rank == null) continue;
+    const total = m.totalPts[g - 1] ?? m.gwPts.slice(0, g).reduce((a, b) => a + b, 0);
+    out.push({ gw: g, rank, gwPts: m.gwPts[g - 1] ?? 0, total });
+  }
+  return out;
+}
+
 /** Manager of the Month — best points across the last (up to) 4 gameweeks. */
 export function motm(managers: AppManager[], gw: number) {
   const from = Math.max(0, gw - 4);
@@ -62,7 +99,7 @@ export function analyticsFor(m: AppManager | undefined, gw: number) {
   return { rankLine, gwPoints, best: formatRank(best), rankDelta, avg, greens };
 }
 
-const NEWS_IMGS = [
+export const NEWS_IMGS = [
   '/redesign/news/arteta.jpg', '/redesign/news/howe.jpg', '/redesign/news/maresca.webp',
   '/redesign/news/alonso.jpg', '/redesign/news/iraola.jpg', '/redesign/news/emery.jpg', '/redesign/news/carrick.jpg',
 ];

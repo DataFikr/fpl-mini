@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { SquadData, PitchPlayer } from '../_lib/squad-data';
 import type { PredRow } from '../_lib/prediction';
@@ -8,7 +8,97 @@ import { PredictionBlock } from './PredictionBlock';
 import { PlayerCard } from './PlayerCard';
 import { toast } from './Toast';
 
-type SqTab = 'team' | 'transfers' | 'prediction';
+type SqTab = 'team' | 'transfers' | 'prediction' | 'rival';
+
+/* ---------------- Rival Watch ---------------- */
+interface RWEO { id: number; name: string; team: string; eo: number; ownedPct: number }
+interface RWCap { id: number; name: string; team: string; count: number; pct: number }
+interface RWChip { key: string; label: string; count: number }
+interface RivalData { leagueName: string; gw: number; managers: number; effectiveOwnership: RWEO[]; captaincy: RWCap[]; chips: RWChip[] }
+
+function RivalWatch({ teamId, leagueId, currentGameweek, defaultGw }: { teamId: number; leagueId?: number; currentGameweek: number; defaultGw: number }) {
+  const [gw, setGw] = useState(defaultGw);
+  const [data, setData] = useState<RivalData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(false);
+
+  useEffect(() => {
+    let alive = true; setLoading(true); setErr(false);
+    const q = `gw=${gw}${leagueId ? `&leagueId=${leagueId}` : ''}`;
+    fetch(`/api/teams/${teamId}/rival-watch?${q}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((j) => { if (alive) setData(j); })
+      .catch(() => { if (alive) setErr(true); })
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [teamId, leagueId, gw]);
+
+  const gws = Array.from({ length: Math.max(currentGameweek, 1) }, (_, i) => i + 1);
+  const maxEo = data?.effectiveOwnership[0]?.eo || 100;
+  const maxCap = data?.captaincy[0]?.count || 1;
+  const totalChips = data ? data.chips.reduce((a, c) => a + c.count, 0) : 0;
+
+  return (
+    <div style={{ marginTop: 6 }}>
+      <div className="lbl-row">
+        <span className="l">RIVAL WATCH</span>
+        <span className="gwsel notch">
+          GW{gw} <span className="car">▾</span>
+          <select aria-label="Gameweek" value={gw} onChange={(e) => setGw(+e.target.value)}>
+            {gws.map((g) => <option key={g} value={g}>GW{g}</option>)}
+          </select>
+        </span>
+      </div>
+      {data && <p className="tp-intro">What the rest of <b>{data.leagueName}</b> is doing in GW{gw} — across {data.managers} managers.</p>}
+
+      {loading && <div className="rw-load">Scouting your rivals…</div>}
+      {err && !loading && <div className="info-card"><h3>Rival watch unavailable</h3><p>Couldn&rsquo;t load your mini-league&rsquo;s picks for this gameweek. Open it from a league page to set the rivals.</p></div>}
+
+      {data && !loading && (
+        <>
+          <div className="lbl-row" style={{ marginTop: 14 }}><span className="l">EFFECTIVE OWNERSHIP · TOP 10</span></div>
+          <div className="rw-list">
+            {data.effectiveOwnership.map((p, i) => (
+              <div className="rw-row" key={p.id}>
+                <span className="rw-rk">{i + 1}</span>
+                <div className="rw-who"><div className="nm">{p.name}</div><div className="cl">{p.team} · {p.ownedPct}% owned</div></div>
+                <div className="rw-bar"><div className="rw-bf" style={{ width: `${Math.min(100, (p.eo / maxEo) * 100)}%` }} /></div>
+                <span className="rw-val">{p.eo}%</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="lbl-row" style={{ marginTop: 16 }}><span className="l">MOST CAPTAINED · TOP 10</span></div>
+          {data.captaincy.length === 0 ? (
+            <div className="rw-load">No captains recorded for GW{gw} yet.</div>
+          ) : (
+            <div className="rw-list">
+              {data.captaincy.map((p, i) => (
+                <div className="rw-row" key={p.id}>
+                  <span className="rw-rk">{i + 1}</span>
+                  <div className="rw-who"><div className="nm">{p.name}</div><div className="cl">{p.team}</div></div>
+                  <div className="rw-bar"><div className="rw-bf cap" style={{ width: `${(p.count / maxCap) * 100}%` }} /></div>
+                  <span className="rw-val">{p.count}× <small>{p.pct}%</small></span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="lbl-row" style={{ marginTop: 16 }}><span className="l">CHIPS PLAYED · GW{gw}</span></div>
+          <div className="rw-chips">
+            {data.chips.map((c) => (
+              <div className={`rw-chip ${c.count > 0 && c.key !== 'none' ? 'on' : ''}`} key={c.key}>
+                <div className="v">{c.count}</div>
+                <div className="cl">{c.label}</div>
+                <div className="rw-cbar"><div style={{ width: `${totalChips ? (c.count / totalChips) * 100 : 0}%` }} /></div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 function Shirt({ p, onOpen }: { p: PitchPlayer; onOpen: (p: PitchPlayer) => void }) {
   return (
@@ -111,11 +201,11 @@ function TransfersView({ data }: { data: SquadData }) {
   );
 }
 
-export function SquadScreen({ data }: { data?: SquadData }) {
+export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: number }) {
   const router = useRouter();
   const [tab, setTab] = useState<SqTab>('team');
   const [selected, setSelected] = useState<PitchPlayer | null>(null);
-  const tabs: [SqTab, string][] = [['team', 'Squad'], ['transfers', 'Transfers'], ['prediction', 'Prediction']];
+  const tabs: [SqTab, string][] = [['team', 'Squad'], ['transfers', 'Transfers'], ['rival', 'Rival watch'], ['prediction', 'Prediction']];
 
   const sub = data
     ? `${data.team.name} · ${data.team.gwPoints} pts · GW${data.team.gw}`
@@ -183,6 +273,10 @@ export function SquadScreen({ data }: { data?: SquadData }) {
       )}
 
       {tab === 'transfers' && data && <TransfersView data={data} />}
+
+      {tab === 'rival' && (data
+        ? <RivalWatch teamId={data.team.id} leagueId={leagueId} currentGameweek={data.currentGameweek} defaultGw={data.team.gw} />
+        : <TeamIdPrompt />)}
 
       {tab === 'prediction' && <div style={{ marginTop: 6 }}><PredictionBlock data={data?.prediction} /></div>}
 

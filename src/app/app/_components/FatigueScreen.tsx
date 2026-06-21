@@ -13,11 +13,11 @@ export function FatigueScreen() {
   return (
     <>
       <div className="scr-head">
-        <div><div className="scr-title">WC FATIGUE</div><div className="scr-sub">World Cup 2026 · GW1 risk · Premier League</div></div>
+        <div><div className="scr-title">WC FATIGUE</div><div className="scr-sub">World Cup 2026 · live minutes · GW1 risk</div></div>
         <span className="live"><span className="dot" />Live</span>
       </div>
       <p className="kit-intro">
-        Projected tournament load for FPL-relevant Premier League stars at World Cup 2026 — the deeper the run, the bigger the GW1 burnout risk. Tap a player for their story and World Cup matches.
+        Tracking real World Cup 2026 minutes for FPL-relevant Premier League stars — the more they play now, the bigger the GW1 burnout risk in 2026/27. Tap a player for their story and actual World Cup matches.
       </p>
 
       <div>
@@ -49,17 +49,20 @@ export function FatigueScreen() {
 
                   {nat && (
                     <>
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.06em', margin: '14px 0 8px' }}>
-                        {nat.flag} {nat.name} · World Cup group stage
+                      <div className="fat-mlabel">
+                        {nat.flag} {nat.name} · World Cup 2026 · {p.mins.reduce((a, b) => a + b, 0)}′ played
                       </div>
                       <div className="fat-matches">
-                        {nat.matches.map((m) => (
-                          <div className="fat-match" key={m.md}>
-                            <span className="md">MD{m.md}</span>
-                            <span className="fl">{nat.flag}</span>
-                            <span className="sc">{p.nation} {m.gf}–{m.ga} {m.opp}</span>
-                          </div>
-                        ))}
+                        {nat.matches.map((m, mi) => {
+                          const mins = p.mins[mi] ?? 0;
+                          return (
+                            <div className="fat-match" key={m.md}>
+                              <span className="md">MD{m.md} · {m.date}</span>
+                              <span className="sc">{nat.flag} {nat.short} {m.gf}–{m.ga} {m.oppFlag} {m.oppName}</span>
+                              <span className={`fmin ${mins === 0 ? 'dnp' : mins >= 85 ? 'hi' : ''}`}>{mins === 0 ? 'DNP' : `${mins}′`}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </>
                   )}
@@ -81,7 +84,7 @@ export function FatigueScreen() {
         })}
       </div>
       <p style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.05em', textAlign: 'center', marginTop: 14 }}>
-        Projected load · editorial model · kit links are affiliate
+        WC matches &amp; minutes are actual results · load &amp; risk are editorial · kit links are affiliate
       </p>
     </>
   );
