@@ -7,6 +7,7 @@ import { standingsAt, motm, headlinesFrom, ordinal, formatRank, rankMatrix, prog
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
+import { SubscribeButton } from './SubscribeButton';
 
 type Tab = 'standings' | 'headlines' | 'analytics' | 'monthly';
 
@@ -186,7 +187,7 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
       meta={`${league.type} · ${league.size} managers`}
       teamId={focusTeamId ?? undefined}
       youName={focus?.team}
-      actions={<ShareLeagueButton leagueId={league.id} leagueName={league.name} teamId={focusTeamId} rank={shareInfo.rank} size={shareInfo.size} />}
+      actions={<><SubscribeButton leagueId={league.id} leagueName={league.name} gameweek={currentGameweek} /><ShareLeagueButton leagueId={league.id} leagueName={league.name} teamId={focusTeamId} rank={shareInfo.rank} size={shareInfo.size} /></>}
     >
       <div className="ld-meta">
         {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
@@ -251,7 +252,8 @@ function StandingsTab({ managers, gw, focusId, gwSelect, leagueId }: { managers:
 }
 
 /* ---------------- Headlines ---------------- */
-interface Story { tag: string; tone: string; title: string; sentiment?: 'pos' | 'neg' }
+interface HeadlineDetail { subhead: string; body: string; team: string; manager: string; stat: number; statLabel: string }
+interface Story { tag: string; tone: string; title: string; sentiment?: 'pos' | 'neg'; detail?: HeadlineDetail }
 
 // Celebrating vs dejected manager photos — matched to each story's sentiment.
 const HL_POS = ['positive_carrick_fist', 'positive_howie_fist', 'positive_iraola_celebrating', 'positive_maresca_celebrating', 'positive_unai_fist_cheer'];
@@ -294,7 +296,12 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
     : fallback.list.map((i) => ({ tag: i.tag, tone: i.tone, title: i.t }));
 
   // One celebrating/dejected manager photo per card, sentiment-matched and shuffled per league.
-  const imgs = useMemo(() => headlineImages([hero, ...list], leagueId), [hero, list, leagueId]);
+  const all = useMemo(() => [hero, ...list], [hero, list]);
+  const imgs = useMemo(() => headlineImages(all, leagueId), [all, leagueId]);
+  const [open, setOpen] = useState<number | null>(null);
+
+  const sel = open != null ? all[open] : null;
+  const selImg = open != null ? imgs[open] : '';
 
   const copy = (text: string) => {
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -304,7 +311,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
   return (
     <>
       <div className="lbl-row"><span className="l">TOP STORIES{loading ? ' · updating…' : ''}</span>{gwSelect}</div>
-      <div className="hl-hero" onClick={() => copy(hero.title)}>
+      <div className="hl-hero" onClick={() => setOpen(0)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <div className="ph"><img src={imgs[0]} alt="" /></div>
         <div className="grad" />
@@ -312,7 +319,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
       </div>
       <div className="hl-list">
         {list.map((i, idx) => (
-          <div key={idx} className="hl-item" onClick={() => copy(i.title)}>
+          <div key={idx} className="hl-item" onClick={() => setOpen(idx + 1)}>
             <div>
               <span className="tag tab-cut" style={{ paddingRight: 16, background: i.tone, ...(i.tone === '#FFD100' ? { color: '#150000' } : {}) }}>{i.tag}</span>
               <h5>{i.title}</h5>
@@ -322,6 +329,38 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
           </div>
         ))}
       </div>
+
+      <SubscribeButton variant="banner" leagueId={leagueId} leagueName={leagueName} gameweek={gw} stories={all.map((s) => ({ tag: s.tag, title: s.title }))} />
+
+      {/* Click-through dramatic story modal */}
+      {sel && (
+        <div className="story-backdrop" onClick={() => setOpen(null)}>
+          <div className="story-modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <button className="story-x" aria-label="Close" onClick={() => setOpen(null)}>✕</button>
+            <div className="story-hero">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={selImg} alt="" />
+              <div className="grad" />
+              <div className="ct">
+                <span className="kicker">{sel.sentiment === 'neg' ? '💥' : '⚡'} BREAKING NEWS</span>
+                <h3>{sel.title}</h3>
+              </div>
+            </div>
+            <div className="story-body">
+              {sel.detail?.subhead && <div className="sub" style={{ color: sel.tone === '#FFD100' ? '#150000' : sel.tone }}>{sel.detail.subhead}</div>}
+              <p className="para">{sel.detail?.body ?? sel.title}</p>
+              {sel.detail && (sel.detail.team || sel.detail.manager) && (
+                <div className="foot">
+                  <div className="who"><div className="nm">{sel.detail.team}</div><div className="mt">{sel.detail.manager}</div></div>
+                  <div className="pts"><div className="v">{sel.detail.stat}</div><div className="l">{sel.detail.statLabel}</div></div>
+                </div>
+              )}
+              <button className="story-copy" onClick={() => copy(sel.detail?.body || sel.title)}>Copy story</button>
+              <SubscribeButton variant="inline" leagueId={leagueId} leagueName={leagueName} gameweek={gw} stories={all.map((s) => ({ tag: s.tag, title: s.title }))} />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

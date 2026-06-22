@@ -5,12 +5,22 @@ const fplApi = new FPLApiService();
 const MAX_MANAGERS = 30;
 
 /** One ESPN-style storyline. `tag` is the short category chip, `title` the full headline. */
+interface HeadlineDetail {
+  subhead: string;    // red one-liner under the headline
+  body: string;       // dramatic narrative paragraph
+  team: string;       // footer team name
+  manager: string;    // footer manager name
+  stat: number;       // hero number
+  statLabel: string;  // hero number label
+}
+
 interface Headline {
   tag: string;
   tone: string;   // hex colour the client maps to a chip
   title: string;
   score: number;  // drama ranking — higher floats to the top
   sentiment: 'pos' | 'neg'; // drives the celebrating/dejected manager image
+  detail: HeadlineDetail;   // rich content for the click-through modal
 }
 
 const TONE = {
@@ -183,6 +193,11 @@ export async function GET(
         out.push({
           tag: 'BENCH NIGHTMARE', tone: TONE.disaster, sentiment: 'neg', score: 60 + m.benchPts,
           title: `${m.team} left ${m.benchPts} points on the bench — ${m.benchTop.name} (${m.benchTop.pts}) watched it all from the pine`,
+          detail: {
+            subhead: `${m.benchPts} points stranded on the bench`,
+            body: `${m.mgr}'s ${m.team} left a season-defining ${m.benchPts} points rotting on the bench in GW${gw}. ${m.benchTop.name} alone returned ${m.benchTop.pts} from the sidelines while the starting XI laboured. In a league this tight, points like these are the difference between glory and gut-wrenching regret.`,
+            team: m.team, manager: m.mgr, stat: m.benchPts, statLabel: 'pts benched',
+          },
         });
       }
     }
@@ -196,6 +211,11 @@ export async function GET(
         out.push({
           tag: 'CAPTAIN CALAMITY', tone: TONE.disaster, sentiment: 'neg', score: 70 + (m.benchTop!.pts - m.captain.pts),
           title: `${m.team}'s armband on ${m.captain.name} returns just ${m.captain.pts} while ${m.benchTop!.name} hauled ${m.benchTop!.pts} on the bench`,
+          detail: {
+            subhead: `The armband backfires in spectacular fashion`,
+            body: `${m.mgr} handed ${m.captain.name} the GW${gw} captaincy and got just ${m.captain.pts} back — doubled to heartbreak. To rub salt in the wound, ${m.benchTop!.name} was dropping ${m.benchTop!.pts} on the bench. This is the kind of call that haunts a manager all week long.`,
+            team: m.team, manager: m.mgr, stat: m.captain.pts, statLabel: 'captain pts',
+          },
         });
       }
     }
@@ -214,9 +234,15 @@ export async function GET(
         if (pts >= 10 && (!best || pts > best.pts)) best = { name: info.name, pts, own: leagueOwn };
       }
       if (best) {
+        const ownStr = best.own < 1 ? '<1' : String(Math.round(best.own));
         out.push({
           tag: 'GALAXY BRAIN', tone: TONE.genius, sentiment: 'pos', score: 55 + best.pts,
-          title: `${m.team}'s ${best.own < 1 ? '<1' : Math.round(best.own)}%-owned ${best.name} explodes for ${best.pts} — the differential that lit up GW${gw}`,
+          title: `${m.team}'s ${ownStr}%-owned ${best.name} explodes for ${best.pts} — the differential that lit up GW${gw}`,
+          detail: {
+            subhead: `The ${ownStr}%-owned punt that broke the league open`,
+            body: `While the rest of ${leagueName} played it safe, ${m.mgr} backed ${best.name} — owned by barely anyone here — and watched it explode for ${best.pts} points in GW${gw}. THIS is how you steal a march on the field: find the player nobody else trusts and let them win you the week. Pure differential genius.`,
+            team: m.team, manager: m.mgr, stat: best.pts, statLabel: 'points',
+          },
         });
       }
     }
@@ -229,9 +255,15 @@ export async function GET(
       }
       if (top && top.count / N >= 0.9 && player[top.id]) {
         const pct = Math.round((top.count / N) * 100);
+        const pname = player[top.id].name;
         out.push({
           tag: 'CLONE WARS', tone: TONE.gossip, sentiment: 'neg', score: 40 + pct / 5,
-          title: `${pct}% of ${leagueName} owns ${player[top.id].name} — the title will be won by the differentials`,
+          title: `${pct}% of ${leagueName} owns ${pname} — the title will be won by the differentials`,
+          detail: {
+            subhead: `The template tightens its grip`,
+            body: `${pct}% of ${leagueName} now owns ${pname}. When almost everyone fields the same player, he stops being an edge and becomes a baseline — captaincy and differentials decide everything from here. The question hanging over the league: who blinks first and sells?`,
+            team: leagueName, manager: pname, stat: pct, statLabel: '% own',
+          },
         });
       }
     }
@@ -246,6 +278,11 @@ export async function GET(
         out.push({
           tag: 'CHIP KING', tone: TONE.genius, sentiment: 'pos', score: 50 + diff,
           title: `${m.team}'s ${label} smashed the GW${gw} average by ${diff} points — a flawless call`,
+          detail: {
+            subhead: `A chip played to absolute perfection`,
+            body: `${m.mgr} unleashed the ${label} in GW${gw} and torched the league average by ${diff} points, banking ${m.gwPts}. Timing is everything in FPL — sit on a chip too long and it's wasted, fire it at the right moment and it wins you the season. This was textbook. The rest of ${leagueName} can only watch.`,
+            team: m.team, manager: m.mgr, stat: m.gwPts, statLabel: 'points',
+          },
         });
       }
     }
@@ -257,6 +294,11 @@ export async function GET(
         out.push({
           tag: 'BOTTLE JOB', tone: TONE.disaster, sentiment: 'neg', score: 45 + drop * 3,
           title: `${m.team} tumbles ${drop} place${drop > 1 ? 's' : ''} to ${ordinal(m.rank)} — the wheels are coming off`,
+          detail: {
+            subhead: `From contender to cautionary tale`,
+            body: `${m.mgr}'s ${m.team} is in freefall — ${drop} place${drop > 1 ? 's' : ''} surrendered in a single gameweek, sliding to ${ordinal(m.rank)}. Momentum is everything in a mini-league, and right now it has completely deserted them. The chasing pack smells blood.`,
+            team: m.team, manager: m.mgr, stat: drop, statLabel: 'places lost',
+          },
         });
       }
     }
@@ -267,6 +309,11 @@ export async function GET(
         out.push({
           tag: 'PANIC MERCHANT', tone: TONE.disaster, sentiment: 'neg', score: 35 + m.benchCost,
           title: `${m.team} took a -${m.benchCost} hit chasing the points — desperation or genius?`,
+          detail: {
+            subhead: `Hits stacked high in a desperate gamble`,
+            body: `${m.mgr} swung for the fences in GW${gw}, taking a -${m.benchCost} hit in pursuit of points. Bold strategy or blind panic? When the transfers pay off it's vision; when they don't it's a -${m.benchCost} millstone. The next few gameweeks will deliver the verdict.`,
+            team: m.team, manager: m.mgr, stat: m.benchCost, statLabel: 'pts hit',
+          },
         });
       }
     }
@@ -285,6 +332,11 @@ export async function GET(
           title: closest.gap === 0
             ? `${closest.a.team} and ${closest.b.team} are dead level on ${closest.a.total} points — every captain pick counts now`
             : `${closest.a.team} and ${closest.b.team} split by a single point — every captain pick counts now`,
+          detail: {
+            subhead: closest.gap === 0 ? `Dead level — nothing between them` : `One point. Everything to play for.`,
+            body: `${closest.a.team} and ${closest.b.team} are locked together near the top of ${leagueName}, split by just ${closest.gap} point${closest.gap === 1 ? '' : 's'}. Every transfer, every captain armband, every bench decision now swings this duel. This is the rivalry the season was crying out for.`,
+            team: closest.a.team, manager: closest.a.mgr, stat: closest.gap, statLabel: 'pt gap',
+          },
         });
       }
     }
@@ -298,6 +350,11 @@ export async function GET(
         out.push({
           tag: 'ON THE CHARGE', tone: TONE.genius, sentiment: 'pos', score: 30 + up * 2,
           title: `${riser.team} surges ${up} place${up > 1 ? 's' : ''} to ${ordinal(riser.rank)} — the green arrows keep coming`,
+          detail: {
+            subhead: `Green arrows and gathering momentum`,
+            body: `${riser.mgr}'s ${riser.team} is surging up ${leagueName} — ${up} place${up > 1 ? 's' : ''} gained in GW${gw}, now ${ordinal(riser.rank)} and climbing. Form like this is how titles are won: quietly, relentlessly, one green arrow at a time. The race just got interesting.`,
+            team: riser.team, manager: riser.mgr, stat: up, statLabel: 'places up',
+          },
         });
       }
     }
@@ -306,9 +363,15 @@ export async function GET(
     {
       const top = [...mgrs].sort((a, b) => b.gwPts - a.gwPts)[0];
       if (top) {
+        const clear = top.gwPts - leagueAvg;
         out.push({
-          tag: 'TOP SCORE', tone: TONE.banter, sentiment: 'pos', score: 25 + (top.gwPts - leagueAvg),
-          title: `${top.team} posts the GW${gw} high score — ${top.gwPts} points, ${top.gwPts - leagueAvg} clear of the league average`,
+          tag: 'TOP SCORE', tone: TONE.banter, sentiment: 'pos', score: 25 + clear,
+          title: `${top.team} posts the GW${gw} high score — ${top.gwPts} points, ${clear} clear of the league average`,
+          detail: {
+            subhead: `The gameweek's standout score`,
+            body: `${top.mgr} posted the GW${gw} high score of ${top.gwPts}, a full ${clear} clear of the ${leagueName} average. When it mattered most, ${top.team} delivered the kind of week the whole league wishes it had. A genuine statement gameweek.`,
+            team: top.team, manager: top.mgr, stat: top.gwPts, statLabel: 'points',
+          },
         });
       }
     }
@@ -320,6 +383,11 @@ export async function GET(
         out.push({
           tag: `GW${gw} · TOP STORY`, tone: TONE.disaster, sentiment: 'pos', score: 20,
           title: `${leader.team} leads ${leagueName} after GW${gw}`,
+          detail: {
+            subhead: `Top of the tree after GW${gw}`,
+            body: `${leader.mgr}'s ${leader.team} sits proudly atop ${leagueName} after GW${gw} on ${leader.total} points. The view from the summit is sweet — but with the chasing pack lurking and the run-in to come, staying there is the hardest job in fantasy football.`,
+            team: leader.team, manager: leader.mgr, stat: leader.total, statLabel: 'total pts',
+          },
         });
       }
     }

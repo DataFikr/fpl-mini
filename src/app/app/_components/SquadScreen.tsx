@@ -8,7 +8,7 @@ import { PredictionBlock } from './PredictionBlock';
 import { PlayerCard } from './PlayerCard';
 import { toast } from './Toast';
 
-type SqTab = 'team' | 'transfers' | 'prediction' | 'rival';
+type SqTab = 'team' | 'transfers' | 'impact' | 'prediction' | 'rival';
 
 /* ---------------- Rival Watch ---------------- */
 interface RWEO { id: number; name: string; team: string; eo: number; ownedPct: number }
@@ -201,11 +201,102 @@ function TransfersView({ data }: { data: SquadData }) {
   );
 }
 
+/* ---------------- Transfer Impact ---------------- */
+interface TIPlayer { id: number; name: string; team: string; points: number; cost: number; nowCost: number; epNext: number; form: number }
+interface TIDetail { playerIn: TIPlayer; playerOut: TIPlayer; time: string }
+interface TIGw { gameweek: number; isCurrent: boolean; count: number; cost: number; details: TIDetail[]; totalPointsIn: number; totalPointsOut: number }
+interface TIData { currentGameweek: number; gameweeks: TIGw[] }
+
+function TICard({ gw }: { gw: TIGw }) {
+  const inTotal = gw.totalPointsIn;
+  const outTotal = gw.totalPointsOut;
+  const net = inTotal - outTotal;
+  const afterHit = net - gw.cost;
+  const badge = afterHit >= 10 ? { k: 'genius', icon: '🟢', t: 'Genius Move' }
+    : afterHit <= -8 ? { k: 'costly', icon: '🔴', t: 'Costly' }
+    : { k: 'neutral', icon: '🟡', t: 'Neutral' };
+  const maxBar = Math.max(inTotal, outTotal, 1);
+  const proj5In = Math.round(gw.details.reduce((s, d) => s + d.playerIn.epNext, 0) * 5);
+  const proj5Out = Math.round(gw.details.reduce((s, d) => s + d.playerOut.epNext, 0) * 5);
+  const priceChange = gw.details.reduce((s, d) => s + (d.playerIn.nowCost - d.playerIn.cost), 0);
+
+  return (
+    <div className="ti-card">
+      <div className="ti-head">
+        <div className="ti-gw">GW{gw.gameweek}{gw.isCurrent && <span className="ti-live">LIVE</span>}</div>
+        <div className="ti-meta">{gw.count} transfer{gw.count > 1 ? 's' : ''} · {gw.cost > 0 ? `−${gw.cost} pts hit` : 'no hit'}</div>
+      </div>
+
+      <div className="ti-moves">
+        {gw.details.map((d, i) => (
+          <div className="ti-move" key={i}>
+            <div className="ti-side in"><span className="dot" /><span className="nm">{d.playerIn.name}</span><span className="tm">{d.playerIn.team}</span><span className="pt">{d.playerIn.points}</span></div>
+            <span className="ti-arrow">↔</span>
+            <div className="ti-side out"><span className="dot" /><span className="nm">{d.playerOut.name}</span><span className="tm">{d.playerOut.team}</span><span className="pt">{d.playerOut.points}</span></div>
+          </div>
+        ))}
+      </div>
+
+      <div className="ti-net">
+        <div className="ti-net-row"><span>Net transfer gain</span><b className={net >= 0 ? 'up' : 'dn'}>{net >= 0 ? '+' : ''}{net}</b></div>
+        <div className="ti-net-row"><span>After {gw.cost > 0 ? `−${gw.cost} hit` : 'hit'}</span><b className={afterHit >= 0 ? 'up' : 'dn'}>{afterHit >= 0 ? '+' : ''}{afterHit} net</b></div>
+      </div>
+
+      <div className={`ti-badge ${badge.k}`}>{badge.icon} {badge.t}</div>
+
+      <div className="ti-bars">
+        <div className="ti-bar-row"><span className="l">In</span><div className="bar"><div className="bf in" style={{ width: `${(inTotal / maxBar) * 100}%` }} /></div><span className="v">{inTotal} pts</span></div>
+        <div className="ti-bar-row"><span className="l">Out</span><div className="bar"><div className="bf out" style={{ width: `${(outTotal / maxBar) * 100}%` }} /></div><span className="v">{outTotal} pts</span></div>
+        <div className="ti-diff">Difference <b className={net >= 0 ? 'up' : 'dn'}>{net >= 0 ? '+' : ''}{net}</b></div>
+      </div>
+
+      <div className="ti-proj">
+        <div className="ti-proj-h">Long-term outlook</div>
+        <div className="ti-proj-row"><span>Projected next 5 GWs · in</span><b>{proj5In} pts</b></div>
+        <div className="ti-proj-row"><span>Projected next 5 GWs · out</span><b>{proj5Out} pts</b></div>
+        <div className="ti-proj-row"><span>Price change since buy</span><b className={priceChange >= 0 ? 'up' : 'dn'}>{priceChange >= 0 ? '+' : '−'}£{Math.abs(priceChange).toFixed(1)}m</b></div>
+      </div>
+    </div>
+  );
+}
+
+function TransferImpact({ teamId }: { teamId: number }) {
+  const [data, setData] = useState<TIData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(false);
+
+  useEffect(() => {
+    let alive = true; setLoading(true); setErr(false);
+    fetch(`/api/teams/${teamId}/transfer-history`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((j) => { if (alive) setData(j); })
+      .catch(() => { if (alive) setErr(true); })
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [teamId]);
+
+  return (
+    <div style={{ marginTop: 6 }}>
+      <div className="scr-head" style={{ marginBottom: 8 }}>
+        <div><div className="scr-title" style={{ fontSize: 26 }}>🔄 TRANSFER IMPACT</div><div className="scr-sub">Every move, validated</div></div>
+      </div>
+      <p className="tp-intro">Where the dopamine — or the regret — happens. Each gameweek&rsquo;s transfers scored on what came in versus what went out, the hit you paid, and whether it pays off long term.</p>
+
+      {loading && <div className="rw-load">Crunching your transfers…</div>}
+      {err && !loading && <div className="info-card"><h3>Transfer impact unavailable</h3><p>Couldn&rsquo;t load your transfer history right now.</p></div>}
+      {data && !loading && data.gameweeks.length === 0 && (
+        <div className="info-card"><h3>No transfers yet</h3><p>Once you make transfers, this is where the dopamine (or regret) lands.</p></div>
+      )}
+      {data && !loading && data.gameweeks.map((gw) => <TICard key={gw.gameweek} gw={gw} />)}
+    </div>
+  );
+}
+
 export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: number }) {
   const router = useRouter();
   const [tab, setTab] = useState<SqTab>('team');
   const [selected, setSelected] = useState<PitchPlayer | null>(null);
-  const tabs: [SqTab, string][] = [['team', 'Squad'], ['transfers', 'Transfers'], ['rival', 'Rival watch'], ['prediction', 'Prediction']];
+  const tabs: [SqTab, string][] = [['team', 'Squad'], ['transfers', 'Planner'], ['impact', 'Transfer Impact'], ['rival', 'Rival watch'], ['prediction', 'Prediction']];
 
   const sub = data
     ? `${data.team.name} · ${data.team.gwPoints} pts · GW${data.team.gw}`
@@ -273,6 +364,8 @@ export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: n
       )}
 
       {tab === 'transfers' && data && <TransfersView data={data} />}
+
+      {tab === 'impact' && (data ? <TransferImpact teamId={data.team.id} /> : <TeamIdPrompt />)}
 
       {tab === 'rival' && (data
         ? <RivalWatch teamId={data.team.id} leagueId={leagueId} currentGameweek={data.currentGameweek} defaultGw={data.team.gw} />

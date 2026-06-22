@@ -8,6 +8,14 @@ const INK = '#150000';
 const RED = '#FF5050';
 const GREEN = '#7CFB9E';
 
+// Celebrating vs dejected manager photos, matched to story sentiment.
+const HL_POS = ['positive_carrick_fist', 'positive_howie_fist', 'positive_iraola_celebrating', 'positive_maresca_celebrating', 'positive_unai_fist_cheer'];
+const HL_NEG = ['negative_carrick_disapoint', 'negative_howie_disapointed', 'negative_iraola_frust', 'negative_maresca_scratch_head', 'negative_unai_disapointed'];
+
+const trunc = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s);
+
+interface OgStory { tag: string; tone: string; title: string; img: string }
+
 function ordinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
@@ -84,6 +92,27 @@ export async function GET(request: NextRequest) {
       : `GW${nextGw}: ${leader ? leader.team : 'the leaders'} ${gap} pts clear — can anyone reel them in?`
     : `Season done — ${leader ? leader.team : 'your champion'} takes the crown. Who dethrones them in 2026/27?`;
 
+  // ---- 5 top storylines pulled from the headlines engine (3 positive, 2 negative, with pictures) ----
+  const origin = new URL(request.url).origin;
+  let headlineStories: OgStory[] = [];
+  try {
+    const res = await fetch(`${origin}/api/leagues/${id}/headlines?gw=${gw}`, { signal: AbortSignal.timeout(8000) });
+    if (res.ok) {
+      const hj = await res.json();
+      const pool = [hj.hero, ...(hj.list || [])].filter(Boolean) as { tag: string; tone: string; title: string; sentiment: 'pos' | 'neg' }[];
+      const pos = pool.filter((s) => s.sentiment === 'pos');
+      const neg = pool.filter((s) => s.sentiment === 'neg');
+      const picked = [...pos.slice(0, 3), ...neg.slice(0, 2)];
+      for (const s of pool) { if (picked.length >= 5) break; if (!picked.includes(s)) picked.push(s); }
+      let pi = id % HL_POS.length;
+      let ni = (Math.floor(id / HL_POS.length) + 1) % HL_NEG.length;
+      headlineStories = picked.slice(0, 5).map((s) => {
+        const name = s.sentiment === 'neg' ? HL_NEG[ni++ % HL_NEG.length] : HL_POS[pi++ % HL_POS.length];
+        return { tag: s.tag, tone: s.tone, title: s.title, img: `${origin}/images/headlines/${name}.png` };
+      });
+    }
+  } catch { /* fall back to standings-derived storylines */ }
+
   const Move = ({ mv }: { mv: number }) =>
     mv > 0 ? <span style={{ color: GREEN }}>▲ {mv}</span>
       : mv < 0 ? <span style={{ color: RED }}>▼ {-mv}</span>
@@ -130,17 +159,39 @@ export async function GET(request: NextRequest) {
             </div>
           </div>
 
-          {/* storylines */}
+          {/* storylines — top 5 from the headlines engine (3 positive, 2 negative, with pictures) */}
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
             <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '18px', letterSpacing: '3px', color: RED, fontWeight: 700, marginBottom: '6px' }}>THE STORYLINES</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, justifyContent: 'center' }}>
-              {topStories.map((s, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ display: 'flex', fontFamily: dFont, fontSize: '22px', letterSpacing: '1px', color: s.tone === YELLOW ? INK : '#150000', background: s.tone, padding: '6px 12px' }}>{s.tag}</div>
-                  <div style={{ display: 'flex', flex: 1, fontFamily: 'sans-serif', fontSize: '22px', fontWeight: 600, lineHeight: 1.25, color: '#fff' }}>{s.text}</div>
-                </div>
-              ))}
-            </div>
+            {headlineStories.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'center' }}>
+                {headlineStories.map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.img} width={58} height={58} style={{ objectFit: 'cover', flexShrink: 0 }} alt="" />
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <div style={{ display: 'flex' }}>
+                        {(() => {
+                          // Ink-tone chips are invisible on the dark card — promote them to yellow.
+                          const chipBg = s.tone === INK ? '#FFD100' : s.tone;
+                          const chipText = chipBg === '#FFD100' ? INK : '#fff';
+                          return <div style={{ display: 'flex', fontFamily: dFont, fontSize: '17px', letterSpacing: '1px', color: chipText, background: chipBg, padding: '2px 9px' }}>{s.tag}</div>;
+                        })()}
+                      </div>
+                      <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '17px', fontWeight: 600, lineHeight: 1.2, color: '#fff', marginTop: '4px' }}>{trunc(s.title, 68)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, justifyContent: 'center' }}>
+                {topStories.map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ display: 'flex', fontFamily: dFont, fontSize: '22px', letterSpacing: '1px', color: s.tone === YELLOW ? INK : '#fff', background: s.tone, padding: '6px 12px' }}>{s.tag}</div>
+                    <div style={{ display: 'flex', flex: 1, fontFamily: 'sans-serif', fontSize: '22px', fontWeight: 600, lineHeight: 1.25, color: '#fff' }}>{s.text}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

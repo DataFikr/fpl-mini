@@ -89,6 +89,9 @@ export async function GET(
             teamCode: teamIn?.code || 1,
             points: pointsIn,
             cost: t.element_in_cost / 10,
+            nowCost: (playerIn?.now_cost ?? t.element_in_cost) / 10,
+            epNext: parseFloat(playerIn?.ep_next ?? '0') || 0,
+            form: parseFloat(playerIn?.form ?? '0') || 0,
           },
           playerOut: {
             id: t.element_out,
@@ -97,6 +100,9 @@ export async function GET(
             teamCode: teamOut?.code || 1,
             points: pointsOut,
             cost: t.element_out_cost / 10,
+            nowCost: (playerOut?.now_cost ?? t.element_out_cost) / 10,
+            epNext: parseFloat(playerOut?.ep_next ?? '0') || 0,
+            form: parseFloat(playerOut?.form ?? '0') || 0,
           },
           time: t.time,
         };
