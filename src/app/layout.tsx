@@ -4,6 +4,7 @@ import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import GoogleAnalyticsWrapper from "@/components/analytics/GoogleAnalyticsWrapper";
 import CookieConsent from "@/components/analytics/CookieConsent";
+import { WebsiteStructuredData, OrganizationStructuredData, WebApplicationStructuredData } from "@/components/seo/structured-data";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -78,9 +79,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "your-google-verification-code",
-  },
 };
 
 export default function RootLayout({
@@ -98,6 +96,9 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} ${inter.variable} ${geistSans.variable} ${geistMono.variable} font-jakarta antialiased`}
       >
+        <WebsiteStructuredData />
+        <OrganizationStructuredData />
+        <WebApplicationStructuredData />
         {gaId && <GoogleAnalyticsWrapper measurementId={gaId} />}
         {children}
         <CookieConsent />

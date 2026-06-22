@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: 'Master the Mini-League: The Ultimate Strategy Guide to FPL Dominance | FPLRanker',
   description:
     'The ultimate strategy guide to FPL mini-league dominance. Learn how to use real-time BPS tracking, monthly leaderboards, automated headlines, and progression charts to win your league.',
+  alternates: { canonical: '/master-the-league' },
   openGraph: {
     title: 'Master the Mini-League: The Ultimate Strategy Guide to FPL Dominance',
     description:

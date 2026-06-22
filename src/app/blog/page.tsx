@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: 'Blog - FPL Tips and Content | FPLRanker',
   description:
     'FPLRanker blog with FPL tips, fixture analysis, mini-league strategies, and Fantasy Premier League content.',
+  alternates: { canonical: '/blog' },
 };
 
 const blogPosts = [

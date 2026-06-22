@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { Header } from '@/components/ui/header';
 import { Footer } from '@/components/ui/footer';
+import { ArticleStructuredData } from '@/components/seo/structured-data';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
   title: 'Top 5 FPL Fixture Difficulty (FDR) Tools | FPLRanker Blog',
   description:
     'Master your long-term FPL planning with the top 5 Fixture Difficulty Rating tools. Compare Fantasy Football Fix, Fantasy Football Hub, FPLRanker, FPL.Team, and FPL Analytics.',
+  alternates: { canonical: '/blog/fdr-tools' },
   openGraph: {
     title: 'Top 5 FPL Fixture Difficulty (FDR) Tools',
     description:
@@ -18,6 +20,11 @@ export const metadata: Metadata = {
 export default function FDRToolsBlog() {
   return (
     <>
+      <ArticleStructuredData
+        title="Top 5 FPL Fixture Difficulty (FDR) Tools"
+        description="Compare the top 5 Fixture Difficulty Rating tools for long-term FPL planning."
+        path="/blog/fdr-tools"
+      />
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-fpl-dark via-fpl-primary/5 to-fpl-dark pt-20">
         {/* Breadcrumb */}

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { WebsiteStructuredData, OrganizationStructuredData } from '@/components/seo/structured-data';
 import { Header } from '@/components/ui/header';
 import { Footer } from '@/components/ui/footer';
 import { Trophy, Users, TrendingUp, BarChart3, Star, Zap, Target, Search, Monitor, Link as LinkIcon } from 'lucide-react';
@@ -14,8 +13,6 @@ export default function Home() {
 
   return (
     <>
-      <WebsiteStructuredData />
-      <OrganizationStructuredData />
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-fpl-dark via-fpl-primary/5 to-fpl-dark pt-20">
       {/* Hero Section */}

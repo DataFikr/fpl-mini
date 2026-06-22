@@ -1,0 +1,34 @@
+# FPL Ranker
+
+> FPL Ranker (https://fplranker.com) is a free Fantasy Premier League mini-league analytics tool. Enter an FPL team or league ID to get live standings, ESPN-style headline storylines, rank-progression analytics, Manager of the Month highlights, a Rival Watch (effective ownership, most-captained players and chip usage across your league), squad ratings, transfer suggestions and a World Cup fatigue tracker. It turns the official Premier League FPL data into shareable, human-readable insight in seconds.
+
+## What it does
+- **Mini-league standings & analytics**: live table, per-gameweek rank progression, total points, movement.
+- **Headlines**: automatically generated "breaking news" storylines for your league each gameweek (e.g. Bench Nightmare, Captain Calamity, Differential Masterclass, Clone Wars, Chip King).
+- **Manager of the Month**: monthly phase winners with the top-3 highlights that drove their points.
+- **Rival Watch**: effective ownership, most-captained players, and which chips your rivals are using in a given gameweek.
+- **My Squad**: live pitch, squad rating, and model-based transfer suggestions.
+- **World Cup 2026 fatigue tracker**: real tournament minutes for Premier-League stars and their GW1 burnout risk.
+
+## Key pages
+- Home / app: https://fplranker.com/app
+- Strategy guide: https://fplranker.com/master-the-league
+- Blog: https://fplranker.com/blog
+- World Cup fatigue tracker: https://fplranker.com/blog/world-cup-fatigue
+- FDR tools comparison: https://fplranker.com/blog/fdr-tools
+- FAQ: https://fplranker.com/app/faq
+- Find your FPL team ID: https://fplranker.com/find-team-id
+
+## FPL glossary (definitions)
+- **FPL**: Fantasy Premier League, the official free fantasy football game of the English Premier League.
+- **Mini-league**: a private league where friends/colleagues compete using their FPL teams.
+- **Gameweek (GW)**: one round of Premier League fixtures; FPL points are scored per gameweek.
+- **BPS (Bonus Point System)**: the in-game metric that decides the 1–3 bonus points awarded each match.
+- **xG (expected goals)**: the probability-weighted quality of chances, used to judge underlying form.
+- **FDR (Fixture Difficulty Rating)**: a 1–5 rating of how hard a team's upcoming fixtures are.
+- **EO (effective ownership)**: ownership weighted by captaincy — sum of each manager's multiplier on a player (captain counts ×2, triple captain ×3, bench boost includes the bench), divided by the number of managers. It measures how much a player can swing your rank versus rivals.
+- **Differential**: a low-ownership player picked to gain rank on the field.
+- **Chips**: one-off boosts — **Wildcard** (free unlimited transfers), **Free Hit** (one-week unlimited transfers), **Bench Boost** (bench points count), **Triple Captain** (captain scores ×3).
+
+## About
+FPL Ranker is an independent tool and is not affiliated with the Premier League or FPL. Data is sourced from the official FPL API.

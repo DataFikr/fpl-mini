@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: 'FPL 2026/27 World Cup Fatigue Tracker & Official New Kit Guide',
   description:
     'Track FPL player burnout from the 2026 World Cup alongside official 2026/2027 Premier League kit releases. Buy the new Arsenal, Man City, and Man United kits online.',
+  alternates: { canonical: '/blog/world-cup-fatigue' },
   openGraph: {
     title: 'FPL 2026/27 World Cup Fatigue Tracker & Official New Kit Guide',
     description:
