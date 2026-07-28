@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Share2, Link2, Download, Check, Mail } from 'lucide-react';
-import { FaXTwitter, FaWhatsapp } from 'react-icons/fa6';
+import { XIcon, WhatsAppIcon } from '@/components/ui/brand-icons';
 import { trackEvent } from '@/lib/analytics';
 import { toast } from './Toast';
 
@@ -87,13 +87,13 @@ export function ShareLeagueButton({ leagueId, leagueName, teamId, rank, size }: 
             <div className="ss-head"><span>Share {leagueName}</span><button className="ss-x" aria-label="Close" onClick={() => setOpen(false)}>✕</button></div>
             <div className="ss-sub">A bite-size infographic — table, headlines &amp; what&apos;s next</div>
             <div className="ss-grid">
-              <button className="ss-opt" onClick={whatsapp}><span className="ss-ic" style={{ background: '#25D366' }}><FaWhatsapp size={18} /></span>WhatsApp</button>
+              <button className="ss-opt" onClick={whatsapp}><span className="ss-ic" style={{ background: '#25D366' }}><WhatsAppIcon size={18} /></span>WhatsApp</button>
               <button className="ss-opt" onClick={email}><span className="ss-ic" style={{ background: '#EA4335' }}><Mail size={18} /></span>Email</button>
               <button className="ss-opt" onClick={download}><span className="ss-ic" style={{ background: 'var(--red)' }}><Download size={18} /></span>Download</button>
               {canNative && (
                 <button className="ss-opt" onClick={nativeShare}><span className="ss-ic" style={{ background: 'var(--ink)' }}><Share2 size={18} /></span>More</button>
               )}
-              <button className="ss-opt" onClick={x}><span className="ss-ic" style={{ background: '#000' }}><FaXTwitter size={16} /></span>Post on X</button>
+              <button className="ss-opt" onClick={x}><span className="ss-ic" style={{ background: '#000' }}><XIcon size={16} /></span>Post on X</button>
               <button className="ss-opt" onClick={copy}><span className="ss-ic" style={{ background: 'var(--navy)' }}>{copied ? <Check size={18} /> : <Link2 size={18} />}</span>{copied ? 'Copied' : 'Copy link'}</button>
             </div>
           </div>

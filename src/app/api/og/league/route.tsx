@@ -8,13 +8,9 @@ const INK = '#150000';
 const RED = '#FF5050';
 const GREEN = '#7CFB9E';
 
-// Celebrating vs dejected manager photos, matched to story sentiment.
-const HL_POS = ['positive_carrick_fist', 'positive_howie_fist', 'positive_iraola_celebrating', 'positive_maresca_celebrating', 'positive_unai_fist_cheer'];
-const HL_NEG = ['negative_carrick_disapoint', 'negative_howie_disapointed', 'negative_iraola_frust', 'negative_maresca_scratch_head', 'negative_unai_disapointed'];
-
 const trunc = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s);
 
-interface OgStory { tag: string; tone: string; title: string; img: string }
+interface OgStory { tag: string; tone: string; title: string }
 
 function ordinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
@@ -104,12 +100,7 @@ export async function GET(request: NextRequest) {
       const neg = pool.filter((s) => s.sentiment === 'neg');
       const picked = [...pos.slice(0, 3), ...neg.slice(0, 2)];
       for (const s of pool) { if (picked.length >= 5) break; if (!picked.includes(s)) picked.push(s); }
-      let pi = id % HL_POS.length;
-      let ni = (Math.floor(id / HL_POS.length) + 1) % HL_NEG.length;
-      headlineStories = picked.slice(0, 5).map((s) => {
-        const name = s.sentiment === 'neg' ? HL_NEG[ni++ % HL_NEG.length] : HL_POS[pi++ % HL_POS.length];
-        return { tag: s.tag, tone: s.tone, title: s.title, img: `${origin}/images/headlines/${name}.png` };
-      });
+      headlineStories = picked.slice(0, 5).map((s) => ({ tag: s.tag, tone: s.tone, title: s.title }));
     }
   } catch { /* fall back to standings-derived storylines */ }
 
@@ -166,8 +157,6 @@ export async function GET(request: NextRequest) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'center' }}>
                 {headlineStories.map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.img} width={58} height={58} style={{ objectFit: 'cover', flexShrink: 0 }} alt="" />
                     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                       <div style={{ display: 'flex' }}>
                         {(() => {

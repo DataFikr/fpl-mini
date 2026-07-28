@@ -83,7 +83,102 @@ model NewsletterSubscription {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   lastSentAt  DateTime?
+  // Linkage + double-opt-in (workstream E). Nullable so existing rows are valid.
+  userId      String?
+  verifiedAt  DateTime?
 
   @@unique([email, leagueId])
   @@map("newsletter_subscriptions")
+}
+
+// ─── Auth (magic-link) — workstream A ────────────────────────────────
+// Hand-rolled passwordless auth. Sessions and login tokens store only a
+// SHA-256 hash of the secret, never the raw value.
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  fplTeamId         Int?
+  isPremium         Boolean   @default(false)
+  premiumUntil      DateTime?
+  premiumPlan       String?
+  billingCustomerId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  sessions Session[]
+  leagues  UserLeague[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model LoginToken {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  email      String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email])
+  @@map("login_tokens")
+}
+
+model UserLeague {
+  id          String   @id @default(cuid())
+  userId      String
+  leagueFplId Int
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, leagueFplId])
+  @@map("user_leagues")
+}
+
+// ─── Predictor (workstream C) ────────────────────────────────────────
+// Weekly cron writes ~700 rows/GW; API serves them (free teaser + premium).
+
+model PlayerPrediction {
+  id          Int      @id @default(autoincrement())
+  season      String   // e.g. "2026-27"
+  gameweek    Int      // the GW these xPts are FOR
+  playerFplId Int
+  webName     String
+  teamShort   String
+  position    Int      // element_type 1..4
+  price       Int      // tenths of a million
+  xPts        Float
+  xMins       Float?   // expected minutes share 0..1
+  createdAt   DateTime @default(now())
+
+  @@unique([season, gameweek, playerFplId])
+  @@index([season, gameweek])
+  @@map("player_predictions")
+}
+
+model PredictorState {
+  id        Int      @id @default(autoincrement())
+  season    String
+  gameweek  Int      // state produced AFTER this GW resolved (trained through it)
+  weights   Json     // fitted ridge weights (global + per-position snapshot)
+  stats     Json?    // per-GW per-position sufficient statistics (XtX, Xty) for exact refit
+  metrics   Json?    // rolling MAE / capture / spearman
+  createdAt DateTime @default(now())
+
+  @@unique([season, gameweek])
+  @@map("predictor_state")
 }

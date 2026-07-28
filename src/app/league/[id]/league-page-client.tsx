@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { RankProgressionChart } from '@/components/charts/rank-progression-chart';
 import { EnhancedSquadTable } from '@/components/squad/enhanced-squad-table';
 import { PitchView } from '@/components/squad/pitch-view';
@@ -321,12 +320,10 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
             const isActive = activeTab === tab.id;
 
             return (
-              <motion.button
+              <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`flex flex-col sm:flex-row items-center justify-center flex-1 px-1 sm:px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-jakarta font-semibold transition-all duration-200 rounded-fpl ${
+                className={`flex flex-col sm:flex-row items-center justify-center flex-1 px-1 sm:px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-jakarta font-semibold transition-all duration-200 rounded-fpl hover:scale-[1.02] active:scale-[0.98] ${
                   isActive
                     ? 'bg-gradient-to-r from-fpl-primary to-fpl-violet-700 text-white shadow-fpl-glow-violet'
                     : 'bg-white/5 text-fpl-text-secondary hover:bg-white/10 border border-white/10'
@@ -334,7 +331,7 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
               >
                 <Icon className={`h-3 md:h-4 w-3 md:w-4 mb-1 sm:mb-0 sm:mr-1 md:mr-2`} />
                 <span className="text-xs sm:text-xs md:text-sm leading-tight text-center">{tab.name}</span>
-              </motion.button>
+              </button>
             );
           })}
         </div>
@@ -370,9 +367,8 @@ function StatCard({ icon, title, value, subtitle, gradient, compact = false }: {
   compact?: boolean;
 }) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.05, y: -2 }}
-      className={`group backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl ${compact ? 'p-3' : 'p-4'} h-full flex items-center hover:shadow-fpl-glow-violet transition-all duration-300 border border-fpl-primary/20 min-w-0`}
+    <div
+      className={`group backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl ${compact ? 'p-3' : 'p-4'} h-full flex items-center hover:scale-105 hover:-translate-y-0.5 hover:shadow-fpl-glow-violet transition-all duration-300 border border-fpl-primary/20 min-w-0`}
     >
       <div className={`inline-flex ${compact ? 'p-1.5' : 'p-2'} rounded-lg bg-gradient-to-r ${gradient || 'from-gray-400 to-gray-600'} mr-3 group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
         <div className="text-white">
@@ -390,6 +386,6 @@ function StatCard({ icon, title, value, subtitle, gradient, compact = false }: {
           {subtitle}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

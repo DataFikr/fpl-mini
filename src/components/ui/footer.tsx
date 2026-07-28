@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Instagram } from 'lucide-react';
-import { FaXTwitter, FaReddit } from 'react-icons/fa6';
+import { XIcon, RedditIcon } from '@/components/ui/brand-icons';
 
 export function Footer() {
   return (
@@ -60,7 +60,7 @@ export function Footer() {
             className="text-white hover:text-yellow-300 transition-colors"
             aria-label="Follow us on X (Twitter)"
           >
-            <FaXTwitter className="h-6 w-6" />
+            <XIcon className="h-6 w-6" />
           </a>
           <a
             href="https://www.reddit.com/user/fplranker/"
@@ -69,7 +69,7 @@ export function Footer() {
             className="text-white hover:text-yellow-300 transition-colors"
             aria-label="Follow us on Reddit"
           >
-            <FaReddit className="h-6 w-6" />
+            <RedditIcon className="h-6 w-6" />
           </a>
           <a
             href="https://instagram.com/FPLRanker"

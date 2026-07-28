@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, Bebas_Neue, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import GoogleAnalyticsWrapper from "@/components/analytics/GoogleAnalyticsWrapper";
 import CookieConsent from "@/components/analytics/CookieConsent";
@@ -17,6 +17,29 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+// Sportify design-system fonts (self-hosted via next/font — replaces the
+// render-blocking Google Fonts @import that used to live in the CSS files).
+const bebasNeue = Bebas_Neue({
+  subsets: ["latin"],
+  variable: "--font-bebas",
+  weight: "400",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["600", "700"],
   display: "swap",
 });
 
@@ -89,13 +112,14 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${plusJakartaSans.variable} ${inter.variable} ${bebasNeue.variable} ${manrope.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable}`}
+    >
       <head>
         <meta name="impact-site-verification" content="f38e1dd9-edfa-4790-a5fc-dc23d5b1527e" />
       </head>
-      <body
-        className={`${plusJakartaSans.variable} ${inter.variable} ${geistSans.variable} ${geistMono.variable} font-jakarta antialiased`}
-      >
+      <body className="font-jakarta antialiased">
         <WebsiteStructuredData />
         <OrganizationStructuredData />
         <WebApplicationStructuredData />

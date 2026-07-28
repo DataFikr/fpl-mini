@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus, Crown } from 'lucide-react';
 
 interface Standing {
@@ -37,11 +36,8 @@ export function EnhancedStandingsTable({ standings }: { standings: Standing[] })
             const isFalling = rankChange < 0;
 
             return (
-              <motion.tr
+              <tr
                 key={team.rank}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05 }}
                 className={`
                   border-b border-fpl-primary/10 transition-all hover:bg-fpl-primary/10
                   ${isRising ? 'bg-fpl-accent/5' : isFalling ? 'bg-red-500/5' : ''}
@@ -60,13 +56,7 @@ export function EnhancedStandingsTable({ standings }: { standings: Standing[] })
                       {team.rank}
                     </div>
                     {team.rank === 1 && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.5 }}
-                      >
-                        <Crown className="h-5 w-5 text-fpl-accent" />
-                      </motion.div>
+                      <Crown className="h-5 w-5 text-fpl-accent" />
                     )}
                   </div>
                 </td>
@@ -102,7 +92,7 @@ export function EnhancedStandingsTable({ standings }: { standings: Standing[] })
                     )}
                   </div>
                 </td>
-              </motion.tr>
+              </tr>
             );
           })}
         </tbody>

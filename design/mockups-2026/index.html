@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 0 — Claude Design · FPL Ranker × Sportify 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.wrap{max-width:1060px;margin:0 auto;padding:48px 28px 80px;}
+.head{margin-bottom:34px;}
+.kicker{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,5vw,58px);line-height:.88;letter-spacing:.01em;margin:10px 0 12px;}
+.sub{font-family:var(--body);font-size:15px;line-height:1.6;color:var(--t2);max-width:64ch;margin:0;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+.card{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);padding:18px 18px 16px;color:var(--ink);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);}
+.card:hover{border-color:var(--ink);color:var(--ink);}
+.card .no{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;}
+.card h2{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.02em;line-height:.95;margin:0;}
+.card p{font-family:var(--body);font-size:13px;line-height:1.5;color:var(--t2);margin:0;}
+.card .route{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--red);letter-spacing:.02em;}
+.sec{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.03em;margin:34px 0 12px;}
+.spec-link{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;padding:18px 20px;margin-top:34px;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+.spec-link b{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.02em;}
+.spec-link span{font-family:var(--body);font-size:13px;color:#cfc6c6;}
+.spec-link:hover{color:#fff;}
+.spec-link .sq{width:12px;height:12px;background:var(--red);flex:0 0 auto;}
+</style>
+</head>
+<body data-screen-label="Session 0 review hub">
+<div class="wrap">
+  <header class="head">
+    <span class="kicker">Session 0 &middot; Claude Design &middot; July 2026</span>
+    <h1>FPL RANKER &times; SPORTIFY<br>RELAUNCH MOCKUPS</h1>
+    <p class="sub">Ten self-contained mockups covering the money funnel, premium AI features, the pSEO player template and app polish — all on Sportify tokens with the D2 accessibility fixes baked in. Each file stands alone for dev handoff.</p>
+  </header>
+
+  <h2 class="sec">MONEY FUNNEL</h2>
+  <div class="grid">
+    <a class="card" href="01-landing.html"><span class="no">01 &middot; marketing</span><h2>LANDING</h2><p>Hero + manager-ID entry, feature grid, single ink premium band.</p><span class="route">/</span></a>
+    <a class="card" href="02-premium.html"><span class="no">02 &middot; pricing</span><h2>PREMIUM</h2><p>£15 launch offer vs £30 annual, signed-out + already-premium states.</p><span class="route">/premium</span></a>
+    <a class="card" href="03-predictions.html"><span class="no">03 &middot; teaser</span><h2>PREDICTIONS</h2><p>Free top-10 xPts table, blur-locked rows 11+, FAQ, empty state.</p><span class="route">/predictions</span></a>
+    <a class="card" href="04-login.html"><span class="no">04 &middot; auth</span><h2>LOGIN</h2><p>Magic-link card — default, error, sent and sending states.</p><span class="route">/auth/login</span></a>
+    <a class="card" href="05-account-chip.html"><span class="no">05 &middot; component</span><h2>ACCOUNT CHIP</h2><p>Signed-out / free / premium badge states + open menus, on tokens.</p><span class="route">AppShell</span></a>
+  </div>
+
+  <h2 class="sec">PREMIUM AI FEATURES</h2>
+  <div class="grid">
+    <a class="card" href="06-captain-picks.html"><span class="no">06 &middot; squad</span><h2>CAPTAIN PICKS</h2><p>Ranked armband calls with confidence bars — premium + free-blur states.</p><span class="route">/app/squad &middot; Prediction</span></a>
+    <a class="card" href="07-transfer-suggestions.html"><span class="no">07 &middot; squad</span><h2>TRANSFER SUGGESTIONS</h2><p>Out&rarr;in move cards ranked by xPts delta — premium + free-blur states.</p><span class="route">/app/squad &middot; Prediction</span></a>
+    <a class="card" href="08-player-page.html"><span class="no">08 &middot; pSEO</span><h2>PLAYER PAGE</h2><p>Template: ink hero, stat grid, form/FDR, xPts teaser, FAQ, Kitbag CTA.</p><span class="route">/players/[slug]</span></a>
+  </div>
+
+  <h2 class="sec">APP POLISH</h2>
+  <div class="grid">
+    <a class="card" href="09-skeletons.html"><span class="no">09 &middot; loading</span><h2>SKELETONS</h2><p>.sk shimmer for standings, pitch and predictions — zero-CLS, reduced-motion safe.</p><span class="route">loading states</span></a>
+    <a class="card" href="10-numerics-tablet.html"><span class="no">10 &middot; shell</span><h2>NUMERICS + TABLET</h2><p>Oversized Bebas GW numbers and the &ge;768px two-pane League HQ.</p><span class="route">app shell</span></a>
+  </div>
+
+  <a class="spec-link" href="SPEC.md"><span class="sq"></span><b>SPEC.MD</b><span>Token&rarr;Tailwind map, type scale, component inventory, D2 fixes, do-not-change list.</span></a>
+</div>
+</body>
+</html>

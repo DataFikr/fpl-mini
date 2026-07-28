@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1324" height="800" viewBox="0 0 1324 800" role="img" aria-label="Product teaser video — placeholder">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#2F0000"/>
+      <stop offset="100%" stop-color="#150000"/>
+    </radialGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="82%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#150000" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1324" height="800" fill="url(#glow)"/>
+  <!-- red rays motif (brand, no player likeness) -->
+  <g fill="#FF5050" opacity="0.16">
+    <polygon points="662,400 1324,120 1324,240"/>
+    <polygon points="662,400 1324,300 1324,420"/>
+    <polygon points="662,400 1324,480 1324,600"/>
+    <polygon points="662,400 0,120 0,240"/>
+    <polygon points="662,400 0,300 0,420"/>
+    <polygon points="662,400 0,480 0,600"/>
+  </g>
+  <!-- play button -->
+  <circle cx="662" cy="360" r="88" fill="#FF5050"/>
+  <polygon points="636,318 636,402 712,360" fill="#FFFFFF"/>
+  <!-- wordmark + caption -->
+  <text x="662" y="520" text-anchor="middle" font-family="Impact, 'Bebas Neue', sans-serif" font-size="72" letter-spacing="2" fill="#FFFFFF">FPL RANKER</text>
+  <text x="662" y="568" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="22" letter-spacing="6" fill="#FF5050">PRODUCT TEASER · VIDEO GOES HERE</text>
+  <rect width="1324" height="800" fill="url(#fade)"/>
+</svg>

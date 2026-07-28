@@ -7,19 +7,27 @@ import {
   FPLManagerEntry
 } from '@/types/fpl';
 import redis from '@/lib/redis';
+import { isDemoMode, resolveDemo } from '@/lib/demo/fpl-demo';
 
 export class FPLApiService {
   private readonly baseUrl: string;
-  
+
   constructor() {
     this.baseUrl = process.env.FPL_API_BASE_URL || 'https://fantasy.premierleague.com/api';
   }
 
   private async fetchWithCache<T>(
-    url: string, 
-    cacheKey: string, 
+    url: string,
+    cacheKey: string,
     ttlSeconds: number = 3600
   ): Promise<T> {
+    // 2025/26 demo season: serve real snapshots + a synthesized league instead of
+    // the live API (which has rolled past 2025/26). Gated by FPL_DEMO_SEASON.
+    if (isDemoMode()) {
+      const demo = resolveDemo(url);
+      if (demo !== undefined) return demo as T;
+    }
+
     // For league 150789, bypass cache completely for now to get live data
     if (cacheKey.includes('fpl:league:150789:standings')) {
       console.log('BYPASSING CACHE COMPLETELY for league 150789');

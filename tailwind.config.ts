@@ -11,7 +11,21 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // FR-DLS Color Palette
+        // ── Sportify design system (v1 — the single source of truth). ──────────
+        // Mirrors the CSS tokens in sportify-fpl.css / sportify-pages.css so
+        // Tailwind utilities (bg-ink, text-sport-red, border-line…) resolve to
+        // the same palette as the hand-written component CSS.
+        'sport-red': { DEFAULT: '#FF5050', dark: '#CC4040' },
+        'ink': { DEFAULT: '#150000', 2: '#2F0000' },
+        'charcoal': '#322D2D',
+        'navy': { DEFAULT: '#12233F', deep: '#001B58' },
+        'paper': '#FAFAFA',
+        'line': { DEFAULT: '#D6D5D5', soft: '#EEEDED' },
+        'muted': { 2: '#5B5757', 3: '#848181', 4: '#ADABAB' },
+        'pos': '#009C54',
+        'premium': '#FFD100',
+        // ── FR-DLS Color Palette (DEPRECATED — being retired per DESIGN_REVIEW D3;
+        //    kept only for the un-migrated FR-DLS blog/content pages). ───────────
         'fpl-primary': '#2B1654',      // Deep violet - competitive energy
         'fpl-accent': '#78FF9E',        // Lime green - victory/progress
         'fpl-dark': '#0C0C0C',          // Premium dark mode base
@@ -42,8 +56,12 @@ const config: Config = {
         },
       },
       fontFamily: {
-        'jakarta': ['"Plus Jakarta Sans"', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
+        'jakarta': ['"Plus Jakarta Sans"', 'sans-serif'], // FR-DLS (deprecated)
+        'inter': ['Inter', 'sans-serif'],                 // FR-DLS (deprecated)
+        // Sportify v1 fonts (self-hosted via next/font — see src/app/layout.tsx)
+        'display': ['var(--font-bebas)', 'Bebas Neue', 'Impact', 'sans-serif'],
+        'body': ['var(--font-manrope)', 'Manrope', 'system-ui', 'sans-serif'],
+        'brand-mono': ['var(--font-jetbrains)', 'JetBrains Mono', 'monospace'],
       },
       borderRadius: {
         'fpl': '12px',

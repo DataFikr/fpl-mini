@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import './fatigue.css';
 
 export const metadata: Metadata = {
   title: 'FPL 2026/27 World Cup Fatigue Tracker & Official New Kit Guide',
@@ -25,7 +26,9 @@ const jsonLd = {
   description:
     'A comprehensive data analysis evaluating Fantasy Premier League player fatigue, pre-season recovery windows, and rotation risks for the 2026/27 season following the 2026 FIFA World Cup.',
   abstract:
-    'TL;DR: The close proximity of the 2026 World Cup final to the Premier League kickoff creates an unprecedented fatigue trap for premium FPL assets. Heavily owned stars including Erling Haaland, Bukayo Saka, and Martin Ødegaard face severe early-season rest or rotation profiles, making a strategy focused on fresh alternatives or strict pre-season tracking essential for GW1 success.',
+    'TL;DR: With the 2026 World Cup won by Spain, the fatigue picture is now confirmed. England’s run to the semi-finals leaves Bukayo Saka and Declan Rice heavily loaded, and Norway’s run to the quarter-finals does the same to Erling Haaland and Martin Ødegaard — all GW1 rotation risks. Dutch, German and Portuguese names (Van Dijk, Wirtz, Bruno Fernandes) came home earlier and fresher, while Ollie Watkins, Cole Palmer and Phil Foden are the freshest premium options of all.',
+  datePublished: '2026-06-02',
+  dateModified: '2026-07-27',
   inLanguage: 'en-US',
   author: {
     '@type': 'Organization',

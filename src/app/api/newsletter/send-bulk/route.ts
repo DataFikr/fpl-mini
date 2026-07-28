@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
 import { FPLApiService } from '@/services/fpl-api';
 import { EmailService } from '@/services/email-service';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const { leagueId, gameweek, stories } = await request.json();
 
@@ -30,7 +33,9 @@ export async function POST(request: NextRequest) {
     const subscribers = await prisma.newsletterSubscription.findMany({
       where: {
         leagueId: parseInt(leagueId),
-        isActive: true
+        isActive: true,
+        // Double opt-in (I5): only email addresses that clicked the confirm link.
+        verifiedAt: { not: null },
       }
     });
 
@@ -57,14 +62,25 @@ export async function POST(request: NextRequest) {
       console.warn('Could not fetch league name, using fallback');
     }
 
+    // Premium newsletter block (I5): computed once, prepended for premium subscribers.
+    const premiumBlock = await emailService.buildPremiumPicksBlock(currentGameweek).catch(() => '');
+    const premiumUserIds = new Set(
+      (await prisma.user.findMany({
+        where: { id: { in: subscribers.map((s) => s.userId).filter((v): v is string => !!v) }, isPremium: true },
+        select: { id: true },
+      }).catch(() => [])).map((u) => u.id),
+    );
+
     // Send email to each subscriber
     for (const subscriber of subscribers) {
       try {
+        const isPremium = subscriber.userId ? premiumUserIds.has(subscriber.userId) : false;
         const emailResult = await emailService.sendGameweekSummary(
           subscriber.email,
           leagueName,
           stories || [],
-          currentGameweek
+          currentGameweek,
+          isPremium ? premiumBlock : ''
         );
 
         if (emailResult.success) {
@@ -121,6 +137,8 @@ export async function POST(request: NextRequest) {
 
 // GET endpoint to check subscribers for a league
 export async function GET(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const { searchParams } = new URL(request.url);
     const leagueId = searchParams.get('leagueId');

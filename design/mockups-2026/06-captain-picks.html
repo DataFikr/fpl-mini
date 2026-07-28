@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 06 — Captain Picks (squad Prediction tab) — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:#efeeee;color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:#fff;background:var(--ink);border:0;cursor:pointer;
+  padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn--red{background:var(--red);}
+.s-btn--red:hover{background:var(--red-dark);}
+.mono{font-family:var(--mono);}
+.tag{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;background:var(--ink);color:#fff;display:inline-block;}
+.tag--yellow{background:var(--yellow);color:var(--ink);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+
+.stage{display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap;padding:40px 20px 72px;}
+.frame{width:100%;max-width:480px;}
+.spec-note{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;
+  padding:0 4px 12px;}
+
+/* ── app shell (mobile) ── */
+.fpl-app{background:var(--bg);border:1px solid var(--line);min-height:820px;display:flex;flex-direction:column;}
+.app-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;}
+.ah-title{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.02em;}
+.acct-badge{width:40px;height:40px;border:0;cursor:pointer;background:var(--ink);color:#fff;font-family:var(--display);font-size:16px;
+  display:grid;place-items:center;clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
+.app-scroll{flex:1;padding:2px 18px 28px;}
+
+/* tabs */
+.s-tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+.s-tabs a{font-family:var(--body);font-weight:700;font-size:14px;color:var(--t3);padding:6px 0 11px;position:relative;min-height:auto;}
+.s-tabs a:hover{color:var(--ink);}
+.s-tabs a.is-active{color:var(--ink);}
+.s-tabs a.is-active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--red);}
+
+.lbl-row{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px;}
+.lbl-row .l{font-family:var(--display);font-size:20px;letter-spacing:.03em;}
+.lbl-row .gwtag{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+
+/* ── #1 pick hero card ── */
+.cap-hero{background:var(--ink);color:#fff;padding:20px 18px 18px;position:relative;overflow:hidden;margin-bottom:10px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);}
+.cap-hero .red-slab{position:absolute;top:-50px;right:-40px;width:200px;height:200px;background:var(--red);opacity:.15;clip-path:polygon(40% 0,100% 0,100% 100%,0 100%);}
+.cap-hero .top{position:relative;display:flex;align-items:flex-start;gap:14px;}
+.cap-hero .rk{font-family:var(--display);font-size:28px;color:var(--red);line-height:.9;flex:0 0 auto;}
+.cap-hero .who{flex:1;min-width:0;}
+.cap-hero .nm{font-family:var(--display);font-weight:400;font-size:34px;line-height:.9;letter-spacing:.01em;}
+.cap-hero .fx{font-family:var(--mono);font-weight:600;font-size:12px;color:#cfc6c6;text-transform:uppercase;letter-spacing:.05em;margin-top:7px;}
+.cap-hero .xp{text-align:right;flex:0 0 auto;}
+.cap-hero .xp .v{font-family:var(--display);font-size:64px;color:var(--red);line-height:.8;}
+.cap-hero .xp .l{font-family:var(--mono);font-weight:600;font-size:12px;color:#9a8e8e;text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+.cap-hero .conf{position:relative;margin-top:16px;}
+.cap-hero .conf .cl{display:flex;justify-content:space-between;font-family:var(--mono);font-weight:600;font-size:12px;color:#cfc6c6;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.cap-hero .track{height:8px;background:rgba(255,255,255,.14);overflow:hidden;}
+.cap-hero .fill{height:100%;background:var(--red);}
+.cap-hero .band{position:relative;margin-top:14px;display:flex;align-items:center;gap:10px;}
+.cap-hero .cbadge{width:30px;height:30px;border-radius:50%;background:var(--yellow);color:var(--ink);font-family:var(--display);font-size:17px;display:grid;place-items:center;flex:0 0 auto;}
+.cap-hero .band b{font-family:var(--body);font-weight:800;font-size:13px;color:#fff;}
+.cap-hero .band small{font-family:var(--body);font-size:12px;color:#cfc6c6;}
+
+/* ranked rows 2–5 */
+.cap-row{display:grid;grid-template-columns:30px 1fr 84px 58px;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);padding:12px 14px;margin-bottom:8px;}
+.cap-row .rk{font-family:var(--display);font-size:20px;color:var(--t3);text-align:center;line-height:1;}
+.cap-row .who{min-width:0;}
+.cap-row .nm{font-family:var(--body);font-weight:800;font-size:14px;line-height:1.1;}
+.cap-row .fx{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.03em;margin-top:3px;}
+.cap-row .cbar{height:7px;background:var(--line-2);overflow:hidden;}
+.cap-row .cbar div{height:100%;background:var(--ink);}
+.cap-row .xp{font-family:var(--display);font-size:26px;text-align:right;line-height:.9;}
+.cap-row .xp small{display:block;font-family:var(--mono);font-weight:600;font-size:11px;color:var(--t3);text-transform:uppercase;margin-top:2px;letter-spacing:.04em;}
+.vice-note{display:flex;gap:10px;align-items:flex-start;background:var(--line-2);padding:12px 14px;margin-top:12px;
+  font-family:var(--body);font-weight:600;font-size:13px;color:var(--charcoal);line-height:1.5;}
+.vice-note .vb{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--display);font-size:13px;display:grid;place-items:center;flex:0 0 auto;}
+
+/* ── free variant: blur + upsell ── */
+.gate{position:relative;}
+.gate .blurred{filter:blur(7px);pointer-events:none;user-select:none;}
+.gate-overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;
+  background:linear-gradient(180deg,rgba(250,250,250,.15),rgba(250,250,250,.88) 70%);}
+.gate-card{width:100%;max-width:340px;background:var(--ink);color:#fff;text-align:center;padding:26px 22px 24px;box-shadow:var(--shadow);
+  clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.gate-card .cbadge{width:40px;height:40px;border-radius:50%;background:var(--yellow);color:var(--ink);font-family:var(--display);font-size:21px;display:grid;place-items:center;margin:0 auto 12px;}
+.gate-card h3{font-family:var(--display);font-weight:400;font-size:28px;line-height:.92;letter-spacing:.02em;margin:0 0 8px;}
+.gate-card p{font-family:var(--body);font-size:13px;color:#cfc6c6;line-height:1.55;margin:0 0 16px;}
+.gate-card .s-btn{width:100%;}
+.gate-card .fine{display:block;font-family:var(--mono);font-weight:600;font-size:12px;color:#9a8e8e;text-transform:uppercase;letter-spacing:.05em;margin-top:12px;}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ══ premium state ══ -->
+  <div class="frame" data-screen-label="Captain picks — premium">
+    <p class="spec-note">Premium state — ranked captain picks, GW1</p>
+    <div class="fpl-app">
+      <div class="app-head">
+        <span class="ah-title">MY SQUAD</span>
+        <button class="acct-badge" aria-label="Account">J</button>
+      </div>
+      <div class="app-scroll">
+        <nav class="s-tabs" aria-label="Squad sections">
+          <a href="#">Pitch</a>
+          <a href="#" class="is-active" aria-current="page">Prediction</a>
+          <a href="#">Planner</a>
+          <a href="#">Analytics</a>
+        </nav>
+
+        <div class="lbl-row">
+          <span class="l">CAPTAIN PICKS</span>
+          <span class="gwtag">GW1 &middot; from your 15</span>
+        </div>
+
+        <article class="cap-hero">
+          <span class="red-slab"></span>
+          <div class="top">
+            <span class="rk">01</span>
+            <div class="who">
+              <div class="nm">HAALAND</div>
+              <div class="fx">MCI (H) v BUR &middot; Sat 15:00</div>
+            </div>
+            <div class="xp"><div class="v">8.4</div><div class="l">xPts</div></div>
+          </div>
+          <div class="conf">
+            <div class="cl"><span>Model confidence</span><span>86%</span></div>
+            <div class="track"><div class="fill" style="width:86%;"></div></div>
+          </div>
+          <div class="band">
+            <span class="cbadge" aria-hidden="true">C</span>
+            <div><b>Our call: give him the armband.</b><br><small>Highest ceiling and floor in your squad this week.</small></div>
+          </div>
+        </article>
+
+        <div class="cap-row">
+          <span class="rk">02</span>
+          <div class="who"><div class="nm">M.Salah</div><div class="fx">LIV (H) v BOU</div></div>
+          <div class="cbar" role="img" aria-label="Confidence 74%"><div style="width:74%;"></div></div>
+          <div class="xp">7.9<small>xPts</small></div>
+        </div>
+        <div class="cap-row">
+          <span class="rk">03</span>
+          <div class="who"><div class="nm">Isak</div><div class="fx">LIV (H) v BOU</div></div>
+          <div class="cbar" role="img" aria-label="Confidence 61%"><div style="width:61%;"></div></div>
+          <div class="xp">6.9<small>xPts</small></div>
+        </div>
+        <div class="cap-row">
+          <span class="rk">04</span>
+          <div class="who"><div class="nm">Saka</div><div class="fx">ARS (A) v MUN</div></div>
+          <div class="cbar" role="img" aria-label="Confidence 55%"><div style="width:55%;"></div></div>
+          <div class="xp">6.7<small>xPts</small></div>
+        </div>
+        <div class="cap-row">
+          <span class="rk">05</span>
+          <div class="who"><div class="nm">Watkins</div><div class="fx">AVL (H) v WHU</div></div>
+          <div class="cbar" role="img" aria-label="Confidence 48%"><div style="width:48%;"></div></div>
+          <div class="xp">6.2<small>xPts</small></div>
+        </div>
+
+        <div class="vice-note">
+          <span class="vb" aria-hidden="true">V</span>
+          <span><strong>Vice:</strong> M.Salah — safest cover if Haaland is a late doubt. Team news lands ~1h before deadline.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ free state ══ -->
+  <div class="frame" data-screen-label="Captain picks — free blur teaser">
+    <p class="spec-note">Free state — same layout blurred, upsell overlay</p>
+    <div class="fpl-app">
+      <div class="app-head">
+        <span class="ah-title">MY SQUAD</span>
+        <button class="acct-badge" aria-label="Account">J</button>
+      </div>
+      <div class="app-scroll">
+        <nav class="s-tabs" aria-label="Squad sections">
+          <a href="#">Pitch</a>
+          <a href="#" class="is-active" aria-current="page">Prediction</a>
+          <a href="#">Planner</a>
+          <a href="#">Analytics</a>
+        </nav>
+
+        <div class="lbl-row">
+          <span class="l">CAPTAIN PICKS</span>
+          <span class="gwtag">GW1 &middot; from your 15</span>
+        </div>
+
+        <div class="gate">
+          <div class="blurred" aria-hidden="true">
+            <article class="cap-hero">
+              <div class="top">
+                <span class="rk">01</span>
+                <div class="who">
+                  <div class="nm">HAALAND</div>
+                  <div class="fx">MCI (H) v BUR &middot; Sat 15:00</div>
+                </div>
+                <div class="xp"><div class="v">8.4</div><div class="l">xPts</div></div>
+              </div>
+              <div class="conf">
+                <div class="cl"><span>Model confidence</span><span>86%</span></div>
+                <div class="track"><div class="fill" style="width:86%;"></div></div>
+              </div>
+            </article>
+            <div class="cap-row">
+              <span class="rk">02</span>
+              <div class="who"><div class="nm">M.Salah</div><div class="fx">LIV (H) v BOU</div></div>
+              <div class="cbar"><div style="width:74%;"></div></div>
+              <div class="xp">7.9<small>xPts</small></div>
+            </div>
+            <div class="cap-row">
+              <span class="rk">03</span>
+              <div class="who"><div class="nm">Isak</div><div class="fx">LIV (H) v BOU</div></div>
+              <div class="cbar"><div style="width:61%;"></div></div>
+              <div class="xp">6.9<small>xPts</small></div>
+            </div>
+            <div class="cap-row">
+              <span class="rk">04</span>
+              <div class="who"><div class="nm">Saka</div><div class="fx">ARS (A) v MUN</div></div>
+              <div class="cbar"><div style="width:55%;"></div></div>
+              <div class="xp">6.7<small>xPts</small></div>
+            </div>
+          </div>
+          <div class="gate-overlay">
+            <div class="gate-card">
+              <span class="cbadge" aria-hidden="true">C</span>
+              <h3>Your captain call is ready</h3>
+              <p>The model has ranked all 15 of your players for GW1. Premium unlocks your captain picks every gameweek.</p>
+              <a class="s-btn s-btn--red hex" href="#">Go premium</a>
+              <span class="fine">From &pound;15 &middot; one-off &middot; full season</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

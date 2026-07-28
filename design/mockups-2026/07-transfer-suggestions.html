@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 07 — Transfer Suggestions (squad Prediction tab) — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:#efeeee;color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:#fff;background:var(--ink);border:0;cursor:pointer;
+  padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn--red{background:var(--red);}
+.s-btn--red:hover{background:var(--red-dark);}
+.mono{font-family:var(--mono);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+
+.stage{display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap;padding:40px 20px 72px;}
+.frame{width:100%;max-width:480px;}
+.spec-note{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:0 4px 12px;}
+
+.fpl-app{background:var(--bg);border:1px solid var(--line);min-height:840px;display:flex;flex-direction:column;}
+.app-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;}
+.ah-title{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.02em;}
+.acct-badge{width:40px;height:40px;border:0;cursor:pointer;background:var(--ink);color:#fff;font-family:var(--display);font-size:16px;
+  display:grid;place-items:center;clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
+.app-scroll{flex:1;padding:2px 18px 28px;}
+.s-tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+.s-tabs a{font-family:var(--body);font-weight:700;font-size:14px;color:var(--t3);padding:6px 0 11px;position:relative;}
+.s-tabs a:hover{color:var(--ink);}
+.s-tabs a.is-active{color:var(--ink);}
+.s-tabs a.is-active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--red);}
+.lbl-row{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px;}
+.lbl-row .l{font-family:var(--display);font-size:20px;letter-spacing:.03em;}
+.lbl-row .gwtag{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+
+/* bank strip */
+.bank{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.bank .b{background:#fff;border:1px solid var(--line);padding:10px 13px;display:flex;justify-content:space-between;align-items:baseline;}
+.bank .bl{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;}
+.bank .bv{font-family:var(--mono);font-weight:700;font-size:14px;}
+
+/* transfer card */
+.tcard{background:#fff;border:1px solid var(--line);padding:16px 16px 15px;margin-bottom:10px;}
+.tcard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.tcard-head .rk{font-family:var(--display);font-size:18px;color:var(--t3);letter-spacing:.03em;}
+.tcard-delta{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--green);background:rgba(0,156,84,.1);padding:5px 10px;}
+.tcard-move{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:13px;}
+.t-side{display:flex;flex-direction:column;gap:3px;background:var(--bg);border:1px solid var(--line);padding:10px 12px;min-width:0;}
+.t-side .io{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.05em;text-transform:uppercase;}
+.t-side.out .io{color:var(--red);}
+.t-side.in .io{color:var(--green);}
+.t-side .io .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 auto;}
+.t-side .nm{font-family:var(--body);font-weight:800;font-size:14px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.t-side .mt{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;}
+.t-arrow{font-family:var(--display);font-size:22px;color:var(--t3);}
+.tcard-factors{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);margin-bottom:12px;}
+.tf{background:var(--bg);padding:10px 8px;text-align:center;}
+.tf-l{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px;}
+.tf-v{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--ink);}
+.tf-v b.up{color:var(--green);}
+.tf-v b.dn{color:var(--red);}
+.tcard-why{font-family:var(--body);font-size:13px;line-height:1.55;color:var(--t2);margin:0 0 11px;}
+.tcard-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.ttag{font-family:var(--mono);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#0a7a3f;background:#e6f6ec;padding:5px 9px;}
+.ttag--warn{color:#7a5800;background:#fff3cc;}
+.ft-note{display:flex;gap:10px;align-items:flex-start;background:var(--line-2);padding:12px 14px;margin-top:6px;
+  font-family:var(--body);font-weight:600;font-size:13px;color:var(--charcoal);line-height:1.5;}
+
+/* gate (free) */
+.gate{position:relative;}
+.gate .blurred{filter:blur(7px);pointer-events:none;user-select:none;}
+.gate-overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;
+  background:linear-gradient(180deg,rgba(250,250,250,.15),rgba(250,250,250,.88) 70%);}
+.gate-card{width:100%;max-width:340px;background:var(--ink);color:#fff;text-align:center;padding:26px 22px 24px;box-shadow:var(--shadow);
+  clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.gate-card .ic{width:42px;height:42px;display:grid;place-items:center;background:var(--red);color:#fff;margin:0 auto 12px;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.gate-card h3{font-family:var(--display);font-weight:400;font-size:28px;line-height:.92;letter-spacing:.02em;margin:0 0 8px;}
+.gate-card p{font-family:var(--body);font-size:13px;color:#cfc6c6;line-height:1.55;margin:0 0 16px;}
+.gate-card .s-btn{width:100%;}
+.gate-card .fine{display:block;font-family:var(--mono);font-weight:600;font-size:12px;color:#9a8e8e;text-transform:uppercase;letter-spacing:.05em;margin-top:12px;}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ══ premium ══ -->
+  <div class="frame" data-screen-label="Transfer suggestions — premium">
+    <p class="spec-note">Premium state — in/out pairs ranked by xPts delta</p>
+    <div class="fpl-app">
+      <div class="app-head">
+        <span class="ah-title">MY SQUAD</span>
+        <button class="acct-badge" aria-label="Account">J</button>
+      </div>
+      <div class="app-scroll">
+        <nav class="s-tabs" aria-label="Squad sections">
+          <a href="#">Pitch</a>
+          <a href="#" class="is-active" aria-current="page">Prediction</a>
+          <a href="#">Planner</a>
+          <a href="#">Analytics</a>
+        </nav>
+
+        <div class="lbl-row">
+          <span class="l">TRANSFER SUGGESTIONS</span>
+          <span class="gwtag">GW1</span>
+        </div>
+
+        <div class="bank">
+          <div class="b"><span class="bl">In the bank</span><span class="bv">&pound;1.5m</span></div>
+          <div class="b"><span class="bl">Free transfers</span><span class="bv">1</span></div>
+        </div>
+
+        <article class="tcard">
+          <div class="tcard-head">
+            <span class="rk">MOVE 01</span>
+            <span class="tcard-delta">+5.2 xPts / next 3</span>
+          </div>
+          <div class="tcard-move">
+            <div class="t-side out">
+              <span class="io"><span class="dot"></span>Out</span>
+              <span class="nm">N.Jackson</span>
+              <span class="mt">CHE &middot; &pound;7.9m</span>
+            </div>
+            <span class="t-arrow" aria-hidden="true">&rarr;</span>
+            <div class="t-side in">
+              <span class="io"><span class="dot"></span>In</span>
+              <span class="nm">Isak</span>
+              <span class="mt">LIV &middot; &pound;10.6m</span>
+            </div>
+          </div>
+          <div class="tcard-factors">
+            <div class="tf"><div class="tf-l">Next 3 FDR</div><div class="tf-v"><b class="up">2.0</b> vs 3.7</div></div>
+            <div class="tf"><div class="tf-l">Form / 90</div><div class="tf-v"><b class="up">7.1</b> vs 3.4</div></div>
+            <div class="tf"><div class="tf-l">Cost</div><div class="tf-v"><b class="dn">-&pound;2.7m</b></div></div>
+          </div>
+          <p class="tcard-why">Isak opens with Bournemouth (H), Wolves (A) and Burnley (H). Jackson faces two of last season&rsquo;s top four and is a rotation risk after pre-season.</p>
+          <div class="tcard-tags">
+            <span class="ttag">Fits budget</span>
+            <span class="ttag">Nailed starter</span>
+          </div>
+        </article>
+
+        <article class="tcard">
+          <div class="tcard-head">
+            <span class="rk">MOVE 02</span>
+            <span class="tcard-delta">+3.1 xPts / next 3</span>
+          </div>
+          <div class="tcard-move">
+            <div class="t-side out">
+              <span class="io"><span class="dot"></span>Out</span>
+              <span class="nm">Kudus</span>
+              <span class="mt">TOT &middot; &pound;6.4m</span>
+            </div>
+            <span class="t-arrow" aria-hidden="true">&rarr;</span>
+            <div class="t-side in">
+              <span class="io"><span class="dot"></span>In</span>
+              <span class="nm">Mbeumo</span>
+              <span class="mt">MUN &middot; &pound;8.3m</span>
+            </div>
+          </div>
+          <div class="tcard-factors">
+            <div class="tf"><div class="tf-l">Next 3 FDR</div><div class="tf-v"><b class="up">2.3</b> vs 3.3</div></div>
+            <div class="tf"><div class="tf-l">Form / 90</div><div class="tf-v"><b class="up">5.8</b> vs 4.0</div></div>
+            <div class="tf"><div class="tf-l">Cost</div><div class="tf-v"><b class="dn">+&pound;1.9m</b></div></div>
+          </div>
+          <p class="tcard-why">Mbeumo is on penalties and set pieces at United. This move costs your second free transfer or a 4-point hit — the model still rates it positive over three gameweeks.</p>
+          <div class="tcard-tags">
+            <span class="ttag">Set-piece taker</span>
+            <span class="ttag--warn ttag">Needs 2nd FT</span>
+          </div>
+        </article>
+
+        <div class="ft-note">Suggestions respect your budget, free transfers and existing squad. They refresh daily with prices and injury news.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ free ══ -->
+  <div class="frame" data-screen-label="Transfer suggestions — free blur teaser">
+    <p class="spec-note">Free state — blurred pairs, upsell overlay</p>
+    <div class="fpl-app">
+      <div class="app-head">
+        <span class="ah-title">MY SQUAD</span>
+        <button class="acct-badge" aria-label="Account">J</button>
+      </div>
+      <div class="app-scroll">
+        <nav class="s-tabs" aria-label="Squad sections">
+          <a href="#">Pitch</a>
+          <a href="#" class="is-active" aria-current="page">Prediction</a>
+          <a href="#">Planner</a>
+          <a href="#">Analytics</a>
+        </nav>
+
+        <div class="lbl-row">
+          <span class="l">TRANSFER SUGGESTIONS</span>
+          <span class="gwtag">GW1</span>
+        </div>
+
+        <div class="gate">
+          <div class="blurred" aria-hidden="true">
+            <div class="bank">
+              <div class="b"><span class="bl">In the bank</span><span class="bv">&pound;1.5m</span></div>
+              <div class="b"><span class="bl">Free transfers</span><span class="bv">1</span></div>
+            </div>
+            <article class="tcard">
+              <div class="tcard-head">
+                <span class="rk">MOVE 01</span>
+                <span class="tcard-delta">+5.2 xPts / next 3</span>
+              </div>
+              <div class="tcard-move">
+                <div class="t-side out"><span class="io"><span class="dot"></span>Out</span><span class="nm">N.Jackson</span><span class="mt">CHE &middot; &pound;7.9m</span></div>
+                <span class="t-arrow">&rarr;</span>
+                <div class="t-side in"><span class="io"><span class="dot"></span>In</span><span class="nm">Isak</span><span class="mt">LIV &middot; &pound;10.6m</span></div>
+              </div>
+              <div class="tcard-factors">
+                <div class="tf"><div class="tf-l">Next 3 FDR</div><div class="tf-v"><b class="up">2.0</b> vs 3.7</div></div>
+                <div class="tf"><div class="tf-l">Form / 90</div><div class="tf-v"><b class="up">7.1</b> vs 3.4</div></div>
+                <div class="tf"><div class="tf-l">Cost</div><div class="tf-v"><b class="dn">-&pound;2.7m</b></div></div>
+              </div>
+              <p class="tcard-why">Isak opens with Bournemouth (H), Wolves (A) and Burnley (H).</p>
+            </article>
+            <article class="tcard">
+              <div class="tcard-head">
+                <span class="rk">MOVE 02</span>
+                <span class="tcard-delta">+3.1 xPts / next 3</span>
+              </div>
+              <div class="tcard-move">
+                <div class="t-side out"><span class="io"><span class="dot"></span>Out</span><span class="nm">Kudus</span><span class="mt">TOT &middot; &pound;6.4m</span></div>
+                <span class="t-arrow">&rarr;</span>
+                <div class="t-side in"><span class="io"><span class="dot"></span>In</span><span class="nm">Mbeumo</span><span class="mt">MUN &middot; &pound;8.3m</span></div>
+              </div>
+            </article>
+          </div>
+          <div class="gate-overlay">
+            <div class="gate-card">
+              <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M8 21H3v-5M21 3l-7 7M3 21l7-7"></path></svg></span>
+              <h3>2 moves worth making</h3>
+              <p>The model found transfers worth +8.3 expected points over the next three gameweeks for your squad.</p>
+              <a class="s-btn s-btn--red hex" href="#">Go premium</a>
+              <span class="fine">From &pound;15 &middot; one-off &middot; full season</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

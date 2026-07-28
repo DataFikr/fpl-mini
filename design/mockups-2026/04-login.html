@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 04 — /auth/login — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:#fff;background:var(--ink);border:0;cursor:pointer;
+  padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn--red{background:var(--red);}
+.s-btn--red:hover{background:var(--red-dark);}
+.s-btn[disabled]{opacity:.55;cursor:default;}
+.mono{font-family:var(--mono);}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-size:22px;letter-spacing:.03em;color:var(--ink);}
+.logo .bolt{width:22px;height:22px;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+
+.stage{max-width:1060px;margin:0 auto;padding:48px 24px 72px;}
+.spec-note{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;
+  border-top:2px dashed var(--line);padding-top:12px;margin:44px 0 18px;}
+.spec-note:first-of-type{margin-top:0;border-top:0;padding-top:0;}
+.states{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+@media (max-width:760px){.states{grid-template-columns:1fr;}}
+
+/* ── login card ── */
+.login-card{width:100%;max-width:420px;margin:0 auto;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
+  padding:32px 30px 28px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.login-card .logo{margin-bottom:22px;}
+.login-card h1{font-family:var(--display);font-weight:400;font-size:36px;line-height:.9;letter-spacing:.01em;margin:0 0 8px;}
+.login-card .sub{font-family:var(--body);font-size:13.5px;line-height:1.55;color:var(--t2);margin:0 0 22px;}
+.f-label{display:block;font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
+.f-input{width:100%;background:#fff;border:1px solid var(--line);padding:12px 15px;font-family:var(--body);font-weight:600;font-size:15px;
+  color:var(--ink);outline:none;min-height:44px;margin-bottom:14px;}
+.f-input::placeholder{color:var(--t4);font-weight:500;}
+.f-input:focus{border-color:var(--red);}
+.login-card .s-btn{width:100%;}
+.fine{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 0;text-align:center;}
+.err{display:flex;gap:10px;align-items:flex-start;background:#fff2f2;border:1px solid var(--red);padding:11px 13px;margin:0 0 16px;
+  font-family:var(--body);font-weight:600;font-size:13px;color:var(--red-dark);line-height:1.45;}
+.err::before{content:'';width:9px;height:9px;background:var(--red);flex:0 0 auto;margin-top:4px;}
+
+/* sent state */
+.sent{background:var(--ink);color:#fff;padding:22px 20px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
+.sent .ic{width:44px;height:44px;display:grid;place-items:center;background:var(--green);color:#fff;margin-bottom:14px;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.sent h2{font-family:var(--display);font-weight:400;font-size:28px;line-height:.92;letter-spacing:.02em;margin:0 0 8px;}
+.sent p{font-family:var(--body);font-size:13.5px;line-height:1.6;color:#cfc6c6;margin:0;}
+.sent p strong{color:#fff;word-break:break-all;}
+.resend{margin-top:16px;font-family:var(--body);font-weight:700;font-size:13px;}
+.resend a{color:var(--red);}
+</style>
+</head>
+<body data-screen-label="Mockup 04 — /auth/login magic link">
+
+<div class="stage">
+
+  <p class="spec-note">Default state — email entry (error banner shown when ?error=invalid)</p>
+  <div class="states">
+    <main class="login-card" data-screen-label="Login — default">
+      <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+      <h1>Sign in</h1>
+      <p class="sub">We&rsquo;ll email you a one-time sign-in link. No password needed.</p>
+      <form onsubmit="return false">
+        <label class="f-label" for="em1">Email</label>
+        <input class="f-input" id="em1" type="email" placeholder="you@example.com" autocomplete="email">
+        <button class="s-btn s-btn--red hex" type="submit">Email me a sign-in link</button>
+      </form>
+      <p class="fine">Link expires in 15 minutes</p>
+    </main>
+
+    <main class="login-card" data-screen-label="Login — invalid link error">
+      <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+      <h1>Sign in</h1>
+      <p class="sub">We&rsquo;ll email you a one-time sign-in link. No password needed.</p>
+      <p class="err" role="alert">That sign-in link was invalid or expired. Request a new one below.</p>
+      <form onsubmit="return false">
+        <label class="f-label" for="em2">Email</label>
+        <input class="f-input" id="em2" type="email" placeholder="you@example.com" autocomplete="email">
+        <button class="s-btn s-btn--red hex" type="submit">Email me a sign-in link</button>
+      </form>
+      <p class="fine">Link expires in 15 minutes</p>
+    </main>
+  </div>
+
+  <p class="spec-note">Sent state — &ldquo;check your email&rdquo; &middot; sending state (button disabled)</p>
+  <div class="states">
+    <main class="login-card" data-screen-label="Login — link sent">
+      <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+      <div class="sent" role="status">
+        <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12.5 5 5L20 6.5"></path></svg></span>
+        <h2>Check your inbox</h2>
+        <p>We&rsquo;ve sent a sign-in link to <strong>you@example.com</strong>. It expires in 15 minutes — open it on this device.</p>
+      </div>
+      <p class="resend">Wrong address? <a href="#">Use a different email</a></p>
+    </main>
+
+    <main class="login-card" data-screen-label="Login — sending">
+      <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+      <h1>Sign in</h1>
+      <p class="sub">We&rsquo;ll email you a one-time sign-in link. No password needed.</p>
+      <form onsubmit="return false">
+        <label class="f-label" for="em3">Email</label>
+        <input class="f-input" id="em3" type="email" value="you@example.com" autocomplete="email">
+        <button class="s-btn s-btn--red hex" type="submit" disabled>Sending&hellip;</button>
+      </form>
+      <p class="fine">Link expires in 15 minutes</p>
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

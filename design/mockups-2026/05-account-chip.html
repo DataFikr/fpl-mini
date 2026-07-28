@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 05 — AccountChip states — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.mono{font-family:var(--mono);}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-size:22px;letter-spacing:.03em;color:var(--ink);}
+.logo .bolt{width:22px;height:22px;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+
+.stage{max-width:900px;margin:0 auto;padding:48px 24px 80px;}
+.spec-note{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;
+  border-top:2px dashed var(--line);padding-top:12px;margin:40px 0 16px;}
+.spec-note:first-of-type{margin-top:0;border-top:0;padding-top:0;}
+
+/* topbar context (desktop app shell) */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;background:#fff;border:1px solid var(--line);padding:12px 24px;min-height:64px;}
+.topbar h1{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.01em;margin:0;}
+.tb-actions{display:flex;align-items:center;gap:12px;}
+
+/* ── AccountChip: signed out ── */
+.acct-signin{font-family:var(--display);font-size:15px;letter-spacing:.04em;text-transform:uppercase;line-height:1;
+  color:var(--ink);background:var(--line-2);border:0;cursor:pointer;min-height:44px;padding:0 20px;display:inline-flex;align-items:center;gap:8px;}
+.acct-signin:hover{background:var(--line);}
+
+/* ── AccountChip: signed in ── */
+.acct-badge{position:relative;width:44px;height:44px;border:0;cursor:pointer;background:var(--ink);color:#fff;
+  font-family:var(--display);font-size:17px;letter-spacing:.02em;display:grid;place-items:center;
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
+.acct-badge:hover{background:var(--charcoal);}
+/* premium variant: yellow frame via layered clip */
+.acct-wrap{position:relative;display:inline-block;}
+.acct-wrap.premium::before{content:'';position:absolute;inset:-3px;background:var(--yellow);
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
+.acct-wrap.premium .acct-badge{position:relative;}
+.acct-star{position:absolute;right:-7px;top:-7px;z-index:2;width:18px;height:18px;display:grid;place-items:center;
+  background:var(--yellow);color:var(--ink);font-size:12px;line-height:1;
+  clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);}
+
+/* ── menu ── */
+.acct-menu-anchor{position:relative;display:inline-block;}
+.acct-menu{position:absolute;right:0;top:52px;z-index:10;width:240px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);}
+.acct-menu .who{padding:14px 16px;border-bottom:1px solid var(--line-2);}
+.acct-menu .who .em{font-family:var(--body);font-weight:700;font-size:13px;color:var(--ink);word-break:break-all;}
+.acct-menu .who .plan{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-family:var(--mono);font-weight:700;font-size:12px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--t3);}
+.acct-menu .who .plan.premium{color:var(--green);}
+.acct-menu .who .plan .sq{width:9px;height:9px;background:currentColor;}
+.acct-item{display:flex;align-items:center;width:100%;min-height:44px;padding:0 16px;background:none;border:0;cursor:pointer;text-align:left;
+  font-family:var(--body);font-weight:700;font-size:13.5px;color:var(--ink);text-decoration:none;}
+.acct-item:hover{background:var(--bg);color:var(--ink);}
+.acct-item.go-prem{color:var(--red);}
+.acct-item.go-prem:hover{color:var(--red-dark);}
+.acct-item + .acct-item{border-top:1px solid var(--line-2);}
+
+/* mobile app-head context */
+.app-head{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:480px;background:var(--bg);
+  border:1px solid var(--line);padding:12px 18px;}
+.menu-btn{width:44px;height:44px;border-radius:50%;background:var(--line-2);color:var(--ink);display:grid;place-items:center;cursor:pointer;border:0;}
+
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.cell{background:#fff;border:1px solid var(--line);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.cell .cl{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;text-align:center;}
+@media (max-width:700px){.row3{grid-template-columns:1fr;}}
+.menu-stage{min-height:260px;}
+</style>
+</head>
+<body data-screen-label="Mockup 05 — AccountChip states">
+
+<div class="stage">
+
+  <p class="spec-note">Chip states — replaces hardcoded #2B1654 / #888 with Sportify tokens</p>
+  <div class="row3">
+    <div class="cell">
+      <button class="acct-signin">Sign in</button>
+      <span class="cl">Signed out<br>ghost button &middot; 44px target</span>
+    </div>
+    <div class="cell">
+      <span class="acct-wrap"><button class="acct-badge" aria-label="Account: jamie@example.com">J</button></span>
+      <span class="cl">Signed in &middot; free<br>ink badge, notch cut, display initial</span>
+    </div>
+    <div class="cell">
+      <span class="acct-wrap premium"><button class="acct-badge" aria-label="Account: jamie@example.com, premium">J</button><span class="acct-star" aria-hidden="true">&#9733;</span></span>
+      <span class="cl">Signed in &middot; premium<br>yellow frame + star</span>
+    </div>
+  </div>
+
+  <p class="spec-note">Open menu — desktop topbar context (free plan shows &ldquo;Go premium&rdquo;)</p>
+  <div class="topbar menu-stage">
+    <h1>League HQ</h1>
+    <div class="tb-actions">
+      <span class="acct-menu-anchor">
+        <span class="acct-wrap"><button class="acct-badge" aria-expanded="true" aria-label="Account menu">J</button></span>
+        <div class="acct-menu" role="menu">
+          <div class="who">
+            <div class="em">jamie@example.com</div>
+            <span class="plan"><span class="sq"></span>Free plan</span>
+          </div>
+          <a class="acct-item go-prem" role="menuitem" href="#">Go premium</a>
+          <a class="acct-item" role="menuitem" href="#">Log out</a>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <p class="spec-note">Open menu — premium account (no upsell item)</p>
+  <div class="topbar menu-stage">
+    <h1>My Squad</h1>
+    <div class="tb-actions">
+      <span class="acct-menu-anchor">
+        <span class="acct-wrap premium"><button class="acct-badge" aria-expanded="true" aria-label="Account menu">J</button><span class="acct-star" aria-hidden="true">&#9733;</span></span>
+        <div class="acct-menu" role="menu">
+          <div class="who">
+            <div class="em">jamie@example.com</div>
+            <span class="plan premium"><span class="sq"></span>&#9733; Premium &middot; 2026/27</span>
+          </div>
+          <a class="acct-item" role="menuitem" href="#">Log out</a>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <p class="spec-note">Mobile app-head context — chip sits left of the menu button</p>
+  <div class="app-head">
+    <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="acct-wrap"><button class="acct-badge" aria-label="Account">J</button></span>
+      <button class="menu-btn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

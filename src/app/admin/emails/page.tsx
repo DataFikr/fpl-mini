@@ -49,6 +49,19 @@ interface EmailData {
   stats: EmailStats;
 }
 
+// Interim admin key handling. The value is stored only in the admin's browser
+// (localStorage) and sent as the `x-admin-key` header. Replaced by session-based
+// admin auth once the magic-link auth workstream lands.
+function getAdminKey(): string {
+  if (typeof window === 'undefined') return '';
+  let key = window.localStorage.getItem('fpl_admin_key') || '';
+  if (!key) {
+    key = window.prompt('Enter admin key') || '';
+    if (key) window.localStorage.setItem('fpl_admin_key', key);
+  }
+  return key;
+}
+
 export default function AdminEmailsPage() {
   const [emailData, setEmailData] = useState<EmailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +84,13 @@ export default function AdminEmailsPage() {
         status: statusFilter
       });
 
-      const response = await fetch(`/api/admin/emails?${params}`);
+      const response = await fetch(`/api/admin/emails?${params}`, {
+        headers: { 'x-admin-key': getAdminKey() }
+      });
+      if (response.status === 401 || response.status === 503) {
+        window.localStorage.removeItem('fpl_admin_key');
+        throw new Error('Admin key rejected. Reload to re-enter it.');
+      }
       if (!response.ok) throw new Error('Failed to fetch emails');
 
       const data = await response.json();
@@ -90,6 +109,7 @@ export default function AdminEmailsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-admin-key': getAdminKey(),
         },
         body: JSON.stringify({
           format,

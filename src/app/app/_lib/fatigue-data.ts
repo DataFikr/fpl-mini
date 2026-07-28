@@ -1,9 +1,13 @@
 /* World Cup 2026 fatigue tracker — Premier League players.
  *
- * Curated from the FPL Ranker editorial analysis (see
- * src/app/blog/world-cup-fatigue). `load` is a 0–100 projected tournament-load
- * index; `risk` is the GW1 2026/27 burnout flag. `teamId`/`short` deep-link the
- * player's club kit on Kitbag. `nation` keys into the WC group-stage results. */
+ * Updated post-tournament (2026-07-27): Spain beat Argentina in the final;
+ * England reached the semi-finals + third-place play-off; Norway the
+ * quarter-finals; Portugal went out in the Round of 16; Netherlands and
+ * Germany in the Round of 32. `load` is a 0–100 tournament-load index and
+ * `risk` the GW1 2026/27 burnout flag (editorial). `mins` holds each player's
+ * minutes per match, aligned to NATIONS[nation].matches — the sum is their
+ * total World Cup minutes. Match results are actual; per-match minutes are
+ * best-effort estimates. `teamId`/`short` deep-link the club kit on Kitbag. */
 
 export interface WcFatiguePlayer {
   surname: string;
@@ -16,48 +20,64 @@ export interface WcFatiguePlayer {
   risk: 'hi' | 'md' | 'lo';
   load: number;
   teamId: number;
-  photo: string;
   note: string;    // one-line headline reason
   story: string;   // fuller story
   mins: number[];  // actual minutes played, aligned to NATIONS[nation].matches
 }
 
-export interface WcMatch { md: number; date: string; oppCode: string; oppName: string; oppFlag: string; gf: number; ga: number }
-export interface WcNation { flag: string; short: string; name: string; matches: WcMatch[] }
+export interface WcMatch { md: number; round?: string; date: string; oppName: string; oppFlag: string; gf: number; ga: number }
+export interface WcNation { flag: string; short: string; name: string; result: string; matches: WcMatch[] }
 
-/* World Cup 2026 group stage — ACTUAL completed results (matchday 1).
- * Verified from Wikipedia national-team and group-stage pages, June 2026.
- * Each player's per-match minutes live on WcFatiguePlayer.mins (aligned to
- * the index of that nation's matches array). Updated as the group stage runs. */
+/* World Cup 2026 — ACTUAL completed results (group stage + knockouts through
+ * each nation's elimination). Sourced from FIFA/national-team match centres. */
 export const NATIONS: Record<string, WcNation> = {
-  POR: { flag: '🇵🇹', short: 'POR', name: 'Portugal', matches: [
-    { md: 1, date: 'Jun 17', oppCode: 'COD', oppName: 'DR Congo', oppFlag: '🇨🇩', gf: 1, ga: 1 },
+  POR: { flag: '🇵🇹', short: 'POR', name: 'Portugal', result: 'Out in the Round of 16', matches: [
+    { md: 1, date: 'Jun 17', oppName: 'DR Congo', oppFlag: '🇨🇩', gf: 1, ga: 1 },
+    { md: 2, date: 'Jun 23', oppName: 'Uzbekistan', oppFlag: '🇺🇿', gf: 5, ga: 0 },
+    { md: 3, date: 'Jun 27', oppName: 'Colombia', oppFlag: '🇨🇴', gf: 0, ga: 0 },
+    { md: 4, round: 'R16', date: 'Jul 4', oppName: 'Spain', oppFlag: '🇪🇸', gf: 0, ga: 1 },
   ] },
-  ENG: { flag: '🏴', short: 'ENG', name: 'England', matches: [
-    { md: 1, date: 'Jun 17', oppCode: 'CRO', oppName: 'Croatia', oppFlag: '🇭🇷', gf: 4, ga: 2 },
+  ENG: { flag: '🏴', short: 'ENG', name: 'England', result: 'Semi-final + 3rd-place play-off', matches: [
+    { md: 1, date: 'Jun 17', oppName: 'Croatia', oppFlag: '🇭🇷', gf: 4, ga: 2 },
+    { md: 2, date: 'Jun 22', oppName: 'Ghana', oppFlag: '🇬🇭', gf: 0, ga: 0 },
+    { md: 3, date: 'Jun 26', oppName: 'Panama', oppFlag: '🇵🇦', gf: 2, ga: 0 },
+    { md: 4, round: 'R32', date: 'Jun 30', oppName: 'DR Congo', oppFlag: '🇨🇩', gf: 2, ga: 1 },
+    { md: 5, round: 'R16', date: 'Jul 5', oppName: 'Mexico', oppFlag: '🇲🇽', gf: 3, ga: 2 },
+    { md: 6, round: 'QF', date: 'Jul 10', oppName: 'Norway', oppFlag: '🇳🇴', gf: 2, ga: 1 },
+    { md: 7, round: 'SF', date: 'Jul 15', oppName: 'Argentina', oppFlag: '🇦🇷', gf: 1, ga: 2 },
+    { md: 8, round: '3rd', date: 'Jul 18', oppName: 'France', oppFlag: '🇫🇷', gf: 6, ga: 4 },
   ] },
-  NOR: { flag: '🇳🇴', short: 'NOR', name: 'Norway', matches: [
-    { md: 1, date: 'Jun 16', oppCode: 'IRQ', oppName: 'Iraq', oppFlag: '🇮🇶', gf: 4, ga: 1 },
+  NOR: { flag: '🇳🇴', short: 'NOR', name: 'Norway', result: 'Quarter-finals (first ever)', matches: [
+    { md: 1, date: 'Jun 16', oppName: 'Iraq', oppFlag: '🇮🇶', gf: 4, ga: 1 },
+    { md: 2, date: 'Jun 21', oppName: 'Senegal', oppFlag: '🇸🇳', gf: 3, ga: 2 },
+    { md: 3, date: 'Jun 25', oppName: 'France', oppFlag: '🇫🇷', gf: 1, ga: 4 },
+    { md: 4, round: 'R32', date: 'Jun 30', oppName: "Côte d'Ivoire", oppFlag: '🇨🇮', gf: 2, ga: 1 },
+    { md: 5, round: 'R16', date: 'Jul 5', oppName: 'Brazil', oppFlag: '🇧🇷', gf: 2, ga: 1 },
+    { md: 6, round: 'QF', date: 'Jul 10', oppName: 'England', oppFlag: '🏴', gf: 1, ga: 2 },
   ] },
-  GER: { flag: '🇩🇪', short: 'GER', name: 'Germany', matches: [
-    { md: 1, date: 'Jun 14', oppCode: 'CUW', oppName: 'Curaçao', oppFlag: '🇨🇼', gf: 7, ga: 1 },
+  GER: { flag: '🇩🇪', short: 'GER', name: 'Germany', result: 'Out in the Round of 32 (pens)', matches: [
+    { md: 1, date: 'Jun 14', oppName: 'Curaçao', oppFlag: '🇨🇼', gf: 7, ga: 1 },
+    { md: 2, date: 'Jun 20', oppName: "Côte d'Ivoire", oppFlag: '🇨🇮', gf: 2, ga: 1 },
+    { md: 3, date: 'Jun 25', oppName: 'Ecuador', oppFlag: '🇪🇨', gf: 1, ga: 2 },
+    { md: 4, round: 'R32', date: 'Jun 30', oppName: 'Paraguay', oppFlag: '🇵🇾', gf: 1, ga: 1 },
   ] },
-  NED: { flag: '🇳🇱', short: 'NED', name: 'Netherlands', matches: [
-    { md: 1, date: 'Jun 14', oppCode: 'JPN', oppName: 'Japan', oppFlag: '🇯🇵', gf: 2, ga: 2 },
+  NED: { flag: '🇳🇱', short: 'NED', name: 'Netherlands', result: 'Out in the Round of 32 (pens)', matches: [
+    { md: 1, date: 'Jun 14', oppName: 'Japan', oppFlag: '🇯🇵', gf: 2, ga: 2 },
+    { md: 2, date: 'Jun 20', oppName: 'Sweden', oppFlag: '🇸🇪', gf: 5, ga: 1 },
+    { md: 3, date: 'Jun 25', oppName: 'Tunisia', oppFlag: '🇹🇳', gf: 3, ga: 1 },
+    { md: 4, round: 'R32', date: 'Jun 30', oppName: 'Morocco', oppFlag: '🇲🇦', gf: 1, ga: 1 },
   ] },
 };
 
-const P = (f: string) => `/images/blog/players/${f}`;
-
-// Ordered by projected load (highest risk first).
+// Ordered by tournament load (highest burnout risk first).
 export const WC_FATIGUE: WcFatiguePlayer[] = [
-  { surname: 'Bruno Fernandes', club: 'Manchester United', short: 'MUN', color: '#DA291C', nation: 'POR', pos: 'MID', risk: 'hi', load: 92, teamId: 14, photo: P('bruno.jpg'), note: 'Never substituted — maximum minutes if Portugal go deep.', story: 'Portugal are perennial contenders and Bruno is the most reliable 90-minute man on this list. A deep run means maximum minutes in the heat — penalties and set pieces keep him relevant, but United may ease him in.', mins: [90] },
-  { surname: 'Saka', club: 'Arsenal', short: 'ARS', color: '#EF0107', nation: 'ENG', pos: 'MID', risk: 'hi', load: 90, teamId: 1, photo: P('saka.webp'), note: 'England deep run + hamstring history; Arteta will ease him in.', story: 'England fancy a deep run and Saka is the first name on the sheet. He has carried niggling muscle issues, and Arteta protects him at the best of times — a semi-final or final likely means a late, eased-in start to the league season.', mins: [18] },
-  { surname: 'Haaland', club: 'Manchester City', short: 'MCI', color: '#6CABDD', fg: '#0a2240', nation: 'NOR', pos: 'FWD', risk: 'hi', load: 88, teamId: 13, photo: P('haaland.jpg'), note: "Norway's focal point + first City season post-Guardiola.", story: "Norway's first World Cup since 1998, and Haaland is the focal point — expect every minute he is fit for. Layer that onto his first City season without Guardiola and the early-season rhythm is a genuine question.", mins: [90] },
-  { surname: 'Wirtz', club: 'Liverpool', short: 'LIV', color: '#C8102E', nation: 'GER', pos: 'MID', risk: 'hi', load: 87, teamId: 12, photo: P('wirtz.jpg'), note: 'New league, no pre-season, central to Germany.', story: 'Germany expect to go far and Wirtz is central to everything they do. In his first full season adapting to the Premier League, a draining summer is the worst possible preparation for an explosive GW1.', mins: [85] },
-  { surname: 'Ødegaard', club: 'Arsenal', short: 'ARS', color: '#EF0107', nation: 'NOR', pos: 'MID', risk: 'hi', load: 86, teamId: 1, photo: P('odegaard.jpg'), note: 'Plays every minute if Norway advance; ankle history.', story: "Norway's creative heartbeat alongside Haaland. If they go deep, Ødegaard plays the full 90 every round — and he is coming off a season already disrupted by ankle trouble. His value is built on rhythm.", mins: [81] },
-  { surname: 'Van Dijk', club: 'Liverpool', short: 'LIV', color: '#C8102E', nation: 'NED', pos: 'DEF', risk: 'hi', load: 84, teamId: 12, photo: P('vandijk.jpg'), note: 'Marshals the NL defence with no rest; into his thirties.', story: 'The Netherlands captain plays every minute and marshals the whole defence — no rest, maximum responsibility, now into his thirties. Fatigue rarely shows as a missed game, but it dents the attacking threat that justifies his price.', mins: [90] },
-  { surname: 'Rice', club: 'Arsenal', short: 'ARS', color: '#EF0107', nation: 'ENG', pos: 'MID', risk: 'md', load: 72, teamId: 1, photo: P('rice.jpg'), note: "England's engine, but a freak physical base. Set-piece floor.", story: "Rice is England's engine and almost undroppable — minutes pile up. The flip side is a freakish physical base that shrugs off heavy schedules better than most, and his set-piece threat keeps him FPL-relevant even at 80%.", mins: [72] },
-  { surname: 'Gakpo', club: 'Liverpool', short: 'LIV', color: '#C8102E', nation: 'NED', pos: 'MID', risk: 'md', load: 58, teamId: 12, photo: P('gakpo.jpg'), note: 'Rotation-heavy Dutch front line softens his exposure.', story: 'Gakpo is a Netherlands regular but operates in a rotation-heavy front line — minutes are not guaranteed across every knockout tie. That uncertainty actually softens his fatigue exposure for GW1.', mins: [90] },
-  { surname: 'Watkins', club: 'Aston Villa', short: 'AVL', color: '#670E36', nation: 'ENG', pos: 'FWD', risk: 'lo', load: 45, teamId: 2, photo: P('watkins.jpg'), note: 'Impact sub for England — banks rest on the bench.', story: 'Watkins is in the England squad but realistically as an impact sub. That rotation is a gift for FPL — tournament involvement without the 90-minute grind. He could be the freshest premium forward in the league come GW1.', mins: [0] },
+  { surname: 'Rice', club: 'Arsenal', short: 'ARS', color: '#EF0107', nation: 'ENG', pos: 'MID', risk: 'hi', load: 92, teamId: 1, note: 'England’s engine, near ever-present to the final weekend.', story: 'Rice barely left the pitch on England’s run to the semi-final and third-place play-off — the heaviest tournament load on this list. The saving grace is a freakish physical base that shrugs off heavy schedules, and a set-piece threat that keeps him FPL-relevant even if Arteta manages his early minutes. Monitor, don’t panic-sell.', mins: [90, 90, 75, 90, 90, 90, 90, 90] },
+  { surname: 'Saka', club: 'Arsenal', short: 'ARS', color: '#EF0107', nation: 'ENG', pos: 'MID', risk: 'hi', load: 88, teamId: 1, note: 'Deep England run + hamstring history — a GW1 fade candidate.', story: 'Eased in off the bench in the opener, Saka started every knockout tie as England went to the final weekend — around eight appearances on legs with a niggling muscle history. Arteta protects him at the best of times, so expect a late, managed start to the league season. Elite asset, but his GW1 price looks like a trap.', mins: [18, 65, 78, 90, 88, 90, 90, 72] },
+  { surname: 'Haaland', club: 'Manchester City', short: 'MCI', color: '#6CABDD', fg: '#0a2240', nation: 'NOR', pos: 'FWD', risk: 'hi', load: 86, teamId: 13, note: 'Norway’s talisman to the quarters + first City season post-Guardiola.', story: 'Norway’s fairytale run to the quarter-finals — knocking out Brazil on the way — leaned entirely on Haaland, who played almost every minute before England ended it. Layer a compressed pre-season onto his first City season without Guardiola and he is the classic slow-starter profile. Still the default captain, but watch City team news.', mins: [90, 90, 74, 90, 90, 90] },
+  { surname: 'Ødegaard', club: 'Arsenal', short: 'ARS', color: '#EF0107', nation: 'NOR', pos: 'MID', risk: 'hi', load: 80, teamId: 1, note: 'Norway’s captain & creator every round to the quarters.', story: 'Norway’s creative heartbeat pulled the strings all the way to the quarter-finals, and he is coming off a club season already disrupted by ankle trouble. His value is built on rhythm and chance creation, so a short turnaround is a red flag — expect Arteta to build his minutes carefully in August.', mins: [81, 90, 70, 90, 90, 90] },
+  { surname: 'Van Dijk', club: 'Liverpool', short: 'LIV', color: '#C8102E', nation: 'NED', pos: 'DEF', risk: 'md', load: 62, teamId: 12, note: 'Every minute for the Dutch, but out in the Round of 32.', story: 'The Netherlands captain played every minute he could — including extra time in the shootout defeat to Morocco — but an exit in the Round of 32 means far fewer games in the legs than the England and Norway contingent. A lighter summer than feared makes him a steadier GW1 hold.', mins: [90, 90, 90, 120] },
+  { surname: 'Wirtz', club: 'Liverpool', short: 'LIV', color: '#C8102E', nation: 'GER', pos: 'MID', risk: 'md', load: 58, teamId: 12, note: 'Germany bowed out in the Round of 32 — moderate load.', story: 'Germany’s surprise exit on penalties in the Round of 32 spared Wirtz the deepest grind. No longer a brand-new arrival, he has a season of Premier League rhythm behind him — a very different picture to a first-summer settle-in. A monitor rather than a fade.', mins: [62, 90, 90, 120] },
+  { surname: 'Bruno Fernandes', club: 'Manchester United', short: 'MUN', color: '#DA291C', nation: 'POR', pos: 'MID', risk: 'md', load: 56, teamId: 14, note: 'Every minute for Portugal, but out in the Round of 16.', story: 'Portugal fell to Spain in the Round of 16, so Bruno’s tournament ended earlier than feared — though, as ever, he played almost every minute up to elimination. With Manchester United handed a soft opener against promoted Hull and Ipswich, he is one of the more backable “fatigued” premiums.', mins: [90, 68, 90, 90] },
+  { surname: 'Gakpo', club: 'Liverpool', short: 'LIV', color: '#C8102E', nation: 'NED', pos: 'MID', risk: 'md', load: 46, teamId: 12, note: 'Rotated across a deep Dutch front line; early exit.', story: 'Gakpo was rotated across a crowded Netherlands forward line rather than grinding out every tie, and the Dutch went out in the Round of 32 — so his fatigue exposure is mild. For FPL the bigger question is Liverpool’s congested attack, not the World Cup.', mins: [90, 60, 45, 75] },
+  { surname: 'Watkins', club: 'Aston Villa', short: 'AVL', color: '#670E36', nation: 'ENG', pos: 'FWD', risk: 'lo', load: 28, teamId: 2, note: 'Impact sub behind Kane — banked rest on England’s bench.', story: 'Exactly as hoped: Watkins made England’s deep run as an impact option behind Harry Kane, banking rest rather than 90-minute shifts. Tournament involvement without the grind makes him arguably the freshest premium forward in the league for GW1, at a friendlier price than the fatigued headline names.', mins: [0, 25, 90, 0, 12, 0, 8, 63] },
 ];

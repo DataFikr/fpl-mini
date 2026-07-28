@@ -1,8 +1,18 @@
 # FR-DLS Design System v2.0 — Unified Token Reference
 
-> **Version:** 2.0.0
+> ⚠️ **DEPRECATED (2026-07-25).** FR-DLS (dark violet/lime) is **no longer the source of truth.**
+> Per `DESIGN_REVIEW_2026.md` (D3) and `INTEGRATION_MASTER_PLAN_2026.md`, the shipped
+> **Sportify v1** system is now canonical for the whole funnel and app:
+> light `#FAFAFA` / red `#FF5050` / navy `#12233F`, Bebas Neue · Manrope · JetBrains Mono,
+> hex clip-path geometry. Tokens live in `src/app/app/_styles/sportify-fpl.css` +
+> `src/app/_styles/sportify-pages.css`, and are mirrored into `tailwind.config.ts`
+> (`sport-red`, `ink`, `navy`, `paper`, `line`, `font-display/body/brand-mono`).
+> The full mockup pack + spec is in `design/mockups-2026/`.
+> FR-DLS below is retained only for the un-migrated blog/content pages and will be retired.
+
+> **Version:** 2.0.0 (superseded by Sportify v1)
 > **Date:** 2026-06-12
-> **Status:** Single source of truth for all FPL Ranker components, skills, and wireframes
+> **Status:** DEPRECATED — see banner above; Sportify v1 is the single source of truth
 > **Supersedes:** Scattered token definitions across 5 skill files and 3 design docs
 
 ---

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FaXTwitter, FaReddit, FaInstagram } from 'react-icons/fa6';
+import { XIcon, RedditIcon, InstagramIcon } from '@/components/ui/brand-icons';
 
 export function AppFooter() {
   return (
@@ -27,9 +27,9 @@ export function AppFooter() {
       </div>
 
       <div className="fsocial">
-        <a href="https://x.com/fplranker" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on X"><FaXTwitter /></a>
-        <a href="https://www.reddit.com/user/fplranker/" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on Reddit"><FaReddit /></a>
-        <a href="https://instagram.com/FPLRanker" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on Instagram"><FaInstagram /></a>
+        <a href="https://x.com/fplranker" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on X"><XIcon /></a>
+        <a href="https://www.reddit.com/user/fplranker/" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on Reddit"><RedditIcon /></a>
+        <a href="https://instagram.com/FPLRanker" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on Instagram"><InstagramIcon /></a>
       </div>
 
       <div className="fbottom">

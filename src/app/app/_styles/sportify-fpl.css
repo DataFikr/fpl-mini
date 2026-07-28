@@ -3,7 +3,8 @@
    Extracted from the Sportify (Community) Figma kit:
    palette, type, and the signature pointed-hexagon geometry.
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap');
+/* Fonts are self-hosted via next/font (see src/app/layout.tsx). The tokens
+   below consume the injected CSS variables, falling back to system fonts. */
 
 :root{
   /* core palette (from Components/Colors) */
@@ -15,10 +16,10 @@
   --t2:#5B5757;         --t3:#848181;        --t4:#ADABAB;
   --green:#009C54;      --yellow:#FFD100;    --lav:#CABFFF;
   /* type */
-  --display:'Bebas Neue', Impact, sans-serif;
-  --body:'Manrope', system-ui, sans-serif;
-  --alt:'IBM Plex Sans', system-ui, sans-serif;
-  --mono:'JetBrains Mono', monospace;
+  --display:var(--font-bebas), 'Bebas Neue', Impact, sans-serif;
+  --body:var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --alt:var(--font-manrope), system-ui, sans-serif;
+  --mono:var(--font-jetbrains), 'JetBrains Mono', monospace;
   /* geometry */
   --pt:8px;          /* hexagon point depth */
   --shadow:0 12px 34px -14px rgba(21,0,0,.28);
@@ -110,3 +111,32 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
 .mv.up{color:var(--green);}
 .mv.down{color:var(--red);}
 .mv.flat{color:var(--t4);}
+
+/* ============================================================
+   A11y (DESIGN_REVIEW D2) — keyboard focus + reduced motion.
+   Low-specificity :where() so element rules can still override.
+   ============================================================ */
+:where(a, button, input, select, textarea, summary, [tabindex], [role="button"], [role="menuitem"], [role="tab"]):focus-visible{
+  outline:3px solid var(--navy);
+  outline-offset:2px;
+  border-radius:2px;
+}
+/* white ring on dark ink surfaces (sidebar, footer, sheets, hero, ink cards) */
+.sidebar :focus-visible, .app-footer :focus-visible, .menu-overlay :focus-visible,
+.share-sheet :focus-visible, .v2-photo :focus-visible, .motm :focus-visible,
+.hub-spot :focus-visible, .botnav :focus-visible, .landing-bar :focus-visible,
+.on-ink :focus-visible, .pcard .pc-top :focus-visible{ outline-color:#fff; }
+/* inputs that clear their outline get a visible red border on keyboard focus */
+.id-field input:focus-visible{ outline:none; }
+.id-field:focus-within{ outline:3px solid var(--navy); outline-offset:2px; }
+
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+  .sk{ animation:none !important; background:#ececec !important; }
+  .live-pin .dot, .side-nav a .live-dot, .tool-tile .live-pin{ animation:none !important; }
+}

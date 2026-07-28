@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 08 — /players/[slug] pSEO template — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.on-ink :focus-visible{outline-color:#fff;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:#fff;background:var(--ink);border:0;cursor:pointer;
+  padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn--red{background:var(--red);}
+.s-btn--red:hover{background:var(--red-dark);color:#fff;}
+.mono{font-family:var(--mono);}
+.tag{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;background:var(--ink);color:#fff;display:inline-block;}
+.tag--ghost{background:var(--line-2);color:var(--charcoal);}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-size:22px;letter-spacing:.03em;color:var(--ink);}
+.logo .bolt{width:22px;height:22px;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+
+.pagebar{background:#fff;border-bottom:1px solid var(--line);}
+.pagebar .in{max-width:860px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.pagebar .s-btn{font-size:14px;background:var(--line-2);color:var(--ink);}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 72px;}
+.crumb{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;padding:18px 0 0;}
+.crumb a{color:var(--t2);}
+
+/* ── hero ── */
+.p-hero{background:var(--ink);color:#fff;position:relative;overflow:hidden;margin-top:14px;padding:28px 28px 26px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%);}
+.p-hero .red-slab{position:absolute;top:-70px;right:-50px;width:280px;height:280px;background:var(--red);opacity:.16;clip-path:polygon(40% 0,100% 0,100% 100%,0 100%);}
+.p-hero .in{position:relative;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;}
+.p-hero .kick{font-family:var(--mono);font-weight:600;font-size:12px;color:#cfc6c6;text-transform:uppercase;letter-spacing:.08em;}
+.p-hero h1{font-family:var(--display);font-weight:400;font-size:clamp(46px,7vw,72px);line-height:.85;letter-spacing:.01em;margin:8px 0 12px;}
+.p-hero .chips{display:flex;gap:8px;flex-wrap:wrap;}
+.p-hero .chips .tag--ghost{background:rgba(255,255,255,.12);color:#fff;}
+.p-hero .xp{text-align:right;}
+.p-hero .xp .v{font-family:var(--display);font-size:clamp(64px,9vw,96px);color:var(--red);line-height:.8;}
+.p-hero .xp .l{font-family:var(--mono);font-weight:600;font-size:12px;color:#9a8e8e;text-transform:uppercase;letter-spacing:.06em;margin-top:6px;}
+
+/* ── stat grid ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-top:0;}
+.stat{background:#fff;padding:16px 14px;}
+.stat .l{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;}
+.stat .v{font-family:var(--display);font-size:34px;line-height:.9;margin-top:6px;}
+.stat .v small{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);letter-spacing:.03em;}
+@media (max-width:640px){.stat-grid{grid-template-columns:1fr 1fr;}}
+
+/* ── two-col: form + fixtures ── */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;}
+@media (max-width:640px){.duo{grid-template-columns:1fr;}}
+.panel{background:#fff;border:1px solid var(--line);padding:18px;}
+.panel h2{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.03em;margin:0 0 14px;}
+.form-row{display:flex;align-items:flex-end;gap:8px;height:96px;}
+.form-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;}
+.form-col .bar{width:100%;background:var(--ink);}
+.form-col.best .bar{background:var(--red);}
+.form-col .pv{font-family:var(--mono);font-weight:700;font-size:12px;}
+.form-col .gw{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;}
+.fdr{display:flex;flex-direction:column;gap:8px;}
+.fdr-row{display:grid;grid-template-columns:52px 1fr 44px;align-items:center;gap:10px;}
+.fdr-row .gw{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;}
+.fdr-row .op{font-family:var(--body);font-weight:700;font-size:13.5px;}
+.fdr-row .d{font-family:var(--mono);font-weight:700;font-size:13px;color:#fff;text-align:center;padding:5px 0;}
+.d1{background:var(--green);} .d2{background:#4caf6e;} .d3{background:#b6a300;} .d4{background:var(--red);}
+
+/* ── xPts teaser ── */
+.teaser{margin-top:24px;background:var(--ink);color:#fff;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:22px 24px;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+.teaser h2{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.02em;line-height:.95;margin:0 0 6px;}
+.teaser p{font-family:var(--body);font-size:13.5px;color:#cfc6c6;margin:0;line-height:1.55;}
+@media (max-width:640px){.teaser{grid-template-columns:1fr;}}
+
+/* ── FAQ ── */
+.faq-h{font-family:var(--display);font-weight:400;font-size:28px;letter-spacing:.02em;margin:36px 0 12px;}
+.faq-item{background:#fff;border:1px solid var(--line);margin-bottom:8px;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 16px;cursor:pointer;background:none;border:0;text-align:left;
+  font-family:var(--body);font-weight:800;font-size:14px;color:var(--ink);line-height:1.3;min-height:44px;}
+.faq-q .ic{flex:0 0 auto;width:24px;height:24px;display:grid;place-items:center;background:var(--ink);color:#fff;font-family:var(--display);font-size:17px;line-height:1;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);}
+.faq-item.open .faq-q .ic{background:var(--red);}
+.faq-a{padding:0 16px 16px;font-family:var(--body);font-size:13.5px;line-height:1.6;color:var(--t2);margin:0;}
+
+/* ── kitbag CTA ── */
+.kitbag{margin-top:32px;background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:18px 20px;}
+.kitbag .shirt{width:52px;height:52px;display:grid;place-items:center;background:var(--line-2);color:var(--ink);flex:0 0 auto;
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
+.kitbag b{font-family:var(--body);font-weight:800;font-size:14px;display:block;}
+.kitbag small{font-family:var(--body);font-size:12.5px;color:var(--t2);line-height:1.5;display:block;margin-top:3px;}
+.kitbag .fine{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t4);text-transform:uppercase;letter-spacing:.04em;margin-top:5px;display:block;}
+@media (max-width:640px){.kitbag{grid-template-columns:auto 1fr;}.kitbag .s-btn{grid-column:1/-1;}}
+.footnote{margin-top:26px;font-family:var(--body);font-size:12px;color:var(--t3);line-height:1.6;}
+</style>
+</head>
+<body data-screen-label="Mockup 08 — /players/erling-haaland pSEO template">
+
+<div class="pagebar">
+  <div class="in">
+    <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+    <a class="s-btn" href="#">Open the app</a>
+  </div>
+</div>
+
+<main class="wrap">
+  <p class="crumb"><a href="#">Players</a> / Erling Haaland</p>
+
+  <section class="p-hero on-ink">
+    <span class="red-slab"></span>
+    <div class="in">
+      <div>
+        <span class="kick">Manchester City &middot; Forward &middot; 2026/27</span>
+        <h1>ERLING HAALAND</h1>
+        <div class="chips">
+          <span class="tag tag--ghost">&pound;14.2m</span>
+          <span class="tag tag--ghost">Owned by 58.3%</span>
+          <span class="tag tag--ghost">GW1 v BUR (H)</span>
+        </div>
+      </div>
+      <div class="xp">
+        <div class="v">8.4</div>
+        <div class="l">GW1 xPts &middot; model</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="l">Total pts 25/26</div><div class="v">262</div></div>
+    <div class="stat"><div class="l">Goals</div><div class="v">31</div></div>
+    <div class="stat"><div class="l">Assists</div><div class="v">7</div></div>
+    <div class="stat"><div class="l">Pts / match</div><div class="v">7.3</div></div>
+  </div>
+
+  <div class="duo">
+    <section class="panel">
+      <h2>RECENT FORM</h2>
+      <div class="form-row" role="img" aria-label="Last five gameweek scores: 2, 13, 9, 6, 12">
+        <div class="form-col"><span class="pv">2</span><span class="bar" style="height:12%;"></span><span class="gw">GW34</span></div>
+        <div class="form-col best"><span class="pv">13</span><span class="bar" style="height:78%;"></span><span class="gw">GW35</span></div>
+        <div class="form-col"><span class="pv">9</span><span class="bar" style="height:54%;"></span><span class="gw">GW36</span></div>
+        <div class="form-col"><span class="pv">6</span><span class="bar" style="height:36%;"></span><span class="gw">GW37</span></div>
+        <div class="form-col best"><span class="pv">12</span><span class="bar" style="height:72%;"></span><span class="gw">GW38</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>NEXT FIXTURES</h2>
+      <div class="fdr">
+        <div class="fdr-row"><span class="gw">GW1</span><span class="op">Burnley (H)</span><span class="d d1">2</span></div>
+        <div class="fdr-row"><span class="gw">GW2</span><span class="op">Spurs (A)</span><span class="d d3">3</span></div>
+        <div class="fdr-row"><span class="gw">GW3</span><span class="op">Brighton (H)</span><span class="d d2">2</span></div>
+        <div class="fdr-row"><span class="gw">GW4</span><span class="op">Arsenal (A)</span><span class="d d4">4</span></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="teaser on-ink">
+    <div>
+      <h2>Should you captain Haaland in GW1?</h2>
+      <p>Our model projects 8.4 points — the highest of any player this week. Premium ranks him against <em>your</em> squad&rsquo;s options.</p>
+    </div>
+    <a class="s-btn s-btn--red hex" href="#">See my captain picks</a>
+  </section>
+
+  <h2 class="faq-h">HAALAND FAQ</h2>
+  <div class="faq-item open">
+    <button class="faq-q" aria-expanded="true">Is Haaland worth &pound;14.2m in FPL 2026/27?<span class="ic" aria-hidden="true">&minus;</span></button>
+    <p class="faq-a">At 7.3 points per match last season he out-scored every other forward per pound in the top price bracket. The model rates him a keep for managers who can afford the spend without weakening midfield.</p>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" aria-expanded="false">What is Haaland&rsquo;s predicted score this gameweek?<span class="ic" aria-hidden="true">+</span></button>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" aria-expanded="false">Who are the best Haaland alternatives?<span class="ic" aria-hidden="true">+</span></button>
+  </div>
+
+  <aside class="kitbag">
+    <span class="shirt" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3h8l2 3 3 2-3 4v9H6v-9L3 8l3-2 2-3Z"></path></svg></span>
+    <div>
+      <b>Get the 2026/27 Man City home shirt</b>
+      <small>Official kit from our partner Kitbag — shirts, printing and more.</small>
+      <span class="fine">Affiliate link &middot; supports FPL Ranker</span>
+    </div>
+    <a class="s-btn hex" href="#" rel="sponsored">Shop kit</a>
+  </aside>
+
+  <p class="footnote">Stats from the official FPL API, updated daily. Predictions are model estimates, not guarantees. <a href="#">See all player predictions &rarr;</a></p>
+</main>
+
+</body>
+</html>

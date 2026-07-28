@@ -255,23 +255,8 @@ function StandingsTab({ managers, gw, focusId, gwSelect, leagueId }: { managers:
 interface HeadlineDetail { subhead: string; body: string; team: string; manager: string; stat: number; statLabel: string }
 interface Story { tag: string; tone: string; title: string; sentiment?: 'pos' | 'neg'; detail?: HeadlineDetail }
 
-// Celebrating vs dejected manager photos — matched to each story's sentiment.
-const HL_POS = ['positive_carrick_fist', 'positive_howie_fist', 'positive_iraola_celebrating', 'positive_maresca_celebrating', 'positive_unai_fist_cheer'];
-const HL_NEG = ['negative_carrick_disapoint', 'negative_howie_disapointed', 'negative_iraola_frust', 'negative_maresca_scratch_head', 'negative_unai_disapointed'];
-const hlImg = (n: string) => `/images/headlines/${n}.png`;
 // Tags that read as bad news, used when an explicit sentiment is missing (fallback stories).
 const HL_NEG_TAGS = new Set(['BENCH NIGHTMARE', 'CAPTAIN CALAMITY', 'CLONE WARS', 'BOTTLE JOB', 'PANIC MERCHANT', 'FALLER']);
-
-/** Assign each story a manager photo: positive→celebration, negative→dejection,
- *  cycling through all five per sentiment and shuffling the start per league. */
-function headlineImages(stories: Story[], leagueId: number): string[] {
-  let p = leagueId % HL_POS.length;
-  let n = (Math.floor(leagueId / HL_POS.length) + 1) % HL_NEG.length;
-  return stories.map((s) => {
-    const neg = s.sentiment ? s.sentiment === 'neg' : HL_NEG_TAGS.has(s.tag);
-    return neg ? hlImg(HL_NEG[n++ % HL_NEG.length]) : hlImg(HL_POS[p++ % HL_POS.length]);
-  });
-}
 
 function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { managers: AppManager[]; gw: number; leagueName: string; leagueId: number; gwSelect: React.ReactNode }) {
   // Instant render from already-loaded standings; the richer engine streams in after.
@@ -295,13 +280,10 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
     ? data.list
     : fallback.list.map((i) => ({ tag: i.tag, tone: i.tone, title: i.t }));
 
-  // One celebrating/dejected manager photo per card, sentiment-matched and shuffled per league.
   const all = useMemo(() => [hero, ...list], [hero, list]);
-  const imgs = useMemo(() => headlineImages(all, leagueId), [all, leagueId]);
   const [open, setOpen] = useState<number | null>(null);
 
   const sel = open != null ? all[open] : null;
-  const selImg = open != null ? imgs[open] : '';
 
   const copy = (text: string) => {
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -312,8 +294,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
     <>
       <div className="lbl-row"><span className="l">TOP STORIES{loading ? ' · updating…' : ''}</span>{gwSelect}</div>
       <div className="hl-hero" onClick={() => setOpen(0)}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <div className="ph"><img src={imgs[0]} alt="" /></div>
+        <div className="ph" style={{ background: `linear-gradient(135deg, ${hero.tone}33, transparent)` }} />
         <div className="grad" />
         <div className="ct"><span className="tag tab-cut" style={{ paddingRight: 18, background: hero.tone, ...(hero.tone === '#FFD100' ? { color: '#150000' } : {}) }}>{hero.tag}</span><h3>{hero.title}</h3></div>
       </div>
@@ -324,8 +305,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
               <span className="tag tab-cut" style={{ paddingRight: 16, background: i.tone, ...(i.tone === '#FFD100' ? { color: '#150000' } : {}) }}>{i.tag}</span>
               <h5>{i.title}</h5>
             </div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <div className="ph"><img src={imgs[idx + 1]} alt="" /></div>
+            <div className="ph" style={{ background: `linear-gradient(135deg, ${i.tone}33, transparent)` }} />
           </div>
         ))}
       </div>
@@ -338,8 +318,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
           <div className="story-modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <button className="story-x" aria-label="Close" onClick={() => setOpen(null)}>✕</button>
             <div className="story-hero">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={selImg} alt="" />
+              <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${sel.tone}44, #15000066)` }} />
               <div className="grad" />
               <div className="ct">
                 <span className="kicker">{sel.sentiment === 'neg' ? '💥' : '⚡'} BREAKING NEWS</span>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 01 — Marketing Landing / — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Sportify tokens (inline — self-contained mockup) ── */
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--ink-2:#2F0000;--charcoal:#322D2D;
+--navy:#12233F;--navy-deep:#001B58;--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;
+--t2:#5B5757;--t3:#848181;--t4:#ADABAB;--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.on-ink :focus-visible{outline-color:#fff;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.notch{clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:var(--bg);background:var(--ink);
+  border:0;cursor:pointer;padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn.hex{padding-left:32px;padding-right:32px;}
+.s-btn--red{background:var(--red);color:#fff;}
+.s-btn--red:hover{background:var(--red-dark);color:#fff;}
+.s-btn--ghost{background:var(--line-2);color:var(--ink);}
+.s-btn--ghost:hover{background:var(--line);color:var(--ink);}
+.kicker{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);}
+.d1{font-family:var(--display);font-weight:400;line-height:.92;letter-spacing:.005em;}
+.mono{font-family:var(--mono);}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-size:22px;letter-spacing:.03em;white-space:nowrap;color:var(--ink);}
+.logo .bolt{width:22px;height:22px;flex:0 0 auto;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+
+/* ── page ── */
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px;}
+
+/* header (light — continuous with the app shell) */
+.site-head{position:sticky;top:0;z-index:50;background:rgba(250,250,250,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+.site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;}
+.site-head nav{display:flex;gap:26px;}
+.site-head nav a{font-family:var(--body);font-weight:700;font-size:14px;color:var(--t2);padding:12px 0;}
+.site-head nav a:hover{color:var(--ink);}
+.head-actions{display:flex;align-items:center;gap:10px;}
+.site-head .s-btn{font-size:14px;min-height:44px;}
+
+/* hero */
+.hero{padding:64px 0 56px;position:relative;overflow:hidden;}
+.hero .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center;}
+.live-kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--line-2);padding:8px 13px;margin-bottom:22px;}
+.live-kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 1.3s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
+.hero h1{margin:0 0 18px;font-family:var(--display);font-weight:400;line-height:.88;letter-spacing:.01em;}
+.hero h1 span{display:block;font-size:clamp(38px,4.6vw,62px);}
+.hero h1 em{display:block;font-style:normal;color:var(--red);font-size:clamp(48px,6.2vw,84px);}
+.hero .sub{font-family:var(--body);font-weight:500;font-size:17px;line-height:1.6;color:var(--t2);max-width:52ch;margin:0 0 26px;}
+.league-form{display:flex;gap:0;max-width:520px;}
+.id-field{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
+  padding:4px 4px 4px 16px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
+.id-field svg{flex:0 0 auto;color:var(--t3);width:17px;height:17px;}
+.id-field input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);
+  font-family:var(--body);font-weight:600;font-size:15px;padding:13px 0;min-height:44px;}
+.id-field input::placeholder{color:var(--t4);}
+.form-hint{font-family:var(--body);font-size:13px;color:var(--t3);margin:11px 0 0;}
+.trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px;}
+.trust b{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:600;font-size:12px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--t2);}
+.trust b::before{content:'';width:9px;height:9px;background:var(--red);flex:0 0 auto;}
+
+/* hero art — ink panel keeps the Sportify signature without going full dark */
+.hero-art{position:relative;background:var(--ink);clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%);}
+.hero-art img{display:block;width:100%;height:auto;
+  -webkit-mask-image:linear-gradient(180deg,#000 82%,rgba(0,0,0,0) 100%);
+  mask-image:linear-gradient(180deg,#000 82%,rgba(0,0,0,0) 100%);}
+.hero-art .live-pin{position:absolute;left:16px;bottom:18px;display:inline-flex;align-items:center;gap:8px;
+  background:rgba(10,4,5,.72);backdrop-filter:blur(4px);color:#fff;font-family:var(--mono);font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;}
+.hero-art .live-pin .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 1.3s infinite;}
+.hero-video{cursor:pointer;}
+.hero-video:focus-visible{outline:3px solid var(--navy);outline-offset:3px;}
+
+/* features */
+.features{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:60px 0;}
+.sec-head{margin-bottom:28px;}
+.sec-head h2{font-family:var(--display);font-weight:400;font-size:clamp(30px,3.4vw,44px);letter-spacing:.01em;line-height:.95;margin:8px 0 0;}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.feat-card{background:var(--bg);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:12px;}
+.feat-card .fic{width:42px;height:42px;display:grid;place-items:center;background:var(--ink);color:var(--red);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.feat-card .fic svg{width:22px;height:22px;}
+.feat-card h3{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.02em;margin:0;line-height:1;}
+.feat-card p{font-family:var(--body);font-size:13px;line-height:1.55;color:var(--t2);margin:0;}
+
+/* premium band (single dark band — the one place the page goes ink) */
+.prem{background:var(--ink);color:#fff;padding:64px 0;position:relative;overflow:hidden;}
+.prem .red-slab{position:absolute;top:-90px;right:-60px;width:340px;height:340px;background:var(--red);opacity:.14;clip-path:polygon(40% 0,100% 0,100% 100%,0 100%);}
+.prem .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.2fr .8fr;gap:44px;align-items:center;}
+.prem h2{font-family:var(--display);font-weight:400;font-size:clamp(34px,4vw,54px);letter-spacing:.01em;line-height:.92;margin:10px 0 14px;color:#fff;}
+.prem h2 em{font-style:normal;color:var(--red);}
+.prem p{font-family:var(--body);font-size:15px;line-height:1.6;color:#cfc6c6;max-width:52ch;margin:0 0 24px;}
+.prem-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.prem-note{font-family:var(--mono);font-size:12px;color:#9a8e8e;letter-spacing:.05em;text-transform:uppercase;}
+.prem-list{display:flex;flex-direction:column;gap:10px;}
+.prem-list li{list-style:none;display:flex;gap:11px;align-items:flex-start;font-family:var(--body);font-weight:600;font-size:14px;color:#e6dcdc;line-height:1.45;}
+.prem-list li::before{content:'';width:9px;height:9px;background:var(--red);flex:0 0 auto;margin-top:5px;}
+.prem-list ul,.prem-list{margin:0;padding:0;}
+
+/* footer */
+.foot{background:var(--ink);color:#fff;border-top:1px solid rgba(255,255,255,.1);padding:36px 0 30px;}
+.foot .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.foot .logo{color:#fff;}
+.foot nav{display:flex;gap:20px;flex-wrap:wrap;}
+.foot nav a{font-family:var(--body);font-weight:600;font-size:13px;color:#cfc6c6;}
+.foot nav a:hover{color:#fff;}
+.foot .fine{font-family:var(--body);font-size:12px;color:#9a8e8e;width:100%;margin-top:14px;line-height:1.6;}
+
+@media (max-width:900px){
+  .hero .wrap,.prem .wrap{grid-template-columns:1fr;}
+  .feat-grid{grid-template-columns:1fr 1fr;}
+  .site-head nav{display:none;}
+}
+</style>
+</head>
+<body data-screen-label="Mockup 01 — Marketing landing /">
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="FPL Ranker home"><span class="bolt"></span>FPL RANKER</a>
+    <nav aria-label="Primary">
+      <a href="#">Predictions</a>
+      <a href="#">Premium</a>
+      <a href="#">Blog</a>
+      <a href="#">Find team ID</a>
+    </nav>
+    <div class="head-actions">
+      <a class="s-btn s-btn--ghost" href="#">Sign in</a>
+      <a class="s-btn s-btn--red hex" href="#">Go premium</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="live-kicker"><span class="dot"></span>2026/27 season · GW1 Aug 15</span>
+      <h1><span>Track your mini-league</span><em>like it&rsquo;s matchday</em></h1>
+      <p class="sub">ESPN-style headlines, live rank movers and AI point predictions for your FPL mini-league. Enter your team ID and get your league&rsquo;s story in seconds — no signup.</p>
+      <form class="league-form" onsubmit="return false">
+        <label class="id-field" aria-label="FPL manager ID">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input type="text" inputmode="numeric" placeholder="Enter your FPL manager ID&hellip;">
+          <button class="s-btn s-btn--red hex" type="submit">Rank my league</button>
+        </label>
+      </form>
+      <p class="form-hint">Not sure of your ID? <a href="#">Find your team ID &rarr;</a></p>
+      <div class="trust">
+        <b>Live FPL data</b>
+        <b>AI predictions</b>
+        <b>Core stays free</b>
+      </div>
+    </div>
+    <!-- Video-placeholder: replaces the copyrighted player hero. Real <video>
+         poster+source swaps in here once the teaser is recorded (see SPEC §7). -->
+    <div class="hero-art hero-video" role="button" tabindex="0" aria-label="Play product teaser">
+      <img src="assets/hero-video-placeholder.svg" width="1324" height="800" alt="Watch the FPL Ranker product teaser" fetchpriority="high">
+      <span class="live-pin"><span class="dot"></span>Watch the 45s teaser</span>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">What you get</span>
+      <h2>Built for the group chat argument</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <span class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 21h8M12 17v4M6 3h12v6a6 6 0 0 1-12 0V3Z"></path><path d="M18 5h3v2a4 4 0 0 1-4 4M6 5H3v2a4 4 0 0 0 4 4"></path></svg></span>
+        <h3>League HQ</h3>
+        <p>Standings, podium, movers and a Manager of the Month race for every mini-league you&rsquo;re in.</p>
+      </div>
+      <div class="feat-card">
+        <span class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"></path><path d="M21 7v6h-6"></path></svg></span>
+        <h3>Rank movers</h3>
+        <p>Who&rsquo;s climbing, who&rsquo;s sliding — headline-style recaps written for your league every gameweek.</p>
+      </div>
+      <div class="feat-card">
+        <span class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path><circle cx="12" cy="12" r="5"></circle></svg></span>
+        <h3>AI predictions</h3>
+        <p>A self-learning model projects every player&rsquo;s points each week. Top scorers are free to everyone.</p>
+      </div>
+      <div class="feat-card">
+        <span class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3h5v5M8 21H3v-5M21 3l-7 7M3 21l7-7"></path></svg></span>
+        <h3>Transfer impact</h3>
+        <p>See whether the moves you made actually paid off — points in vs points out, every week.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prem on-ink">
+  <span class="red-slab"></span>
+  <div class="wrap">
+    <div>
+      <span class="kicker">FPL Ranker Premium</span>
+      <h2>An AI edge for <em>&pound;15</em>, all season</h2>
+      <p>Captain picks and transfer calls tuned to your own squad, powered by the same model behind the predictions table. Launch price until 1 September, then &pound;20.</p>
+      <div class="prem-cta">
+        <a class="s-btn s-btn--red hex" href="#">See premium</a>
+        <span class="prem-note">One-off &middot; full 2026/27 season</span>
+      </div>
+    </div>
+    <ul class="prem-list">
+      <li>AI captain picks for your squad, every gameweek</li>
+      <li>Transfer suggestions ranked by expected points gain</li>
+      <li>The full points-prediction table, not just the top 10</li>
+      <li>Premium gameweek newsletter with your personalised calls</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot on-ink">
+  <div class="wrap">
+    <a class="logo" href="#"><span class="bolt"></span>FPL RANKER</a>
+    <nav aria-label="Footer">
+      <a href="#">Predictions</a>
+      <a href="#">Premium</a>
+      <a href="#">Blog</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy</a>
+    </nav>
+    <p class="fine">&copy; 2026 FPL Ranker. Not affiliated with the Premier League. Predictions are model estimates, not guarantees.</p>
+  </div>
+</footer>
+
+</body>
+</html>

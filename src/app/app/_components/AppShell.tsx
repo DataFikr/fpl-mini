@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './Toast';
 import { AppMenu } from './AppMenu';
+import { AccountChip } from './AccountChip';
 import { DesktopSidebar } from './DesktopSidebar';
 
 interface AppShellProps {
@@ -22,7 +23,7 @@ interface AppShellProps {
 }
 
 const TITLE_BY_NAV: Record<string, string> = {
-  home: 'Home', squad: 'My Squad', leagues: 'Leagues', kits: 'Kit Hub', fatigue: 'WC Fatigue', blog: 'Blog',
+  home: 'Home', squad: 'My Squad', leagues: 'Leagues', blog: 'Blog',
 };
 
 export function AppShell({ navActive, title, backHref, meta, teamId, youName, actions, children }: AppShellProps) {
@@ -33,6 +34,7 @@ export function AppShell({ navActive, title, backHref, meta, teamId, youName, ac
   const right = (
     <div className="ah-right">
       {actions}
+      <AccountChip />
       <AppMenu />
     </div>
   );
@@ -68,7 +70,7 @@ export function AppShell({ navActive, title, backHref, meta, teamId, youName, ac
             </h1>
             {meta && <div className="tb-meta">{meta}</div>}
           </div>
-          <div className="tb-actions">{actions}<AppMenu /></div>
+          <div className="tb-actions">{actions}<AccountChip /><AppMenu /></div>
         </div>
 
         <div className="app-scroll">{children}</div>

@@ -102,3 +102,20 @@ export function getKitbagUrlByShort(short: string): string {
 export function getKitbagUrl(teamId: number): string {
   return buildAffiliateUrl(kitbagTeamMapping[teamId]);
 }
+
+/**
+ * Append Impact (evyy.net) sub-affiliate tracking params to a Kitbag link so
+ * clicks can be attributed by placement in the Impact dashboard. `subId1` is the
+ * placement (e.g. "kit-hub"), `subId2` the item/context (e.g. "ARS"). Reconciled
+ * against the GA4 `affiliate_click` event — see src/components/ui/affiliate-link.tsx.
+ */
+export function withKitbagSubIds(url: string, subId1?: string, subId2?: string): string {
+  try {
+    const u = new URL(url);
+    if (subId1) u.searchParams.set('subId1', subId1);
+    if (subId2) u.searchParams.set('subId2', subId2);
+    return u.toString();
+  } catch {
+    return url;
+  }
+}

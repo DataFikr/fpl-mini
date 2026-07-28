@@ -1,0 +1,25 @@
+/* ============================================================
+   SESSION 0 BASE — Sportify tokens + shared components
+   NOTE: this file exists for review convenience only. Every
+   mockup HTML inlines these rules so each file is self-contained.
+   Source of truth mapped from: src/app/app/_styles/sportify-fpl.css
+   Changes vs shipped CSS are the D2 fixes:
+   - all text raised to >=12px
+   - :focus-visible rings on every interactive element
+   - 44px min touch targets on buttons/inputs
+   - prefers-reduced-motion coverage
+   ============================================================ */
+:root{
+  --red:#FF5050;--red-dark:#CC4040;
+  --ink:#150000;--ink-2:#2F0000;--charcoal:#322D2D;
+  --navy:#12233F;--navy-deep:#001B58;
+  --bg:#FAFAFA;--white:#FFFFFF;
+  --line:#D6D5D5;--line-2:#EEEDED;
+  --t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+  --green:#009C54;--yellow:#FFD100;
+  --display:'Bebas Neue',Impact,sans-serif;
+  --body:'Manrope',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --pt:8px;
+  --shadow:0 12px 34px -14px rgba(21,0,0,.28);
+}

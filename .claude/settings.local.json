@@ -32,7 +32,8 @@
       "Bash(npm cache clean:*)",
       "Bash(ls:*)",
       "Bash(cd:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "WebFetch(domain:en.wikipedia.org)"
     ],
     "deny": [],
     "ask": []

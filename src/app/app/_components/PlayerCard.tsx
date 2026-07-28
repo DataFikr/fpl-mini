@@ -2,6 +2,7 @@
 
 import { getPlayerPhotoUrl } from '@/lib/fpl-images';
 import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
+import { AffiliateLink } from '@/components/ui/affiliate-link';
 import type { PitchPlayer } from '../_lib/squad-data';
 import { toast } from './Toast';
 
@@ -44,16 +45,16 @@ export function PlayerCard({ player, onClose }: { player: PitchPlayer; onClose: 
         </div>
 
         <div className="pc-foot">
-          <a
+          <AffiliateLink
             className="s-btn s-btn--red hex"
             href={getKitbagUrlByShort(player.teamShort)}
-            target="_blank"
-            rel="noopener sponsored"
+            placement="player-card"
+            item={player.teamShort}
             onClick={() => toast(`Opening ${player.team} on Kitbag`)}
             style={{ width: '100%', justifyContent: 'center', textDecoration: 'none' }}
           >
             Shop {player.teamShort} kit
-          </a>
+          </AffiliateLink>
         </div>
       </div>
     </>

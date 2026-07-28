@@ -99,16 +99,10 @@ export function analyticsFor(m: AppManager | undefined, gw: number) {
   return { rankLine, gwPoints, best: formatRank(best), rankDelta, avg, greens };
 }
 
-export const NEWS_IMGS = [
-  '/redesign/news/arteta.jpg', '/redesign/news/howe.jpg', '/redesign/news/maresca.webp',
-  '/redesign/news/alonso.jpg', '/redesign/news/iraola.jpg', '/redesign/news/emery.jpg', '/redesign/news/carrick.jpg',
-];
-
 export interface Headlines {
   top: string;
   tag: string;
-  heroImg: string;
-  list: { tag: string; tone: string; t: string; img: string }[];
+  list: { tag: string; tone: string; t: string }[];
 }
 
 /** ESPN-style headlines derived from real standings movement for `gw`. */
@@ -120,14 +114,13 @@ export function headlinesFrom(managers: AppManager[], gw: number, leagueName: st
   const faller = [...s].filter((m) => m.move < 0).sort((a, b) => a.move - b.move)[0];
 
   const list: Headlines['list'] = [];
-  if (riser) list.push({ tag: 'RISER', tone: '#009C54', t: `${riser.team} climbs ${riser.move} place${riser.move > 1 ? 's' : ''} to ${ordinal(riser.rank)}`, img: NEWS_IMGS[1] });
-  if (faller) list.push({ tag: 'FALLER', tone: '#FF5050', t: `${faller.team} slips ${-faller.move} place${-faller.move > 1 ? 's' : ''} this gameweek`, img: NEWS_IMGS[2] });
-  if (topScorer) list.push({ tag: 'TOP SCORE', tone: '#150000', t: `${topScorer.team} posts the GW${gw} high score — ${topScorer.gw} points`, img: NEWS_IMGS[3] });
+  if (riser) list.push({ tag: 'RISER', tone: '#009C54', t: `${riser.team} climbs ${riser.move} place${riser.move > 1 ? 's' : ''} to ${ordinal(riser.rank)}` });
+  if (faller) list.push({ tag: 'FALLER', tone: '#FF5050', t: `${faller.team} slips ${-faller.move} place${-faller.move > 1 ? 's' : ''} this gameweek` });
+  if (topScorer) list.push({ tag: 'TOP SCORE', tone: '#150000', t: `${topScorer.team} posts the GW${gw} high score — ${topScorer.gw} points` });
 
   return {
     top: leader ? `${leader.team.toUpperCase()} LEADS ${leagueName.toUpperCase()} AFTER GW${gw}` : `GW${gw} IN THE BOOKS`,
     tag: `GW${gw} · TOP STORY`,
-    heroImg: NEWS_IMGS[0],
     list: list.slice(0, 3),
   };
 }

@@ -51,7 +51,18 @@ function RivalWatch({ teamId, leagueId, currentGameweek, defaultGw }: { teamId: 
       </div>
       {data && <p className="tp-intro">What the rest of <b>{data.leagueName}</b> is doing in GW{gw} — across {data.managers} managers.</p>}
 
-      {loading && <div className="rw-load">Scouting your rivals…</div>}
+      {loading && (
+        <div className="sk-list" role="status" aria-label="Scouting your rivals">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div className="sk-row" key={i}>
+              <span className="sk sk-blk h20" />
+              <span className="sk sk-blk w60" />
+              <span className="sk sk-blk w40" />
+              <span className="sk sk-blk" />
+            </div>
+          ))}
+        </div>
+      )}
       {err && !loading && <div className="info-card"><h3>Rival watch unavailable</h3><p>Couldn&rsquo;t load your mini-league&rsquo;s picks for this gameweek. Open it from a league page to set the rivals.</p></div>}
 
       {data && !loading && (
@@ -371,7 +382,7 @@ export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: n
         ? <RivalWatch teamId={data.team.id} leagueId={leagueId} currentGameweek={data.currentGameweek} defaultGw={data.team.gw} />
         : <TeamIdPrompt />)}
 
-      {tab === 'prediction' && <div style={{ marginTop: 6 }}><PredictionBlock data={data?.prediction} /></div>}
+      {tab === 'prediction' && <div style={{ marginTop: 6 }}><PredictionBlock data={data?.prediction} gw={data?.currentGameweek} /></div>}
 
       {selected && <PlayerCard player={selected} onClose={() => setSelected(null)} />}
     </>

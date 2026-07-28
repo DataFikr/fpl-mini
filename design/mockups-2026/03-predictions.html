@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 03 — /predictions — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:#fff;background:var(--ink);border:0;cursor:pointer;
+  padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn.hex{padding-left:32px;padding-right:32px;}
+.s-btn--red{background:var(--red);}
+.s-btn--red:hover{background:var(--red-dark);color:#fff;}
+.kicker{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);}
+.mono{font-family:var(--mono);}
+.tag{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;background:var(--ink);color:#fff;display:inline-block;}
+.tag--ghost{background:var(--line-2);color:var(--charcoal);}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-size:22px;letter-spacing:.03em;color:var(--ink);}
+.logo .bolt{width:22px;height:22px;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+.spec-note{max-width:800px;margin:48px auto 0;padding:12px 24px 0;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.06em;border-top:2px dashed var(--line);}
+
+.pagebar{background:#fff;border-bottom:1px solid var(--line);}
+.pagebar .in{max-width:800px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.pagebar .s-btn{font-size:14px;background:var(--line-2);color:var(--ink);}
+
+.wrap{max-width:800px;margin:0 auto;padding:36px 24px 72px;}
+.p-head{margin-bottom:22px;}
+.p-head h1{font-family:var(--display);font-weight:400;font-size:clamp(36px,5vw,52px);line-height:.9;letter-spacing:.01em;margin:10px 0 10px;}
+.p-head h1 em{font-style:normal;color:var(--red);}
+.p-head .sub{font-family:var(--body);font-size:15px;line-height:1.6;color:var(--t2);max-width:60ch;margin:0;}
+.p-head .meta{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap;}
+.p-head .meta .mono{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+
+/* prediction table */
+.ptable{background:#fff;border:1px solid var(--line);}
+.pt-row{display:grid;grid-template-columns:40px 1fr 56px 62px 74px;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid var(--line-2);}
+.pt-row.head{border-top:0;background:var(--ink);padding:10px 14px;}
+.pt-row.head span{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#cfc6c6;}
+.pt-row .rk{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--t3);}
+.pt-row.top .rk{color:var(--red);}
+.pt-row .who{min-width:0;display:flex;align-items:baseline;gap:8px;}
+.pt-row .who .nm{font-family:var(--body);font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pt-row .who .tm{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;flex:0 0 auto;}
+.pt-row .pos{justify-self:start;}
+.pt-row .pr{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--t2);text-align:right;}
+.pt-row .xp{font-family:var(--mono);font-weight:700;font-size:15px;text-align:right;}
+.pt-row.top{background:#fff6f6;border-left:3px solid var(--red);padding-left:11px;}
+.pt-row.top .xp{color:var(--red);}
+.num-right{text-align:right;}
+
+/* locked block */
+.locked{position:relative;margin-top:16px;}
+.locked .blurred{filter:blur(6px);pointer-events:none;user-select:none;}
+.lock-overlay{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;
+  background:linear-gradient(180deg,rgba(250,250,250,.25),rgba(250,250,250,.9) 72%);}
+.lock-overlay .ic{width:46px;height:46px;margin:0 auto 12px;display:grid;place-items:center;background:var(--ink);color:var(--red);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.lock-overlay h2{font-family:var(--display);font-weight:400;font-size:30px;line-height:.95;letter-spacing:.01em;margin:0 0 8px;}
+.lock-overlay p{font-family:var(--body);font-weight:600;font-size:13.5px;color:var(--t2);max-width:42ch;margin:0 auto 16px;line-height:1.55;}
+.lock-overlay .fine{display:block;font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-top:12px;}
+
+/* FAQ */
+.faq-h{font-family:var(--display);font-weight:400;font-size:30px;letter-spacing:.02em;margin:40px 0 14px;}
+.faq-item{background:#fff;border:1px solid var(--line);margin-bottom:8px;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 16px;cursor:pointer;background:none;border:0;text-align:left;
+  font-family:var(--body);font-weight:800;font-size:14px;color:var(--ink);line-height:1.3;min-height:44px;}
+.faq-q .ic{flex:0 0 auto;width:24px;height:24px;display:grid;place-items:center;background:var(--ink);color:#fff;font-family:var(--display);font-size:17px;line-height:1;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);}
+.faq-item.open .faq-q .ic{background:var(--red);}
+.faq-a{padding:0 16px 16px;font-family:var(--body);font-size:13.5px;line-height:1.6;color:var(--t2);margin:0;}
+.footnote{margin-top:28px;font-family:var(--body);font-size:12px;color:var(--t3);line-height:1.6;}
+
+/* empty state */
+.empty{max-width:800px;margin:14px auto 0;padding:0 24px;}
+.empty .card{background:#fff;border:1px solid var(--line);padding:28px;text-align:center;}
+.empty .card .mono{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;}
+.empty .card h2{font-family:var(--display);font-weight:400;font-size:28px;margin:8px 0 6px;line-height:.95;}
+.empty .card p{font-family:var(--body);font-size:13.5px;color:var(--t2);margin:0;line-height:1.55;}
+</style>
+</head>
+<body data-screen-label="Mockup 03 — /predictions teaser">
+
+<div class="pagebar">
+  <div class="in">
+    <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+    <a class="s-btn" href="#">Sign in</a>
+  </div>
+</div>
+
+<main class="wrap">
+  <header class="p-head">
+    <span class="kicker">FPL Ranker &middot; AI predictions</span>
+    <h1>Gameweek 1 <em>points predictions</em></h1>
+    <p class="sub">Every player&rsquo;s expected points for the upcoming gameweek, ranked by our self-learning model. The top 10 are free — unlock the full table and your personal captain picks with Premium.</p>
+    <div class="meta">
+      <span class="tag">2026/27 &middot; GW1</span>
+      <span class="mono">Updated 2h ago &middot; refreshes hourly</span>
+    </div>
+  </header>
+
+  <div class="ptable" role="table" aria-label="Top predicted scorers, Gameweek 1">
+    <div class="pt-row head" role="row">
+      <span>#</span><span>Player</span><span>Pos</span><span class="num-right">&pound;</span><span class="num-right">xPts</span>
+    </div>
+    <div class="pt-row top" role="row"><span class="rk">1</span><span class="who"><span class="nm">Haaland</span><span class="tm">MCI</span></span><span class="pos tag tag--ghost">FWD</span><span class="pr">14.2</span><span class="xp">8.4</span></div>
+    <div class="pt-row" role="row"><span class="rk">2</span><span class="who"><span class="nm">M.Salah</span><span class="tm">LIV</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">13.6</span><span class="xp">7.9</span></div>
+    <div class="pt-row" role="row"><span class="rk">3</span><span class="who"><span class="nm">Palmer</span><span class="tm">CHE</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">10.8</span><span class="xp">7.1</span></div>
+    <div class="pt-row" role="row"><span class="rk">4</span><span class="who"><span class="nm">Isak</span><span class="tm">LIV</span></span><span class="pos tag tag--ghost">FWD</span><span class="pr">10.6</span><span class="xp">6.9</span></div>
+    <div class="pt-row" role="row"><span class="rk">5</span><span class="who"><span class="nm">Saka</span><span class="tm">ARS</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">10.1</span><span class="xp">6.7</span></div>
+    <div class="pt-row" role="row"><span class="rk">6</span><span class="who"><span class="nm">Mbeumo</span><span class="tm">MUN</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">8.3</span><span class="xp">6.4</span></div>
+    <div class="pt-row" role="row"><span class="rk">7</span><span class="who"><span class="nm">Watkins</span><span class="tm">AVL</span></span><span class="pos tag tag--ghost">FWD</span><span class="pr">8.9</span><span class="xp">6.2</span></div>
+    <div class="pt-row" role="row"><span class="rk">8</span><span class="who"><span class="nm">B.Fernandes</span><span class="tm">MUN</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">9.0</span><span class="xp">6.0</span></div>
+    <div class="pt-row" role="row"><span class="rk">9</span><span class="who"><span class="nm">Gordon</span><span class="tm">NEW</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">7.6</span><span class="xp">5.8</span></div>
+    <div class="pt-row" role="row"><span class="rk">10</span><span class="who"><span class="nm">Wood</span><span class="tm">NFO</span></span><span class="pos tag tag--ghost">FWD</span><span class="pr">7.4</span><span class="xp">5.7</span></div>
+  </div>
+
+  <div class="locked">
+    <div class="ptable blurred" aria-hidden="true">
+      <div class="pt-row"><span class="rk">11</span><span class="who"><span class="nm">Eze</span><span class="tm">ARS</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">7.8</span><span class="xp">5.6</span></div>
+      <div class="pt-row"><span class="rk">12</span><span class="who"><span class="nm">Bruno G.</span><span class="tm">NEW</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">6.6</span><span class="xp">5.5</span></div>
+      <div class="pt-row"><span class="rk">13</span><span class="who"><span class="nm">Rogers</span><span class="tm">AVL</span></span><span class="pos tag tag--ghost">MID</span><span class="pr">7.1</span><span class="xp">5.4</span></div>
+      <div class="pt-row"><span class="rk">14</span><span class="who"><span class="nm">Gabriel</span><span class="tm">ARS</span></span><span class="pos tag tag--ghost">DEF</span><span class="pr">6.4</span><span class="xp">5.3</span></div>
+      <div class="pt-row"><span class="rk">15</span><span class="who"><span class="nm">Virgil</span><span class="tm">LIV</span></span><span class="pos tag tag--ghost">DEF</span><span class="pr">6.3</span><span class="xp">5.2</span></div>
+      <div class="pt-row"><span class="rk">16</span><span class="who"><span class="nm">Ekitik&eacute;</span><span class="tm">LIV</span></span><span class="pos tag tag--ghost">FWD</span><span class="pr">8.7</span><span class="xp">5.1</span></div>
+    </div>
+    <div class="lock-overlay">
+      <div>
+        <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+        <h2>See all 600+ projected scorers</h2>
+        <p>Premium unlocks the full expected-points table and personalised captain &amp; transfer advice for your squad.</p>
+        <a class="s-btn s-btn--red hex" href="#">Go premium</a>
+        <span class="fine">From &pound;15 &middot; one-off &middot; full season</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="faq-h">FAQ</h2>
+  <div class="faq-item open">
+    <button class="faq-q" aria-expanded="true">Who should I captain in FPL Gameweek 1?<span class="ic" aria-hidden="true">&minus;</span></button>
+    <p class="faq-a">Our model&rsquo;s highest projected scorer this gameweek is Haaland (MCI) with 8.4 expected points. The top captaincy candidates are the players at the top of the expected-points table, filtered for those nailed to start.</p>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" aria-expanded="false">How are FPL points predicted?<span class="ic" aria-hidden="true">+</span></button>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" aria-expanded="false">Are these FPL predictions free?<span class="ic" aria-hidden="true">+</span></button>
+  </div>
+
+  <p class="footnote">Predictions are model estimates, not guarantees — single-gameweek FPL scores are high variance. <a href="#">Open the app</a> to analyse your own squad.</p>
+</main>
+
+<p class="spec-note">State variant — pre-season empty state (no prediction rows yet)</p>
+<div class="empty">
+  <div class="card">
+    <span class="mono">2026/27 &middot; predictions</span>
+    <h2>Back soon</h2>
+    <p>Predictions for the new season appear here once Gameweek 1 approaches. Check back soon.</p>
+  </div>
+</div>
+
+</body>
+</html>

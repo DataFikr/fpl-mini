@@ -35,14 +35,28 @@ export const loadFixtures = (opts) =>
 export const loadLive = (gw, opts) =>
   getJSON(`${BASE}/event/${gw}/live/`, `live-${gw}.json`, opts);
 
-/** Returns Map<gw, Map<elementId, {points, minutes}>> for the requested gws. */
+/**
+ * Returns Map<gw, Map<elementId, stats>> for the requested gws.
+ * Core fields (points, minutes) are always present; the richer rates power the
+ * v2 feature set and are parsed defensively (older seasons lack some stats).
+ */
 export async function loadLiveMap(gws, opts) {
   const byGw = new Map();
   for (const gw of gws) {
     const live = await loadLive(gw, opts);
     const m = new Map();
     for (const el of live.elements) {
-      m.set(el.id, { points: el.stats.total_points, minutes: el.stats.minutes });
+      const s = el.stats;
+      m.set(el.id, {
+        points: s.total_points,
+        minutes: s.minutes,
+        starts: s.starts ?? (s.minutes >= 60 ? 1 : 0),
+        xgi: parseFloat(s.expected_goal_involvements ?? '0') || 0,
+        xgc: parseFloat(s.expected_goals_conceded ?? '0') || 0,
+        bps: s.bps ?? 0,
+        saves: s.saves ?? 0,
+        defcon: s.defensive_contribution ?? 0,
+      });
     }
     byGw.set(gw, m);
   }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Mail, Send, Clock } from 'lucide-react';
-import { FaXTwitter, FaReddit } from 'react-icons/fa6';
+import { XIcon, RedditIcon } from '@/components/ui/brand-icons';
 import { Header } from '@/components/ui/header';
 import { Footer } from '@/components/ui/footer';
 
@@ -98,7 +98,7 @@ export default function ContactPage() {
 
                   <div className="flex items-center space-x-4">
                     <div className="bg-fpl-primary/20 p-3 rounded-lg">
-                      <FaXTwitter className="h-6 w-6 text-fpl-accent" />
+                      <XIcon className="h-6 w-6 text-fpl-accent" />
                     </div>
                     <div>
                       <h3 className="font-jakarta font-semibold text-white">X (Twitter)</h3>
@@ -115,7 +115,7 @@ export default function ContactPage() {
 
                   <div className="flex items-center space-x-4">
                     <div className="bg-fpl-primary/20 p-3 rounded-lg">
-                      <FaReddit className="h-6 w-6 text-fpl-accent" />
+                      <RedditIcon className="h-6 w-6 text-fpl-accent" />
                     </div>
                     <div>
                       <h3 className="font-jakarta font-semibold text-white">Reddit</h3>

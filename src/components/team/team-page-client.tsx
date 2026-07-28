@@ -9,6 +9,8 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { getKitbagUrl, teamPrimaryColors } from '@/utils/kitbag-urls';
+import { AffiliateLink } from '@/components/ui/affiliate-link';
+import { GenericJersey, GenericBadge, getTeamColor } from '@/components/ui/generic-jersey';
 import { ComparePlayersModal } from './compare-players-modal';
 import { ShareAction } from '@/components/ui/share-action';
 
@@ -278,17 +280,9 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
           {/* Team Identity */}
           <div className="flex items-center gap-3 mb-5">
             <div className="w-12 h-12 bg-gradient-to-br from-fpl-accent/30 to-fpl-primary/30 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-              {data.favouriteTeam ? (
-                <img
-                  src={`https://resources.premierleague.com/premierleague/badges/70/t${data.favouriteTeam}.png`}
-                  alt="Team badge"
-                  className="w-10 h-10 object-contain"
-                />
-              ) : (
-                <span className="text-white font-bold text-sm">
-                  {data.teamName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()}
-                </span>
-              )}
+              <span className="text-white font-bold text-sm">
+                {data.teamName.split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase()}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl md:text-2xl font-jakarta font-bold text-gradient-primary truncate">{data.teamName}</h1>
@@ -541,11 +535,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                       <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-fpl-dark/40 border border-fpl-primary/10">
                         <div className="flex-1 flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-fpl-accent flex-shrink-0" />
-                          <img
-                            src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${transfer.playerIn.teamCode}-66.png`}
-                            alt={transfer.playerIn.team}
-                            className="w-8 h-8 object-contain"
-                          />
+                          <GenericJersey shortName={transfer.playerIn.team} size={32} />
                           <div className="min-w-0">
                             <div className="font-inter text-white text-sm font-medium truncate">{transfer.playerIn.name}</div>
                             <div className="text-xs text-fpl-text-secondary">{transfer.playerIn.team} | £{transfer.playerIn.cost}m</div>
@@ -555,11 +545,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                         <div className="text-fpl-text-secondary text-xs px-2">vs</div>
                         <div className="flex-1 flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-                          <img
-                            src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${transfer.playerOut.teamCode}-66.png`}
-                            alt={transfer.playerOut.team}
-                            className="w-8 h-8 object-contain"
-                          />
+                          <GenericJersey shortName={transfer.playerOut.team} size={32} />
                           <div className="min-w-0">
                             <div className="font-inter text-white text-sm font-medium truncate">{transfer.playerOut.name}</div>
                             <div className="text-xs text-fpl-text-secondary">{transfer.playerOut.team} | £{transfer.playerOut.cost}m</div>
@@ -710,11 +696,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                 {/* Player In */}
                                 <div className="flex-1 flex items-center gap-2 min-w-0">
                                   <div className="w-1.5 h-1.5 rounded-full bg-fpl-accent flex-shrink-0" />
-                                  <img
-                                    src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${transfer.playerIn.teamCode}-66.png`}
-                                    alt={transfer.playerIn.team}
-                                    className="w-7 h-7 object-contain flex-shrink-0"
-                                  />
+                                  <GenericJersey shortName={transfer.playerIn.team} size={28} />
                                   <div className="min-w-0 flex-1">
                                     <div className="font-inter text-white text-xs font-medium truncate">{transfer.playerIn.name}</div>
                                     <div className="text-[10px] text-fpl-text-secondary">{transfer.playerIn.team} | £{transfer.playerIn.cost}m</div>
@@ -728,11 +710,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                 {/* Player Out */}
                                 <div className="flex-1 flex items-center gap-2 min-w-0">
                                   <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-                                  <img
-                                    src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${transfer.playerOut.teamCode}-66.png`}
-                                    alt={transfer.playerOut.team}
-                                    className="w-7 h-7 object-contain flex-shrink-0"
-                                  />
+                                  <GenericJersey shortName={transfer.playerOut.team} size={28} />
                                   <div className="min-w-0 flex-1">
                                     <div className="font-inter text-white text-xs font-medium truncate">{transfer.playerOut.name}</div>
                                     <div className="text-[10px] text-fpl-text-secondary">{transfer.playerOut.team} | £{transfer.playerOut.cost}m</div>
@@ -877,11 +855,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                   </td>
                                   <td className="sticky left-12 z-10 bg-fpl-dark/95 backdrop-blur-sm px-2 py-2">
                                     <div className="flex items-center gap-1.5">
-                                      <img
-                                        src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`}
-                                        alt={player.teamShort}
-                                        className="w-6 h-6 object-contain flex-shrink-0"
-                                      />
+                                      <GenericJersey shortName={player.teamShort} size={24} />
                                       <div className="font-inter text-white text-xs font-medium truncate max-w-[80px]">
                                         {player.name}
                                         {player.isCaptain && <span className="text-yellow-400 ml-0.5">(C)</span>}
@@ -905,13 +879,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                             {gwFormEntries.map((formEntry: any, feIdx: number) => (
                                               <div key={feIdx} className={`rounded px-1 py-1 text-[10px] font-inter font-bold ${getFDRColor(formEntry.difficulty || 3)}`}>
                                                 <div className="flex items-center justify-center gap-0.5 mb-0.5">
-                                                  {formEntry.opponentCode > 0 && (
-                                                    <img
-                                                      src={`https://resources.premierleague.com/premierleague/badges/20/t${formEntry.opponentCode}.png`}
-                                                      alt={formEntry.opponent}
-                                                      className="w-3.5 h-3.5 object-contain"
-                                                    />
-                                                  )}
                                                   <span>{formEntry.opponent}</span>
                                                 </div>
                                                 <div>{formEntry.points}pts</div>
@@ -934,13 +901,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                             {gwFixtures.map((fix: any, fixIdx: number) => (
                                               <div key={fixIdx} className={`rounded px-1 py-1 text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}>
                                                 <div className="flex items-center justify-center gap-0.5 mb-0.5">
-                                                  {fix.opponentCode > 0 && (
-                                                    <img
-                                                      src={`https://resources.premierleague.com/premierleague/badges/20/t${fix.opponentCode}.png`}
-                                                      alt={fix.opponent}
-                                                      className="w-3.5 h-3.5 object-contain"
-                                                    />
-                                                  )}
                                                   <span>{fix.opponent}</span>
                                                 </div>
                                                 <div className="text-[9px]">{fix.isHome ? 'H' : 'A'}</div>
@@ -965,11 +925,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                                       <div className="text-[10px] font-inter">
                                         <div className="flex items-center justify-center gap-1">
                                           {player.alternative.teamCode > 0 && (
-                                            <img
-                                              src={`https://resources.premierleague.com/premierleague/badges/20/t${player.alternative.teamCode}.png`}
-                                              alt={player.alternative.team}
-                                              className="w-3.5 h-3.5 object-contain"
-                                            />
+                                            <GenericBadge shortName={player.alternative.team} size={14} />
                                           )}
                                           <span className="text-white font-medium">{player.alternative.name}</span>
                                         </div>
@@ -1051,11 +1007,7 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
                   {data.analysis.differentials.map((p, i) => (
                     <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-fpl-dark/40 border border-fpl-accent/10">
                       <div className="flex items-center gap-2">
-                        <img
-                          src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${p.teamCode}-66.png`}
-                          alt={p.team}
-                          className="w-8 h-8 object-contain"
-                        />
+                        <GenericJersey shortName={p.team} size={32} />
                         <div>
                           <div className="font-inter text-white text-sm font-medium">{p.name}</div>
                           <div className="text-xs text-fpl-text-secondary">{p.ownership?.toFixed(1)}% owned</div>
@@ -1181,7 +1133,6 @@ export default function TeamPageClient({ teamId, initialData }: TeamPageClientPr
 // ─── Sub-Components ─────────────────────────────────────────
 
 function PitchPlayerCard({ player, isSub = false, onClick }: { player: PlayerData; isSub?: boolean; onClick: () => void }) {
-  const shirtUrl = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`;
   const displayPoints = isSub ? player.points : player.points * player.multiplier;
 
   return (
@@ -1200,7 +1151,7 @@ function PitchPlayerCard({ player, isSub = false, onClick }: { player: PlayerDat
 
       {/* Shirt */}
       <div className="relative mx-auto mb-1 w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 group-hover:scale-110 transition-transform">
-        <img src={shirtUrl} alt={player.team} className="w-full h-full object-contain drop-shadow-md" />
+        <GenericJersey shortName={player.team} color={getTeamColor(player.team)} className="w-full h-full drop-shadow-md" />
       </div>
 
       {/* Name */}
@@ -1248,11 +1199,7 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
             {/* Left: Player Info */}
             <div className="pb-4 flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <img
-                  src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
-                  alt={player.team}
-                  className="w-5 h-5 object-contain"
-                />
+                <GenericBadge shortName={player.team} size={20} />
                 <span className="text-xs font-inter text-white/80">{player.team} | {player.position}</span>
               </div>
               <h3 className="font-jakarta font-bold text-white text-xl leading-tight truncate">{player.name}</h3>
@@ -1267,20 +1214,9 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
               )}
             </div>
 
-            {/* Right: Player Headshot */}
-            <div className="flex-shrink-0 w-28 h-36 relative -mb-1">
-              <img
-                src={player.photo
-                  ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo}`
-                  : `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.id}.png`
-                }
-                alt={player.name}
-                className="w-full h-full object-contain drop-shadow-lg"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`;
-                  (e.target as HTMLImageElement).className = 'w-20 h-20 object-contain mt-4 mx-auto';
-                }}
-              />
+            {/* Right: Generic jersey (no player likeness) */}
+            <div className="flex-shrink-0 w-28 h-36 relative -mb-1 flex items-end justify-center">
+              <GenericJersey shortName={player.team} color={teamColor} size={96} className="drop-shadow-lg" />
             </div>
           </div>
         </div>
@@ -1314,36 +1250,27 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
           {/* Impulse Buy CTA Block */}
           <div className="rounded-fpl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 overflow-hidden">
             <div className="flex items-center gap-3 p-4">
-              {/* Kit Icon */}
-              <img
-                src={`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.teamCode}-66.png`}
-                alt={`${player.team} kit`}
-                className="w-12 h-12 object-contain flex-shrink-0 drop-shadow-md"
-              />
+              <GenericJersey shortName={player.team} color={teamPrimaryColors[player.teamId] || '#37003c'} size={48} className="flex-shrink-0 drop-shadow-md" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-jakarta font-bold text-white">
                   Get {playerLastName}&apos;s 25/26 Kit
                 </div>
                 <div className="text-[11px] text-fpl-text-secondary font-inter">
-                  Official kits, prints & more
+                  Official kits, prints &amp; more
                 </div>
               </div>
             </div>
-            <a
+            <AffiliateLink
               href={getKitbagUrl(player.teamId)}
-              target="_blank"
-              rel="noopener noreferrer"
+              placement="team-page"
+              item={player.team}
               className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-jakarta font-bold text-center transition-colors"
             >
-              <img
-                src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
-                alt={player.team}
-                className="w-4 h-4 object-contain"
-              />
+              <GenericBadge shortName={player.team} size={16} />
               Shop on Kitbag
-            </a>
+            </AffiliateLink>
             <div className="text-center py-1.5 text-[9px] text-gray-500 font-inter">
-              A commission is earned on purchases.
+              Affiliate link · commission earned on purchases.
             </div>
           </div>
         </div>

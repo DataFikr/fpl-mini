@@ -142,16 +142,49 @@ export class EmailService {
     email: string,
     leagueName: string,
     stories: any[],
-    gameweek: number
+    gameweek: number,
+    premiumBlockHtml = ''
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     const subject = `📰 ${leagueName} - Gameweek ${gameweek} Summary`;
-    const html = this.generateGameweekSummaryHTML(leagueName, stories, email, gameweek);
+    const html = premiumBlockHtml + this.generateGameweekSummaryHTML(leagueName, stories, email, gameweek);
 
     return this.sendEmail({
       to: email,
       subject,
       html,
     });
+  }
+
+  /**
+   * Premium newsletter block (I5): the model's top captain picks for the upcoming
+   * gameweek, prepended to premium subscribers' summaries. Reads persisted
+   * PlayerPrediction rows; returns '' if none (so free/unseeded sends are unaffected).
+   */
+  async buildPremiumPicksBlock(gameweek?: number): Promise<string> {
+    try {
+      const { prisma } = await import('@/lib/database');
+      const { CURRENT_SEASON } = await import('@/services/predictor-service');
+      const latest = gameweek
+        ? { gameweek }
+        : await prisma.playerPrediction.findFirst({ where: { season: CURRENT_SEASON }, orderBy: { gameweek: 'desc' }, select: { gameweek: true } });
+      if (!latest?.gameweek) return '';
+      const rows = await prisma.playerPrediction.findMany({
+        where: { season: CURRENT_SEASON, gameweek: latest.gameweek },
+        orderBy: { xPts: 'desc' },
+        take: 5,
+      });
+      if (!rows.length) return '';
+      const items = rows
+        .map((r, i) => `<tr><td style="padding:6px 10px;color:#848181;font-family:monospace">${i + 1}</td><td style="padding:6px 10px;font-weight:700">${r.webName} <span style="color:#848181">${r.teamShort}</span></td><td style="padding:6px 10px;text-align:right;color:#FF5050;font-weight:700">${r.xPts.toFixed(1)}</td></tr>`)
+        .join('');
+      return `<div style="background:#150000;color:#fff;padding:18px 20px;margin:0 0 16px">
+        <div style="font-family:monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#FFD100">★ Premium · AI captain picks · GW${latest.gameweek}</div>
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;font-family:system-ui,sans-serif;font-size:14px">${items}</table>
+        <div style="font-size:12px;color:#cfc6c6;margin-top:8px">Ranked by projected points. Open the app for picks tuned to your squad.</div>
+      </div>`;
+    } catch {
+      return '';
+    }
   }
 
   async sendTeamAnalysis(

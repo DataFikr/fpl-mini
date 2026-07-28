@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 09 — Loading skeletons (.sk) — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:#efeeee;color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:#CC4040;}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+
+/* ══ THE SKELETON PRIMITIVE — matches redesign.css .sk ══ */
+.sk{background:linear-gradient(90deg,#ececec 25%,#f6f6f6 37%,#ececec 63%);background-size:400% 100%;animation:sk 1.4s ease infinite;}
+@keyframes sk{0%{background-position:100% 0}100%{background-position:0 0}}
+/* D2 fix: shimmer must respect reduced motion — falls back to flat block */
+@media (prefers-reduced-motion:reduce){.sk{animation:none;background:#ececec;}}
+
+.stage{display:grid;grid-template-columns:repeat(3,minmax(280px,380px));gap:28px;justify-content:center;align-items:flex-start;padding:40px 20px 72px;}
+@media (max-width:1100px){.stage{grid-template-columns:1fr;max-width:420px;margin:0 auto;}}
+.spec-note{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:0 4px 12px;}
+.fpl-app{background:var(--bg);border:1px solid var(--line);min-height:640px;padding:16px 18px;}
+.app-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.ah-title{font-family:var(--display);font-size:22px;letter-spacing:.02em;}
+.sk.badge{width:40px;height:40px;clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
+
+/* ── 1: league standings skeleton ── */
+.sk.hero-card{height:120px;margin-bottom:14px;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);}
+.st-row{display:grid;grid-template-columns:28px 36px 1fr 48px;gap:10px;align-items:center;background:#fff;border:1px solid var(--line-2);padding:11px 12px;margin-bottom:7px;}
+.sk.rk{height:16px;}
+.sk.av{width:36px;height:36px;border-radius:50%;}
+.st-row .stack{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.sk.nm{height:13px;width:70%;}
+.sk.sub{height:10px;width:45%;}
+.sk.pts{height:20px;}
+
+/* ── 2: squad pitch skeleton ── */
+.pitch{background:linear-gradient(180deg,#e7efe7,#dfe9df);border:1px solid var(--line);padding:18px 12px 14px;display:flex;flex-direction:column;gap:18px;}
+.p-line{display:flex;justify-content:center;gap:14px;}
+.p-slot{display:flex;flex-direction:column;align-items:center;gap:6px;width:64px;}
+.sk.shirt{width:44px;height:48px;clip-path:polygon(22% 0,78% 0,100% 18%,88% 32%,88% 100%,12% 100%,12% 32%,0 18%);}
+.sk.pname{height:11px;width:100%;}
+.bench{display:flex;justify-content:center;gap:14px;background:#fff;border:1px solid var(--line-2);border-top:0;padding:12px;}
+
+/* ── 3: predictions list skeleton ── */
+.sk.filter{height:44px;margin-bottom:12px;}
+.pr-row{display:grid;grid-template-columns:26px 1fr 52px 54px;gap:10px;align-items:center;background:#fff;border:1px solid var(--line-2);padding:12px;margin-bottom:7px;}
+.sk.pos{height:18px;}
+.sk.xp{height:22px;}
+
+.note-card{grid-column:1/-1;max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);padding:18px 22px;font-family:var(--body);font-size:13.5px;line-height:1.65;color:var(--t2);}
+.note-card b{color:var(--ink);}
+.note-card code{font-family:var(--mono);font-size:12px;background:var(--line-2);padding:2px 6px;}
+</style>
+</head>
+<body data-screen-label="Mockup 09 — loading skeletons">
+
+<div class="stage">
+
+  <div data-screen-label="Skeleton — league standings">
+    <p class="spec-note">League HQ — standings loading</p>
+    <div class="fpl-app">
+      <div class="app-head"><span class="ah-title">LEAGUE HQ</span><span class="sk badge"></span></div>
+      <div class="sk hero-card"></div>
+      <div class="st-row"><span class="sk rk"></span><span class="sk av"></span><span class="stack"><span class="sk nm"></span><span class="sk sub"></span></span><span class="sk pts"></span></div>
+      <div class="st-row"><span class="sk rk"></span><span class="sk av"></span><span class="stack"><span class="sk nm" style="width:82%;"></span><span class="sk sub" style="width:38%;"></span></span><span class="sk pts"></span></div>
+      <div class="st-row"><span class="sk rk"></span><span class="sk av"></span><span class="stack"><span class="sk nm" style="width:58%;"></span><span class="sk sub" style="width:50%;"></span></span><span class="sk pts"></span></div>
+      <div class="st-row"><span class="sk rk"></span><span class="sk av"></span><span class="stack"><span class="sk nm" style="width:74%;"></span><span class="sk sub" style="width:42%;"></span></span><span class="sk pts"></span></div>
+      <div class="st-row"><span class="sk rk"></span><span class="sk av"></span><span class="stack"><span class="sk nm" style="width:66%;"></span><span class="sk sub" style="width:47%;"></span></span><span class="sk pts"></span></div>
+      <div class="st-row"><span class="sk rk"></span><span class="sk av"></span><span class="stack"><span class="sk nm" style="width:79%;"></span><span class="sk sub" style="width:36%;"></span></span><span class="sk pts"></span></div>
+    </div>
+  </div>
+
+  <div data-screen-label="Skeleton — squad pitch">
+    <p class="spec-note">My Squad — pitch loading</p>
+    <div class="fpl-app">
+      <div class="app-head"><span class="ah-title">MY SQUAD</span><span class="sk badge"></span></div>
+      <div class="pitch">
+        <div class="p-line"><span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span></div>
+        <div class="p-line">
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+        </div>
+        <div class="p-line">
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+        </div>
+        <div class="p-line">
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+          <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+        </div>
+      </div>
+      <div class="bench">
+        <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+        <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+        <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+        <span class="p-slot"><span class="sk shirt"></span><span class="sk pname"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Skeleton — predictions list">
+    <p class="spec-note">Predictions — table loading</p>
+    <div class="fpl-app">
+      <div class="app-head"><span class="ah-title">PREDICTIONS</span><span class="sk badge"></span></div>
+      <div class="sk filter"></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:64%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:78%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:55%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:70%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:62%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:81%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+      <div class="pr-row"><span class="sk rk"></span><span class="stack"><span class="sk nm" style="width:59%;"></span></span><span class="sk pos"></span><span class="sk xp"></span></div>
+    </div>
+  </div>
+
+  <div class="note-card">
+    <b>Implementation notes.</b> Skeletons reuse the existing <code>.sk</code> shimmer from <code>redesign.css</code> — one gradient class, sized per element; no per-screen keyframes. Shapes mirror the loaded layout 1:1 (same grid templates as the real rows) so there is zero layout shift on data arrival. <b>D2 fix:</b> add the <code>prefers-reduced-motion: reduce</code> override shown in this file — shimmer becomes a flat <code>#ececec</code> block. Shirt slots use the kit clip-path so the pitch reads as a squad even while loading.
+  </div>
+
+</div>
+
+</body>
+</html>

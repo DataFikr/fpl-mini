@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FaXTwitter, FaReddit } from 'react-icons/fa6';
+import { XIcon, RedditIcon } from '@/components/ui/brand-icons';
 import { toast } from './Toast';
 
 export function ContactForm() {
@@ -42,8 +42,8 @@ export function ContactForm() {
       <div>
         <h2 style={{ marginTop: 0 }}>Get in touch</h2>
         <div className="info-card"><h3>Email</h3><p><a href="mailto:support@fplranker.com">support@fplranker.com</a></p></div>
-        <div className="info-card"><h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FaXTwitter /> X (Twitter)</h3><p><a href="https://x.com/fplranker" target="_blank" rel="noopener noreferrer">@FPLRanker</a></p></div>
-        <div className="info-card"><h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FaReddit /> Reddit</h3><p><a href="https://www.reddit.com/user/fplranker/" target="_blank" rel="noopener noreferrer">u/fplranker</a></p></div>
+        <div className="info-card"><h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><XIcon /> X (Twitter)</h3><p><a href="https://x.com/fplranker" target="_blank" rel="noopener noreferrer">@FPLRanker</a></p></div>
+        <div className="info-card"><h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RedditIcon /> Reddit</h3><p><a href="https://www.reddit.com/user/fplranker/" target="_blank" rel="noopener noreferrer">u/fplranker</a></p></div>
         <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.05em', marginTop: 8 }}>We aim to respond within 48 hours</p>
       </div>
 

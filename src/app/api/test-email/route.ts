@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EmailService } from '@/services/email-service';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
   try {
     const { email, type = 'newsletter' } = await request.json();
 

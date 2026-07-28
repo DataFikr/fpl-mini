@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Star, Crown } from 'lucide-react';
+import { GenericJersey, getTeamColor } from '@/components/ui/generic-jersey';
 
 interface PlayerData {
   name: string;
@@ -592,17 +593,11 @@ export function PitchView({
   );
 }
 
-// Get real FPL shirt image URL using team code
-function getFPLShirtUrl(teamCode: number): string {
-  return `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}-66.png`;
-}
-
 // Enhanced FPL-style jersey card with consistent sizing for all players
-function EnhancedJerseyCard({ player, isSubstitute = false }: { 
-  player: PlayerData; 
+function EnhancedJerseyCard({ player, isSubstitute = false }: {
+  player: PlayerData;
   isSubstitute?: boolean;
 }) {
-  const shirtUrl = player.teamCode ? getFPLShirtUrl(player.teamCode) : null;
   
   return (
     <div className="text-center relative flex flex-col items-center w-12 sm:w-20 lg:w-[90px]">
@@ -625,22 +620,13 @@ function EnhancedJerseyCard({ player, isSubstitute = false }: {
         </div>
       )}
       
-      {/* Consistent FPL Shirt Image size for all players */}
+      {/* Generic colored shirt — no licensed kit design */}
       <div className="relative mx-auto mb-1 transform hover:scale-105 transition-transform w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16">
-        {shirtUrl ? (
-          <img 
-            src={shirtUrl}
-            alt={`${player.team} shirt`}
-            className="w-full h-full object-contain drop-shadow-md filter brightness-110"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHZpZXdCb3g9IjAgMCA3MCA3MCIgZmlsbD0iIzgwODA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTYgMjAgTDE2IDU1IEw1NCA1NSBMNTQgMjAgTDQ0IDE2IEw0NCAxMCBMMzggOCBMMzIgOCBMMjYgMTAgTDI2IDE2IFoiLz48L3N2Zz4=';  
-            }}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-b from-gray-500 to-gray-600 rounded-lg flex items-center justify-center shadow-lg">
-            <div className="text-sm font-bold text-white">{player.team}</div>
-          </div>
-        )}
+        <GenericJersey
+          shortName={player.team}
+          color={getTeamColor(player.team)}
+          className="w-full h-full drop-shadow-md"
+        />
       </div>
       
       {/* Consistent Player name styling for all players */}

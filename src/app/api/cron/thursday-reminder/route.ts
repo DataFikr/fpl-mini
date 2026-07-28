@@ -16,7 +16,7 @@ import redis from '@/lib/redis';
  * `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
  * Both GET and POST run the same job so the cron actually fires in production.
  */
-async function runReminderJob(request: NextRequest) {
+export async function runReminderJob(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

@@ -17,7 +17,7 @@ import { findPlayerPhotoInText, type BootstrapElementLike } from '@/lib/fpl-imag
  * `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
  * Both GET and POST run the same job so the cron actually fires in production.
  */
-async function runSummaryJob(request: NextRequest) {
+export async function runSummaryJob(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

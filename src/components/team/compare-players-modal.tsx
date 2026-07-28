@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { GenericJersey, GenericBadge } from '@/components/ui/generic-jersey';
 
 interface FormEntry {
   gw: number;
@@ -72,25 +73,16 @@ function PlayerRow({
     <div className="bg-fpl-dark/60 rounded-lg border border-fpl-primary/15 overflow-hidden">
       {/* Player info row */}
       <div className="flex items-center gap-3 p-3 border-b border-fpl-primary/10">
-        {/* Photo */}
-        <div className="w-12 h-14 flex-shrink-0 relative">
-          <img
-            src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.id}.png`}
-            alt={player.name}
-            className="w-full h-full object-contain"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-          />
+        {/* Generic jersey replaces player photo */}
+        <div className="w-12 h-14 flex-shrink-0 flex items-end justify-center">
+          <GenericJersey shortName={player.teamShort} size={48} />
         </div>
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className={`text-[9px] font-jakarta font-bold uppercase tracking-wider ${labelColor}`}>{label}</div>
           <div className="font-jakarta text-white text-sm font-bold truncate">{player.name}</div>
           <div className="flex items-center gap-2 mt-0.5">
-            <img
-              src={`https://resources.premierleague.com/premierleague/badges/20/t${player.teamCode}.png`}
-              alt={player.teamShort}
-              className="w-4 h-4 object-contain"
-            />
+            <GenericBadge shortName={player.teamShort} size={16} />
             <span className="text-[10px] text-fpl-text-secondary font-inter">{player.teamShort}</span>
             <span className="text-[10px] text-fpl-text-secondary font-inter">&pound;{player.price}</span>
             <span className="text-[10px] text-fpl-text-secondary font-inter">{avgPts} avg</span>
@@ -116,13 +108,6 @@ function PlayerRow({
                       {gwEntries.map((entry, eIdx) => (
                         <div key={eIdx} className={`rounded w-full px-1 py-1 text-center text-[10px] font-inter font-bold ${getFDRColor(entry.difficulty)}`}>
                           <div className="flex items-center justify-center gap-0.5 mb-0.5">
-                            {entry.opponentCode > 0 && (
-                              <img
-                                src={`https://resources.premierleague.com/premierleague/badges/20/t${entry.opponentCode}.png`}
-                                alt={entry.opponent}
-                                className="w-3 h-3 object-contain"
-                              />
-                            )}
                           </div>
                           <div>{entry.points}pts</div>
                         </div>
@@ -153,13 +138,6 @@ function PlayerRow({
                       {gwFixtures.map((fix, fixIdx) => (
                         <div key={fixIdx} className={`rounded w-full px-1 py-1 text-center text-[10px] font-inter font-bold ${getFDRColor(fix.difficulty)}`}>
                           <div className="flex items-center justify-center gap-0.5 mb-0.5">
-                            {fix.opponentCode > 0 && (
-                              <img
-                                src={`https://resources.premierleague.com/premierleague/badges/20/t${fix.opponentCode}.png`}
-                                alt={fix.opponent}
-                                className="w-3 h-3 object-contain"
-                              />
-                            )}
                           </div>
                           <div>{fix.opponent}</div>
                           <div className="text-[8px]">{fix.isHome ? 'H' : 'A'}</div>

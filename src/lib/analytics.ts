@@ -23,6 +23,28 @@ export const trackEvent = (
   }
 };
 
+/**
+ * Track an outbound click on a monetised affiliate link (Kitbag/Impact).
+ *
+ * Previously affiliate anchors fired no analytics at all, so GA4 showed zero
+ * affiliate activity regardless of real clicks — the "zero conversions in 8
+ * months" was partly a measurement gap. Every affiliate anchor now routes
+ * through <AffiliateLink> which calls this. Mark `affiliate_click` as a key
+ * event in GA4 and reconcile counts against the Impact dashboard (subId1/2).
+ */
+export const trackAffiliateClick = (
+  placement: string,
+  item?: string,
+  url?: string
+) => {
+  trackEvent('affiliate_click', {
+    affiliate: 'kitbag',
+    placement,
+    item,
+    link_url: url,
+  });
+};
+
 // Track page views manually (useful for SPAs)
 export const trackPageView = (url: string) => {
   if (typeof window !== 'undefined' && window.gtag) {

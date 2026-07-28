@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { WC_FATIGUE, NATIONS } from '../_lib/fatigue-data';
 import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
+import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { toast } from './Toast';
 
 const riskLabel = (r: string) => (r === 'hi' ? 'High' : r === 'md' ? 'Med' : 'Low');
@@ -13,11 +14,11 @@ export function FatigueScreen() {
   return (
     <>
       <div className="scr-head">
-        <div><div className="scr-title">WC FATIGUE</div><div className="scr-sub">World Cup 2026 · live minutes · GW1 risk</div></div>
-        <span className="live"><span className="dot" />Live</span>
+        <div><div className="scr-title">WC FATIGUE</div><div className="scr-sub">World Cup 2026 · final minutes · GW1 risk</div></div>
+        <span className="live"><span className="dot" />Full-time</span>
       </div>
       <p className="kit-intro">
-        Tracking real World Cup 2026 minutes for FPL-relevant Premier League stars — the more they play now, the bigger the GW1 burnout risk in 2026/27. Tap a player for their story and actual World Cup matches.
+        The 2026 World Cup is done — Spain beat Argentina in the final. Here are the real minutes FPL-relevant Premier League stars racked up, and the GW1 2026/27 burnout risk that follows. Tap a player for their tournament and every match.
       </p>
 
       <div>
@@ -42,22 +43,20 @@ export function FatigueScreen() {
               {isOpen && (
                 <div className="fat-detail">
                   <div className="fd-top">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className="fd-photo" src={p.photo} alt={p.surname} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                     <p className="fd-story">{p.story}</p>
                   </div>
 
                   {nat && (
                     <>
                       <div className="fat-mlabel">
-                        {nat.flag} {nat.name} · World Cup 2026 · {p.mins.reduce((a, b) => a + b, 0)}′ played
+                        {nat.flag} {nat.name} · {nat.result} · {p.mins.reduce((a, b) => a + b, 0)}′ played
                       </div>
                       <div className="fat-matches">
                         {nat.matches.map((m, mi) => {
                           const mins = p.mins[mi] ?? 0;
                           return (
                             <div className="fat-match" key={m.md}>
-                              <span className="md">MD{m.md} · {m.date}</span>
+                              <span className="md">{m.round ?? `MD${m.md}`} · {m.date}</span>
                               <span className="sc">{nat.flag} {nat.short} {m.gf}–{m.ga} {m.oppFlag} {m.oppName}</span>
                               <span className={`fmin ${mins === 0 ? 'dnp' : mins >= 85 ? 'hi' : ''}`}>{mins === 0 ? 'DNP' : `${mins}′`}</span>
                             </div>
@@ -67,16 +66,16 @@ export function FatigueScreen() {
                     </>
                   )}
 
-                  <a
+                  <AffiliateLink
                     className="s-btn s-btn--red hex"
                     href={getKitbagUrlByShort(p.short)}
-                    target="_blank"
-                    rel="noopener sponsored"
+                    placement="fatigue-card"
+                    item={p.short}
                     onClick={() => toast(`Opening ${p.club} on Kitbag`)}
                     style={{ marginTop: 16, fontSize: 12, textDecoration: 'none' }}
                   >
                     Shop {p.short} kit
-                  </a>
+                  </AffiliateLink>
                 </div>
               )}
             </div>
@@ -84,7 +83,7 @@ export function FatigueScreen() {
         })}
       </div>
       <p style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.05em', textAlign: 'center', marginTop: 14 }}>
-        WC matches &amp; minutes are actual results · load &amp; risk are editorial · kit links are affiliate
+        WC match results are actual · per-match minutes are best-effort estimates · load &amp; risk are editorial · kit links are affiliate
       </p>
     </>
   );

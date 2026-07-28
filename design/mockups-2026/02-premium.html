@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 02 — /premium — FPL Ranker × Sportify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#FF5050;--red-dark:#CC4040;--ink:#150000;--charcoal:#322D2D;--navy:#12233F;
+--bg:#FAFAFA;--white:#FFFFFF;--line:#D6D5D5;--line-2:#EEEDED;--t2:#5B5757;--t3:#848181;--t4:#ADABAB;
+--green:#009C54;--yellow:#FFD100;
+--display:'Bebas Neue',Impact,sans-serif;--body:'Manrope',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--pt:8px;--shadow:0 12px 34px -14px rgba(21,0,0,.28);}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);}
+a{color:var(--red);font-weight:700;text-decoration:none;}
+a:hover{color:var(--red-dark);}
+:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+.on-ink :focus-visible{outline-color:#fff;}
+.hex{clip-path:polygon(var(--pt) 0,calc(100% - var(--pt)) 0,100% 50%,calc(100% - var(--pt)) 100%,var(--pt) 100%,0 50%);}
+.s-btn{font-family:var(--display);font-size:16px;letter-spacing:.04em;color:var(--bg);background:var(--ink);border:0;cursor:pointer;
+  padding:0 26px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;line-height:1;text-decoration:none;}
+.s-btn.hex{padding-left:32px;padding-right:32px;}
+.s-btn--red{background:var(--red);color:#fff;}
+.s-btn--red:hover{background:var(--red-dark);color:#fff;}
+.s-btn--navy{background:var(--navy);color:#fff;}
+.s-btn--navy:hover{background:var(--navy-deep,#001B58);color:#fff;}
+.s-btn--ghost{background:var(--line-2);color:var(--ink);}
+.s-btn[style*="width"]{width:100%;}
+.kicker{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);}
+.mono{font-family:var(--mono);}
+.tag{font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;background:var(--ink);color:#fff;display:inline-block;}
+.tag--red{background:var(--red);}
+.tag--yellow{background:var(--yellow);color:var(--ink);}
+.logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-size:22px;letter-spacing:.03em;color:var(--ink);}
+.logo .bolt{width:22px;height:22px;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+.spec-note{max-width:880px;margin:48px auto 0;padding:12px 24px 0;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.06em;border-top:2px dashed var(--line);}
+
+/* ── minimal page chrome (wraps the standalone money pages) ── */
+.pagebar{background:#fff;border-bottom:1px solid var(--line);}
+.pagebar .in{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.chip-badge{width:44px;height:44px;border:0;cursor:pointer;background:var(--ink);color:#fff;font-family:var(--display);font-size:17px;
+  display:grid;place-items:center;clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
+
+.wrap{max-width:880px;margin:0 auto;padding:44px 24px 72px;}
+.p-head{text-align:center;margin-bottom:26px;}
+.p-head h1{font-family:var(--display);font-weight:400;font-size:clamp(38px,5vw,56px);line-height:.9;letter-spacing:.01em;margin:10px 0 12px;}
+.p-head h1 em{font-style:normal;color:var(--red);}
+.p-head .sub{font-family:var(--body);font-size:15px;line-height:1.6;color:var(--t2);max-width:56ch;margin:0 auto;}
+
+/* launch offer banner */
+.offer{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;background:var(--ink);color:#fff;
+  padding:13px 18px;margin:0 0 22px;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+.offer .tag--yellow{flex:0 0 auto;}
+.offer p{margin:0;font-family:var(--body);font-weight:600;font-size:14px;color:#e6dcdc;}
+.offer p strong{color:#fff;}
+.offer .count{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--yellow);letter-spacing:.05em;text-transform:uppercase;}
+
+/* plan cards */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;}
+.plan{position:relative;background:#fff;border:1px solid var(--line);padding:26px 24px 24px;display:flex;flex-direction:column;}
+.plan--hi{border:2px solid var(--red);box-shadow:var(--shadow);}
+.plan .best{position:absolute;top:-13px;right:16px;}
+.plan .pname{font-family:var(--body);font-weight:800;font-size:15px;}
+.plan .price{display:flex;align-items:baseline;gap:10px;margin:10px 0 2px;}
+.plan .price .v{font-family:var(--display);font-size:64px;line-height:.85;letter-spacing:.01em;}
+.plan--hi .price .v{color:var(--red);}
+.plan .price .was{font-family:var(--display);font-size:26px;color:var(--t4);text-decoration:line-through;}
+.plan .cad{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+.plan .blurb{font-family:var(--body);font-size:13.5px;line-height:1.55;color:var(--t2);margin:12px 0 18px;flex:1;}
+.plan .s-btn{width:100%;}
+
+/* feature list */
+.feats{list-style:none;max-width:520px;margin:30px auto 0;padding:0;}
+.feats li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line-2);
+  font-family:var(--body);font-weight:600;font-size:14px;color:var(--charcoal);line-height:1.5;}
+.feats li:first-child{border-top:0;}
+.feats li::before{content:'';width:10px;height:10px;background:var(--red);flex:0 0 auto;margin-top:5px;}
+.checkout-note{text-align:center;font-family:var(--body);font-size:12px;color:var(--t3);margin-top:26px;line-height:1.6;}
+
+/* state variants */
+.state-grid{max-width:880px;margin:14px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.prem-card{background:var(--ink);color:#fff;text-align:center;padding:32px 26px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);}
+.prem-card .star{width:46px;height:46px;margin:0 auto 12px;display:grid;place-items:center;background:var(--yellow);color:var(--ink);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);font-size:22px;}
+.prem-card h2{font-family:var(--display);font-weight:400;font-size:32px;letter-spacing:.02em;margin:0 0 6px;line-height:.95;}
+.prem-card p{font-family:var(--body);font-size:13.5px;color:#cfc6c6;margin:0 0 18px;line-height:1.55;}
+.signedout-card{background:#fff;border:1px solid var(--line);padding:24px;display:flex;flex-direction:column;gap:12px;justify-content:center;}
+.signedout-card p{margin:0;font-family:var(--body);font-size:13.5px;color:var(--t2);line-height:1.55;}
+
+@media (max-width:680px){.plans,.state-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body data-screen-label="Mockup 02 — /premium pricing">
+
+<div class="pagebar">
+  <div class="in">
+    <span class="logo"><span class="bolt"></span>FPL RANKER</span>
+    <button class="chip-badge" aria-label="Account menu">J</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <header class="p-head">
+    <span class="kicker">FPL Ranker Premium</span>
+    <h1>Win your mini-league <em>with an AI edge</em></h1>
+    <p class="sub">Everything you already love stays free. Premium adds the AI advisor: captain and transfer calls tuned to <strong>your</strong> squad, powered by our self-learning prediction model.</p>
+  </header>
+
+  <div class="offer" role="status">
+    <span class="tag tag--yellow">Launch offer</span>
+    <p>Season Pass is <strong>&pound;15</strong> until 1 September, then &pound;20.</p>
+    <span class="count">Ends in 56 days</span>
+  </div>
+
+  <div class="plans">
+    <section class="plan plan--hi" aria-label="Season Pass">
+      <span class="best tag tag--red">Best value</span>
+      <span class="pname">Season Pass 2026/27</span>
+      <div class="price"><span class="v">&pound;15</span><span class="was">&pound;20</span></div>
+      <span class="cad">One-off &middot; full season</span>
+      <p class="blurb">Everything premium until the end of the 2026/27 season. Pay once — no renewal, nothing to cancel.</p>
+      <a class="s-btn s-btn--red hex" href="#">Get Season Pass</a>
+    </section>
+    <section class="plan" aria-label="Annual">
+      <span class="pname">Annual</span>
+      <div class="price"><span class="v">&pound;30</span></div>
+      <span class="cad">Per year &middot; renews automatically</span>
+      <p class="blurb">Rolling annual access across seasons, including pre-season tools. Cancel anytime.</p>
+      <a class="s-btn s-btn--navy hex" href="#">Get Annual</a>
+    </section>
+  </div>
+
+  <ul class="feats">
+    <li>AI captain picks tuned to your own squad every gameweek</li>
+    <li>Transfer suggestions ranked by expected points gain</li>
+    <li>The full player points-prediction table (not just the top 10)</li>
+    <li>Premium gameweek newsletter with your personalised calls</li>
+    <li>Rival transfer alerts across your mini-leagues</li>
+  </ul>
+
+  <p class="checkout-note">Secure checkout by Lemon Squeezy (our merchant of record — VAT handled). Cancel anytime.</p>
+</main>
+
+<p class="spec-note">State variants — signed-out CTA &middot; already-premium</p>
+<div class="state-grid">
+  <div class="signedout-card">
+    <p><strong>Signed out:</strong> plan CTAs swap to a single sign-in action (checkout needs an account for the webhook).</p>
+    <a class="s-btn s-btn--navy hex" href="#">Sign in to buy</a>
+  </div>
+  <div class="prem-card on-ink">
+    <span class="star" aria-hidden="true">&#9733;</span>
+    <h2>You&rsquo;re premium</h2>
+    <p>Thanks for backing FPL Ranker. Your AI picks are live across the app.</p>
+    <a class="s-btn s-btn--red hex" href="#">Open my squad</a>
+  </div>
+</div>
+
+</body>
+</html>
