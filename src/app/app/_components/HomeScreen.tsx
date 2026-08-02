@@ -31,6 +31,7 @@ export function HomeScreen() {
         {tile(router, '/app/squad', 'MY SQUAD', 'XI, form & verdict', I(<><path d="M8 3l4 2 4-2 4 4-3 2v12H7V9L4 7z" /></>))}
         {tile(router, '/app/leagues', 'MY LEAGUES', 'Standings & rivals', I(<><path d="M6 4h12v3a6 6 0 0 1-12 0z" /><path d="M6 5H4v1a3 3 0 0 0 2 2.8M18 5h2v1a3 3 0 0 1-2 2.8" /><path d="M9 19h6M10 13.5V16a2 2 0 0 1-1 2M14 13.5V16a2 2 0 0 0 1 2" /></>))}
         {tile(router, '/app/blog', 'BLOG', 'Tips & analysis', I(<><path d="M5 3h11l3 3v15H5z" /><path d="M8 9h8M8 13h8M8 17h5" /></>))}
+        {tile(router, '/app/kits', 'KITBAG', '26/27 kit drop', I(<path d="M6 2 3 6l3 2v12h12V8l3-2-3-4-4 2a4 4 0 0 1-8 0z" />))}
       </div>
 
       <div className="hub-lbl"><span className="l">THIS WEEK</span><span className="more" onClick={() => router.push(`/app/league/${DEMO_LEAGUE}`)}>All headlines ›</span></div>

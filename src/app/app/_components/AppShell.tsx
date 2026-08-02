@@ -23,7 +23,7 @@ interface AppShellProps {
 }
 
 const TITLE_BY_NAV: Record<string, string> = {
-  home: 'Home', squad: 'My Squad', leagues: 'Leagues', blog: 'Blog',
+  home: 'Home', squad: 'My Squad', leagues: 'Leagues', blog: 'Blog', kits: 'Kitbag',
 };
 
 export function AppShell({ navActive, title, backHref, meta, teamId, youName, actions, children }: AppShellProps) {

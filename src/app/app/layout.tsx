@@ -3,6 +3,7 @@ import './_styles/sportify-fpl.css';
 import './_styles/app-screens.css';
 import './_styles/redesign.css';
 import './_styles/landing.css';
+import './_styles/kitdrop.css';
 
 export const metadata: Metadata = {
   title: 'FPL Ranker — Your fantasy team, brilliantly ranked',
