@@ -10,7 +10,8 @@ import redis from '@/lib/redis';
  * Runs daily and checks if the next gameweek deadline is ~2 days away.
  * Only sends reminder emails when the deadline is 36-60 hours away.
  *
- * vercel.json schedule: "0 8 * * *" (daily at 8:00 AM UTC)
+ * Invoked by the consolidated /api/cron/daily dispatcher
+ * (vercel.json schedule: "0 8 * * *" — daily at 08:00 UTC).
  *
  * NOTE: Vercel Cron invokes this endpoint with a GET request and attaches
  * `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
@@ -68,12 +69,13 @@ export async function runReminderJob(request: NextRequest) {
       // Redis unavailable, continue anyway
     }
 
-    // Get all active subscriptions
+    // Only verified subscribers (double opt-in): a confirmed verifiedAt is the
+    // gate for bulk sends, so unconfirmed addresses never receive email.
     const subscriptions = await prisma.newsletterSubscription.findMany({
-      where: { isActive: true }
+      where: { isActive: true, verifiedAt: { not: null } }
     });
 
-    console.log(`📧 Found ${subscriptions.length} active subscriptions`);
+    console.log(`📧 Found ${subscriptions.length} active, verified subscriptions`);
 
     if (subscriptions.length === 0) {
       return NextResponse.json({ success: true, message: 'No active subscriptions found', sent: 0 });

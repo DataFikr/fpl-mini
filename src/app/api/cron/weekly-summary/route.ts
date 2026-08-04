@@ -11,7 +11,8 @@ import { findPlayerPhotoInText, type BootstrapElementLike } from '@/lib/fpl-imag
  * Runs daily and checks if a gameweek recently finished.
  * Sends summary emails 1 day after gameweek completion.
  *
- * vercel.json schedule: "0 10 * * *" (daily at 10:00 AM UTC)
+ * Invoked by the consolidated /api/cron/daily dispatcher
+ * (vercel.json schedule: "0 8 * * *" — daily at 08:00 UTC).
  *
  * NOTE: Vercel Cron invokes this endpoint with a GET request and attaches
  * `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
@@ -109,12 +110,13 @@ export async function runSummaryJob(request: NextRequest) {
       // Redis unavailable, continue
     }
 
-    // Get all active subscriptions
+    // Only verified subscribers (double opt-in): a confirmed verifiedAt is the
+    // gate for bulk sends, so unconfirmed addresses never receive email.
     const subscriptions = await prisma.newsletterSubscription.findMany({
-      where: { isActive: true }
+      where: { isActive: true, verifiedAt: { not: null } }
     });
 
-    console.log(`📧 Found ${subscriptions.length} active subscriptions`);
+    console.log(`📧 Found ${subscriptions.length} active, verified subscriptions`);
 
     if (subscriptions.length === 0) {
       return NextResponse.json({ success: true, message: 'No active subscriptions found', sent: 0 });
