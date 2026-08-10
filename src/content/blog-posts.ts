@@ -1,13 +1,13 @@
 /**
  * Data-driven public blog registry.
  *
- * Every post authored by the `fpl-blog` skill is a single object in BLOG_POSTS.
- * The shared route `src/app/blog/[slug]/page.tsx` renders it (server-side) and
- * `layout.tsx` emits the JSON-LD, so adding a post never touches JSX.
+ * Every post is a single object in BLOG_POSTS, rendered by the shared route
+ * `src/app/app/blog/[id]/page.tsx` via `AppArticle` in the Sportify theme, so
+ * adding a post never touches JSX.
  *
- * Existing bespoke posts (`/blog/world-cup-fatigue`, `/blog/fdr-tools`,
- * `/blog/beyond-the-points`) keep their own folders — Next.js resolves those
- * static segments ahead of this `[slug]` route, so there is no collision.
+ * The three formerly bespoke posts (world-cup-fatigue, fdr-tools,
+ * beyond-the-points) were migrated in on 2026-08-09 with their original publish
+ * dates preserved. Their old `/blog/*` routes are gone and 308-redirect here.
  */
 
 /** One <h2> section: a heading followed by one or more paragraphs. */
@@ -68,7 +68,15 @@ export type BlogCategory =
   | 'Line-ups'
   | 'Injuries'
   | 'Strategy'
+  | 'Analysis'
   | 'News';
+
+/**
+ * An interactive block a post can embed between its prose and its FAQ.
+ * Used where a post is genuinely a tool rather than an article — the World Cup
+ * fatigue tracker is the live minutes table, not a description of one.
+ */
+export type BlogEmbed = 'wc-fatigue';
 
 export interface BlogPost {
   /** URL segment: /blog/<slug>. Kebab-case, unique. */
@@ -95,6 +103,8 @@ export interface BlogPost {
   lineups?: BlogLineup[];
   /** Optional ranked lists (e.g. monthly "Top 5 tools" listicles with outbound links). */
   lists?: BlogList[];
+  /** Optional interactive block rendered after the prose (see `BlogEmbed`). */
+  embed?: BlogEmbed;
   /** Team short_names (e.g. ["ARS","LIV"]) → contextual Kitbag CTA. */
   kitTeams?: string[];
   /** Players/clubs referenced → schema.org `mentions`. */
@@ -563,6 +573,231 @@ export const BLOG_POSTS: BlogPost[] = [
         question: 'What is the best free FPL transfer planner?',
         answer:
           'Several tools offer free multi-gameweek planners; look for one that overlays fixtures and predicted price changes so you can plan two or three gameweeks ahead and avoid unnecessary points hits. Try a couple from this list and keep the one whose workflow fits yours.',
+      },
+    ],
+    mentions: [
+      { name: 'Fantasy Premier League', sameAs: 'https://en.wikipedia.org/wiki/Fantasy_Premier_League' },
+    ],
+  },
+
+  // ─── Migrated from bespoke /blog routes (2026-08-09) ────────────────────
+  // These three predate the registry and had hand-built pages in the old
+  // marketing theme. Content is unchanged; original publish dates preserved so
+  // they sort correctly in the newest-first index.
+
+  {
+    slug: 'world-cup-fatigue',
+    title: 'World Cup Fatigue Watch: Which FPL Stars Came Back With the Heaviest Legs',
+    summary:
+      'The 2026 World Cup is over — Spain beat Argentina in the final, England reached the semis and Norway stunned Brazil on the way to the quarters. The tracker below shows each FPL-relevant Premier League star’s actual tournament minutes and the Gameweek 1 burnout risk that follows. Tap any player to see every match they played.',
+    description:
+      'Live World Cup 2026 minutes tracker for FPL-relevant Premier League stars, with Gameweek 1 burnout risk for each player.',
+    date: '2026-06-02',
+    updated: '2026-07-27',
+    category: 'Analysis',
+    coverImage: '/images/blog/world_cup.jpg',
+    coverAlt: 'World Cup Fatigue Watch — tournament minutes and GW1 burnout risk',
+    sections: [
+      {
+        heading: 'Why tournament minutes matter for Gameweek 1',
+        body: [
+          'A deep World Cup run costs a player three things at once: the minutes themselves, the recovery weeks that should have been pre-season, and the truncated build-up with their club. Managers who went far — and especially those who played every knockout round — arrive at the opening weekend short of club-specific sharpness even when they look fit.',
+          'The pattern from previous tournaments is consistent: the heaviest-loaded players are rotated, benched, or eased in during the opening month. That is a Gameweek 1 problem for anyone who spent big on a premium asset who lifted the trophy three weeks earlier.',
+        ],
+      },
+      {
+        heading: 'How to read the tracker',
+        body: [
+          'Each row shows a player’s nation, their tournament result, and their total minutes across the finals. The bar is relative load — how much of the available tournament football they actually played. The risk chip is the resulting Gameweek 1 burnout risk: High, Medium or Low.',
+          'Tap any player to expand their full tournament: every match, the scoreline, and the exact minutes they played in it, including the games they sat out entirely.',
+        ],
+      },
+    ],
+    embed: 'wc-fatigue',
+    faq: [
+      {
+        question: 'Should I avoid World Cup players in Gameweek 1?',
+        answer:
+          'Not categorically — avoid the ones with high load. A player who exited in the group stage got a near-normal pre-season. A player who started every match to the final did not. Use the minutes column rather than the badge on the shirt.',
+      },
+      {
+        question: 'How long does World Cup fatigue actually last?',
+        answer:
+          'The measurable dip is usually concentrated in the opening four to six gameweeks, and shows up as rotation and reduced minutes more often than as a drop in per-90 output. Deep runners are frequently eased in from the bench before starting regularly.',
+      },
+      {
+        question: 'Where do these minutes come from?',
+        answer:
+          'They are the actual minutes played in the 2026 World Cup finals, match by match, for Premier League players who are relevant to Fantasy Premier League squads.',
+      },
+    ],
+    mentions: [
+      { name: '2026 FIFA World Cup', sameAs: 'https://en.wikipedia.org/wiki/2026_FIFA_World_Cup' },
+      { name: 'Fantasy Premier League', sameAs: 'https://en.wikipedia.org/wiki/Fantasy_Premier_League' },
+    ],
+  },
+
+  {
+    slug: 'fdr-tools',
+    title: 'Master Your Long-Term Planning: Top 5 FPL Fixture Difficulty (FDR) Tools',
+    summary:
+      'The official FPL site gives you a basic 1–5 difficulty scale, but those ratings are based on last season’s standing and lag real-world form. These five Fixture Difficulty Rating tools — Fantasy Football Fix, Fantasy Football Hub, FPL Ranker, FPL.Team and FPL Analytics — let you spot green runs, blank gameweeks and fixture swings before your rivals do.',
+    description:
+      'Compare the top 5 FPL Fixture Difficulty Rating tools for long-term planning: rotation planners, xG-based tickers and interactive fixture solvers.',
+    date: '2026-02-17',
+    category: 'Analysis',
+    coverImage: '/images/blog/feature_3_fixture_fdr.png',
+    coverAlt: 'FPL Fixture Difficulty Rating tools compared',
+    sections: [
+      {
+        heading: 'Why the official FDR is not enough',
+        body: [
+          'In Fantasy Premier League information is power, but visualisation is king. The official 1–5 scale is built largely on where a team finished last season, so it is slow to react when a promoted side starts well or a traditional big six team leaks goals.',
+          'To navigate blank gameweeks, double gameweeks and the dreaded fixture turn, you want a dedicated FDR tool that reacts to form — ideally one built on expected goals rather than reputation.',
+        ],
+      },
+      {
+        heading: 'What to look for in an FDR tool',
+        body: [
+          'Three things separate a useful FDR tool from a pretty chart. First, the underlying model: is difficulty derived from xG and recent form, or just from the table? Second, split ratings: attacking and defensive difficulty are not the same, and a leaky top-half side is a green fixture for forwards and a red one for defenders. Third, planning depth: can you actually plan transfers and chips forward, or only look at a static grid?',
+        ],
+      },
+    ],
+    lists: [
+      {
+        heading: 'The five tools',
+        intro:
+          'Ranked by how much they change your planning, not by traffic. Each link opens the tool directly.',
+        ordered: true,
+        items: [
+          {
+            name: 'Fantasy Football Fix — the defensive specialist',
+            url: 'https://www.fantasyfootballfix.com/planner',
+            blurb:
+              'Famous for its Rotation Planner. Pick two budget defenders and see their combined best fixture each week — the simplest way to never start a defender against Manchester City. The Stats Sandbox adds a heat-map FDR built on clean-sheet probability, and the AI assistant rates your squad out of 100 on the next five gameweeks.',
+          },
+          {
+            name: 'Fantasy Football Hub — the AI-powered ticker',
+            url: 'https://www.fantasyfootballhub.co.uk/fixture-ticker',
+            blurb:
+              'The heavy hitter for data-backed projections. Difficulty is derived from Opta stats and expected goals rather than league position, so a big team defending badly shows green for opposition attackers even while sitting top of the table. Sort the ticker by attack, defence or overall, and it reflects blank and double gameweek news faster than anywhere else.',
+          },
+          {
+            name: 'FPL Ranker — the banter-first insight tool',
+            url: 'https://fplranker.com',
+            blurb:
+              'Built to bridge hard data and league rivalry. The Fixture FDR key is a high-contrast 1–5 grid designed for clarity: at a glance you see which managers in your mini-league are about to hit a fixture wall and which have a clear run. Combined with the transfer history view, you can see not just where a rival is heading but whether their past disasters came from ignoring fixtures in the first place.',
+          },
+          {
+            name: 'FPL.Team — the planner’s paradise',
+            url: 'https://fpl.team/fdr',
+            blurb:
+              'The gold standard for managers who like to tinker. Less a static chart than a playable board: make transfers, change captains and play chips up to 38 weeks ahead, with FDR shown directly under every player’s shirt in your mock draft. It syncs your real team automatically, so your own squad’s next ten weeks are one glance away.',
+          },
+          {
+            name: 'FPL Analytics — the strategic deep-dive',
+            url: 'https://www.fplanalytics.com/fdr.html',
+            blurb:
+              'For anyone who wants every team’s schedule in one expansive grid. It shows fixture swings more clearly than almost anywhere else, and the difficulty slider lets you weight home advantage and recent form yourself. Minimalist and data-heavy — ideal if you love a spreadsheet.',
+          },
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: 'What is FDR in FPL?',
+        answer:
+          'FDR stands for Fixture Difficulty Rating — a score, usually 1 to 5, estimating how hard a team’s upcoming fixture is. Lower is easier. The official FPL version is based largely on last season’s finishing position; third-party tools recalculate it from current form and expected goals.',
+      },
+      {
+        question: 'Is the official FPL fixture difficulty rating accurate?',
+        answer:
+          'It is a reasonable starting point but it lags. Because it leans on previous-season standing, it is slow to downgrade a struggling big side or upgrade a promoted team in good form. Tools built on xG react within a few gameweeks.',
+      },
+      {
+        question: 'What is a fixture swing?',
+        answer:
+          'A fixture swing is the point where a team moves from a difficult run to an easy one, or vice versa. Transferring in a player just before a swing to green — and out before a swing to red — is one of the highest-value uses of a free transfer.',
+      },
+      {
+        question: 'Should attackers and defenders use the same FDR?',
+        answer:
+          'No. Attacking and defensive difficulty diverge often. A team that scores freely but concedes just as freely is a green fixture for opposition attackers and a red one for their own defenders. Any tool that splits the two is more useful than one overall number.',
+      },
+    ],
+    mentions: [
+      { name: 'Fantasy Premier League', sameAs: 'https://en.wikipedia.org/wiki/Fantasy_Premier_League' },
+      { name: 'Expected goals', sameAs: 'https://en.wikipedia.org/wiki/Expected_goals' },
+    ],
+  },
+
+  {
+    slug: 'beyond-the-points',
+    title: 'Beyond the Points: How FPL Ranker Turns Your Mini-League into a Premier League Experience',
+    summary:
+      'Fantasy Premier League is 10% picking players and 90% bragging to your friends — but mini-league group chats go quiet as the season drags on. FPL Ranker gives every mini-league the Sky Sports treatment: table progression charts, ESPN-style headlines, rival scouting, a weekly newsletter and community polls, all built to keep the banter running from Gameweek 1 to 38.',
+    description:
+      'How FPL Ranker turns your mini-league into a Premier League experience: progression charts, headlines, rival watch, newsletters and polls.',
+    date: '2026-01-05',
+    category: 'News',
+    coverImage: '/images/blog/fplranker_news_highlight.png',
+    coverAlt: 'FPL Ranker mini-league experience — headlines and analytics',
+    sections: [
+      {
+        heading: 'Watch the drama unfold: league table progression',
+        body: [
+          'Generic tables show you where you are now. The progression chart shows you how you got there, tracking every position change across every gameweek of the season.',
+          'Nothing says bottler like a line plummeting from 1st to 7th over three weeks. Use it to identify the climbers and the divers in your league — and to call them out in the group chat.',
+        ],
+      },
+      {
+        heading: 'ESPN-style headlines for your league',
+        body: [
+          'Why read about the pros when you can read about your friends? The Top Headlines engine turns your league’s actual gameweek into news-style stories: the captaincy masterclass, the bench nightmare, the differential that swung the week.',
+          'Did someone just pull off a masterstroke with a 96-point haul? Is there a title race brewing between 2nd and 3rd? Every gameweek gets written up like it matters, because in your league it does.',
+        ],
+      },
+      {
+        heading: 'Rival watch: the ultimate scouting report',
+        body: [
+          'To beat your rivals you need to know their every move. Rival Watch and the performance analysis tabs break down every team’s squad composition, captaincy choices and effective ownership.',
+          'Use it to spot the differential that could ruin someone’s weekend — or to highlight the manager who survived the week purely on a Haaland captaincy.',
+        ],
+      },
+      {
+        heading: 'Never miss a beat: the league newsletter',
+        body: [
+          'You do not even have to open the site to stay informed. Subscribe to your league newsletter and the week’s top headlines plus a full rival analysis land in your inbox twice a gameweek — a pre-deadline reminder and a post-gameweek summary.',
+          'It is the perfect mid-week pain report to drop into the group chat and remind everyone who is boss.',
+        ],
+      },
+      {
+        heading: 'Vote on the chaos: community polls',
+        body: [
+          'Engagement is a two-way street. The community poll settles debates, predicts the next flop, and gives the quieter managers in your league something to argue about between deadlines.',
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: 'Is FPL Ranker free?',
+        answer:
+          'Yes — the mini-league tools are free. A small commission from official kit links keeps them that way.',
+      },
+      {
+        question: 'Do I need an account to use it?',
+        answer:
+          'No. Enter any Fantasy Premier League team ID and your leagues load straight away. There is nothing to install and no login required to view standings and headlines.',
+      },
+      {
+        question: 'How often do the headlines update?',
+        answer:
+          'Headlines regenerate from live Fantasy data every gameweek, and subscribers receive them by email twice per gameweek — a pre-deadline reminder and a post-gameweek summary.',
+      },
+      {
+        question: 'Is FPL Ranker affiliated with the Premier League?',
+        answer:
+          'No. FPL Ranker is an independent tool and is not affiliated with or endorsed by the Premier League or Fantasy Premier League.',
       },
     ],
     mentions: [

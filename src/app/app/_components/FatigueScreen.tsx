@@ -8,18 +8,26 @@ import { toast } from './Toast';
 
 const riskLabel = (r: string) => (r === 'hi' ? 'High' : r === 'md' ? 'Med' : 'Low');
 
-export function FatigueScreen() {
+/**
+ * `embedded` drops the screen header and intro — inside a blog article the post
+ * already supplies its own title and lead, so repeating them reads as a bug.
+ */
+export function FatigueScreen({ embedded = false }: { embedded?: boolean } = {}) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
     <>
-      <div className="scr-head">
-        <div><div className="scr-title">WC FATIGUE</div><div className="scr-sub">World Cup 2026 · final minutes · GW1 risk</div></div>
-        <span className="live"><span className="dot" />Full-time</span>
-      </div>
-      <p className="kit-intro">
-        The 2026 World Cup is done — Spain beat Argentina in the final. Here are the real minutes FPL-relevant Premier League stars racked up, and the GW1 2026/27 burnout risk that follows. Tap a player for their tournament and every match.
-      </p>
+      {!embedded && (
+        <>
+          <div className="scr-head">
+            <div><div className="scr-title">WC FATIGUE</div><div className="scr-sub">World Cup 2026 · final minutes · GW1 risk</div></div>
+            <span className="live"><span className="dot" />Full-time</span>
+          </div>
+          <p className="kit-intro">
+            The 2026 World Cup is done — Spain beat Argentina in the final. Here are the real minutes FPL-relevant Premier League stars racked up, and the GW1 2026/27 burnout risk that follows. Tap a player for their tournament and every match.
+          </p>
+        </>
+      )}
 
       <div>
         {WC_FATIGUE.map((p, i) => {

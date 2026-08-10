@@ -10,6 +10,14 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/', destination: '/app', permanent: false },
+
+      // Old marketing-theme pages are retired — everything lives in the Sportify
+      // app shell now. Permanent (308) so search engines transfer the ranking
+      // signal from the old URLs rather than treating these as temporary.
+      // Order matters: the /blog/:slug rule must precede the bare /blog rule.
+      { source: '/blog/:slug', destination: '/app/blog/:slug', permanent: true },
+      { source: '/blog', destination: '/app/blog', permanent: true },
+      { source: '/find-team-id', destination: '/app/find-team-id', permanent: true },
     ];
   },
   eslint: {

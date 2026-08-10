@@ -1,21 +1,22 @@
 /**
- * Single source of truth for the blog index — used by BOTH the public `/blog`
- * page and the in-app `/app/blog` tab so the two surfaces can never drift.
+ * Single source of truth for the blog index, sorted newest-first.
  *
- * It composes the data-driven registry posts (src/content/blog-posts.ts) with
- * the bespoke long-form posts that keep their own hand-built routes, then sorts
- * newest-first. World Cup Fatigue is historical now, so it falls to the bottom.
+ * Every post is now a data-driven registry entry (src/content/blog-posts.ts)
+ * rendered in the app theme. The three bespoke hand-built routes
+ * (world-cup-fatigue, fdr-tools, beyond-the-points) were migrated into the
+ * registry on 2026-08-09 with their original publish dates intact, so this no
+ * longer needs a separate legacy list.
  */
 import { getAllPosts } from './blog-posts';
 
 export interface BlogIndexTile {
-  /** Public/canonical path (registry → /blog/<slug>; legacy → its own route). Used by the marketing /blog. */
+  /** Canonical path. Identical to `appHref` — /blog now redirects into /app/blog. */
   href: string;
-  /** In-app path (registry → app-themed reader /app/blog/<slug>; legacy → its bespoke public page). */
+  /** App-themed reader path: /app/blog/<slug>. */
   appHref: string;
-  /** Bare slug (registry posts only; empty for legacy). */
+  /** Bare slug. */
   slug: string;
-  /** True for data-driven registry posts (rendered in-app via AppArticle). */
+  /** Always true — every post is a registry post rendered via AppArticle. */
   registry: boolean;
   title: string;
   excerpt: string;
@@ -28,63 +29,34 @@ export interface BlogIndexTile {
   imageAlt: string;
 }
 
-// Bespoke long-form posts with their own hand-built routes.
-const LEGACY: Omit<BlogIndexTile, 'appHref' | 'slug' | 'registry'>[] = [
-  {
-    href: '/blog/world-cup-fatigue',
-    title: 'World Cup Fatigue Watch: Which FPL Stars Risk a Slow Start to 2026/27',
-    excerpt:
-      'The 2026 World Cup is over — Spain are champions and the Premier League contingent is back. Here is how each premium asset’s tournament run reshapes their Gameweek 1 fatigue risk in your mini-league.',
-    date: 'June 2, 2026',
-    dateISO: '2026-06-02',
-    category: 'Analysis',
-    image: '/images/blog/world_cup.jpg',
-    imageAlt: 'World Cup Fatigue Watch',
-  },
-  {
-    href: '/blog/fdr-tools',
-    title: 'Master Your Long-Term Planning: Top 5 FPL Fixture Difficulty (FDR) Tools',
-    excerpt:
-      'While the official FPL site provides a basic 1-5 difficulty scale, top-tier managers know the official ratings often lag behind. Here are five FDR tools that sharpen your fixture planning.',
-    date: 'February 17, 2026',
-    dateISO: '2026-02-17',
-    category: 'Analysis',
-    image: '/images/blog/feature_3_fixture_fdr.png',
-    imageAlt: 'FPL Fixture Difficulty Rating Tools',
-  },
-  {
-    href: '/blog/beyond-the-points',
-    title: 'Beyond the Points: How FPLRanker Turns Your Mini-League into a Premier League Experience',
-    excerpt:
-      'Fantasy Premier League is 10% picking players and 90% bragging to your friends. Here is how FPLRanker keeps your mini-league group chat alive all season.',
-    date: 'January 5, 2026',
-    dateISO: '2026-01-05',
-    category: 'News',
-    image: '/images/blog/fplranker_news_highlight.png',
-    imageAlt: 'FPLRanker Mini-League Experience',
-  },
-];
+/**
+ * Formats a `YYYY-MM-DD` publish date for display.
+ *
+ * Must format in UTC. `new Date('2026-07-26')` is parsed as UTC midnight, so
+ * formatting it in a negative-offset local zone renders the previous day — a
+ * post published on the 26th displayed as the 25th for every US visitor.
+ */
+export function formatPostDate(iso: string): string {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+  });
+}
 
-/** Composed, newest-first blog index for both blog surfaces. */
+/** Newest-first blog index for every blog surface. */
 export function getBlogIndex(): BlogIndexTile[] {
-  const registry: BlogIndexTile[] = getAllPosts().map((p) => ({
-    href: `/blog/${p.slug}`,
-    appHref: `/app/blog/${p.slug}`,
-    slug: p.slug,
-    registry: true,
-    title: p.title,
-    excerpt: p.summary,
-    date: new Date(p.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }),
-    dateISO: p.date,
-    category: p.category,
-    image: p.coverImage ?? null,
-    imageAlt: p.coverAlt ?? p.title,
-  }));
-  const legacy: BlogIndexTile[] = LEGACY.map((l) => ({
-    ...l,
-    appHref: l.href, // bespoke posts keep their own themed public pages
-    slug: '',
-    registry: false,
-  }));
-  return [...legacy, ...registry].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+  return getAllPosts()
+    .map((p) => ({
+      href: `/app/blog/${p.slug}`,
+      appHref: `/app/blog/${p.slug}`,
+      slug: p.slug,
+      registry: true,
+      title: p.title,
+      excerpt: p.summary,
+      date: formatPostDate(p.date),
+      dateISO: p.date,
+      category: p.category,
+      image: p.coverImage ?? null,
+      imageAlt: p.coverAlt ?? p.title,
+    }))
+    .sort((a, b) => b.dateISO.localeCompare(a.dateISO));
 }

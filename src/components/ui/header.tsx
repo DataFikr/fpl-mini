@@ -53,13 +53,13 @@ export function Header() {
               How it Works
             </Link>
             <Link
-              href="/find-team-id"
+              href="/app/find-team-id"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
               Find Team ID
             </Link>
             <Link
-              href="/blog"
+              href="/app/blog"
               className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors"
             >
               Blogs
@@ -120,14 +120,14 @@ export function Header() {
                 How it Works
               </Link>
               <Link
-                href="/find-team-id"
+                href="/app/find-team-id"
                 className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Find Team ID
               </Link>
               <Link
-                href="/blog"
+                href="/app/blog"
                 className="font-jakarta font-medium text-fpl-text-secondary hover:text-white transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

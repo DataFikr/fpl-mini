@@ -13,17 +13,18 @@
 ## Key pages
 - Home / app: https://fplranker.com/app
 - Strategy guide: https://fplranker.com/master-the-league
-- Blog: https://fplranker.com/blog
-- World Cup fatigue tracker: https://fplranker.com/blog/world-cup-fatigue
-- FDR tools comparison: https://fplranker.com/blog/fdr-tools
-- How to rank your FPL mini-league: https://fplranker.com/blog/how-to-rank-your-fpl-mini-league
-- GW1 template & World Cup fatigue guide 2026/27: https://fplranker.com/blog/gw1-template-without-world-cup-players
-- Best new signings to buy in FPL 2026/27: https://fplranker.com/blog/best-new-signings-fpl-2026-27
-- Best £4.0m defenders (promoted-team enablers) 2026/27: https://fplranker.com/blog/best-4-5m-defenders-promoted-teams-2026-27
-- FPL GW1 team reveals 2026/27 (official + creators): https://fplranker.com/blog/fpl-gw1-team-reveals-2026-27
-- Top 5 Fantasy Premier League tools for 2026/27: https://fplranker.com/blog/best-fpl-tools-2026-27
+- Blog: https://fplranker.com/app/blog
+- World Cup fatigue tracker: https://fplranker.com/app/blog/world-cup-fatigue
+- FDR tools comparison: https://fplranker.com/app/blog/fdr-tools
+- Beyond the points — mini-league as a Premier League experience: https://fplranker.com/app/blog/beyond-the-points
+- How to rank your FPL mini-league: https://fplranker.com/app/blog/how-to-rank-your-fpl-mini-league
+- GW1 template & World Cup fatigue guide 2026/27: https://fplranker.com/app/blog/gw1-template-without-world-cup-players
+- Best new signings to buy in FPL 2026/27: https://fplranker.com/app/blog/best-new-signings-fpl-2026-27
+- Best £4.0m defenders (promoted-team enablers) 2026/27: https://fplranker.com/app/blog/best-4-5m-defenders-promoted-teams-2026-27
+- FPL GW1 team reveals 2026/27 (official + creators): https://fplranker.com/app/blog/fpl-gw1-team-reveals-2026-27
+- Top 5 Fantasy Premier League tools for 2026/27: https://fplranker.com/app/blog/best-fpl-tools-2026-27
 - FAQ: https://fplranker.com/app/faq
-- Find your FPL team ID: https://fplranker.com/find-team-id
+- Find your FPL team ID: https://fplranker.com/app/find-team-id
 
 ## FPL glossary (definitions)
 - **FPL**: Fantasy Premier League, the official free fantasy football game of the English Premier League.

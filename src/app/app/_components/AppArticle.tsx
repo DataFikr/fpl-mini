@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getPost } from '@/content/blog-posts';
-import { getBlogIndex } from '@/content/blog-index';
+import { getBlogIndex, formatPostDate } from '@/content/blog-index';
 import { LineupPitch } from '@/components/blog/lineup-pitch';
+import { FatigueScreen } from './FatigueScreen';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
 import { toast } from './Toast';
@@ -33,7 +34,7 @@ export function AppArticle({ slug }: { slug: string }) {
   }
 
   const tone = CAT_TONE[post.category] ?? '#12233F';
-  const dateDisplay = new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  const dateDisplay = formatPostDate(post.date);
   const related = getBlogIndex().filter((t) => t.slug !== post.slug).slice(0, 2);
 
   return (
@@ -63,6 +64,14 @@ export function AppArticle({ slug }: { slug: string }) {
           </section>
         ))}
       </div>
+
+      {/* Interactive block — a post that is genuinely a tool, not prose */}
+      {post.embed === 'wc-fatigue' && (
+        <div className="art-embed">
+          <div className="lbl-row"><span className="l">THE TRACKER</span><span className="live"><span className="dot" />Full-time</span></div>
+          <FatigueScreen embedded />
+        </div>
+      )}
 
       {/* Suggested line-ups on a pitch */}
       {post.lineups && post.lineups.length > 0 && (

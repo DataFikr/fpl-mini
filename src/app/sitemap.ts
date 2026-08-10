@@ -19,23 +19,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('/', 'daily', 1),
     entry('/app', 'daily', 0.9),
     entry('/predictions', 'daily', 0.85),
+    entry('/players', 'daily', 0.8),
     entry('/premium', 'monthly', 0.7),
     entry('/master-the-league', 'monthly', 0.8),
-    entry('/blog', 'weekly', 0.7),
-    entry('/find-team-id', 'monthly', 0.6),
+    entry('/app/blog', 'weekly', 0.7),
+    entry('/app/find-team-id', 'monthly', 0.6),
     entry('/app/faq', 'monthly', 0.6),
     entry('/about', 'monthly', 0.5),
     entry('/contact', 'monthly', 0.4),
     entry('/privacy', 'yearly', 0.3),
   ];
 
-  // Public long-form blog posts (static routes under /blog).
-  const publicPosts = ['/blog/world-cup-fatigue', '/blog/fdr-tools', '/blog/beyond-the-points']
-    .map((p) => entry(p, 'monthly', 0.7));
-
-  // Data-driven registry posts (authored by the fpl-blog skill). Both the public
-  // /blog and the in-app /app/blog tab surface these, so they are the canonical posts.
-  const registryPosts = getAllPosts().map((p) => entry(`/blog/${p.slug}`, 'weekly', 0.7));
+  // Every post is a registry post rendered at /app/blog/<slug>. The three former
+  // bespoke routes were migrated into the registry on 2026-08-09, and /blog/*
+  // now 308-redirects here — so only the canonical /app URLs belong in the map.
+  const registryPosts = getAllPosts().map((p) => entry(`/app/blog/${p.slug}`, 'weekly', 0.7));
 
   // Programmatic SEO surface (I5): player pages + the upcoming gameweek captaincy page.
   let players: MetadataRoute.Sitemap = [];
@@ -48,5 +46,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     gameweeks = [...new Set([gw, next])].map((g) => entry(`/gameweek/${g}/captaincy`, 'daily', 0.7));
   } catch { /* API unavailable at build — core sitemap still emits */ }
 
-  return [...core, ...publicPosts, ...registryPosts, ...gameweeks, ...players];
+  return [...core, ...registryPosts, ...gameweeks, ...players];
 }
