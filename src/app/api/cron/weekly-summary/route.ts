@@ -175,7 +175,7 @@ export async function runSummaryJob(request: NextRequest) {
 
         for (const sub of leagueSubs) {
           const subject = `📰 ${leagueName} - Gameweek ${lastFinished.id} Summary`;
-          const html = (emailService as any).generateGameweekSummaryHTML(leagueName, storiesWithPhotos, sub.email, lastFinished.id);
+          const html = (emailService as any).generateGameweekSummaryHTML(leagueName, storiesWithPhotos, sub.email, lastFinished.id, leagueId);
           allEmails.push({ to: sub.email, subject, html });
           subIdsToUpdate.push(sub.id);
         }

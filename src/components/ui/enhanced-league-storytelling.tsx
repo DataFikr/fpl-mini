@@ -4,89 +4,31 @@ import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Crown, Target, AlertTriangle, Zap, Users, Mail, Send, X, Flame, Skull, Copy, Swords, Ghost, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { ShareAction } from '@/components/ui/share-action';
+import { pickHeadlineImages, type StoryTone } from '@/lib/headline-images';
 
 // ─── Story Configuration ────────────────────────────────────
 
-const STORY_CONFIGS: Record<string, { icon: React.ReactNode; color: string; bgColor: string; image: string }> = {
-  breakthrough: {
-    icon: <Crown className="h-6 w-6" />,
-    color: '#DC2626',
-    bgColor: '#FEF2F2',
-    image: '/images/headlines/news_gw_top_scorer.png'
-  },
-  masterstroke: {
-    icon: <Target className="h-6 w-6" />,
-    color: '#059669',
-    bgColor: '#ECFDF5',
-    image: '/images/headlines/news_captain_masterstroke.png'
-  },
-  disaster: {
-    icon: <AlertTriangle className="h-6 w-6" />,
-    color: '#DC2626',
-    bgColor: '#FEF2F2',
-    image: '/images/headlines/news_captain_calamity.png'
-  },
-  rivalry: {
-    icon: <Zap className="h-6 w-6" />,
-    color: '#7C3AED',
-    bgColor: '#F3E8FF',
-    image: '/images/headlines/news_title_race.png'
-  },
-  underdog: {
-    icon: <TrendingUp className="h-6 w-6" />,
-    color: '#0891B2',
-    bgColor: '#ECFEFF',
-    image: '/images/headlines/news_spectacular_charge.png'
-  },
-  bench_nightmare: {
-    icon: <Skull className="h-6 w-6" />,
-    color: '#EA580C',
-    bgColor: '#FFF7ED',
-    image: '/images/headlines/news_bench_nightmare.png'
-  },
-  bottle_job: {
-    icon: <TrendingDown className="h-6 w-6" />,
-    color: '#BE123C',
-    bgColor: '#FFF1F2',
-    image: '/images/headlines/news_bottle_job.png'
-  },
-  differential: {
-    icon: <Target className="h-6 w-6" />,
-    color: '#0D9488',
-    bgColor: '#F0FDFA',
-    image: '/images/headlines/news_differential_masterclass.png'
-  },
-  clone_wars: {
-    icon: <Copy className="h-6 w-6" />,
-    color: '#6D28D9',
-    bgColor: '#F5F3FF',
-    image: '/images/headlines/news_clone_wars.png'
-  },
-  derby_day: {
-    icon: <Swords className="h-6 w-6" />,
-    color: '#B91C1C',
-    bgColor: '#FEF2F2',
-    image: '/images/headlines/news_derby_day.png'
-  },
-  ghost_ship: {
-    icon: <Ghost className="h-6 w-6" />,
-    color: '#6B7280',
-    bgColor: '#F9FAFB',
-    image: '/images/headlines/news_ghost_ship.png'
-  },
-  panic_merchant: {
-    icon: <ShoppingCart className="h-6 w-6" />,
-    color: '#DC2626',
-    bgColor: '#FEF2F2',
-    image: '/images/headlines/news_bottle_job.png'
-  },
-  on_the_charge: {
-    icon: <Flame className="h-6 w-6" />,
-    color: '#EA580C',
-    bgColor: '#FFF7ED',
-    image: '/images/headlines/news_on_the_charge.png'
-  },
+const STORY_CONFIGS: Record<string, { icon: React.ReactNode; color: string; bgColor: string; tone: StoryTone }> = {
+  breakthrough:    { icon: <Crown className="h-6 w-6" />,         color: '#DC2626', bgColor: '#FEF2F2', tone: 'positive' },
+  masterstroke:    { icon: <Target className="h-6 w-6" />,        color: '#059669', bgColor: '#ECFDF5', tone: 'positive' },
+  disaster:        { icon: <AlertTriangle className="h-6 w-6" />, color: '#DC2626', bgColor: '#FEF2F2', tone: 'negative' },
+  rivalry:         { icon: <Zap className="h-6 w-6" />,           color: '#7C3AED', bgColor: '#F3E8FF', tone: 'positive' },
+  underdog:        { icon: <TrendingUp className="h-6 w-6" />,    color: '#0891B2', bgColor: '#ECFEFF', tone: 'positive' },
+  bench_nightmare: { icon: <Skull className="h-6 w-6" />,         color: '#EA580C', bgColor: '#FFF7ED', tone: 'negative' },
+  bottle_job:      { icon: <TrendingDown className="h-6 w-6" />,  color: '#BE123C', bgColor: '#FFF1F2', tone: 'negative' },
+  differential:    { icon: <Target className="h-6 w-6" />,        color: '#0D9488', bgColor: '#F0FDFA', tone: 'positive' },
+  clone_wars:      { icon: <Copy className="h-6 w-6" />,          color: '#6D28D9', bgColor: '#F5F3FF', tone: 'negative' },
+  derby_day:       { icon: <Swords className="h-6 w-6" />,        color: '#B91C1C', bgColor: '#FEF2F2', tone: 'positive' },
+  ghost_ship:      { icon: <Ghost className="h-6 w-6" />,         color: '#6B7280', bgColor: '#F9FAFB', tone: 'negative' },
+  panic_merchant:  { icon: <ShoppingCart className="h-6 w-6" />,  color: '#DC2626', bgColor: '#FEF2F2', tone: 'negative' },
+  on_the_charge:   { icon: <Flame className="h-6 w-6" />,         color: '#EA580C', bgColor: '#FFF7ED', tone: 'positive' },
 };
+
+/** Matches a manager photo to each story — see `@/lib/headline-images`. */
+function assignHeadlineImages(drafts: DraftStory[], leagueId: number): EnhancedStory[] {
+  const picks = pickHeadlineImages(drafts.map((d) => d.tone), leagueId);
+  return drafts.map((draft, i) => ({ ...draft, image: picks[i].src, imageAlt: picks[i].alt }));
+}
 
 // ─── Headline Templates ─────────────────────────────────────
 
@@ -318,10 +260,15 @@ interface EnhancedStory {
   icon: React.ReactNode;
   color: string;
   bgColor: string;
+  tone: StoryTone;
   image: string;
+  imageAlt: string;
   variationIndex: number;
   priority: number;
 }
+
+/** A story before `assignHeadlineImages` picks its photo. */
+type DraftStory = Omit<EnhancedStory, 'image' | 'imageAlt'>;
 
 interface EnhancedStorytellingProps {
   leagueId: number;
@@ -498,7 +445,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
           console.warn('Squad analysis unavailable');
         }
 
-        const allStories: EnhancedStory[] = [];
+        const allStories: DraftStory[] = [];
         const seed = leagueId % 5;
 
         if (squadData?.analysis && teams.length > 0) {
@@ -518,7 +465,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'hero', type: 'breakthrough', ...h,
                 details: `${hero.manager} has absolutely SMASHED gameweek ${gameweek}! A masterful ${hero.gwTotalPoints}-point performance that left the competition in the dust. This is the kind of gameweek that separates champions from pretenders!`,
                 teamName: hero.team, managerName: hero.manager, points: hero.gwTotalPoints,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 95,
               });
             }
@@ -539,7 +486,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'captain-genius', type: 'masterstroke', ...h,
                 details: `TACTICAL BRILLIANCE! ${bestCap.manager} showed true FPL mastery by backing ${bestCap.squad.captain.name} with the armband. This bold choice delivered ${cp} points of pure captaincy gold!`,
                 teamName: bestCap.team, managerName: bestCap.manager, points: cp,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 85,
               });
             }
@@ -560,7 +507,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'captain-disaster', type: 'disaster', ...h,
                 details: `HEARTBREAK! ${worstCap.manager} trusted ${worstCap.squad.captain.name} with the armband but received only ${cp} points in return. Sometimes the beautiful game can be cruel.`,
                 teamName: worstCap.team, managerName: worstCap.manager, points: cp,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 90,
               });
             }
@@ -586,7 +533,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'bench-nightmare', type: 'bench_nightmare', ...h,
                 details: `AGONISING! ${benchNightmare.manager} left a staggering ${benchNightmare.benchPoints} points on the bench this gameweek. ${topBenchPlayer ? `${topBenchPlayer.name} scored ${topBenchPlayer.points} points sitting on the pine!` : 'The bench outscored some starting XIs!'} That's the kind of pain that keeps you up at night.`,
                 teamName: benchNightmare.team, managerName: benchNightmare.manager, points: benchNightmare.benchPoints,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 88,
               });
             }
@@ -620,7 +567,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'bottle-job', type: 'bottle_job', ...h,
                 details: `A DISASTROUS gameweek for ${bottleJob.managerName}! Dropping ${drop} places from #${bottleJob.lastWeekRank} to #${bottleJob.rank} in ${leagueName}. The question on everyone's lips: can they recover, or is this the beginning of the end?`,
                 teamName: bottleJob.teamName, managerName: bottleJob.managerName,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 82,
               });
             }
@@ -653,7 +600,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'differential', type: 'differential', ...h,
                 details: `GALAXY BRAIN move! ${bestDiff.manager} backed ${bestDiff.player} when only ${bestDiff.ownership.toFixed(1)}% of managers dared. The reward? A stunning ${bestDiff.points}-point haul that rivals could only dream of. This is the kind of differential pick that wins leagues!`,
                 teamName: bestDiff.team, managerName: bestDiff.manager, points: bestDiff.points,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 80,
               });
             }
@@ -691,7 +638,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'clone-wars', type: 'clone_wars', ...h,
                 details: `${templatePlayer.name} is now owned by ${ownershipPct}% of managers in ${leagueName}! With the template this settled, the title race will be decided by the brave managers who dare to be different. Who will blink first and sell?`,
                 teamName: leagueName, managerName: `${templatePlayer.count}/${leagueSize} managers`,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 65,
               });
             }
@@ -723,7 +670,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                   details: `The TENSION is unbearable! ${closestPair.a.managerName} and ${closestPair.b.managerName} are separated by just ${closestPair.gap} point${closestPair.gap === 1 ? '' : 's'} in ${leagueName}. Every captain choice, every transfer could swing this head-to-head battle. This is what FPL is all about!`,
                   teamName: `${closestPair.a.teamName} vs ${closestPair.b.teamName}`,
                   managerName: `${closestPair.a.managerName} vs ${closestPair.b.managerName}`,
-                  icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                  icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                   variationIndex: vi, priority: 75,
                 });
               }
@@ -750,7 +697,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                   id: 'title-race', type: 'rivalry', ...h,
                   details: `The tension is ELECTRIC! ${leader.managerName} leads the championship race, but ${chaser.managerName} is breathing down their neck with just ${gap} points between them. Every transfer decision could swing this epic battle!`,
                   teamName: leader.teamName, managerName: leader.managerName,
-                  icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                  icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                   variationIndex: vi, priority: 70,
                 });
               }
@@ -780,7 +727,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'rocket-rise', type: 'underdog', ...h,
                 details: `FROM NOWHERE! ${bigClimber.managerName} has pulled off one of the most dramatic surges of the season, climbing ${improvement} positions in a single gameweek!`,
                 teamName: bigClimber.teamName, managerName: bigClimber.managerName,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 72,
               });
             }
@@ -804,7 +751,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'panic-merchant', type: 'panic_merchant', ...h,
                 details: `${panicMerchant.manager} has gone NUCLEAR with ${panicMerchant.transfersCount} transfers at a cost of -${panicMerchant.transfersCost} points! Is this a calculated gamble or pure panic? Only time will tell whether this scorched-earth strategy pays off.`,
                 teamName: panicMerchant.team, managerName: panicMerchant.manager,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 78,
               });
             }
@@ -827,7 +774,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'ghost-ship', type: 'ghost_ship', ...h,
                 details: `Patience is a virtue! ${ghostShip.manager} made ZERO transfers this gameweek and is sitting pretty at #${ghostShip.rank} in ${leagueName}. While others panic-buy and take hits, this manager trusts the process. Is this zen mastery or pure luck?`,
                 teamName: ghostShip.team, managerName: ghostShip.manager,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 60,
               });
             }
@@ -850,7 +797,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
                 id: 'on-the-charge', type: 'on_the_charge', ...h,
                 details: `MOMENTUM! ${charger.manager} is on an incredible ${charger.consecutiveGreenArrows}-week winning streak, climbing the table week after week. This is the kind of form that can carry a manager all the way to glory in ${leagueName}!`,
                 teamName: charger.team, managerName: charger.manager,
-                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+                icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
                 variationIndex: vi, priority: 76,
               });
             }
@@ -866,14 +813,14 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
             subheadline: 'Epic battles and tactical masterstrokes light up the weekend',
             details: 'Another week, another rollercoaster of emotions! The beautiful game delivered its usual mix of triumph and heartbreak.',
             teamName: 'League', managerName: 'All Managers',
-            icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, image: cfg.image,
+            icon: cfg.icon, color: cfg.color, bgColor: cfg.bgColor, tone: cfg.tone,
             variationIndex: 0, priority: 10,
           });
         }
 
-        // Sort by priority and take top 6
+        // Sort by priority, take top 6, then match a manager photo to each.
         allStories.sort((a, b) => b.priority - a.priority);
-        setStories(allStories.slice(0, 6));
+        setStories(assignHeadlineImages(allStories.slice(0, 6), leagueId));
       } catch (error) {
         console.error('Error generating stories:', error);
       } finally {
@@ -960,7 +907,7 @@ export function EnhancedLeagueStorytelling({ leagueId, gameweek = 6, teams = [],
               <div className="relative h-36 mb-4 rounded-lg overflow-hidden flex-shrink-0">
                 <Image
                   src={story.image}
-                  alt={story.headline}
+                  alt={story.imageAlt}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

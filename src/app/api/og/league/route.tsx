@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { FPLApiService } from '@/services/fpl-api';
+import { pickHeadlineImages, absoluteHeadlineUrl, resolveStoryTone } from '@/lib/headline-images';
 
 export const runtime = 'nodejs'; // FPL service uses node fetch / redis
 
@@ -10,7 +11,7 @@ const GREEN = '#7CFB9E';
 
 const trunc = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s);
 
-interface OgStory { tag: string; tone: string; title: string }
+interface OgStory { tag: string; tone: string; title: string; img: string }
 
 function ordinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
@@ -100,14 +101,40 @@ export async function GET(request: NextRequest) {
       const neg = pool.filter((s) => s.sentiment === 'neg');
       const picked = [...pos.slice(0, 3), ...neg.slice(0, 2)];
       for (const s of pool) { if (picked.length >= 5) break; if (!picked.includes(s)) picked.push(s); }
-      headlineStories = picked.slice(0, 5).map((s) => ({ tag: s.tag, tone: s.tone, title: s.title }));
+      const chosen = picked.slice(0, 5);
+      // Satori fetches over the wire and cannot decode WebP, so these resolve to
+      // absolute JPEG URLs on this same origin.
+      const photos = pickHeadlineImages(chosen.map(resolveStoryTone), id);
+      headlineStories = chosen.map((s, i) => ({
+        tag: s.tag, tone: s.tone, title: s.title,
+        img: absoluteHeadlineUrl(photos[i].src, origin),
+      }));
     }
   } catch { /* fall back to standings-derived storylines */ }
 
-  const Move = ({ mv }: { mv: number }) =>
-    mv > 0 ? <span style={{ color: GREEN }}>▲ {mv}</span>
-      : mv < 0 ? <span style={{ color: RED }}>▼ {-mv}</span>
-        : <span style={{ color: '#9a8e8e' }}>—</span>;
+  // Triangles are drawn, not typed: satori's fallback font has no ▲/▼ glyph and
+  // renders them as tofu boxes. clipPath is used elsewhere on this card, so it
+  // is known to work in this renderer.
+  const Move = ({ mv, on }: { mv: number; on?: boolean }) => {
+    if (mv === 0) return <span style={{ display: 'flex', color: on ? 'rgba(255,255,255,0.75)' : '#9a8e8e' }}>—</span>;
+    const up = mv > 0;
+    // On the highlighted (red) row, green-on-red fails contrast — go white.
+    const c = on ? '#fff' : up ? GREEN : RED;
+    return (
+      <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: c }}>
+        <div
+          style={{
+            display: 'flex',
+            width: '11px',
+            height: '9px',
+            background: c,
+            clipPath: up ? 'polygon(50% 0%, 100% 100%, 0% 100%)' : 'polygon(50% 100%, 100% 0%, 0% 0%)',
+          }}
+        />
+        {up ? mv : -mv}
+      </span>
+    );
+  };
 
   return new ImageResponse(
     (
@@ -142,7 +169,7 @@ export async function GET(request: NextRequest) {
                       <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '21px', fontWeight: 800 }}>{r.team}</div>
                       <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '14px', opacity: 0.7 }}>{r.mgr}</div>
                     </div>
-                    <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '15px', width: '52px', justifyContent: 'center' }}><Move mv={r.move} /></div>
+                    <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '15px', width: '52px', justifyContent: 'center' }}><Move mv={r.move} on={me} /></div>
                     <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '22px', fontWeight: 700, width: '64px', justifyContent: 'flex-end' }}>{r.total.toLocaleString()}</div>
                   </div>
                 );
@@ -157,6 +184,12 @@ export async function GET(request: NextRequest) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'center' }}>
                 {headlineStories.map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <img
+                      src={s.img}
+                      width={54}
+                      height={54}
+                      style={{ width: '54px', height: '54px', objectFit: 'cover', flexShrink: 0, border: `2px solid ${s.tone === INK ? '#FFD100' : s.tone}` }}
+                    />
                     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                       <div style={{ display: 'flex' }}>
                         {(() => {
@@ -166,7 +199,7 @@ export async function GET(request: NextRequest) {
                           return <div style={{ display: 'flex', fontFamily: dFont, fontSize: '17px', letterSpacing: '1px', color: chipText, background: chipBg, padding: '2px 9px' }}>{s.tag}</div>;
                         })()}
                       </div>
-                      <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '17px', fontWeight: 600, lineHeight: 1.2, color: '#fff', marginTop: '4px' }}>{trunc(s.title, 68)}</div>
+                      <div style={{ display: 'flex', fontFamily: 'sans-serif', fontSize: '17px', fontWeight: 600, lineHeight: 1.2, color: '#fff', marginTop: '4px' }}>{trunc(s.title, 58)}</div>
                     </div>
                   </div>
                 ))}

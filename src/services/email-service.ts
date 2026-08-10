@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { getStoryTheme } from '@/lib/fpl-images';
+import { pickHeadlineImages, absoluteHeadlineUrl, resolveStoryTone } from '@/lib/headline-images';
 
 let resend: Resend | null = null;
 
@@ -143,10 +144,11 @@ export class EmailService {
     leagueName: string,
     stories: any[],
     gameweek: number,
-    premiumBlockHtml = ''
+    premiumBlockHtml = '',
+    leagueId?: number
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     const subject = `📰 ${leagueName} - Gameweek ${gameweek} Summary`;
-    const html = premiumBlockHtml + this.generateGameweekSummaryHTML(leagueName, stories, email, gameweek);
+    const html = premiumBlockHtml + this.generateGameweekSummaryHTML(leagueName, stories, email, gameweek, leagueId);
 
     return this.sendEmail({
       to: email,
@@ -251,7 +253,8 @@ export class EmailService {
     });
   }
 
-  private generateGameweekSummaryHTML(leagueName: string, stories: any[], email: string, gameweek: number): string {
+  /** `leagueId` only seeds the headline-photo rotation, so it is optional. */
+  private generateGameweekSummaryHTML(leagueName: string, stories: any[], email: string, gameweek: number, leagueId?: number): string {
     const currentDate = new Date().toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -309,14 +312,23 @@ export class EmailService {
             </div>
 
             <h3 style="color: #2c3e50; border-bottom: 2px solid #667eea; padding-bottom: 10px;">🔥 Top Headlines</h3>
-            ${stories.slice(0, 6).map((story, index) => {
+            ${(() => {
+              const shown = stories.slice(0, 6);
+              // One manager photo per story, tone-matched and non-repeating —
+              // same rotation the app and share card use. JPEG + absolute URL:
+              // Outlook cannot render WebP and no client resolves a relative path.
+              const photos = pickHeadlineImages(shown.map(resolveStoryTone), leagueId ?? 0);
+              return shown.map((story, index) => {
               const theme = getStoryTheme(story.type || 'rivalry');
+              const headlinePhoto = absoluteHeadlineUrl(photos[index].src);
               // Official player action photo when available, themed badge otherwise.
               const media = story.imageUrl
                 ? `<img src="${story.imageUrl}" alt="${(story.playerName || story.managerName || 'FPL player')}" width="56" height="56" style="width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top center;border:3px solid ${theme.accent};background:${theme.gradient};flex-shrink:0;margin-right:12px;" />`
                 : `<div style="width:56px;height:56px;border-radius:50%;background:${theme.gradient};color:#fff;font-size:26px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px;">${theme.emoji}</div>`;
               return `
               <div class="story">
+                <img src="${headlinePhoto}" alt="${photos[index].alt}" width="560"
+                     style="width:100%;max-width:560px;height:auto;display:block;border:0;outline:none;text-decoration:none;margin:0 0 14px;" />
                 <div style="display: flex; align-items: center; margin-bottom: 10px;">
                   ${media}
                   <span class="story-number">${index + 1}</span>
@@ -328,7 +340,8 @@ export class EmailService {
                 <p style="font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 8px; margin-top: 12px;"><em>👤 ${story.teamName ? `Team: ${story.teamName}` : `League: ${leagueName}`} ${story.managerName ? `| Manager: ${story.managerName}` : ''}</em></p>
               </div>
             `;
-            }).join('')}
+              }).join('');
+            })()}
 
             <div class="action-box">
               <h3 style="color: #28a745; margin-top: 0;">🚀 Coming Up</h3>

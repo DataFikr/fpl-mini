@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { LeagueAppData, AppManager } from '../_lib/league-data';
 import { standingsAt, motm, headlinesFrom, ordinal, formatRank, rankMatrix, progressionFor, type StandingRow } from '../_lib/compute';
+import { pickHeadlineImages, resolveStoryTone } from '@/lib/headline-images';
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
@@ -255,8 +256,6 @@ function StandingsTab({ managers, gw, focusId, gwSelect, leagueId }: { managers:
 interface HeadlineDetail { subhead: string; body: string; team: string; manager: string; stat: number; statLabel: string }
 interface Story { tag: string; tone: string; title: string; sentiment?: 'pos' | 'neg'; detail?: HeadlineDetail }
 
-// Tags that read as bad news, used when an explicit sentiment is missing (fallback stories).
-const HL_NEG_TAGS = new Set(['BENCH NIGHTMARE', 'CAPTAIN CALAMITY', 'CLONE WARS', 'BOTTLE JOB', 'PANIC MERCHANT', 'FALLER']);
 
 function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { managers: AppManager[]; gw: number; leagueName: string; leagueId: number; gwSelect: React.ReactNode }) {
   // Instant render from already-loaded standings; the richer engine streams in after.
@@ -283,7 +282,14 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
   const all = useMemo(() => [hero, ...list], [hero, list]);
   const [open, setOpen] = useState<number | null>(null);
 
+  // Hero and list share one rotation, so the hero photo is never repeated below it.
+  const photos = useMemo(
+    () => pickHeadlineImages(all.map(resolveStoryTone), leagueId),
+    [all, leagueId]
+  );
+
   const sel = open != null ? all[open] : null;
+  const selPhoto = open != null ? photos[open] : null;
 
   const copy = (text: string) => {
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -294,7 +300,9 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
     <>
       <div className="lbl-row"><span className="l">TOP STORIES{loading ? ' · updating…' : ''}</span>{gwSelect}</div>
       <div className="hl-hero" onClick={() => setOpen(0)}>
-        <div className="ph" style={{ background: `linear-gradient(135deg, ${hero.tone}33, transparent)` }} />
+        <div className="ph" style={{ background: `linear-gradient(135deg, ${hero.tone}33, transparent)` }}>
+          {photos[0] && <img src={photos[0].src} alt={photos[0].alt} loading="eager" />}
+        </div>
         <div className="grad" />
         <div className="ct"><span className="tag tab-cut" style={{ paddingRight: 18, background: hero.tone, ...(hero.tone === '#FFD100' ? { color: '#150000' } : {}) }}>{hero.tag}</span><h3>{hero.title}</h3></div>
       </div>
@@ -305,7 +313,9 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
               <span className="tag tab-cut" style={{ paddingRight: 16, background: i.tone, ...(i.tone === '#FFD100' ? { color: '#150000' } : {}) }}>{i.tag}</span>
               <h5>{i.title}</h5>
             </div>
-            <div className="ph" style={{ background: `linear-gradient(135deg, ${i.tone}33, transparent)` }} />
+            <div className="ph" style={{ background: `linear-gradient(135deg, ${i.tone}33, transparent)` }}>
+              {photos[idx + 1] && <img src={photos[idx + 1].src} alt={photos[idx + 1].alt} loading="lazy" />}
+            </div>
           </div>
         ))}
       </div>
@@ -318,6 +328,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
           <div className="story-modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <button className="story-x" aria-label="Close" onClick={() => setOpen(null)}>✕</button>
             <div className="story-hero">
+              {selPhoto && <img src={selPhoto.src} alt={selPhoto.alt} />}
               <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${sel.tone}44, #15000066)` }} />
               <div className="grad" />
               <div className="ct">
