@@ -6,6 +6,7 @@ import { toast } from './Toast';
 import { DEMO_TEAM } from '../_lib/screen-data';
 import { getLocalTeamId, persistTeamId } from '@/lib/use-account';
 import { isFreeLaunchWindow } from '@/lib/premium';
+import { GameweekCountdown, isBeforeGameweek1 } from './GameweekCountdown';
 
 /**
  * Marketing landing (mockup 01-landing.html) — sticky header, 2-col hero with
@@ -18,10 +19,14 @@ export function Landing() {
   const [teamId, setTeamId] = useState('');
   const [gw, setGw] = useState<number | null>(null);
   const [savedTeam, setSavedTeam] = useState<string | null>(null);
+  // Resolved after mount so server and client agree on the first paint.
+  const [preSeason, setPreSeason] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const free = isFreeLaunchWindow();
 
   useEffect(() => {
+    setPreSeason(isBeforeGameweek1());
+
     fetch('/api/gameweek/current')
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (d && (d.gameweek || d.currentGameweek)) setGw(d.gameweek || d.currentGameweek); })
@@ -73,8 +78,13 @@ export function Landing() {
       <section className="hero">
         <div className="wrap">
           <div>
-            <span className="live-kicker"><span className="dot" />{gw ? `Gameweek ${gw} · Live` : '2026/27 season · GW1 Aug 15'}</span>
+            {/* Pre-season, `gw` is the demo season's gameweek — claiming it is
+                "Live" would contradict the GW1 countdown directly below. */}
+            <span className="live-kicker"><span className="dot" />
+              {preSeason || !gw ? '2026/27 season · GW1 Aug 21' : `Gameweek ${gw} · Live`}
+            </span>
             <h1><span>Track your mini-league</span><em>like it&rsquo;s matchday</em></h1>
+            <GameweekCountdown onTryDemo={() => analyze(String(DEMO_TEAM))} />
             <p className="sub">ESPN-style headlines, live rank movers and AI point predictions for your FPL mini-league. Enter your team ID and get your league&rsquo;s story in seconds — no signup.</p>
             <form className="league-form" onSubmit={(e) => { e.preventDefault(); analyze(teamId); }} noValidate>
               <label className="id-field" aria-label="FPL manager ID">

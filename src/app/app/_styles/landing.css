@@ -29,6 +29,31 @@
 .lp .hero h1 span{display:block;font-size:clamp(38px,4.6vw,62px);}
 .lp .hero h1 em{display:block;font-style:normal;color:var(--red);font-size:clamp(48px,6.2vw,84px);}
 .lp .hero .sub{font-family:var(--body);font-weight:500;font-size:17px;line-height:1.6;color:var(--t2);max-width:52ch;margin:0 0 26px;}
+
+/* GW1 countdown — pre-season only; unmounts once the season is live */
+.lp .gwc{margin:0 0 24px;padding:16px 18px;background:var(--ink);color:#fff;max-width:520px;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+.lp .gwc-head{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:12px;}
+.lp .gwc-head .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 1.3s infinite;}
+.lp .gwc-clock{display:flex;align-items:flex-start;gap:6px;}
+.lp .gwc-unit{display:flex;flex-direction:column;align-items:center;min-width:52px;}
+/* tabular-nums stops the seconds column jittering as digits change width */
+.lp .gwc-num{font-family:var(--display);font-size:40px;line-height:.9;letter-spacing:.02em;font-variant-numeric:tabular-nums;}
+.lp .gwc-lbl{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.55);margin-top:5px;}
+.lp .gwc-sep{font-family:var(--display);font-size:32px;line-height:1.05;color:var(--red);}
+.lp .gwc-note{font-family:var(--body);font-size:13px;line-height:1.5;color:rgba(255,255,255,.72);
+  margin:14px 0 0;padding-top:12px;border-top:1px solid rgba(255,255,255,.14);}
+.lp .gwc-note a{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+.lp .gwc-note a:hover{color:var(--red);}
+
+@media (max-width:520px){
+  .lp .gwc{padding:14px;}
+  .lp .gwc-unit{min-width:42px;}
+  .lp .gwc-num{font-size:32px;}
+  .lp .gwc-sep{font-size:26px;}
+}
 .lp .league-form{display:flex;gap:0;max-width:520px;margin:0;}
 .lp .id-field{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
   padding:4px 4px 4px 16px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
