@@ -7,6 +7,7 @@ import { CURRENT_SEASON } from '@/services/predictor-service';
 import { SITE_URL, SITE_NAME, absUrl } from '@/lib/seo';
 import { FaqStructuredData, BreadcrumbStructuredData, StructuredData } from '@/components/seo/structured-data';
 import { PredictionsFaq } from './_faq';
+import { getSlugsByFplId } from '@/lib/players';
 
 // Regenerate hourly — predictions change with price/injury refreshes.
 export const revalidate = 3600;
@@ -53,6 +54,10 @@ export default async function PredictionsPage() {
     latest = null;
     rows = [];
   }
+
+  // Predictions store `playerFplId`; resolve slugs so every name links into the
+  // /players cluster. An empty map degrades the rows to plain text.
+  const slugs = await getSlugsByFplId();
 
   const user = await getSessionUser();
   const premium = hasActivePremium(user);
@@ -136,13 +141,13 @@ export default async function PredictionsPage() {
               <div className="pt-row head" role="row">
                 <span>#</span><span>Player</span><span>Pos</span><span className="num-right">£</span><span className="num-right">xPts</span>
               </div>
-              {free.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={i + 1} top={i === 0} />)}
+              {free.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={i + 1} top={i === 0} slug={slugs.get(p.playerFplId)} />)}
             </div>
 
             {locked.length > 0 && (
               <div className="locked">
                 <div className={`ptable${premium ? '' : ' blurred'}`} aria-hidden={!premium}>
-                  {locked.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={FREE_LIMIT + i + 1} />)}
+                  {locked.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={FREE_LIMIT + i + 1} slug={slugs.get(p.playerFplId)} />)}
                 </div>
                 {!premium && (
                   <div className="lock-overlay">
@@ -167,6 +172,7 @@ export default async function PredictionsPage() {
 
         <p className="footnote">
           Predictions are model estimates, not guarantees — single-gameweek FPL scores are high variance.{' '}
+          <Link href="/players">Browse all players →</Link>{' · '}
           <Link href="/app">Open the app</Link> to analyse your own squad.
         </p>
       </main>
@@ -174,11 +180,18 @@ export default async function PredictionsPage() {
   );
 }
 
-function PredRowView({ p, rank, top }: { p: PredRow; rank: number; top?: boolean }) {
+function PredRowView({ p, rank, top, slug }: { p: PredRow; rank: number; top?: boolean; slug?: string }) {
   return (
     <div className={`pt-row${top ? ' top' : ''}`} role="row">
       <span className="rk">{rank}</span>
-      <span className="who"><span className="nm">{p.webName}</span><span className="tm">{p.teamShort}</span></span>
+      <span className="who">
+        {/* Falls back to plain text when the slug can't be resolved, so a
+            bootstrap failure never produces dead links. */}
+        {slug
+          ? <Link className="nm" href={`/players/${slug}`}>{p.webName}</Link>
+          : <span className="nm">{p.webName}</span>}
+        <span className="tm">{p.teamShort}</span>
+      </span>
       <span className="pos tag tag--ghost">{POS[p.position]}</span>
       <span className="pr">{(p.price / 10).toFixed(1)}</span>
       <span className="xp">{p.xPts.toFixed(1)}</span>

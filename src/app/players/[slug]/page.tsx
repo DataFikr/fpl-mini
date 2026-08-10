@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import '@/app/_styles/sportify-pages.css';
-import { getPlayerData, getTopPlayerSlugs } from '@/lib/players';
+import { getPlayerData, getTopPlayerSlugs, getSimilarPlayers } from '@/lib/players';
 import { getKitbagUrl } from '@/utils/kitbag-urls';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { SITE_URL, SITE_NAME, absUrl } from '@/lib/seo';
@@ -42,6 +42,9 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
   const p = await getPlayerData(slug);
   if (!p) notFound();
 
+  // Same-position, similar-price alternatives — turns the "alternatives" FAQ
+  // into real names and gives the pSEO cluster its lateral links.
+  const alts = await getSimilarPlayers(slug, 3);
   const nextGw = p.gw + 1;
   const firstFix = p.nextFixtures[0];
   const maxForm = Math.max(1, ...p.recentForm.map((f) => f.pts));
@@ -60,6 +63,15 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
       question: `Should I captain ${p.webName} in GW${nextGw}?`,
       answer: `Captaincy depends on your own 15. Premium ranks ${p.webName} against every player in your squad by expected points, and flags the safest vice-captain. See the full predicted-points table on the predictions page.`,
     },
+    ...(alts.length
+      ? [{
+          question: `Who are the best ${p.webName} alternatives in FPL ${SEASON}?`,
+          answer: `The best-projected ${p.position.toLowerCase()}s in ${p.webName}'s price bracket are ${alts
+            .map((a) => `${a.webName} (${a.teamShort}, £${a.price}m, ${a.xPts} projected points)`)
+            .join(', ')
+            .replace(/, ([^,]*)$/, ' and $1')}. We take the ${p.position.toLowerCase()}s priced closest to ${p.webName}'s £${p.price}m and rank them by our model's projected points, so each is a like-for-like swap rather than a squad rebuild.`,
+        }]
+      : []),
   ];
 
   const personLd = {
@@ -83,7 +95,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
       </div>
 
       <main className="wrap wide">
-        <p className="crumb"><Link href="/predictions">Players</Link> / {p.name}</p>
+        {/* Must match the BreadcrumbList above — it declares /players. */}
+        <p className="crumb"><Link href="/players">Players</Link> / {p.name}</p>
 
         <section className="p-hero on-ink">
           <span className="red-slab" />
@@ -154,6 +167,27 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
           <Link href="/app/squad" className="s-btn s-btn--red hex">See my captain picks</Link>
         </section>
 
+        {alts.length > 0 && (
+          <section className="pos-block" style={{ marginTop: 26 }}>
+            <h2 className="faq-h">Alternatives to {p.webName}</h2>
+            <p className="sub" style={{ marginTop: -4 }}>
+              Best-projected {p.position.toLowerCase()}s in the same price bracket, for GW{nextGw}.
+            </p>
+            <div className="alts">
+              {alts.map((a) => (
+                <Link key={a.slug} href={`/players/${a.slug}`} className="alt-card">
+                  <span className="nm">{a.webName}</span>
+                  <span className="tm">{a.teamShort} · {a.positionShort}</span>
+                  <span className="row">
+                    <span className="pr">£{a.price}m</span>
+                    <span className="xp">{a.xPts}<small>xPts</small></span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         <h2 className="faq-h">{p.webName.toUpperCase()} FAQ</h2>
         <PredictionsFaq items={faqs} />
 
@@ -171,7 +205,9 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
 
         <p className="footnote">
           Stats from the official FPL API, updated daily. Predictions are model estimates, not guarantees.{' '}
-          <Link href="/predictions">See all player predictions →</Link>
+          <Link href={`/gameweek/${nextGw}/captaincy`}>GW{nextGw} captain picks →</Link>{' · '}
+          <Link href="/players">All players →</Link>{' · '}
+          <Link href="/predictions">Full predicted-points table →</Link>
         </p>
       </main>
     </div>

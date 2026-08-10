@@ -42,6 +42,124 @@ export async function getTopPlayerSlugs(limit = 200): Promise<string[]> {
   }
 }
 
+/**
+ * FPL element id → player-page slug.
+ *
+ * The predictor stores `playerFplId`, not a slug, so any surface built from the
+ * predictions table needs this to link into /players/[slug]. Returns an empty
+ * map on failure so callers fall back to plain text rather than dead links.
+ */
+export async function getSlugsByFplId(): Promise<Map<number, string>> {
+  try {
+    const boot = await new FPLApiService().getBootstrapData();
+    return new Map((boot.elements as any[]).map((e) => [e.id, playerSlug(e)]));
+  } catch {
+    return new Map();
+  }
+}
+
+export interface PlayerIndexRow {
+  slug: string; webName: string; teamShort: string; elementType: number; positionShort: string;
+  price: string; priceValue: number; ownership: string; totalPoints: number; xPts: number;
+}
+
+/**
+ * The /players hub listing — the same top-N-by-ownership set used by
+ * `generateStaticParams` and the sitemap, so the hub only ever links to pages
+ * that are already generated and indexed.
+ */
+export async function getPlayersIndex(limit = 200): Promise<PlayerIndexRow[]> {
+  try {
+    const fpl = new FPLApiService();
+    const [boot, fixtures, currentGw] = await Promise.all([
+      fpl.getBootstrapData(),
+      fpl.getFixtures().catch(() => []),
+      fpl.getCurrentGameweek().catch(() => 1),
+    ]);
+    const teamsById = new Map((boot.teams as any[]).map((t) => [t.id, t]));
+    const ctx = buildFixtureContext(fixtures as any[], currentGw);
+
+    const seen = new Set<string>();
+    return [...(boot.elements as any[])]
+      .sort((a, b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
+      .slice(0, limit)
+      .map((e) => {
+        const slug = playerSlug(e);
+        return {
+          slug,
+          webName: e.web_name,
+          teamShort: (teamsById.get(e.team) || {}).short_name || '',
+          elementType: e.element_type,
+          positionShort: POS_SHORT[e.element_type] || '',
+          price: (e.now_cost / 10).toFixed(1),
+          priceValue: e.now_cost / 10,
+          ownership: e.selected_by_percent,
+          totalPoints: e.total_points,
+          xPts: Math.round(projectPlayer(e, ctx).perGw * 10) / 10,
+        };
+      })
+      .filter((r) => r.slug && !seen.has(r.slug) && seen.add(r.slug));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Alternatives to a given player: same position, comparable price, ranked by
+ * projected points. Answers the "best <player> alternatives" FAQ with real
+ * names instead of a generic paragraph, and interlinks the pSEO cluster —
+ * without these, player pages only ever link back out to the app.
+ */
+export async function getSimilarPlayers(slug: string, limit = 3): Promise<PlayerIndexRow[]> {
+  try {
+    const fpl = new FPLApiService();
+    const [boot, fixtures, currentGw] = await Promise.all([
+      fpl.getBootstrapData(),
+      fpl.getFixtures().catch(() => []),
+      fpl.getCurrentGameweek().catch(() => 1),
+    ]);
+    const elements = boot.elements as any[];
+    const self = elements.find((e) => playerSlug(e) === slug);
+    if (!self) return [];
+
+    const teamsById = new Map((boot.teams as any[]).map((t) => [t.id, t]));
+    const ctx = buildFixtureContext(fixtures as any[], currentGw);
+    const selfPrice = self.now_cost / 10;
+
+    // Nearest by price rather than a fixed band. Price outliers break banding:
+    // Haaland at £14.7m has no other forward within £4m (next is Isak, £10.3m),
+    // so any fixed window returns nothing for exactly the players people search
+    // for most. Take the closest candidates by price, then rank those by xPts.
+    const pool = elements
+      .filter((e) =>
+        e.id !== self.id &&
+        e.element_type === self.element_type &&
+        !['i', 's', 'u'].includes(e.status))
+      .sort((a, b) =>
+        Math.abs(a.now_cost / 10 - selfPrice) - Math.abs(b.now_cost / 10 - selfPrice))
+      .slice(0, Math.max(limit * 4, 12));
+
+    return pool
+      .map((e) => ({ e, xPts: Math.round(projectPlayer(e, ctx).perGw * 10) / 10 }))
+      .sort((a, b) => b.xPts - a.xPts)
+      .slice(0, limit)
+      .map(({ e, xPts }) => ({
+        slug: playerSlug(e),
+        webName: e.web_name,
+        teamShort: (teamsById.get(e.team) || {}).short_name || '',
+        elementType: e.element_type,
+        positionShort: POS_SHORT[e.element_type] || '',
+        price: (e.now_cost / 10).toFixed(1),
+        priceValue: e.now_cost / 10,
+        ownership: e.selected_by_percent,
+        totalPoints: e.total_points,
+        xPts,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getPlayerData(slug: string): Promise<PlayerPageData | null> {
   const fpl = new FPLApiService();
   const [boot, fixtures, currentGw] = await Promise.all([
