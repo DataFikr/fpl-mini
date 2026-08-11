@@ -2,7 +2,7 @@
 
 ## Current DATABASE_URL:
 ```
-postgresql://postgres.hpkeiuwwsexuqvefmawy:fplranker@aws-1-us-east-2.pooler.supabase.com:6543/postgres
+postgresql://postgres.hpkeiuwwsexuqvefmawy:YOUR_DB_PASSWORD@aws-1-us-east-2.pooler.supabase.com:6543/postgres
 ```
 
 This looks ALMOST correct, but the connection is still failing.

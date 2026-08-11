@@ -215,7 +215,7 @@
     "current_status": "Production deployment successful - all features working"
   },
   "deployment_configuration": {
-    "database_url": "postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres",
+    "database_url": "postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres",
     "connection_mode": "Session (Direct)",
     "port": 5432,
     "note": "Using Session mode - pooler had connection issues. Works reliably for current traffic."

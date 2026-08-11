@@ -57,12 +57,12 @@ postgresql://postgres.[PROJECT-REF]:[ACTUAL-PASSWORD]@aws-0-[REGION].pooler.supa
 
 **Example** (yours will have different values):
 ```
-postgresql://postgres.hpkeiuwwsexuqvefmawy:VerySecurePassword123@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+postgresql://postgres.hpkeiuwwsexuqvefmawy:YOUR_DB_PASSWORD@aws-0-us-east-1.pooler.supabase.com:6543/postgres
 ```
 
 **NOT** like this (wrong):
 ```
-postgresql://postgres:[fplranker]@db.xxx.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.xxx.supabase.co:5432/postgres
 ```
 
 ---

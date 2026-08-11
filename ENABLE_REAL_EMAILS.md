@@ -12,7 +12,7 @@
 ### Environment Variables Needed:
 
 ```env
-RESEND_API_KEY=re_UcBTz32N_9XWMBp7U5qoDNjU38qhxDSXA
+RESEND_API_KEY=re_YOUR_RESEND_API_KEY
 FROM_EMAIL=onboarding@resend.dev
 ```
 
@@ -27,7 +27,7 @@ FROM_EMAIL=onboarding@resend.dev
 3. **Click "Add New"**
 4. Fill in:
    - **Key**: `RESEND_API_KEY`
-   - **Value**: `re_UcBTz32N_9XWMBp7U5qoDNjU38qhxDSXA`
+   - **Value**: `re_YOUR_RESEND_API_KEY`
    - **Environments**: Check **Production** ✅
 5. **Click "Save"**
 

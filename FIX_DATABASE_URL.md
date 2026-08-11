@@ -14,17 +14,17 @@ This might be causing connection issues because:
 
 ### Current (Might Be Wrong):
 ```
-postgresql://postgres:[fplranker]@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
 ```
 
 ### Corrected (Remove Brackets):
 ```
-postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
 ```
 
 **OR if brackets are actually part of the password**, URL encode them:
 ```
-postgresql://postgres:%5Bfplranker%5D@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
 ```
 
 ---
@@ -117,7 +117,7 @@ In Vercel:
 
 | Current | Correct |
 |---------|---------|
-| `postgresql://postgres:[fplranker]@db...` | `postgresql://postgres:fplranker@db...` |
+| `postgresql://postgres:YOUR_DB_PASSWORD@db...` | `postgresql://postgres:YOUR_DB_PASSWORD@db...` |
 | Port: 5432 | Port: 6543 (pooler) |
 | Direct connection | Pooled connection |
 
@@ -129,17 +129,17 @@ In Vercel:
 
 Change this:
 ```
-postgresql://postgres:[fplranker]@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
 ```
 
 To this:
 ```
-postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
 ```
 
 **Or better yet, use the pooler:**
 ```
-postgresql://postgres.xxx:fplranker@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+postgresql://postgres.xxx:YOUR_DB_PASSWORD@aws-0-us-east-1.pooler.supabase.com:6543/postgres
 ```
 (Get exact URL from Supabase Database Settings)
 

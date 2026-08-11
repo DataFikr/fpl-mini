@@ -128,7 +128,7 @@ To check if subscriptions are being saved:
 npx prisma studio
 
 # Option 2: Using SQL (if you have psql installed)
-psql "postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres" -f verify-subscription-table.sql
+psql "postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres" -f verify-subscription-table.sql
 ```
 
 ## Rollback Plan

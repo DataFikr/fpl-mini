@@ -59,7 +59,7 @@
 
 **Final DATABASE_URL:**
 ```
-postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
 ```
 
 **Result:** ✅ Newsletter subscriptions save to database successfully
@@ -86,8 +86,8 @@ postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgre
 
 **Required Variables Set:**
 ```env
-DATABASE_URL=postgresql://postgres:fplranker@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
-RESEND_API_KEY=re_UcBTz32N_9XWMBp7U5qoDNjU38qhxDSXA
+DATABASE_URL=postgresql://postgres:YOUR_DB_PASSWORD@db.hpkeiuwwsexuqvefmawy.supabase.co:5432/postgres
+RESEND_API_KEY=re_YOUR_RESEND_API_KEY
 FROM_EMAIL=onboarding@resend.dev
 NEXT_PUBLIC_GA_MEASUREMENT_ID=[Your GA4 ID]
 ```
