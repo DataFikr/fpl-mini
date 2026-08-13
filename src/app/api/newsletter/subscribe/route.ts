@@ -120,25 +120,25 @@ export async function POST(request: NextRequest) {
     // Get email service instance
     const emailService = EmailService.getInstance();
 
-    // Double opt-in (I5): send a confirm-your-subscription email. Bulk sends only
-    // go to verified addresses, so a fresh subscriber must click this first.
-    if (!subscription.verifiedAt) {
-      try {
-        const { signSubToken } = await import('@/lib/newsletter-token');
-        const { SITE_URL } = await import('@/lib/seo');
-        const link = `${SITE_URL}/api/newsletter/verify?token=${signSubToken(email, parseInt(leagueId))}`;
-        await emailService.sendEmail({
-          to: email,
-          subject: 'Confirm your FPL Ranker newsletter',
-          html: `<div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#150000">
-            <h2 style="font-family:Impact,sans-serif;letter-spacing:.02em">ONE MORE STEP</h2>
-            <p style="color:#5B5757;line-height:1.6">Confirm your email to get ${leagueName || 'your mini-league'}'s gameweek recaps and deadline reminders.</p>
-            <p><a href="${link}" style="display:inline-block;background:#FF5050;color:#fff;font-weight:700;text-decoration:none;padding:12px 22px">Confirm subscription</a></p>
-            <p style="color:#848181;font-size:12px">If you didn't request this, you can ignore this email.</p></div>`,
-        });
-      } catch (e) {
-        console.warn('Double opt-in email failed (continuing):', e);
-      }
+    // Sportify-themed subscribe email, carrying the same league infographic the
+    // app's Share → Download produces. Unverified addresses get the double
+    // opt-in ask; already-confirmed ones get the welcome-back variant. Bulk
+    // sends still only go to verified addresses.
+    try {
+      const { signSubToken } = await import('@/lib/newsletter-token');
+      const base = (process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com').replace(/\/$/, '');
+      const confirming = !subscription.verifiedAt;
+      const token = signSubToken(email, parseInt(leagueId));
+      await emailService.sendNewsletterWelcome({
+        to: email,
+        leagueId: parseInt(leagueId),
+        leagueName: leagueName || `League ${leagueId}`,
+        mode: confirming ? 'confirm' : 'welcome',
+        confirmUrl: confirming ? `${base}/api/newsletter/verify?token=${token}` : undefined,
+        unsubscribeUrl: `${base}/api/newsletter/unsubscribe?token=${token}`,
+      });
+    } catch (e) {
+      console.warn('Subscribe email failed (continuing):', e);
     }
 
     // Handle different subscription types

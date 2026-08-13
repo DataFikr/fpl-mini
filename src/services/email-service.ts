@@ -254,6 +254,176 @@ export class EmailService {
   }
 
   /** `leagueId` only seeds the headline-photo rotation, so it is optional. */
+  /**
+   * Newsletter subscribe email — Sportify theme.
+   *
+   * `mode: 'confirm'` is the double opt-in ask for a new address; `'welcome'`
+   * is for an address that has already confirmed (a re-subscribe). Same design,
+   * different CTA, so an unverified address is never treated as opted in.
+   */
+  async sendNewsletterWelcome(opts: {
+    to: string;
+    leagueId: number;
+    leagueName: string;
+    mode: 'confirm' | 'welcome';
+    confirmUrl?: string;
+    teamId?: number | null;
+    deadlineLabel?: string;
+    unsubscribeUrl?: string;
+  }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const subject =
+      opts.mode === 'confirm'
+        ? `Confirm your spot — ${opts.leagueName} gameweek reports`
+        : `You're in — ${opts.leagueName} gameweek reports`;
+    return this.sendEmail({
+      to: opts.to,
+      subject,
+      html: this.generateNewsletterWelcomeHTML(opts),
+    });
+  }
+
+  private generateNewsletterWelcomeHTML(opts: {
+    to: string;
+    leagueId: number;
+    leagueName: string;
+    mode: 'confirm' | 'welcome';
+    confirmUrl?: string;
+    teamId?: number | null;
+    deadlineLabel?: string;
+    unsubscribeUrl?: string;
+  }): string {
+    const base = (process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com').replace(/\/$/, '');
+    const confirming = opts.mode === 'confirm';
+
+    // The same infographic the app's Share → Download produces. Rendered live
+    // per league, so every email carries that league's real table and stories.
+    const cardUrl = `${base}/api/og/league?id=${opts.leagueId}${opts.teamId ? `&teamId=${opts.teamId}` : ''}`;
+    const leagueUrl = `${base}/app/league/${opts.leagueId}${opts.teamId ? `?teamId=${opts.teamId}` : ''}`;
+    const ctaUrl = confirming ? (opts.confirmUrl || leagueUrl) : leagueUrl;
+    const ctaLabel = confirming ? 'Confirm my subscription' : `Open ${this.trim(opts.leagueName, 22)}`;
+    const deadline = opts.deadlineLabel || 'Friday 17:30 UTC';
+
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const league = esc(opts.leagueName);
+
+    // Preheader: the grey preview line next to the subject in most inboxes.
+    const preheader = confirming
+      ? `One tap to lock in ${league} gameweek reports.`
+      : `${league} reports are live — here's your league right now.`;
+
+    const row = (emoji: string, title: string, body: string) => `
+      <tr>
+        <td style="padding:0 0 14px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <td width="34" valign="top" style="font-size:19px;line-height:22px;">${emoji}</td>
+              <td valign="top" style="font-family:Arial,Helvetica,sans-serif;">
+                <div style="font-size:14px;font-weight:bold;color:#150000;line-height:20px;">${title}</div>
+                <div style="font-size:13.5px;color:#5B5757;line-height:20px;">${body}</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>`;
+
+    return `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${confirming ? 'Confirm your subscription' : "You're in"}</title></head>
+<body style="margin:0;padding:0;background:#FAFAFA;">
+<div style="display:none;font-size:1px;color:#FAFAFA;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#FAFAFA;">
+<tr><td align="center" style="padding:24px 12px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:100%;background:#FFFFFF;border:1px solid #D6D5D5;">
+
+    <!-- wordmark -->
+    <tr><td style="background:#150000;padding:16px 24px;">
+      <span style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:20px;letter-spacing:1.5px;color:#FFFFFF;">
+        <span style="color:#FF5050;">&#9889;</span> FPL RANKER
+      </span>
+    </td></tr>
+
+    <!-- hero -->
+    <tr><td style="background:#150000;padding:6px 24px 26px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#FF5050;padding-bottom:8px;">
+        ${confirming ? 'One more step' : 'Subscription live'}
+      </div>
+      <div style="font-family:Impact,'Arial Black',Arial,sans-serif;font-size:40px;line-height:38px;color:#FFFFFF;letter-spacing:.5px;">
+        ${confirming ? 'ALMOST IN.' : "YOU'RE IN."}
+      </div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:21px;color:#CFC6C6;padding-top:10px;">
+        ${confirming
+          ? `Tap the button below and every gameweek in <strong style="color:#fff;">${league}</strong> lands in your inbox — the hauls, the disasters, and who is quietly climbing.`
+          : `Every gameweek in <strong style="color:#fff;">${league}</strong> now lands in your inbox — the hauls, the disasters, and who is quietly climbing.`}
+      </div>
+    </td></tr>
+
+    <!-- the league card: identical to Share -> Download -->
+    <tr><td style="padding:0;">
+      <a href="${leagueUrl}" style="text-decoration:none;display:block;">
+        <img src="${cardUrl}" alt="${league} — table toppers, storylines and what's next" width="600"
+             style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;text-decoration:none;" />
+      </a>
+    </td></tr>
+    <tr><td style="padding:8px 24px 0;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;color:#848181;">
+      Your league, right now. This card updates every time you open it.
+    </td></tr>
+
+    <!-- CTA -->
+    <tr><td align="center" style="padding:20px 24px 6px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr><td align="center" bgcolor="#FF5050" style="background:#FF5050;">
+          <a href="${ctaUrl}" style="display:inline-block;padding:15px 34px;font-family:Impact,'Arial Black',Arial,sans-serif;font-size:17px;letter-spacing:1px;color:#FFFFFF;text-decoration:none;text-transform:uppercase;">
+            ${esc(ctaLabel)}
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+    ${confirming ? `<tr><td align="center" style="padding:0 24px 4px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#848181;">
+      We only send to confirmed addresses — no confirmation, no email.
+    </td></tr>` : ''}
+
+    <!-- what you get -->
+    <tr><td style="padding:22px 24px 4px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#FF5050;padding-bottom:12px;">
+        Twice a gameweek
+      </div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${row('&#9200;', 'Deadline reminder', `Before the ${deadline} deadline — who is flagged, who is nailed, and the captain the model likes.`)}
+        ${row('&#128240;', 'Gameweek report', `The headlines from ${league}: the captaincy masterclass, the bench nightmare, the differential that swung it.`)}
+        ${row('&#128200;', 'Rank movers', 'Who climbed, who fell, and the gap you need to close before next week.')}
+      </table>
+    </td></tr>
+
+    <!-- secondary links -->
+    <tr><td style="padding:6px 24px 22px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #EEEDED;">
+        <tr><td style="padding-top:14px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:22px;color:#5B5757;">
+          While you wait for kick-off:
+          <a href="${base}/app/squad" style="color:#FF5050;font-weight:bold;text-decoration:none;">Rank my team</a> &nbsp;&middot;&nbsp;
+          <a href="${base}/players" style="color:#FF5050;font-weight:bold;text-decoration:none;">Player prices &amp; xPts</a> &nbsp;&middot;&nbsp;
+          <a href="${base}/app/blog" style="color:#FF5050;font-weight:bold;text-decoration:none;">Latest analysis</a>
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <!-- footer -->
+    <tr><td style="background:#FAFAFA;border-top:1px solid #D6D5D5;padding:16px 24px;font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:18px;color:#848181;">
+      You are receiving this because ${esc(opts.to)} subscribed to ${league} updates on FPL Ranker.
+      <a href="${opts.unsubscribeUrl || `${base}/app/league/${opts.leagueId}`}" style="color:#5B5757;text-decoration:underline;">Unsubscribe</a>.<br>
+      FPL Ranker is an independent tool and is not affiliated with or endorsed by the Premier League or Fantasy Premier League.
+    </td></tr>
+
+  </table>
+</td></tr>
+</table>
+</body></html>`;
+  }
+
+  private trim(s: string, n: number): string {
+    return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
+  }
+
   private generateGameweekSummaryHTML(leagueName: string, stories: any[], email: string, gameweek: number, leagueId?: number): string {
     const currentDate = new Date().toLocaleDateString('en-US', {
       weekday: 'long',
