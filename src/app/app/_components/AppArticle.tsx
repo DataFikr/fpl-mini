@@ -41,7 +41,11 @@ export function AppArticle({ slug }: { slug: string }) {
     <>
       {/* Hero */}
       <div className="art-hero">
-        <div className="ph ph--dark"><span>{post.category.toLowerCase()} · cover</span></div><div className="grad" />
+        <div className="ph ph--dark">
+          {post.coverImage
+            ? <img src={post.coverImage} alt={post.coverAlt || post.title} loading="eager" />
+            : <span>{post.category.toLowerCase()} · cover</span>}
+        </div><div className="grad" />
         <span className="tag tab-cut" style={{ paddingRight: 18, background: tone }}>{post.category.toUpperCase()}</span>
         <h2>{post.title}</h2>
       </div>
@@ -154,7 +158,9 @@ export function AppArticle({ slug }: { slug: string }) {
                   <h5>{x.title}</h5>
                   <div className="blog-by">{x.date}</div>
                 </div>
-                <div className="ph"><span>shot</span></div>
+                <div className="ph">
+                  {x.image ? <img src={x.image} alt={x.imageAlt} loading="lazy" /> : <span>shot</span>}
+                </div>
               </div>
             ))}
           </div>

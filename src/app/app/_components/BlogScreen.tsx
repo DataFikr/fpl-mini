@@ -38,7 +38,11 @@ export function BlogScreen() {
 
       {feat && (
         <div className="hl-hero blog-feat" onClick={() => open(feat)}>
-          <div className="ph ph--dark"><span>{feat.category.toLowerCase()} · cover</span></div><div className="grad" />
+          <div className="ph ph--dark">
+            {feat.image
+              ? <img src={feat.image} alt={feat.imageAlt} loading="eager" />
+              : <span>{feat.category.toLowerCase()} · cover</span>}
+          </div><div className="grad" />
           <div className="ct">
             <span className="tag tab-cut" style={{ paddingRight: 18, background: tone(feat.category) }}>{feat.category.toUpperCase()}</span>
             <h3>{feat.title}</h3>
@@ -55,7 +59,9 @@ export function BlogScreen() {
               <h5>{a.title}</h5>
               <div className="blog-by">{a.date}</div>
             </div>
-            <div className="ph"><span>shot</span></div>
+            <div className="ph">
+              {a.image ? <img src={a.image} alt={a.imageAlt} loading="lazy" /> : <span>shot</span>}
+            </div>
           </div>
         ))}
       </div>

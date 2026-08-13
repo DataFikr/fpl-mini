@@ -296,3 +296,10 @@
 /* ---------- logo ---------- */
 .logo{display:flex;align-items:center;gap:9px;font-family:var(--display);font-size:21px;letter-spacing:.03em;white-space:nowrap;cursor:pointer;}
 .logo .bolt{width:21px;height:21px;flex:0 0 auto;background:var(--red);clip-path:polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%);}
+
+/* ── blog cover art: article hero + index tiles ──
+   .hl-hero/.hl-item img rules already exist above (headline photos); the
+   article hero needs the same treatment. object-position keeps the subject
+   visible when a 16:9 cover is cropped to these much wider boxes. */
+.art-hero .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;display:block;}
+.blog-feat .ph img{object-position:50% 42%;}

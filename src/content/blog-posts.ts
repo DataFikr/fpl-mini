@@ -125,6 +125,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'Enter your FPL team ID to rank your mini-league with live standings, headlines, rank movement and a Rank My Team verdict. Free forever.',
     date: '2026-07-20',
     category: 'Strategy',
+    coverImage: '/images/blog/how-to-rank-your-fpl-mini-league.webp',
+    coverAlt: 'Empty podium lit in red — ranking a mini-league',
     sections: [
       {
         heading: 'What you need to rank your mini-league',
@@ -183,6 +185,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'The FPL 2026/27 GW1 template and World Cup fatigue guide — most-owned picks, who to fade, captaincy and the smart Wildcard window.',
     date: '2026-07-26',
     category: 'Strategy',
+    coverImage: '/images/blog/gw1-template-without-world-cup-players.webp',
+    coverAlt: 'Identical template figures with one player showing World Cup fatigue',
     sections: [
       {
         heading: 'The GW1 template: who’s essential in 2026/27',
@@ -255,6 +259,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'The best new signings to buy in FPL 2026/27 — Morgan Rogers, Elliot Anderson and the Chelsea arrivals, ranked on minutes, role and value.',
     date: '2026-07-26',
     category: 'Transfers',
+    coverImage: '/images/blog/best-new-signings-fpl-2026-27.webp',
+    coverAlt: 'Kit bag and boots in a tunnel lit by green light — new signings arriving',
     kitTeams: ['CHE'],
     sections: [
       {
@@ -318,6 +324,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'The best £4.0m FPL defenders for 2026/27 — Bobby Thomas, Charlie Hughes and the promoted-team enablers that free budget for your premiums.',
     date: '2026-07-26',
     category: 'Tips',
+    coverImage: '/images/blog/best-4-5m-defenders-promoted-teams-2026-27.webp',
+    coverAlt: 'A defensive wall of plain blocks — budget defenders from promoted teams',
     sections: [
       {
         heading: 'Why £4.0m defenders decide your whole squad',
@@ -383,6 +391,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'FPL GW1 team reveals for 2026/27 — the official Scout Selection plus content-creator drafts, each shown on a pitch, with links to every pick.',
     date: '2026-07-26',
     category: 'Line-ups',
+    coverImage: '/images/blog/fpl-gw1-team-reveals-2026-27.webp',
+    coverAlt: 'Overhead tactics board with eleven discs in formation',
     sections: [
       {
         heading: 'What the GW1 drafts agree on',
@@ -497,6 +507,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'The top 5 FPL tools for 2026/27 compared — official FPL, Fantasy Football Scout, LiveFPL, Fantasy Football Fix and FPL Page — plus BPS & DEFCON explained.',
     date: '2026-07-26',
     category: 'Strategy',
+    coverImage: '/images/blog/best-fpl-tools-2026-27.webp',
+    coverAlt: 'Five precision instruments arranged on dark slate — the top FPL tools',
     sections: [
       {
         heading: 'What makes a great FPL tool in 2026/27',
@@ -595,8 +607,8 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-06-02',
     updated: '2026-07-27',
     category: 'Analysis',
-    coverImage: '/images/blog/world_cup.jpg',
-    coverAlt: 'World Cup Fatigue Watch — tournament minutes and GW1 burnout risk',
+    coverImage: '/images/blog/world-cup-fatigue.webp',
+    coverAlt: 'A spent athlete on a bench after a deep World Cup run',
     sections: [
       {
         heading: 'Why tournament minutes matter for Gameweek 1',
@@ -646,8 +658,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'Compare the top 5 FPL Fixture Difficulty Rating tools for long-term planning: rotation planners, xG-based tickers and interactive fixture solvers.',
     date: '2026-02-17',
     category: 'Analysis',
-    coverImage: '/images/blog/feature_3_fixture_fdr.png',
-    coverAlt: 'FPL Fixture Difficulty Rating tools compared',
+    coverImage: '/images/blog/fdr-tools.webp',
+    coverAlt: 'Grid of red-to-green tiles with a run of green sweeping through — fixture difficulty',
     sections: [
       {
         heading: 'Why the official FDR is not enough',
