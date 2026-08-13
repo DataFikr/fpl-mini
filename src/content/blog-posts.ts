@@ -752,8 +752,8 @@ export const BLOG_POSTS: BlogPost[] = [
       'How FPL Ranker turns your mini-league into a Premier League experience: progression charts, headlines, rival watch, newsletters and polls.',
     date: '2026-01-05',
     category: 'News',
-    coverImage: '/images/blog/fplranker_news_highlight.png',
-    coverAlt: 'FPL Ranker mini-league experience — headlines and analytics',
+    coverImage: '/images/blog/beyond-the-points.webp',
+    coverAlt: 'A broadcast microphone lit in crimson in front of a floodlit amateur pitch',
     sections: [
       {
         heading: 'Watch the drama unfold: league table progression',
