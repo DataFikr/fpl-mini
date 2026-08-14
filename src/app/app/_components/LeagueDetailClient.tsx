@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import type { LeagueAppData, AppManager } from '../_lib/league-data';
 import { standingsAt, motm, headlinesFrom, ordinal, formatRank, rankMatrix, progressionFor, type StandingRow } from '../_lib/compute';
 import { AmbassadorTab } from './AmbassadorTab';
+import { CaptureCard } from './CaptureCard';
 import { pickHeadlineImages, resolveStoryTone } from '@/lib/headline-images';
+import { trackEvent } from '@/lib/analytics';
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
@@ -200,7 +202,7 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
         ))}
       </div>
 
-      {tab === 'standings' && <StandingsTab managers={managers} gw={gw} focusId={focusTeamId} gwSelect={gwSelect} leagueId={league.id} />}
+      {tab === 'standings' && <StandingsTab managers={managers} gw={gw} focusId={focusTeamId} gwSelect={gwSelect} leagueId={league.id} leagueName={league.name} />}
       {tab === 'headlines' && <HeadlinesTab managers={managers} gw={gw} leagueName={league.name} leagueId={league.id} gwSelect={gwSelect} />}
       {tab === 'monthly' && <MonthlyTab managers={managers} leagueId={league.id} focusId={focusTeamId} />}
       {tab === 'analytics' && <AnalyticsTab managers={managers} currentGameweek={currentGameweek} focusId={focusTeamId} />}
@@ -210,7 +212,7 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
 }
 
 /* ---------------- Standings ---------------- */
-function StandingsTab({ managers, gw, focusId, gwSelect, leagueId }: { managers: AppManager[]; gw: number; focusId: number | null; gwSelect: React.ReactNode; leagueId: number }) {
+function StandingsTab({ managers, gw, focusId, gwSelect, leagueId, leagueName }: { managers: AppManager[]; gw: number; focusId: number | null; gwSelect: React.ReactNode; leagueId: number; leagueName: string }) {
   const router = useRouter();
   const s = standingsAt(managers, gw);
   const podium = [s[1], s[0], s[2]].filter(Boolean) as StandingRow[];
@@ -250,6 +252,10 @@ function StandingsTab({ managers, gw, focusId, gwSelect, leagueId }: { managers:
           );
         })}
       </div>
+
+      {/* Moment of value: the table has rendered, so ask here rather than from a
+          header menu — that placement captured 1.6% of visitors. */}
+      <CaptureCard mode="newsletter" leagueId={leagueId} leagueName={leagueName} gameweek={gw} />
     </>
   );
 }
@@ -296,6 +302,24 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
   const copy = (text: string) => {
     navigator.clipboard?.writeText(text).catch(() => {});
     toast('Story copied to clipboard');
+  };
+
+  /**
+   * Share the headline itself, not just the league. The URL unfurls to the OG
+   * card (table + storylines + photos), so the link carries the product into the
+   * group chat where the banter already happens.
+   */
+  const shareStory = async (s: Story) => {
+    const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://fplranker.com'}/app/league/${leagueId}`;
+    const text = `${s.title}\n\n${leagueName} on FPL Ranker 👀`;
+    const track = (method: string) => trackEvent('share_league', { league_id: String(leagueId), method, source: 'headline_modal' });
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try { await navigator.share({ title: leagueName, text, url }); track('native'); return; }
+      catch { return; } // user cancelled — not a failure worth a toast
+    }
+    try { await navigator.clipboard.writeText(`${text}\n${url}`); } catch { /* clipboard blocked */ }
+    track('copy');
+    toast('Story + link copied — paste it in the group chat');
   };
 
   return (
@@ -347,6 +371,10 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
                   <div className="pts"><div className="v">{sel.detail.stat}</div><div className="l">{sel.detail.statLabel}</div></div>
                 </div>
               )}
+              {/* The share loop ran at 2 shares / 44 days while the only button
+                  sat behind a header menu. This is the moment someone has just
+                  read the drama — ask here. */}
+              <button className="story-share" onClick={() => shareStory(sel)}>Share this story</button>
               <button className="story-copy" onClick={() => copy(sel.detail?.body || sel.title)}>Copy story</button>
               <SubscribeButton variant="inline" leagueId={leagueId} leagueName={leagueName} gameweek={gw} stories={all.map((s) => ({ tag: s.tag, title: s.title }))} />
             </div>

@@ -361,3 +361,48 @@
 .amb-gate h3{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.02em;margin:0 0 8px;}
 .amb-gate p{font-family:var(--body);font-size:13px;line-height:1.6;color:var(--t2);margin:0 0 16px;}
 .amb-gate .s-btn{cursor:pointer;min-height:44px;}
+
+/* ── inline email capture at the moment of value ── */
+.cap-card{position:relative;background:var(--ink);color:#fff;padding:18px 18px 16px;margin:20px 0 6px;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+.cap-x{position:absolute;top:8px;right:8px;width:30px;height:30px;background:none;border:0;color:rgba(255,255,255,.45);
+  font-size:14px;cursor:pointer;line-height:1;}
+.cap-x:hover{color:#fff;}
+.cap-kicker{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.cap-kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 1.3s infinite;}
+.cap-card h3{font-family:var(--display);font-weight:400;font-size:26px;line-height:1;letter-spacing:.02em;margin:0 0 8px;}
+.cap-card p{font-family:var(--body);font-size:13px;line-height:1.55;color:rgba(255,255,255,.74);margin:0 0 14px;}
+.cap-field{background:#fff;padding:3px 3px 3px 12px;box-shadow:none;}
+.cap-field input{font-size:14px;padding:11px 0;min-width:0;}
+.cap-field .s-btn{min-height:40px;font-size:13px;padding:0 16px;white-space:nowrap;cursor:pointer;}
+.cap-fine{display:block;margin-top:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;
+  text-transform:uppercase;color:rgba(255,255,255,.4);}
+.cap-done{display:flex;align-items:flex-start;gap:12px;}
+.cap-done b{font-family:var(--body);font-weight:800;font-size:14px;display:block;margin-bottom:3px;}
+.cap-done p{margin:0;font-size:12.5px;}
+.cap-tick{flex:0 0 auto;width:26px;height:26px;display:grid;place-items:center;background:var(--green,#009C54);
+  color:#fff;font-size:14px;font-weight:700;}
+@media (max-width:400px){
+  /* stack so the CTA keeps a full-width tap target on small phones */
+  .cap-field{flex-wrap:wrap;padding:10px;gap:8px;}
+  .cap-field input{flex:1 1 100%;padding:4px 0;}
+  .cap-field .s-btn{flex:1 1 100%;}
+}
+
+/* ── contextual kit CTA on the squad page ── */
+.sq-kit{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  padding:14px 15px;margin:14px 0 4px;flex-wrap:wrap;}
+.sq-kit-body{flex:1 1 200px;min-width:0;}
+.sq-kit-body b{font-family:var(--body);font-weight:800;font-size:13.5px;color:var(--ink);display:block;}
+.sq-kit-body small{font-family:var(--body);font-size:12px;color:var(--t2);line-height:1.45;display:block;margin-top:2px;}
+.sq-kit-fine{display:block;margin-top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--t4);}
+.sq-kit .s-btn{flex:0 0 auto;min-height:42px;font-size:13px;}
+@media (max-width:400px){.sq-kit .s-btn{flex:1 1 100%;}}
+
+/* ── share the headline from the story modal ── */
+.story-share{width:100%;min-height:44px;margin-top:12px;background:var(--red);color:#fff;border:0;cursor:pointer;
+  font-family:var(--display);font-size:16px;letter-spacing:.04em;text-transform:uppercase;
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);}
+.story-share:hover{background:var(--red-dark,#CC4040);}

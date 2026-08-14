@@ -6,9 +6,54 @@ import type { SquadData, PitchPlayer } from '../_lib/squad-data';
 import type { PredRow } from '../_lib/prediction';
 import { PredictionBlock } from './PredictionBlock';
 import { PlayerCard } from './PlayerCard';
+import { CaptureCard } from './CaptureCard';
+import { AffiliateLink } from '@/components/ui/affiliate-link';
+import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
 import { toast } from './Toast';
 
 type SqTab = 'team' | 'transfers' | 'impact' | 'prediction' | 'rival';
+
+/**
+ * Contextual kit CTA on the squad page.
+ *
+ * The affiliate links previously lived mostly on Kit Hub (8 views in 44 days)
+ * while My Squad had 162 — so the offer sat where nobody goes. This picks the
+ * club the manager is most invested in (most players in the XI, captain breaking
+ * ties) so the CTA is about their team rather than a generic banner.
+ */
+function SquadKitCta({ data }: { data: SquadData }) {
+  const xi = [...data.starters.gk, ...data.starters.def, ...data.starters.mid, ...data.starters.fwd];
+  if (xi.length === 0) return null;
+
+  const tally = new Map<string, { n: number; name: string; captain: boolean }>();
+  for (const p of xi) {
+    if (!p.teamShort) continue;
+    const cur = tally.get(p.teamShort) ?? { n: 0, name: p.team, captain: false };
+    cur.n += 1;
+    if (p.isCaptain) cur.captain = true;
+    tally.set(p.teamShort, cur);
+  }
+  const top = [...tally.entries()].sort((a, b) =>
+    b[1].n - a[1].n || Number(b[1].captain) - Number(a[1].captain))[0];
+  if (!top) return null;
+
+  const [short, info] = top;
+  const url = getKitbagUrlByShort(short);
+  if (!url) return null;
+
+  return (
+    <aside className="sq-kit">
+      <div className="sq-kit-body">
+        <b>{info.n} of your XI play for {info.name}</b>
+        <small>Shop the official 2026/27 {info.name} kit at Kitbag.</small>
+        <span className="sq-kit-fine">Affiliate link · a commission is earned on purchases</span>
+      </div>
+      <AffiliateLink href={url} placement="squad_kit_cta" item={short} className="s-btn s-btn--red hex">
+        Shop {short} kit
+      </AffiliateLink>
+    </aside>
+  );
+}
 
 /* ---------------- Rival Watch ---------------- */
 interface RWEO { id: number; name: string; team: string; eo: number; ownedPct: number }
@@ -366,6 +411,12 @@ export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: n
                 <div className="rmt-line" key={i}><span className={`dot ${r.k}`} /><div><div className="nm">{r.n}</div><p className="ds">{r.d}</p></div></div>
               ))}
             </div>
+
+            {/* Moment of value: the verdict has just rendered, so this is where
+                an anonymous visitor is most likely to leave an identity. */}
+            <CaptureCard mode="save-team" teamId={data.team.id} teamName={data.team.name} />
+
+            <SquadKitCta data={data} />
 
             <p style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.05em', textAlign: 'center', marginTop: 14 }}>
               Live from the FPL API · overall total {data.team.totalPoints} pts
