@@ -244,3 +244,31 @@
 .alt-card .pr{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--t2);}
 .alt-card .xp{font-family:var(--display);font-size:24px;line-height:.9;color:var(--red);}
 .alt-card .xp small{font-family:var(--mono);font-weight:600;font-size:11px;color:var(--t3);letter-spacing:.04em;margin-left:4px;}
+
+/* ── tables on mobile ──
+   .pt-row's fixed tracks (40+56+62+74 + 4x10 gap) leave the 1fr name column
+   ~40px at 390px, and .tm is flex:0 0 auto — so the name collapsed to ~10px and
+   the row overflowed below 350px. Retrack to 4 columns and move the
+   Own/Pos/Opp cell (which also overflowed its 56px track) onto a second line
+   under the name; rank/price/xPts span both rows so each row still reads as one. */
+@media (max-width:640px){
+  .wrap{padding:32px 16px 64px;}
+  .wrap--narrow{padding-top:26px;}
+
+  .pt-row{grid-template-columns:24px minmax(0,1fr) 44px 46px;
+    column-gap:8px;row-gap:3px;padding:10px 12px;}
+  .pt-row.top{padding-left:9px;}
+
+  .pt-row .rk {grid-column:1;grid-row:1 / span 2;align-self:center;}
+  .pt-row .who{grid-column:2;grid-row:1;}
+  .pt-row .pos{grid-column:2;grid-row:2;justify-self:start;font-size:10.5px;padding:3px 7px;}
+  .pt-row .pr {grid-column:3;grid-row:1 / span 2;align-self:center;font-size:12px;}
+  .pt-row .xp {grid-column:4;grid-row:1 / span 2;align-self:center;font-size:14px;}
+
+  .pt-row .who .nm{font-size:13.5px;}
+  .pt-row .who .tm{font-size:11px;}
+
+  /* the head row is 5 unclassed spans; hide the 3rd (always the Own/Pos/Opp
+     label) so 4 headers line up with the 4 body columns */
+  .pt-row.head span:nth-child(3){display:none;}
+}

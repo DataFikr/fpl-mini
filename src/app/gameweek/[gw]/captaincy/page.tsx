@@ -58,7 +58,9 @@ export default async function GameweekCaptaincyPage({ params }: { params: Promis
       <div className="pagebar pagebar--narrow">
         <div className="in">
           <Link href="/app" className="logo"><span className="bolt" />FPL RANKER</Link>
-          <Link href="/predictions" className="s-btn s-btn--ghost">All predictions</Link>
+          {/* Reverse link into the app shell; the predictions table is still
+              linked from the footnote below. */}
+          <Link href="/app/players" className="s-btn s-btn--ghost">Open the app</Link>
         </div>
       </div>
 

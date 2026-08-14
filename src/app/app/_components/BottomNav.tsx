@@ -10,7 +10,7 @@ export function BottomNav({ active, teamId }: { active?: string; teamId?: string
 
   return (
     <nav className="botnav">
-      {NAV.map((n) => (
+      {NAV.filter((n) => !n.sidebarOnly).map((n) => (
         <a
           key={n.id}
           className={current === n.id ? 'on' : ''}

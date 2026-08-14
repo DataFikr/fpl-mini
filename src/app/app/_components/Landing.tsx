@@ -7,6 +7,24 @@ import { DEMO_TEAM } from '../_lib/screen-data';
 import { getLocalTeamId, persistTeamId } from '@/lib/use-account';
 import { isFreeLaunchWindow } from '@/lib/premium';
 import { GameweekCountdown, isBeforeGameweek1 } from './GameweekCountdown';
+import { AppMenu, type MenuLink } from './AppMenu';
+
+/** Mirrors the desktop header nav, plus the buttons that drop out below 560px. */
+const MENU_PRIMARY: MenuLink[] = [
+  { label: 'Predictions', href: '/predictions' },
+  { label: 'Players', href: '/app/players' },
+  { label: 'Premium', href: '/premium' },
+  { label: 'Blog', href: '/app/blog' },
+  { label: 'Find team ID', href: '/app/find-team-id' },
+];
+const MENU_MORE: MenuLink[] = [
+  { label: 'Sign in', href: '/auth/login' },
+  { label: 'Master the League', href: '/master-the-league' },
+  { label: 'FAQ', href: '/app/faq' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Privacy', href: '/privacy' },
+];
 
 /**
  * Marketing landing (mockup 01-landing.html) — sticky header, 2-col hero with
@@ -71,6 +89,9 @@ export function Landing() {
           <div className="head-actions">
             <a className="s-btn s-btn--ghost" onClick={() => router.push('/auth/login')}>Sign in</a>
             <a className="s-btn s-btn--red hex" onClick={() => router.push('/premium')}>{free ? 'Get started free' : 'Go premium'}</a>
+            {/* Below 900px the inline nav is hidden (and Sign in below 560px);
+                this carries those links so the selling points stay reachable. */}
+            <AppMenu primary={MENU_PRIMARY} more={MENU_MORE} backHref={null} />
           </div>
         </div>
       </header>
@@ -194,8 +215,10 @@ export function Landing() {
           <a className="logo" onClick={() => router.push('/app')}><span className="bolt" />FPL RANKER</a>
           <nav aria-label="Footer">
             <a onClick={() => router.push('/predictions')}>Predictions</a>
+            <a onClick={() => router.push('/app/players')}>Players</a>
             <a onClick={() => router.push('/premium')}>Premium</a>
             <a onClick={() => router.push('/app/blog')}>Blog</a>
+            <a onClick={() => router.push('/app/find-team-id')}>Find team ID</a>
             <a onClick={() => router.push('/about')}>About</a>
             <a onClick={() => router.push('/contact')}>Contact</a>
             <a onClick={() => router.push('/privacy')}>Privacy</a>

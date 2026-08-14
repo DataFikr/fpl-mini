@@ -17,6 +17,10 @@
 .lp .site-head nav a{font-family:var(--body);font-weight:700;font-size:14px;color:var(--t2);padding:12px 0;cursor:pointer;}
 .lp .site-head nav a:hover{color:var(--ink);}
 .lp .head-actions{display:flex;align-items:center;gap:10px;}
+/* hamburger is mobile-only; the inline nav covers desktop */
+.lp .site-head .menu-btn{display:none;}
+/* the landing breaks out of the 480px phone frame, so the overlay must too */
+.lp .menu-overlay{max-width:none;}
 .lp .site-head .s-btn{font-size:14px;min-height:44px;}
 
 /* hero */
@@ -122,6 +126,7 @@
   .lp .hero .wrap,.lp .prem .wrap{grid-template-columns:1fr;}
   .lp .feat-grid{grid-template-columns:1fr 1fr;}
   .lp .site-head nav{display:none;}
+  .lp .site-head .menu-btn{display:grid;}
 }
 @media (max-width:560px){
   .lp .feat-grid{grid-template-columns:1fr;}

@@ -30,7 +30,8 @@ export function DesktopSidebar({ active, teamId, youName }: { active?: string; t
             <div><div className="nm">{youName}</div><div className="mt">Your team</div></div>
           </div>
         )}
-        <span className="back" onClick={() => router.push('/')}>← Back to site</span>
+        {/* /app directly — `/` only redirect()s here, so routing via it costs a hop. */}
+        <span className="back" onClick={() => router.push('/app')}>← Back to site</span>
       </div>
     </aside>
   );

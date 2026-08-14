@@ -106,7 +106,9 @@ export default async function PlayersHub() {
       <div className="pagebar pagebar--narrow">
         <div className="in">
           <Link href="/app" className="logo"><span className="bolt" />FPL RANKER</Link>
-          <Link href="/predictions" className="s-btn s-btn--ghost">All predictions</Link>
+          {/* Search visitors land here outside the app shell with no bottom nav.
+              The predictions table is still linked from the footnote below. */}
+          <Link href="/app/players" className="s-btn s-btn--ghost">Open the app</Link>
         </div>
       </div>
 

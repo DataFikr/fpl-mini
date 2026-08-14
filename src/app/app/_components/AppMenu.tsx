@@ -4,19 +4,40 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { XIcon, RedditIcon, InstagramIcon } from '@/components/ui/brand-icons';
 
-const PRIMARY = [
+export interface MenuLink { label: string; href: string }
+
+const PRIMARY: MenuLink[] = [
   { label: 'Master the League', href: '/app/master-the-league' },
   { label: 'Find Team ID', href: '/app/find-team-id' },
   { label: 'Blog', href: '/app/blog' },
   { label: 'FAQ', href: '/app/faq' },
 ];
-const MORE = [
+const MORE: MenuLink[] = [
   { label: 'About', href: '/app/about' },
   { label: 'Contact', href: '/app/contact' },
   { label: 'Privacy', href: '/app/privacy' },
 ];
 
-export function AppMenu({ light = false }: { light?: boolean }) {
+/**
+ * The hamburger + full-screen overlay. It is the only nav surface present on
+ * every screen at every width, so it also carries the escape hatch back to the
+ * marketing landing.
+ *
+ * `primary`/`more` are injectable so the landing page can reuse the same overlay
+ * for the header links it hides below 900px, instead of shipping a second menu.
+ * `backHref` renders the "back to site" row; pass null to omit it.
+ */
+export function AppMenu({
+  light = false,
+  primary = PRIMARY,
+  more = MORE,
+  backHref = '/app' as string | null,
+}: {
+  light?: boolean;
+  primary?: MenuLink[];
+  more?: MenuLink[];
+  backHref?: string | null;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const go = (href: string) => { setOpen(false); router.push(href); };
@@ -37,14 +58,20 @@ export function AppMenu({ light = false }: { light?: boolean }) {
           </div>
 
           <div className="menu-sec">Explore</div>
-          {PRIMARY.map((n) => (
+          {primary.map((n) => (
             <a key={n.href} className="menu-link" onClick={() => go(n.href)}>{n.label}<span className="arr">→</span></a>
           ))}
 
-          <div className="menu-sec">More</div>
-          {MORE.map((n) => (
+          {more.length > 0 && <div className="menu-sec">More</div>}
+          {more.map((n) => (
             <a key={n.href} className="menu-link sm" onClick={() => go(n.href)}>{n.label}<span className="arr">→</span></a>
           ))}
+
+          {/* Below 1024px the sidebar (and its "Back to site") is display:none,
+              so without this there is no route back to the landing on mobile. */}
+          {backHref && (
+            <a className="menu-link sm" onClick={() => go(backHref)}>← Back to site<span className="arr">→</span></a>
+          )}
 
           <div className="menu-social">
             <a href="https://x.com/fplranker" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on X"><XIcon /></a>
