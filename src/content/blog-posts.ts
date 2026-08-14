@@ -816,6 +816,84 @@ export const BLOG_POSTS: BlogPost[] = [
       { name: 'Fantasy Premier League', sameAs: 'https://en.wikipedia.org/wiki/Fantasy_Premier_League' },
     ],
   },
+
+  {
+    slug: 'get-all-team-ids-in-my-fpl-mini-league',
+    title: 'How to Get a List of All Team IDs in Your FPL Mini-League',
+    summary:
+      'To get every FPL team ID in your mini-league, open the league on FPL Ranker, sign in, and use the Ambassador tab — it lists the team ID for every manager in the league and exports the whole roster as a CSV. Doing it manually means opening each manager from the official standings page and reading the number out of the URL, one at a time.',
+    description:
+      'Get every FPL team ID in your mini-league at once. The manual URL method, and a one-click CSV export of the full roster.',
+    date: '2026-08-13',
+    category: 'Tips',
+    sections: [
+      {
+        heading: 'What an FPL team ID is',
+        body: [
+          'Every Fantasy Premier League squad has a permanent numeric team ID, sometimes called an entry ID or manager ID. It appears in the URL of any manager\'s team page: fantasy.premierleague.com/entry/1234567/event/1 — the 1234567 is the team ID.',
+          'The ID is public. It is how the official Fantasy site links to a squad, and it is what third-party tools ask for when they load someone\'s team. It is not a password and it grants nobody access to your account — knowing your ID lets someone view the same public squad page that the official league table already links to.',
+        ],
+      },
+      {
+        heading: 'The manual method: one ID at a time',
+        body: [
+          'Open your mini-league on the official Fantasy Premier League site, go to the Standings tab, and click a manager\'s team name. That opens their squad page, and the number in the URL after /entry/ is their team ID. Copy it, go back, and repeat for the next manager.',
+          'This works, but the official standings page never shows the IDs as a list — so a 20-manager league means 20 round trips through the URL bar, and there is no export. That is the whole reason this question gets asked.',
+        ],
+      },
+      {
+        heading: 'The fast method: the Ambassador tab',
+        body: [
+          'Open your league on FPL Ranker, sign in with your email (magic link — no password), and select the Ambassador tab. It lists every manager in the league with their team name, manager name, team ID and total points, in rank order, on one screen.',
+          'Each ID links straight to that manager\'s official Fantasy squad page, and Export CSV downloads the whole roster — rank, team, manager, team ID, total points, gameweek points, the official FPL link and an FPL Ranker link for each manager. Copy list puts the same roster on your clipboard for a group chat.',
+          'It is sign-in gated on purpose. A roster of manager names and IDs should not be bulk-scrapeable by anyone who happens to know a league code, so exporting is tied to a real account.',
+        ],
+      },
+      {
+        heading: 'What to do with the list',
+        body: [
+          'The common use is comparison. With every ID in one place you can pull up any rival\'s squad, see their captain, and check their transfers without hunting through the official table each week.',
+          'The other use is the one the tab is named after. Share the CSV in your league chat so everyone can paste their own ID into a tool and see their season — rank movement, gameweek headlines, and where they actually gained and lost ground. A mini-league is more fun when everyone can see the story, not just the table.',
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: 'How do I get a list of all team IDs in my mini-league?',
+        answer:
+          'Open the league on FPL Ranker, sign in, and open the Ambassador tab. It shows the FPL team ID for every manager in the league and exports the full roster as a CSV. Manually, you would open each manager from the official standings page and read the number after /entry/ in the URL — the official site has no list view or export.',
+      },
+      {
+        question: 'Where do I find my own FPL team ID?',
+        answer:
+          'Log in to fantasy.premierleague.com, open the Points or My Team tab, and look at the URL: fantasy.premierleague.com/entry/1234567/event/1. The number after /entry/ is your team ID. It stays the same all season and across seasons.',
+      },
+      {
+        question: 'Can I export my FPL mini-league to a spreadsheet?',
+        answer:
+          'Yes. The Ambassador tab exports a CSV containing rank, team name, manager name, team ID, total points, gameweek points and links for every manager in the league. It opens directly in Excel, Google Sheets or Numbers.',
+      },
+      {
+        question: 'Is it safe to share FPL team IDs?',
+        answer:
+          'Yes. Team IDs are public identifiers that already appear in the URLs the official league table links to. They let someone view a public squad page; they do not grant any access to the account, and there is nothing to log in with. Your Fantasy password and email are never involved.',
+      },
+      {
+        question: 'Why does the official FPL site not show all the team IDs?',
+        answer:
+          'The official standings page is built for browsing one manager at a time — it links to each squad by ID but never displays the IDs together or offers an export. Retrieving them as a set is left to third-party tools.',
+      },
+      {
+        question: 'How many managers can I export at once?',
+        answer:
+          'The Ambassador list covers every manager loaded for the league. Very large leagues are capped at the top 30 in the app view, so the export matches what is shown — for a normal mini-league of friends, that is the entire league.',
+      },
+    ],
+    mentions: [
+      { name: 'Fantasy Premier League', sameAs: 'https://en.wikipedia.org/wiki/Fantasy_Premier_League' },
+      { name: 'Comma-separated values', sameAs: 'https://en.wikipedia.org/wiki/Comma-separated_values' },
+    ],
+  },
 ];
 
 /** Look up a single post by slug. */

@@ -25,6 +25,7 @@
 - Top 5 Fantasy Premier League tools for 2026/27: https://fplranker.com/app/blog/best-fpl-tools-2026-27
 - FAQ: https://fplranker.com/app/faq
 - Find your FPL team ID: https://fplranker.com/app/find-team-id
+- Get all team IDs in your mini-league (CSV export): https://fplranker.com/app/blog/get-all-team-ids-in-my-fpl-mini-league
 
 ## FPL glossary (definitions)
 - **FPL**: Fantasy Premier League, the official free fantasy football game of the English Premier League.

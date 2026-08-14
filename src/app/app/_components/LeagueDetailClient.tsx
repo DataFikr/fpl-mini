@@ -4,13 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { LeagueAppData, AppManager } from '../_lib/league-data';
 import { standingsAt, motm, headlinesFrom, ordinal, formatRank, rankMatrix, progressionFor, type StandingRow } from '../_lib/compute';
+import { AmbassadorTab } from './AmbassadorTab';
 import { pickHeadlineImages, resolveStoryTone } from '@/lib/headline-images';
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
 import { SubscribeButton } from './SubscribeButton';
 
-type Tab = 'standings' | 'headlines' | 'analytics' | 'monthly';
+type Tab = 'standings' | 'headlines' | 'analytics' | 'monthly' | 'ambassador';
 
 function Crest({ m, size }: { m: { crestBg: string; crestFg: string; init: string }; size?: number }) {
   return (
@@ -194,7 +195,7 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
         {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
       </div>
       <div className="s-tabs ld-tabs">
-        {([['standings', 'Standings'], ['headlines', 'Headlines'], ['analytics', 'Analytics'], ['monthly', 'MOTM']] as [Tab, string][]).map(([id, label]) => (
+        {([['standings', 'Standings'], ['headlines', 'Headlines'], ['analytics', 'Analytics'], ['monthly', 'MOTM'], ['ambassador', 'Ambassador']] as [Tab, string][]).map(([id, label]) => (
           <a key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>{label}</a>
         ))}
       </div>
@@ -203,6 +204,7 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
       {tab === 'headlines' && <HeadlinesTab managers={managers} gw={gw} leagueName={league.name} leagueId={league.id} gwSelect={gwSelect} />}
       {tab === 'monthly' && <MonthlyTab managers={managers} leagueId={league.id} focusId={focusTeamId} />}
       {tab === 'analytics' && <AnalyticsTab managers={managers} currentGameweek={currentGameweek} focusId={focusTeamId} />}
+      {tab === 'ambassador' && <AmbassadorTab managers={managers} gw={gw} leagueId={league.id} leagueName={league.name} focusId={focusTeamId} gwSelect={gwSelect} />}
     </AppShell>
   );
 }

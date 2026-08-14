@@ -131,7 +131,12 @@
 .lg-row .rkbox .pos small{font-size:11px;color:var(--t3);}
 
 /* ============ LEAGUE DETAIL ============ */
-.ld-tabs{margin:6px 0 16px;}
+/* Five tabs overflow 390px, and .fpl-app is overflow-x:hidden — without this the
+   last tab is clipped and unreachable rather than scrollable. */
+.ld-tabs{margin:6px 0 16px;gap:18px;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.ld-tabs::-webkit-scrollbar{display:none;}
+.ld-tabs a{flex:0 0 auto;white-space:nowrap;}
 .ld-meta{font-family:var(--mono);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin:-2px 0 14px;}
 .motm{position:relative;overflow:hidden;background:var(--ink);color:#fff;padding:18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;
   clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
