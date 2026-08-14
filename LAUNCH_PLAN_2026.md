@@ -121,3 +121,123 @@ Plan approved; began S1. **Next up (in order):** (1) gate `/admin/emails` + audi
 4. Communicate the change to signed-up users (newsletter): "premium launches after GW5 — you were early."
 
 **Revenue-timeline impact:** the $1k-by-Oct-31 checkpoints in §4/§7 shift ~4–5 weeks later; monetization effectively starts ~mid-September. Re-baseline the 10/20/30-sales checkpoints from the GW5 cutoff, not GW1.
+
+---
+
+## 9. Data review — GA4, 1 Jul – 13 Aug 2026 (added 2026-08-13, 8 days before GW1)
+
+First read of real traffic since the relaunch. 44 days, 376 active users, 372 new. Small sample —
+treat directionally, not as proof.
+
+### 9.1 What the numbers say
+
+| Metric | Value | Plan assumption | Verdict |
+|---|---|---|---|
+| Weekly new users | 7 → 16 → 17 → 66 → 84 → **141** | "<500 visits/week", too low for ads | **Beating it.** ~doubling every 2 weeks since 19 Jul |
+| Organic share | 261/372 = **70%** | SEO is the growth engine | **Confirmed** |
+| Week-1 retention | **0–2.9%** (best cohort 2/68) | §3 called out 3–6%; PRD target 95% | **Unchanged. Accounts did not move it** |
+| Day-7 / Day-30 retention | **0% in every cohort** | accounts fix statelessness | **Not yet true** |
+| Returning share (last 7d) | 15/165 = **9%** | — | Thin |
+| Team-ID form start | 75 = **20% of visits** | core activation | **Healthy — the funnel's best number** |
+| Newsletter subscribe | 6 = **1.6%** | list funds the premium launch | **Far too low** |
+| Affiliate click | 8 = **2.2%** | £100–300 Aug–Oct | **≈£0. ~1–2% of target** |
+| Share league | 2 = **0.5%** | viral loop carries the domain | **Loop is not running** |
+| AI-assistant sessions | 16 (ChatGPT 15, Copilot 1) | 100+/month by Oct | **~11/month. Behind, but real** |
+| Engagement/user | 10–30s recent | — | Shallow |
+| DAU/MAU | 0.06–0.09 | — | Well below the ~0.2 "sticky" line |
+
+Top pages: landing 470 · **My Squad 162** · Blog 71 · Home 69 · My Leagues 59 · Find Team ID 32 ·
+Players hub 17 · Premium 14 · Predictions 10. The 200 `/players/[slug]` pages have **~6 views total** —
+they shipped 12–13 Aug, so this is a start-line reading, not a failure.
+
+Data hygiene: Bath (17) as top city and Ashburn/Moses Lake/The Dalles are almost certainly bot or
+data-centre traffic — discount ~5–10%. Old page titles still appearing ("FPL Ranker - Fantasy Premier
+League Mini-League Analytics", 45 views) are pre-redesign URLs; the 308 redirects added 9 Aug should
+retire them.
+
+### 9.2 Refreshed SWOT — what actually changed
+
+| | |
+|---|---|
+| **Strengths** | Organic compounding hard and unaided (7→141 weekly new users in 6 weeks, no paid, no social); 20% of visitors start the Team-ID form — activation intent is genuinely strong; blog is already the #3 page; AI-assistant referrals arriving before the AEO work has matured; product side of the plan is shipped |
+| **Weaknesses** | **Retention is still ~0** — the one thing §3 flagged as the root problem is unfixed; email capture 1.6% and only 1 of 28 subscribers verified, so the list is effectively empty 8 days from GW1; affiliate ≈£0 despite tracking now being correct; share loop dead at 0.5%; 10–30s sessions |
+| **Opportunities** | GW1 (21 Aug) is the single largest traffic event of the year and it is 8 days out — capture rate, not traffic, decides what it's worth; 200 player pages + captaincy pages enter their first live gameweek with fresh data; US is 24% of users (89) — an under-served FPL segment; kit-buying season peaks Aug and affiliate converts in-session without needing retention |
+| **Threats** | Monetizing at GW5 against a base that doesn't accumulate; pre-season has no weekly hook, so today's retention number may understate the real product — but if it doesn't move by GW3 the premium thesis is invalidated; bot noise inflating a small sample |
+
+### 9.3 On track for GW1?
+
+**Product: yes.** Every must-ship item from §5 is live — auth, dormant billing, predictor + cron
+dispatcher, affiliate instrumentation, 200 player pages, llms.txt, admin gate, plus the Sportify
+relaunch, blog migration and mobile fixes. Nothing on the "never cut" list slipped.
+
+**Audience: no.** The plan's thesis is *free + viral + SEO builds an audience → premium converts it*.
+Three of those four legs are unverified: viral (2 shares), email (1 verified subscriber),
+retention (0% D7). Only SEO is working.
+
+**Net: on track to launch, not on track to monetize.** GW1 will deliver the traffic. On current
+capture rates it converts to almost nothing durable.
+
+### 9.4 The diagnosis in §4 is wrong — correct it
+
+§4 says: *"If <5 sales by Sep 1, the constraint is traffic → shift effort to SEO/content, not features."*
+
+The data says the opposite. Traffic is compounding on its own; **capture is the constraint.** Following
+the original rule would pour more water into a leaking bucket. Replace it with:
+
+> If <5 sales by 1 Oct (post-GW5 re-baseline), check capture before traffic. If weekly new users are
+> still growing but Week-1 retention is <10% and verified subscribers <150, the constraint is capture —
+> fix activation and email, not content volume.
+
+### 9.5 Priorities for the 8 days to GW1 — capture, not features
+
+Ranked by expected value. All are small; none are new products.
+
+1. **Re-confirm the 27 unverified subscribers.** The list is the launch channel and it is currently one
+   person. Use the new Sportify subscribe template. *(Blocked on a founder decision: re-confirm vs
+   backfill `verifiedAt` for pre-double-opt-in rows.)*
+2. **Move the email ask to the moment of value.** 1.6% capture is a placement problem — the CTA sits on
+   pages people don't reach. Prompt after a squad or league loads, framed as the GW1 deadline reminder.
+3. **Prompt the save-your-team account after activation.** 20% start the form; almost none leave an
+   identity behind. This is the retention fix the accounts work was supposed to deliver and it was never
+   wired into the flow.
+4. **Fix the share prompt.** 2 shares in 44 days with a working button and a genuinely good OG card
+   (now carrying storyline photos). Surface it after a headline is read, not behind a menu.
+5. **Move the Kitbag CTA to reachable pages.** Kit Hub has 8 views; the affiliate CTA mostly lives
+   where nobody goes. August is peak kit-buying — this is the only revenue line that works *without*
+   retention, and it is currently the cheapest £ on the table.
+
+### 9.6 Revised monetization for post-GW5
+
+The original model — accumulate a base for 5 gameweeks, then sell to it — assumes retention that does
+not currently exist. Two changes:
+
+**a) Sell at decision time, in-session, not by nurture.** The recurring high-intent moment in FPL is the
+hours before a deadline: *who do I captain?* Gate the current-gameweek captain call, keep everything
+historical free. That converts a first-time visitor on the same visit, which is what the traffic
+actually is today.
+
+**b) Treat affiliate as the near-term revenue line, premium as the compounding one.** Affiliate needs no
+retention and Aug–Sep is kit season; premium needs a base that will not exist by 22 Sep. Do not let
+the £15 season pass carry the whole $1k.
+
+**Reforecast.** At the current ~141 new users/week, a 3–5× GW1 spike then decay gives roughly
+1,500–2,500 new users to 31 Oct. At 1–1.5% purchase conversion (fair for a new paid product with a thin
+list): **15–37 sales × £15 ≈ £225–555.** Affiliate at a fixed 10× improvement on today's rate adds
+~£100–200. **Realistic range £325–755 — short of $1k, and the gap is conversion, not traffic.**
+
+Levers if that gap matters more than the date: hold the free window past GW5 to build the base;
+raise the price to £20 for fewer, higher-value sales; or accept $1k slipping to ~Nov/Dec and optimise
+for a larger base into the busiest part of the season.
+
+**Re-baselined checkpoints (from the 22 Sep cutoff, not GW1):**
+
+| Date | Target | If missed |
+|---|---|---|
+| 1 Sep | 150 verified subscribers · Week-1 retention ≥10% | Capture is broken — stop feature work, fix the funnel |
+| 22 Sep (GW5) | Predictor retuned on live GW1–5 · MoR approved · 400+ verified subs | Extend the free window rather than sell to an empty list |
+| 1 Oct | 10 sales | Re-read §9.4 before adding content |
+| 31 Oct | 30 sales (£450) + £150 affiliate | Re-forecast honestly; consider Nov/Dec horizon |
+
+**The one number to watch:** Week-1 retention after GW1–GW3. Pre-season has no weekly reason to return,
+so today's ~0% is not yet a fair verdict on the product. If it does not clear 10% once real gameweeks
+are running, the premium thesis — not the execution — is what needs revisiting.
