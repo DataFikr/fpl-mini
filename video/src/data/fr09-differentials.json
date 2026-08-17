@@ -1,0 +1,82 @@
+{
+  "capturedAt": "2026-08-16T05:32:22.567Z",
+  "season": "2025/26",
+  "source": "scripts/fpl-predictor/.cache/bootstrap.json",
+  "note": "Final 2025/26 season data. owned = selected_by_percent at season end. Players with >900 minutes only.",
+  "hero": {
+    "name": "E.Le Fée",
+    "team": "SUN",
+    "pos": "MID",
+    "owned": 1.6,
+    "price": 4.8,
+    "points": 147,
+    "ppm": 30.6
+  },
+  "mostOwned": {
+    "name": "Haaland",
+    "team": "MCI",
+    "pos": "FWD",
+    "owned": 62.5,
+    "price": 14.7,
+    "points": 239,
+    "ppm": 16.3
+  },
+  "heroPpmRank": 8,
+  "poolSize": 339,
+  "differentials": [
+    {
+      "name": "E.Le Fée",
+      "team": "SUN",
+      "pos": "MID",
+      "owned": 1.6,
+      "price": 4.8,
+      "points": 147,
+      "ppm": 30.6
+    },
+    {
+      "name": "Stach",
+      "team": "LEE",
+      "pos": "MID",
+      "owned": 1.7,
+      "price": 4.8,
+      "points": 137,
+      "ppm": 28.5
+    },
+    {
+      "name": "O.Dango",
+      "team": "BRE",
+      "pos": "MID",
+      "owned": 1.6,
+      "price": 5.6,
+      "points": 136,
+      "ppm": 24.3
+    },
+    {
+      "name": "M.Fernandes",
+      "team": "WHU",
+      "pos": "MID",
+      "owned": 0.6,
+      "price": 5.5,
+      "points": 135,
+      "ppm": 24.5
+    },
+    {
+      "name": "Ampadu",
+      "team": "LEE",
+      "pos": "MID",
+      "owned": 0.6,
+      "price": 4.9,
+      "points": 134,
+      "ppm": 27.3
+    },
+    {
+      "name": "Aaronson",
+      "team": "LEE",
+      "pos": "MID",
+      "owned": 0.8,
+      "price": 5.4,
+      "points": 126,
+      "ppm": 23.3
+    }
+  ]
+}

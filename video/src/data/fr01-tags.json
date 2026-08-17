@@ -1,0 +1,52 @@
+[
+  {
+    "tag": "BENCH NIGHTMARE",
+    "tone": "#FF5050",
+    "sentiment": "neg"
+  },
+  {
+    "tag": "CAPTAIN CALAMITY",
+    "tone": "#FF5050",
+    "sentiment": "neg"
+  },
+  {
+    "tag": "GALAXY BRAIN",
+    "tone": "#009C54",
+    "sentiment": "pos"
+  },
+  {
+    "tag": "CLONE WARS",
+    "tone": "#FFD100",
+    "sentiment": "neg"
+  },
+  {
+    "tag": "CHIP KING",
+    "tone": "#009C54",
+    "sentiment": "pos"
+  },
+  {
+    "tag": "BOTTLE JOB",
+    "tone": "#FF5050",
+    "sentiment": "neg"
+  },
+  {
+    "tag": "PANIC MERCHANT",
+    "tone": "#FF5050",
+    "sentiment": "neg"
+  },
+  {
+    "tag": "DERBY DAY",
+    "tone": "#150000",
+    "sentiment": "pos"
+  },
+  {
+    "tag": "ON THE CHARGE",
+    "tone": "#009C54",
+    "sentiment": "pos"
+  },
+  {
+    "tag": "TOP SCORE",
+    "tone": "#150000",
+    "sentiment": "pos"
+  }
+]

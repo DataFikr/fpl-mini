@@ -91,7 +91,7 @@ export function FatigueScreen({ embedded = false }: { embedded?: boolean } = {})
         })}
       </div>
       <p style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.05em', textAlign: 'center', marginTop: 14 }}>
-        WC match results are actual · per-match minutes are best-effort estimates · load &amp; risk are editorial · kit links are affiliate
+        WC results &amp; per-match minutes are actual, verified Aug 2026 · load &amp; risk are editorial · kit links are affiliate
       </p>
     </>
   );

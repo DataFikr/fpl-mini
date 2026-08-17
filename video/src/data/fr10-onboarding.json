@@ -1,0 +1,8 @@
+{
+  "measuredAt": "2026-08-16T05:01:12.308Z",
+  "teamId": "6454003",
+  "typeMs": 1235,
+  "loadMs": 749,
+  "totalMs": 1984,
+  "note": "loadMs = click \"Rank my league\" -> squad tabs visible. Local dev server, demo season."
+}

@@ -15,7 +15,7 @@ fplranker.com (launched Oct 2025) is a free FPL mini-league analytics app by a s
 
 **Live & differentiated:** League standings + rank progression charts, ESPN-style AI Headlines engine (unique in market), Rival Watch (effective ownership, captaincy, chips), Manager of the Month, pitch-view squad + transfer planner + Transfer Impact verdict, WC-2026 fatigue tracker, Kit Hub (Kitbag affiliate), Resend newsletter with 2 automated crons (deadline reminder + GW summary), share/OG infographics, blog (3 posts), GA4.
 
-**Built but not shipped:** `scripts/fpl-predictor` — standalone points-prediction engine with online learning (backtested MAE 1.84 vs 1.95 frozen baseline; capture 88–92%). The /app/squad Prediction tab is a stub. This is the premium product waiting to be wired in.
+**Built but not shipped:** `scripts/fpl-predictor` — standalone points-prediction engine with online learning (v2 walk-forward ridge, backtested MAE **1.002** vs **1.268** frozen baseline; capture **83.3%**; held-out GW20–38 MAE **0.963**. The earlier "MAE 1.84 vs 1.95 / capture 88–92%" figures in this doc were wrong — corrected 2026-08-15 against `scripts/fpl-predictor/out/convergence-v2.json`). The /app/squad Prediction tab is a stub. This is the premium product waiting to be wired in.
 
 **Missing:** user accounts (app is fully stateless — root cause of 3–6% Week-1 retention), payments (no Stripe/any), programmatic SEO pages, llms.txt, captaincy/transfer recommendations, affiliate click tracking (Kitbag anchors fire no GA4 event at all — "zero conversions" is partly a measurement bug). Security hole: `/admin/emails` is unprotected.
 
