@@ -13,9 +13,13 @@ export const SITE_TAGLINE = 'Fantasy Premier League Mini-League Analytics';
 /** Absolute URL for a path on the canonical domain (e.g. absUrl('/blog') ). */
 export const absUrl = (path = '/'): string => new URL(path, SITE_URL).toString();
 
+/** Canonical YouTube channel. Also the source of the landing page's Shorts band. */
+export const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@fplranker';
+
 /** Official social profiles — used for Organization `sameAs`. */
 export const SOCIAL_LINKS = [
   'https://x.com/fplranker',
   'https://www.reddit.com/user/fplranker/',
   'https://instagram.com/FPLRanker',
+  YOUTUBE_CHANNEL_URL,
 ];

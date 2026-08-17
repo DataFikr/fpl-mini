@@ -19,13 +19,23 @@
 .lp .head-actions{display:flex;align-items:center;gap:10px;}
 /* hamburger is mobile-only; the inline nav covers desktop */
 .lp .site-head .menu-btn{display:none;}
-/* the landing breaks out of the 480px phone frame, so the overlay must too */
-.lp .menu-overlay{max-width:none;}
 .lp .site-head .s-btn{font-size:14px;min-height:44px;}
 
 /* hero */
 .lp .hero{padding:64px 0 56px;position:relative;overflow:hidden;}
-.lp .hero .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center;}
+/* Single column: the teaser video that filled the second column moved out to
+   the .vids band below the hero, leaving the Team ID form as the only thing
+   competing for attention here.
+
+   Centred rather than left-aligned. Everything in here was sized for a half-
+   width column, so keeping it flush left after the video's departure leaves an
+   empty right half that reads as a missing element rather than as whitespace. */
+.lp .hero .wrap{display:block;}
+.lp .hero .wrap > div{max-width:720px;margin:0 auto;text-align:center;}
+/* Both of these cap their own width, so they need centring explicitly. */
+.lp .hero .league-form,.lp .hero .gwc{margin-left:auto;margin-right:auto;}
+.lp .hero .gwc-clock{justify-content:center;}
+.lp .hero .trust{justify-content:center;}
 .lp .live-kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;font-weight:600;
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--line-2);padding:8px 13px;margin-bottom:22px;}
 .lp .live-kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 1.3s infinite;}
@@ -72,20 +82,85 @@
   letter-spacing:.06em;text-transform:uppercase;color:var(--t2);}
 .lp .trust b::before{content:'';width:9px;height:9px;background:var(--red);flex:0 0 auto;}
 
-/* hero art — ink panel with the product teaser video */
-.lp .hero-art{position:relative;background:var(--ink);clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%);cursor:pointer;}
-.lp .hero-art:focus-visible{outline:3px solid var(--navy);outline-offset:3px;}
-.lp .hero-art video{display:block;width:100%;height:auto;
-  -webkit-mask-image:linear-gradient(180deg,#000 82%,rgba(0,0,0,0) 100%);
-  mask-image:linear-gradient(180deg,#000 82%,rgba(0,0,0,0) 100%);}
-.lp .hero-art .live-pin{position:absolute;left:16px;bottom:18px;display:inline-flex;align-items:center;gap:8px;
-  background:rgba(10,4,5,.72);backdrop-filter:blur(4px);color:#fff;font-family:var(--mono);font-size:12px;
-  letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;z-index:3;}
-.lp .hero-art .live-pin .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 1.3s infinite;}
-.lp .hero-art .play-hex{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:58px;background:var(--red);
-  clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);display:grid;place-items:center;z-index:3;
-  filter:drop-shadow(0 12px 30px rgba(255,80,80,.5));pointer-events:none;}
-.lp .hero-art .play-hex::after{content:'';width:0;height:0;margin-left:5px;border-left:18px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;}
+/* ============ video shorts band ============
+   Real YouTube Shorts from the channel, replacing the muted teaser loop that
+   used to autoplay in the hero. Thumbnails only — the iframe is injected on
+   click (see VideoRailClient), because a live embed costs ~1.3MB and six of
+   them would be worse than the 12.85MB file this section removed.
+
+   Desktop is a grid, not a rail: there is room for all of them, and hiding
+   cards behind a sideways scroll on a pointer device just loses them. The rail
+   is mobile-only, where swiping is native and vertical space is scarce. */
+.lp .vids{background:var(--bg);border-top:1px solid var(--line);padding:52px 0 56px;}
+.lp .vs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.lp .vs-all{font-family:var(--body);font-weight:700;font-size:14px;color:var(--t2);white-space:nowrap;padding:6px 0;text-decoration:none;}
+.lp .vs-all:hover{color:var(--ink);}
+
+/* Centre stage. `--vs-w` drives the card, `--vs-step` how far the flanking
+   cards sit either side; the component multiplies the step by each card's
+   distance from the active one, so all the responsive sizing stays here. */
+.lp .vs-stage-wrap{--vs-w:268px;--vs-step:296px;position:relative;margin-top:26px;}
+.lp .vs-stage{position:relative;height:calc(var(--vs-w) / 9 * 16);}
+
+.lp .vs-card{position:absolute;left:50%;top:50%;width:var(--vs-w);aspect-ratio:9/16;
+  background:var(--ink);overflow:hidden;transform-origin:50% 50%;
+  transition:transform .42s cubic-bezier(.22,.61,.36,1),opacity .42s ease,filter .42s ease;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);
+  box-shadow:0 18px 46px -22px rgba(21,0,0,.5);}
+/* Only the active card is fully sharp — the flanks recede so one hook at a time
+   carries the eye, which is the whole point of the layout. */
+.lp .vs-card:not(.is-centre){filter:blur(1px);}
+.lp .vs-card.is-centre{box-shadow:0 30px 70px -26px rgba(21,0,0,.62);}
+/* The card clips its own overflow, so a focus ring drawn on the button inside
+   would be sliced off. Hoist it to the card instead. */
+.lp .vs-card:has(:focus-visible){outline:3px solid var(--navy);outline-offset:2px;}
+.lp .vs-play-btn:focus-visible{outline:none;}
+
+/* Arrows sit at the vertical centre, over the flanking cards. */
+.lp .vs-arrow{position:absolute;top:calc(var(--vs-w) / 9 * 8);transform:translateY(-50%);z-index:4;
+  width:60px;height:54px;display:grid;place-items:center;border:0;cursor:pointer;
+  background:var(--ink);color:#fff;
+  clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);
+  filter:drop-shadow(0 12px 26px rgba(21,0,0,.45));transition:background .15s,transform .15s;}
+.lp .vs-arrow:hover{background:var(--red);}
+.lp .vs-arrow:active{transform:translateY(-50%) scale(.94);}
+.lp .vs-arrow svg{width:24px;height:24px;}
+.lp .vs-arrow--prev{left:0;}
+.lp .vs-arrow--next{right:0;}
+
+.lp .vs-dots{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:26px;}
+/* --line (#D6D5D5) on --bg (#FAFAFA) is all but invisible; --t4 is the lightest
+   token that still reads as a control. */
+.lp .vs-dot{width:9px;height:9px;padding:0;border:0;cursor:pointer;background:var(--t4);
+  transform:rotate(45deg);transition:background .18s,transform .18s;}
+.lp .vs-dot:hover{background:var(--t2);}
+/* Scaled, not widened: a rotated rectangle reads as a slash rather than a
+   marker, and the diamond is the shape the brand already uses. */
+.lp .vs-dot.is-on{background:var(--red);transform:rotate(45deg) scale(1.5);}
+
+/* Announced, not shown — the dots and the moving card carry it visually. */
+.lp .vs-live{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+
+.lp .vs-play-btn{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer;z-index:1;}
+/* Cover on a 9/16 box fits frame0.jpg exactly and crops the pillarboxed
+   fallbacks down to the same centred vertical column. */
+.lp .vs-thumb{display:block;width:100%;height:100%;object-fit:cover;}
+.lp .vs-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:47px;background:var(--red);
+  clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);display:grid;place-items:center;
+  filter:drop-shadow(0 10px 26px rgba(255,80,80,.5));pointer-events:none;}
+.lp .vs-play::after{content:'';width:0;height:0;margin-left:4px;border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;}
+
+/* The gradient lets clicks through to the play button; only the link itself
+   takes pointer events, so the two controls never overlap. */
+.lp .vs-meta{position:absolute;inset:auto 0 0;z-index:2;padding:26px 12px 12px;
+  background:linear-gradient(180deg,rgba(10,4,5,0),rgba(10,4,5,.88) 58%);pointer-events:none;}
+.lp .vs-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  font-family:var(--body);font-weight:700;font-size:13px;line-height:1.3;color:#fff;text-decoration:none;pointer-events:auto;}
+.lp .vs-title:hover{text-decoration:underline;}
+.lp .vs-date{display:block;margin-top:5px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);}
+
+.lp .vs-frame{width:100%;height:100%;border:0;display:block;}
 
 /* features */
 .lp .features{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:60px 0;}
@@ -123,12 +198,25 @@
 .lp .foot .fine{font-family:var(--body);font-size:12px;color:#9a8e8e;width:100%;margin-top:14px;line-height:1.6;}
 
 @media (max-width:900px){
-  .lp .hero .wrap,.lp .prem .wrap{grid-template-columns:1fr;}
+  .lp .prem .wrap{grid-template-columns:1fr;}
   .lp .feat-grid{grid-template-columns:1fr 1fr;}
   .lp .site-head nav{display:none;}
   .lp .site-head .menu-btn{display:grid;}
+
+  .lp .vs-stage-wrap{--vs-w:232px;--vs-step:258px;}
 }
 @media (max-width:560px){
   .lp .feat-grid{grid-template-columns:1fr;}
   .lp .head-actions .s-btn--ghost{display:none;}
+  /* The flanks run off the viewport at this width, which is fine — they read as
+     a peek, and the arrows sit on top of them. */
+  .lp .vs-stage-wrap{--vs-w:190px;--vs-step:196px;}
+  .lp .vs-arrow{width:50px;height:45px;}
+  .lp .vs-arrow svg{width:20px;height:20px;}
+  .lp .vs-head{gap:10px;}
+}
+/* The section-wide rule in sportify-fpl.css kills animation but not a
+   transition; the card movement is the one thing here that must stop. */
+@media (prefers-reduced-motion:reduce){
+  .lp .vs-card{transition:none;}
 }

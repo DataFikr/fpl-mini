@@ -1,4 +1,5 @@
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SOCIAL_LINKS, absUrl } from '@/lib/seo';
+import { canonicalEmbedUrl, posterUrl, watchUrl, type YouTubeVideo } from '@/lib/youtube-feed';
 
 interface StructuredDataProps {
   data: object;
@@ -170,6 +171,52 @@ export function DefinedTermSetStructuredData({
           name: t.term,
           description: t.definition,
           inDefinedTermSet: `${absUrl(path)}#glossary`,
+        })),
+      }}
+    />
+  );
+}
+
+/**
+ * The landing page's YouTube Shorts, as an ItemList of VideoObjects.
+ *
+ * Every required property (name, description, thumbnailUrl, uploadDate, plus
+ * embedUrl) comes straight out of the channel's Atom feed. `duration` is the
+ * one Google likes that the feed doesn't carry — that's the trigger for moving
+ * to the Data API, documented on YouTubeService.
+ *
+ * `aggregateRating` is deliberately omitted even though the feed offers a star
+ * rating: self-serving ratings on your own domain are a manual-action risk for
+ * no upside.
+ */
+export function VideoListStructuredData({ videos }: { videos: YouTubeVideo[] }) {
+  return (
+    <StructuredData
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        '@id': `${absUrl('/app')}#videos`,
+        itemListElement: videos.map((v, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'VideoObject',
+            '@id': `${absUrl('/app')}#video-${v.id}`,
+            name: v.title,
+            description: v.description || `${v.title} — ${SITE_NAME} on YouTube`,
+            thumbnailUrl: posterUrl(v.id),
+            uploadDate: v.publishedAt,
+            embedUrl: canonicalEmbedUrl(v.id),
+            url: watchUrl(v),
+            publisher: { '@id': `${SITE_URL}/#organization` },
+            ...(v.views != null && {
+              interactionStatistic: {
+                '@type': 'InteractionCounter',
+                interactionType: { '@type': 'WatchAction' },
+                userInteractionCount: v.views,
+              },
+            }),
+          },
         })),
       }}
     />

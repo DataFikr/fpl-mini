@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from './Toast';
 import { DEMO_TEAM } from '../_lib/screen-data';
@@ -27,19 +27,22 @@ const MENU_MORE: MenuLink[] = [
 ];
 
 /**
- * Marketing landing (mockup 01-landing.html) — sticky header, 2-col hero with
- * the product teaser video, a features grid, a premium band (Free-until-GW5
- * during the launch hold) and a footer. Scoped to `.lp` (see landing.css).
- * The Team-ID form stays the #1 above-the-fold CTA.
+ * Marketing landing (mockup 01-landing.html) — sticky header, a single-column
+ * hero, the YouTube Shorts band, a features grid, a premium band
+ * (Free-until-GW5 during the launch hold) and a footer. Scoped to `.lp` (see
+ * landing.css). The Team-ID form stays the #1 above-the-fold CTA.
+ *
+ * `videoSlot` is injected by the server component in page.tsx rather than
+ * fetched here: the video titles, links and JSON-LD have to be in the initial
+ * HTML for the crawlers that don't run JS.
  */
-export function Landing() {
+export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
   const router = useRouter();
   const [teamId, setTeamId] = useState('');
   const [gw, setGw] = useState<number | null>(null);
   const [savedTeam, setSavedTeam] = useState<string | null>(null);
   // Resolved after mount so server and client agree on the first paint.
   const [preSeason, setPreSeason] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const free = isFreeLaunchWindow();
 
   useEffect(() => {
@@ -65,16 +68,6 @@ export function Landing() {
     router.push(`/app/squad?teamId=${v}`);
   };
 
-  // Click the teaser → restart with sound + go fullscreen (autoplays muted as ambient).
-  const watchTeaser = () => {
-    const el = videoRef.current;
-    if (!el) return;
-    el.muted = false;
-    el.currentTime = 0;
-    el.play().catch(() => {});
-    el.requestFullscreen?.().catch(() => {});
-  };
-
   return (
     <div className="lp">
       <header className="site-head">
@@ -91,7 +84,7 @@ export function Landing() {
             <a className="s-btn s-btn--red hex" onClick={() => router.push('/premium')}>{free ? 'Get started free' : 'Go premium'}</a>
             {/* Below 900px the inline nav is hidden (and Sign in below 560px);
                 this carries those links so the selling points stay reachable. */}
-            <AppMenu primary={MENU_PRIMARY} more={MENU_MORE} backHref={null} />
+            <AppMenu primary={MENU_PRIMARY} more={MENU_MORE} backHref={null} wide />
           </div>
         </div>
       </header>
@@ -126,24 +119,10 @@ export function Landing() {
             </div>
           </div>
 
-          {/* Product teaser — photo-free app footage. Ambient muted loop; click to watch with sound. */}
-          <div className="hero-art" role="button" tabIndex={0} aria-label="Play the FPL Ranker product teaser"
-            onClick={watchTeaser} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); watchTeaser(); } }}>
-            <video
-              ref={videoRef}
-              src="/video/FPL%20Teaser%20Video.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-label="FPL Ranker product teaser"
-            />
-            <span className="play-hex" aria-hidden="true" />
-            <span className="live-pin"><span className="dot" />Watch the 45s teaser</span>
-          </div>
         </div>
       </section>
+
+      {videoSlot}
 
       <section className="features">
         <div className="wrap">
