@@ -353,15 +353,6 @@
 .amb-foot{font-family:var(--body);font-size:11.5px;line-height:1.5;color:var(--t3);margin:12px 0 0;}
 .amb-foot .mono{font-family:var(--mono);font-size:11px;}
 
-.amb-gate{background:#fff;border:1px solid var(--line);padding:26px 20px;text-align:center;}
-.amb-gate-ic{width:44px;height:44px;margin:0 auto 12px;display:grid;place-items:center;
-  background:var(--ink);color:var(--red);
-  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);}
-.amb-gate-ic svg{width:22px;height:22px;}
-.amb-gate h3{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.02em;margin:0 0 8px;}
-.amb-gate p{font-family:var(--body);font-size:13px;line-height:1.6;color:var(--t2);margin:0 0 16px;}
-.amb-gate .s-btn{cursor:pointer;min-height:44px;}
-
 /* ── inline email capture at the moment of value ── */
 .cap-card{position:relative;background:var(--ink);color:#fff;padding:18px 18px 16px;margin:20px 0 6px;
   clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}

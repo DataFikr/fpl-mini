@@ -1,10 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { standingsAt } from '../_lib/compute';
 import type { AppManager } from '../_lib/league-data';
-import { useAccount } from '@/lib/use-account';
 import { trackEvent } from '@/lib/analytics';
 import { toast } from './Toast';
 
@@ -15,9 +13,9 @@ import { toast } from './Toast';
  * everyone in my league?" The official standings page shows names and links but
  * never the IDs as a list, so people copy them one at a time out of the URL bar.
  *
- * Signed-in only. Not a paywall — a roster of manager names + IDs is exactly the
- * kind of page that should not be anonymously scrapeable in bulk, and an
- * ambassador exporting their own league is a named person doing it.
+ * Open to everyone — no sign-in. Team IDs are already public in every manager's
+ * Fantasy Premier League URL, and the export is the share mechanic that gets the
+ * rest of the league onto FPL Ranker.
  */
 
 const csvCell = (v: string | number) => {
@@ -38,8 +36,6 @@ export function AmbassadorTab({
   focusId: number | null;
   gwSelect: React.ReactNode;
 }) {
-  const router = useRouter();
-  const { account, loading } = useAccount();
   const [copied, setCopied] = useState(false);
 
   const rows = useMemo(() => standingsAt(managers, gw), [managers, gw]);
@@ -72,31 +68,6 @@ export function AmbassadorTab({
     toast('Team IDs copied');
     setTimeout(() => setCopied(false), 1600);
   };
-
-  if (loading) {
-    return <div className="panel-empty">Checking your account…</div>;
-  }
-
-  if (!account?.authenticated) {
-    return (
-      <>
-        <div className="lbl-row"><span className="l">AMBASSADOR</span>{gwSelect}</div>
-        <div className="amb-gate">
-          <div className="amb-gate-ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <rect x="4" y="10" width="16" height="10" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
-            </svg>
-          </div>
-          <h3>Sign in to see every team ID</h3>
-          <p>
-            The Ambassador list shows the FPL team ID for all {managers.length} managers in {leagueName},
-            ready to export as a CSV. Sign in with your email — no password.
-          </p>
-          <a className="s-btn s-btn--red hex" onClick={() => router.push('/auth/login')}>Sign in with email</a>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { XIcon, RedditIcon, InstagramIcon } from '@/components/ui/brand-icons';
 
@@ -26,17 +27,25 @@ const MORE: MenuLink[] = [
  * `primary`/`more` are injectable so the landing page can reuse the same overlay
  * for the header links it hides below 900px, instead of shipping a second menu.
  * `backHref` renders the "back to site" row; pass null to omit it.
+ * `wide` drops the 480px phone-frame width for full-bleed pages (the landing).
+ *
+ * The overlay is portalled to <body> on purpose: the landing's sticky header
+ * carries a backdrop-filter, which makes it the containing block for any fixed
+ * descendant — rendering in place pinned the overlay to the 68px header strip
+ * and hid every link below the fold.
  */
 export function AppMenu({
   light = false,
   primary = PRIMARY,
   more = MORE,
   backHref = '/app' as string | null,
+  wide = false,
 }: {
   light?: boolean;
   primary?: MenuLink[];
   more?: MenuLink[];
   backHref?: string | null;
+  wide?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -48,8 +57,8 @@ export function AppMenu({
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
       </button>
 
-      {open && (
-        <div className="menu-overlay" role="dialog" aria-modal="true">
+      {open && createPortal(
+        <div className={`menu-overlay${wide ? ' wide' : ''}`} role="dialog" aria-modal="true">
           <div className="mh">
             <div className="logo"><span className="bolt" />FPL RANKER</div>
             <button className="mclose" aria-label="Close menu" onClick={() => setOpen(false)}>
@@ -78,7 +87,8 @@ export function AppMenu({
             <a href="https://www.reddit.com/user/fplranker/" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on Reddit"><RedditIcon /></a>
             <a href="https://instagram.com/FPLRanker" target="_blank" rel="noopener noreferrer" aria-label="FPL Ranker on Instagram"><InstagramIcon /></a>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

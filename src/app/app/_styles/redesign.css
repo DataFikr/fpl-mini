@@ -170,7 +170,9 @@
 .landing-bar .menu-btn{background:rgba(255,255,255,.12);color:#fff;}
 
 .menu-overlay{position:fixed;inset:0;z-index:90;background:var(--ink);color:#fff;display:flex;flex-direction:column;
-  padding:18px 22px calc(28px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;overflow-y:auto;animation:menuIn .22s ease;}
+  padding:18px 22px calc(28px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;overflow-y:auto;overscroll-behavior:contain;animation:menuIn .22s ease;}
+/* the landing breaks out of the 480px phone frame, so its overlay must too */
+.menu-overlay.wide{max-width:none;}
 @keyframes menuIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 .menu-overlay .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
 .menu-overlay .mh .logo{font-family:var(--display);font-size:22px;letter-spacing:.03em;display:flex;align-items:center;gap:9px;}
@@ -188,6 +190,15 @@
   clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
 .menu-social a:hover{background:var(--red);}
 .menu-social a svg{width:20px;height:20px;}
+/* The landing menu carries 11 links; at the full 26px they run two screens deep
+   on a phone. Tighten the rhythm so the whole list lands above the fold. */
+@media (max-height:780px){
+  .menu-sec{margin:11px 0 2px;}
+  .menu-link{padding:10px 0;font-size:22px;}
+  .menu-link.sm{font-size:17px;}
+  .menu-social{padding-top:14px;}
+  .menu-social a{width:40px;height:40px;}
+}
 
 /* ============ share league ============ */
 .share-btn{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border:0;cursor:pointer;
