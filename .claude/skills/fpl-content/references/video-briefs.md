@@ -518,6 +518,147 @@ interrupt.
 Combination 60s cuts worth trying: **P2+P1** (grades your past moves, then names the next one) and
 **P3+P1**, both landing on a single `/app/squad` CTA.
 
+## FR-17 — "The most expensive point in FPL"
+**Feature:** Player database — price, ownership, projected xPts, sortable · `/app/players`
+**Source:** `PlayersScreen.tsx` · `getPlayersIndex()` in `src/lib/players.ts` · `projectPlayer()` in `src/app/app/_lib/prediction.ts`
+**Hook family:** paradox (playbook §4) — the "no-Haaland squad" debate, made true · **Publish:** Wed 19 Aug 2026 (GW1 deadline Fri 21 Aug, 18:30 BST)
+
+> **Written 2026-08-17 from a submitted outline. The outline's central claim did not survive
+> verification and the brief below is the honest rebuild.** What was checked, and what broke:
+>
+> 1. **The "Trifecta at the exact same net cost" is false.** Saka £9.5m + Palmer £9.5m + Saliba
+>    £6.0m = **£25.0m**, not £15.5m — off by £9.5m. The 40s variant (Palmer + Saka + Gvardiol) is
+>    £24.5m. There is no three-premium bundle at Haaland's price; the split-screen bar chart the
+>    outline describes cannot be drawn from real prices.
+> 2. **Saliba is injured.** `status=i`, `chance_of_playing_next_round=0`, news *"Back injury -
+>    Unknown return date"*, 0.4% owned, **0.0 xPts**. Naming him as a GW1 buy is the single most
+>    damaging error available to this channel.
+> 3. **The "optimization engine" does not exist.** `pickSquad`/`bestXI` live in
+>    `src/lib/predictor/optimizer.ts` and are re-exported by `src/lib/predictor/index.ts` — and
+>    imported by **nothing** in `src/app`, `src/components` or `scripts/`. No shipped surface
+>    generates a squad from scratch, so "watch the app build the optimal No-Haaland 3-5-2" is
+>    unscriptable. `/app/squad` has five tabs — Squad, Planner, Transfer Impact, Rival watch,
+>    Prediction — all of which read *your existing team* from a Team ID.
+> 4. **"Delete Haaland" contradicts the app's own data.** `projectPlayer` ranks him **first in the
+>    game at 5.5 xPts**, and City are **at home to Bournemouth** (Bournemouth away-difficulty 5).
+>    `fatigue-data.ts:91` says he was **rested for the France group game**, that "the load is
+>    lighter than the headlines suggest", and — verbatim — **"Default captain, but watch City team
+>    news."** A video telling people to delete him is the product calling its own projection wrong.
+> 5. **"A red X over Haaland's face" is barred** — no player photography (Jul 2026 legal review).
+> 6. **The 60s outline carries two CTAs** (visit the site *and* comment your captain). One only.
+>
+> **What did survive, verified:** Haaland **£15.5m** ✅ · **71.0% owned** ✅ (the outline's "seventy
+> percent of managers" is real, and checkable) · Community Shield **Arsenal 3-0 Man City, 16 Aug
+> 2026** ✅ (Calafiori 24 seconds, Havertz, Ødegaard POTM) · **Bruno Fernandes away at Hull** ✅,
+> Sat 22 Aug 11:30, away-difficulty **2**, the joint-kindest opener in the round · Arsenal home to
+> Coventry, difficulty **2** ✅.
+>
+> **The rebuild keeps the outline's real idea — value density — and drops the false arithmetic.**
+> The honest version is stronger, because it is a paradox rather than a take: he is simultaneously
+> the best projected scorer and the worst value in the game, and both halves are the app's own
+> numbers.
+
+**Verified figures — app xPts via `projectPlayer`, GW1, pulled 2026-08-17. Quote these or nothing.**
+
+| Player | Price | xPts | Owned | xPts per £m |
+|---|---|---|---|---|
+| **Haaland** (MCI, FWD) | **£15.5m** | **5.5** | **71.0%** | **0.35** |
+| B.Fernandes (MUN, MID) | £12.0m | 5.4 | 48.7% | 0.45 |
+| Gabriel (ARS, DEF) | £8.0m | 5.0 | 28.6% | 0.63 |
+| Semenyo (MCI, MID) | £8.5m | 4.5 | 26.7% | 0.53 |
+| Guéhi (MCI, DEF) | £6.0m | 4.1 | 20.5% | 0.68 |
+| Saka (ARS, MID) | £9.5m | 3.9 | 9.8% | 0.41 |
+| **Muñoz** (CRY, DEF) | **£5.5m** | 3.8 | 11.0% | **0.69** — best in the game |
+| Gvardiol (MCI, DEF) | £5.5m | 3.6 | 12.1% | 0.65 |
+| Palmer (CHE, MID) | £9.5m | 3.6 | 10.7% | 0.38 |
+| ~~Saliba~~ (ARS, DEF) | £6.0m | **0.0** | 0.4% | **INJURED — do not name** |
+
+**The swap that replaces the fake Trifecta (real, and it clears):**
+`Gabriel £8.0m (5.0) + Guéhi £6.0m (4.1) = £14.0m → 9.1 xPts` versus `Haaland £15.5m → 5.5 xPts`.
+**+3.6 projected points and £1.5m still in the bank.** Both are two players, not three, and both
+have a GW1 home fixture. Guéhi and Gvardiol are City defenders — the cut deliberately *keeps* the
+City clean-sheet exposure and drops only the premium, which pre-empts the loudest reply.
+
+**Haaland's World Cup load, if beat 5 needs it:** `466'` across 6 matches (`90/90/0/90/90/106`),
+risk `hi` — versus Rice's tournament-heaviest **649'** (FR-08). He was rested for one group game.
+
+**Cover:** `5.5` in gold above `0.35` in red on ink, price chip `£15.5m`.
+Overlay: **"HE'S TOP. HE'S ALSO THE WORST VALUE."**
+
+### 60s master
+
+| t | Visual | Burned caption | VO |
+|---|---|---|---|
+| 0–4 | `5.5 xPts` slams in gold, then `0.35 PER £M` under it in red | BOTH OF THESE ARE TRUE. | "He's the highest projected scorer in the game. He's also the worst value in it." |
+| 4–15 | **Players screen**, real: sorted by xPts, Haaland's row — £15.5m · 71% · 5.5 | 71% OF THE GAME OWNS HIM. | "Seventy-one percent of managers own him. Fifteen and a half million — fifteen percent of your budget, on one player." |
+| 15–30 | Native bar chart, points per million: Haaland 0.35 against Muñoz 0.69, Guéhi 0.68, Gvardiol 0.65 | A £5.5M DEFENDER IS WORTH DOUBLE. | "Points per million. Haaland returns nought point three five. A five-and-a-half million defender returns nought point six nine. Double." |
+| 30–45 | The swap builds: `Gabriel £8.0m 5.0` + `Guéhi £6.0m 4.1` → `£14.0m · 9.1 xPts`, then `£1.5m` change drops in green | 9.1 POINTS. AND £1.5M LEFT. | "Fourteen million buys Gabriel and Guéhi. Nine point one projected points instead of five point five — and a million and a half still in the bank." |
+| 45–55 | The concession: his row back on top, `MCI v BOU (H)`, fatigue card `466'` | IT STILL RANKS HIM FIRST. | "And the app still ranks him first, and City are at home. This isn't sell Haaland. It's know what the fifteen-five is costing you." |
+| 55–60 | End card | FPLRANKER.COM/APP/PLAYERS | "Two hundred players, priced and projected. Free." |
+
+### 40s Shorts cut
+Drop beat 3 per the shared spec — the per-million chart absorbs it.
+
+| t | Visual | Burned caption |
+|---|---|---|
+| 0–4 | `5.5` then `0.35` slam in | BOTH OF THESE ARE TRUE. |
+| 4–12 | **Players screen** — Haaland's real row, £15.5m · 71% · 5.5 | 71% OF THE GAME OWNS HIM. |
+| 12–24 | Points-per-million bars: 0.35 against 0.69 / 0.68 / 0.65 | A £5.5M DEFENDER IS WORTH DOUBLE. |
+| 24–33 | The swap: `£14.0m · 9.1 xPts` + `£1.5m` change | 9.1 POINTS. AND £1.5M LEFT. |
+| 33–40 | End card | FPLRANKER.COM/APP/PLAYERS |
+
+**Retention devices:** the 0–4s paradox is an open loop the viewer has to close — it can't be
+resolved by agreeing or disagreeing, only by watching. The 15s beat is the interrupt: a £5.5m
+defender out-earning a £15.5m striker inverts the whole premium logic. The 45s concession is the
+credibility move and the comment engine — conceding that he's still ranked first is what stops the
+replies being "this guy doesn't watch football", and turns them into the argument instead.
+**Loop:** end card eases back to the `5.5 / 0.35` pair from frame 1.
+**CTA:** one only — bio link → `/app/players`, sorted by xPts.
+**UTM:** `?utm_source={platform}&utm_medium=social&utm_campaign=fr-17-valuedensity`
+**Caption:** `haaland is the highest projected scorer in the game AND the worst value in it. both are true 📉 what's your GW1 budget split? #fpl #fplgw1 #fantasypremierleague`
+**Hashtags:** `#fpl #fplgw1 #fantasypremierleague #fplcommunity #premierleague #haaland`
+**Success bar:** comments ≥1% of views — 71% of the audience owns him, and this is the rare take
+they can check. Secondary: saves on the players list. Kill it if completion is under 55%.
+
+**Do not ship with:** any three-player bundle priced at £15.5m · Saliba in any frame · a generated
+or screen-recorded "optimal squad" · a red X over a player photo · a second CTA · Community Shield
+match footage (the 3-0 may appear **as a text scoreline card only**, and must not be framed as
+predictive — City's GW1 fixture is favourable and the brief says so out loud).
+
+**Build note:** beats 3 and 4 are native Remotion from `getPlayersIndex()`, not footage — the app
+has no points-per-million view, so the chart is a derived graphic and must be labelled as
+*xPts ÷ price*, computed on screen from two columns the app really shows. Beat 2 is the only beat
+needing capture (`/app/players` at 390×844). Re-pull xPts at render time; these values move daily
+and the price/ownership pair moves every night.
+
+> **Built 2026-08-17.** Renders fully natively — no footage, no photography, no capture dependency,
+> so it re-renders correct from a single `npm run capture:fr17`.
+>
+> **The capture script is the accuracy gate.** `video/scripts/capture-fr17.mts` imports the app's
+> own `projectPlayer()` (the function behind the Players tab) and **throws rather than writes** if
+> either load-bearing claim stops being true: if the hero is no longer the top projection the hook
+> is dead, and if the swap stops clearing his price beat 4 is dead. It also drops every flagged
+> player before ranking, which is what would have caught Saliba. Points-per-million is derived in
+> code in both the capture and `valuedensity.ts` and is never typed by hand — the source outline's
+> £25.0m "Trifecta" is exactly the error that arithmetic-in-code prevents.
+>
+> **Two deviations from the house pattern, both deliberate:**
+> 1. **The master leads with 20 cover frames**, which no other master does. Beat 1 opens on a
+>    counter rolling up from zero, so a bare frame 0 posters as `0.0 · HIGHEST IN THE GAME` —
+>    illegible as a still and it reads as a wrong number. The shorts cut already led with the cover.
+> 2. **`CounterRoll` gained a `decimals` prop.** It rounded to integers, which would have rolled to
+>    `6` and contradicted the `5.5` shown in three other beats of the same cut.
+>
+> **Verified on check frames** at every beat boundary (100 / 380 / 830 / 1290 / 1580) before render.
+> Prices are forced to one decimal throughout: the mixed `£12m` / `£15.5m` forms broke the
+> tabular-nums column alignment.
+
+**Render:** `npm run capture:fr17 && npm run render:fr17:all`
+→ `out/fr-17-60s.mp4` (60.7s, 5.5MB) · `fr-17-40s.mp4` (40.7s, 4.0MB) · `fr-17-loop.mp4` (10.1s,
+1.2MB) · `fr-17-cover.png`
+
+---
+
 ## Bench (rotation 11–15, build after the founding ten prove out)
 
 | ID | Feature | Angle |

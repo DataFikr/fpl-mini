@@ -1,0 +1,153 @@
+{
+  "gw": 1,
+  "deadline": "2026-08-21T17:30:00Z",
+  "captured": "2026-08-18",
+  "filter": {
+    "minXpts": 3,
+    "minOwned": 5
+  },
+  "poolSize": 487,
+  "hero": {
+    "name": "Haaland",
+    "team": "MCI",
+    "pos": "FWD",
+    "price": 15.5,
+    "xPts": 5.5,
+    "owned": 71,
+    "ppm": 0.35,
+    "fixture": "BOU (H)"
+  },
+  "topXpts": [
+    {
+      "name": "Haaland",
+      "team": "MCI",
+      "pos": "FWD",
+      "price": 15.5,
+      "xPts": 5.5,
+      "owned": 71,
+      "ppm": 0.35,
+      "fixture": "BOU (H)"
+    },
+    {
+      "name": "B.Fernandes",
+      "team": "MUN",
+      "pos": "MID",
+      "price": 12,
+      "xPts": 5.4,
+      "owned": 48.7,
+      "ppm": 0.45,
+      "fixture": "HUL (A)"
+    },
+    {
+      "name": "Gabriel",
+      "team": "ARS",
+      "pos": "DEF",
+      "price": 8,
+      "xPts": 5,
+      "owned": 28.6,
+      "ppm": 0.63,
+      "fixture": "COV (H)"
+    },
+    {
+      "name": "Semenyo",
+      "team": "MCI",
+      "pos": "MID",
+      "price": 8.5,
+      "xPts": 4.5,
+      "owned": 26.7,
+      "ppm": 0.53,
+      "fixture": "BOU (H)"
+    },
+    {
+      "name": "Bruno G.",
+      "team": "ARS",
+      "pos": "MID",
+      "price": 7,
+      "xPts": 4.1,
+      "owned": 9.1,
+      "ppm": 0.59,
+      "fixture": "COV (H)"
+    },
+    {
+      "name": "João Pedro",
+      "team": "CHE",
+      "pos": "FWD",
+      "price": 7.5,
+      "xPts": 4.1,
+      "owned": 59.5,
+      "ppm": 0.55,
+      "fixture": "FUL (A)"
+    }
+  ],
+  "bestValue": [
+    {
+      "name": "Muñoz",
+      "team": "CRY",
+      "pos": "DEF",
+      "price": 5.5,
+      "xPts": 3.8,
+      "owned": 11,
+      "ppm": 0.69,
+      "fixture": "EVE (A)"
+    },
+    {
+      "name": "Guéhi",
+      "team": "MCI",
+      "pos": "DEF",
+      "price": 6,
+      "xPts": 4.1,
+      "owned": 20.5,
+      "ppm": 0.68,
+      "fixture": "BOU (H)"
+    },
+    {
+      "name": "Van Hecke",
+      "team": "TOT",
+      "pos": "DEF",
+      "price": 5,
+      "xPts": 3.4,
+      "owned": 8.9,
+      "ppm": 0.68,
+      "fixture": "BRE (A)"
+    }
+  ],
+  "swap": {
+    "out": {
+      "name": "Haaland",
+      "team": "MCI",
+      "pos": "FWD",
+      "price": 15.5,
+      "xPts": 5.5,
+      "owned": 71,
+      "ppm": 0.35,
+      "fixture": "BOU (H)"
+    },
+    "in": [
+      {
+        "name": "Gabriel",
+        "team": "ARS",
+        "pos": "DEF",
+        "price": 8,
+        "xPts": 5,
+        "owned": 28.6,
+        "ppm": 0.63,
+        "fixture": "COV (H)"
+      },
+      {
+        "name": "Guéhi",
+        "team": "MCI",
+        "pos": "DEF",
+        "price": 6,
+        "xPts": 4.1,
+        "owned": 20.5,
+        "ppm": 0.68,
+        "fixture": "BOU (H)"
+      }
+    ],
+    "cost": 14,
+    "xPts": 9.1,
+    "change": 1.5,
+    "gain": 3.6
+  },
+  "valueMultiple": 2
+}

@@ -15,15 +15,17 @@ export const CounterRoll: React.FC<{
   size?: number;
   suffix?: string;
   color?: string;
-}> = ({ to, durationInFrames, size = 340, suffix = "'", color = C.red }) => {
+  /** Decimal places to hold. FR-17 rolls to 5.5, where rounding to 5 would
+   *  contradict the same figure shown elsewhere in the same cut. */
+  decimals?: number;
+}> = ({ to, durationInFrames, size = 340, suffix = "'", color = C.red, decimals = 0 }) => {
   const frame = useCurrentFrame();
 
-  const value = Math.round(
-    interpolate(frame, [0, durationInFrames], [0, to], {
-      extrapolateRight: 'clamp',
-      easing: Easing.out(Easing.cubic),
-    })
-  );
+  const raw = interpolate(frame, [0, durationInFrames], [0, to], {
+    extrapolateRight: 'clamp',
+    easing: Easing.out(Easing.cubic),
+  });
+  const value = decimals > 0 ? +raw.toFixed(decimals) : Math.round(raw);
 
   // A single punch as it lands — the visual full stop on the hook.
   const landed = frame >= durationInFrames;
@@ -46,7 +48,10 @@ export const CounterRoll: React.FC<{
         fontVariantNumeric: 'tabular-nums',
       }}
     >
-      {value.toLocaleString('en-GB')}
+      {value.toLocaleString('en-GB', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
       <span style={{ fontSize: size * 0.42, color: C.white }}>{suffix}</span>
     </div>
   );

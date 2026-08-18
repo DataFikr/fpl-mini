@@ -20,6 +20,8 @@ import { FR06TransferImpact, fr06Schema, fr06Duration } from './compositions/FR0
 import { FR06Cover } from './compositions/FR06Cover';
 import { FR16TwoTables, fr16Schema, fr16Duration } from './compositions/FR16TwoTables';
 import { FR16Cover } from './compositions/FR16Cover';
+import { FR17ValueDensity, fr17Schema, fr17Duration } from './compositions/FR17ValueDensity';
+import { FR17Cover } from './compositions/FR17Cover';
 import { V } from './theme';
 import { DEFAULT_MUSIC } from './audio';
 
@@ -189,5 +191,25 @@ export const RemotionRoot: React.FC = () => (
     />
 
     <Still id="FR16Cover" component={FR16Cover} width={V.width} height={V.height} />
+
+    {/* Unlike the other masters, FR-17's leads with cover frames. Beat 1 opens on a
+        counter rolling up from zero, so a bare frame 0 posters as
+        "0.0 · HIGHEST IN THE GAME" — illegible as a still, and it reads as a wrong
+        number. The shorts cut already led with the cover for the same reason. */}
+    <Composition
+      id="FR17ValueDensity"
+      component={FR17ValueDensity}
+      schema={fr17Schema}
+      defaultProps={{ variant: 'master' as const, music: DEFAULT_MUSIC, coverFrames: 20 }}
+      width={V.width}
+      height={V.height}
+      fps={V.fps}
+      durationInFrames={fr17Duration('master')}
+      calculateMetadata={({ props }) => ({
+        durationInFrames: fr17Duration(props.variant) + (props.coverFrames ?? 0),
+      })}
+    />
+
+    <Still id="FR17Cover" component={FR17Cover} width={V.width} height={V.height} />
   </>
 );

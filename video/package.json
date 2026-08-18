@@ -58,7 +58,13 @@
     "render:fr16:shorts": "remotion render FR16TwoTables out/fr-16-40s.mp4 --props=./props/fr16-shorts.json",
     "render:fr16:loop": "remotion render FR16TwoTables out/fr-16-loop.mp4 --props=./props/fr16-loop.json",
     "render:fr16:cover": "remotion still FR16Cover out/fr-16-cover.png",
-    "render:fr16:all": "npm run render:fr16 && npm run render:fr16:shorts && npm run render:fr16:loop && npm run render:fr16:cover"
+    "render:fr16:all": "npm run render:fr16 && npm run render:fr16:shorts && npm run render:fr16:loop && npm run render:fr16:cover",
+    "capture:fr17": "cd .. && npx tsx video/scripts/capture-fr17.mts",
+    "render:fr17": "remotion render FR17ValueDensity out/fr-17-60s.mp4",
+    "render:fr17:shorts": "remotion render FR17ValueDensity out/fr-17-40s.mp4 --props=./props/fr17-shorts.json",
+    "render:fr17:loop": "remotion render FR17ValueDensity out/fr-17-loop.mp4 --props=./props/fr17-loop.json",
+    "render:fr17:cover": "remotion still FR17Cover out/fr-17-cover.png",
+    "render:fr17:all": "npm run render:fr17 && npm run render:fr17:shorts && npm run render:fr17:loop && npm run render:fr17:cover"
   },
   "dependencies": {
     "@remotion/cli": "4.0.410",
