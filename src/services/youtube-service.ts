@@ -1,5 +1,6 @@
 import redis from '@/lib/redis';
 import { parseAtomFeed, selectShorts, type YouTubeVideo } from '@/lib/youtube-feed';
+import fallback from '@/data/youtube-fallback.json';
 
 /**
  * The FPL Ranker YouTube channel's recent Shorts, for the landing page band.
@@ -39,11 +40,15 @@ const STALE_TTL = 604800; // 7 days
  * is a coin flip that would blank the band for a whole TTL.
  *
  * Five attempts, not three: a measured run hit 404, 404, 500 before succeeding
- * on the fourth, so a 3-attempt policy still fails in practice. Five puts the
- * expected failure near 3%, and the 7-day stale key covers what's left.
- * Failures return in ~20ms rather than hanging, so the cost in the bad case is
- * the backoff (~2.6s worst case), not the timeout. This page is ISR-rendered at
- * most twice an hour, so that is a cheap trade for the band staying up.
+ * on the fourth, so a 3-attempt policy still fails in practice. Failures return
+ * in ~20ms rather than hanging, so the cost in the bad case is the backoff
+ * (~2.6s worst case), not the timeout.
+ *
+ * Retrying is not sufficient on its own, though. Those odds are measured from a
+ * residential IP; from Vercel's build infrastructure all five attempts return
+ * 404, which reads as datacenter egress being refused rather than transient
+ * failure. Retries cannot beat that, which is why `youtube-fallback.json` is
+ * committed and consulted last — see the snapshot note in getRecentShorts.
  */
 const FETCH_ATTEMPTS = 5;
 const ATTEMPT_TIMEOUT = 6000;
@@ -159,6 +164,17 @@ export class YouTubeService {
           console.warn('YouTube stale cache read failed:', staleError);
         }
       }
+    }
+
+    // Last resort: the committed snapshot. This is what actually keeps the band
+    // up, because the two paths above cannot help during static generation —
+    // the build has no warm cache (and with no REDIS_URL the cache is a
+    // per-process Map, so it is empty in every build worker), while the live
+    // feed refuses datacenter egress. Without this the band renders empty into
+    // the prerendered HTML and stays that way for a full revalidate window.
+    if (!all && fallback.channelId === this.channelId) {
+      console.warn(`YouTube: serving committed snapshot from ${fallback.capturedAt}`);
+      all = fallback.videos as YouTubeVideo[];
     }
 
     if (!all) return [];
