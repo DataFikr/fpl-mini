@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { isFreeLaunchWindow } from '@/lib/premium';
+import { TEAM_ID_COOKIE, TEAM_ID_MAX_AGE } from '@/lib/team-id';
 
 /**
  * Client-side account + saved-team helpers (workstream E1).
@@ -21,7 +22,11 @@ export function getLocalTeamId(): string | null {
 export function setLocalTeamId(id: string | number): void {
   if (typeof window === 'undefined') return;
   const v = String(id).trim();
-  if (/^\d{1,9}$/.test(v)) window.localStorage.setItem(TEAM_ID_KEY, v);
+  if (!/^\d{1,9}$/.test(v)) return;
+  window.localStorage.setItem(TEAM_ID_KEY, v);
+  // Mirrored into a cookie so server-rendered screens (squad, leagues) can load
+  // the right manager without a ?teamId= in the URL — see src/lib/team-id.ts.
+  document.cookie = `${TEAM_ID_COOKIE}=${v}; path=/; max-age=${TEAM_ID_MAX_AGE}; samesite=lax`;
 }
 
 /**

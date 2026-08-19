@@ -1,11 +1,13 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './Toast';
 import { AppMenu } from './AppMenu';
 import { AccountChip } from './AccountChip';
 import { DesktopSidebar } from './DesktopSidebar';
+import { getLocalTeamId, persistTeamId, setLocalTeamId } from '@/lib/use-account';
 
 interface AppShellProps {
   navActive?: string;
@@ -16,6 +18,12 @@ interface AppShellProps {
   meta?: string;
   /** Manager context carried across the squad/leagues nav tabs + shown in the sidebar footer. */
   teamId?: string | number;
+  /**
+   * Remember `teamId` as the visitor's team (cookie + localStorage) so it
+   * survives a hop through a screen that takes no team id, like Players.
+   * Pass false when the id turned out not to exist — see the squad screen.
+   */
+  rememberTeamId?: boolean;
   youName?: string;
   /** Optional header/topbar action(s) (e.g. a Share button). */
   actions?: React.ReactNode;
@@ -26,10 +34,29 @@ const TITLE_BY_NAV: Record<string, string> = {
   home: 'Home', squad: 'My Squad', leagues: 'Leagues', players: 'Players', blog: 'Blog', kits: 'Kitbag',
 };
 
-export function AppShell({ navActive, title, backHref, meta, teamId, youName, actions, children }: AppShellProps) {
+export function AppShell({ navActive, title, backHref, meta, teamId, rememberTeamId = true, youName, actions, children }: AppShellProps) {
   const router = useRouter();
   const pushed = title !== undefined;
   const heading = title ?? TITLE_BY_NAV[navActive ?? ''] ?? 'FPL Ranker';
+
+  // The id the nav tabs link to. Screens that take no team id (Players, Kitbag,
+  // Home, Blog) pass none, so without this the manager context would be dropped
+  // the moment you visited one — the nav would send you back to a blank squad.
+  const [navTeamId, setNavTeamId] = useState<string | number | undefined>(teamId);
+  useEffect(() => {
+    if (teamId != null && teamId !== '') {
+      if (rememberTeamId) {
+        // Sync a *changed* team up to the signed-in account too; an unchanged
+        // one only needs its cookie/localStorage entry refreshed.
+        if (String(teamId) !== getLocalTeamId()) persistTeamId(teamId);
+        else setLocalTeamId(teamId);
+      }
+      setNavTeamId(teamId);
+      return;
+    }
+    const stored = getLocalTeamId();
+    if (stored) setNavTeamId(stored);
+  }, [teamId, rememberTeamId]);
 
   const right = (
     <div className="ah-right">
@@ -41,7 +68,7 @@ export function AppShell({ navActive, title, backHref, meta, teamId, youName, ac
 
   return (
     <>
-      <DesktopSidebar active={navActive} teamId={teamId} youName={youName} />
+      <DesktopSidebar active={navActive} teamId={navTeamId} youName={youName} />
 
       <div className="app-main">
         {/* mobile header */}
@@ -76,7 +103,7 @@ export function AppShell({ navActive, title, backHref, meta, teamId, youName, ac
         <div className="app-scroll">{children}</div>
       </div>
 
-      <BottomNav active={navActive} teamId={teamId} />
+      <BottomNav active={navActive} teamId={navTeamId} />
       <ToastHost />
     </>
   );

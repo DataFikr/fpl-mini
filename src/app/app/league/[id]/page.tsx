@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getLeagueAppData } from '../../_lib/league-data';
 import { LeagueDetailClient } from '../../_components/LeagueDetailClient';
 import { FPLApiService } from '@/services/fpl-api';
+import { resolveTeamId } from '@/lib/team-id-server';
 
 interface PageProps {
   params: { id: string };
@@ -53,9 +54,12 @@ export default async function AppLeaguePage({ params, searchParams }: PageProps)
   const leagueId = parseInt(id);
   if (isNaN(leagueId)) notFound();
 
+  // Which row is "you" — from the link, or the team this visitor last loaded.
+  const focusTeamId = await resolveTeamId(teamId);
+
   let data;
   try {
-    data = await getLeagueAppData(leagueId, teamId ? parseInt(teamId) : undefined);
+    data = await getLeagueAppData(leagueId, focusTeamId);
   } catch (e) {
     console.error('Failed to load /app league data:', e);
     return (
