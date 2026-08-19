@@ -62,6 +62,41 @@ export interface RefreshResult {
   targetGw: number;
   count: number;
   seeded: boolean;
+  /** Where xPts came from: the model, or FPL's own ep_next before GW1. */
+  source: 'model' | 'ep_next';
+}
+
+/**
+ * Pre-season xPts, for the window between the season being created and the first
+ * gameweek being scored.
+ *
+ * With no finished gameweeks the model's rolling features (form, minutes, team
+ * strength) are all zero, so it predicts ~0 for everyone — a board where the top
+ * pick scores 2.0 and the rest sit under 1.0. Until real results exist, take
+ * FPL's own expected points for the upcoming gameweek (`ep_next`, built from
+ * last season's data and pre-season form) and scale it by live availability, and
+ * report xMins as that availability. The model takes over from the first refresh
+ * after GW1 is scored, when `history` is no longer empty.
+ */
+export function applyPreSeasonFallback(
+  preds: PredictionRow[], players: any[], availability: Map<number, number>,
+): PredictionRow[] {
+  const epById = new Map<number, number>();
+  for (const p of players) epById.set(p.id, parseFloat(p.ep_next ?? '0') || 0);
+
+  return preds
+    .map((row) => {
+      const avail = availability.get(row.playerFplId) ?? 1;
+      return {
+        ...row,
+        xPts: +((epById.get(row.playerFplId) ?? 0) * avail).toFixed(3),
+        xMins: +avail.toFixed(3),
+      };
+    })
+    // ep_next is coarse pre-season (whole/half points), so a plain xPts sort ties
+    // dozens of players and orders them arbitrarily. Break ties on price — FPL's
+    // own valuation — so the head of the board reads sensibly.
+    .sort((a, b) => b.xPts - a.xPts || b.price - a.price || a.playerFplId - b.playerFplId);
 }
 
 /**
@@ -114,9 +149,13 @@ export async function refreshPredictions(explicitGw?: number): Promise<RefreshRe
   }
 
   const availability = buildAvailability(players);
-  const preds: PredictionRow[] = predictGameweek({
+  let preds: PredictionRow[] = predictGameweek({
     targetGw, model, players: players as any, teams, fixtures: fixtures as any, history, availability,
   });
+
+  // No gameweek scored yet → the model has nothing to go on; use FPL's ep_next.
+  const source: 'model' | 'ep_next' = seeded ? 'ep_next' : 'model';
+  if (seeded) preds = applyPreSeasonFallback(preds, players, availability);
 
   // Persist predictions (replace this GW's rows) and a state snapshot.
   await prisma.playerPrediction.deleteMany({ where: { season: CURRENT_SEASON, gameweek: targetGw } });
@@ -136,12 +175,12 @@ export async function refreshPredictions(explicitGw?: number): Promise<RefreshRe
 
   await prisma.predictorState.upsert({
     where: { season_gameweek: { season: CURRENT_SEASON, gameweek: targetGw } },
-    update: { weights: model.snapshot() as any, metrics: { seeded, nHistory: history.size } as any },
+    update: { weights: model.snapshot() as any, metrics: { seeded, nHistory: history.size, source } as any },
     create: {
       season: CURRENT_SEASON, gameweek: targetGw,
-      weights: model.snapshot() as any, metrics: { seeded, nHistory: history.size } as any,
+      weights: model.snapshot() as any, metrics: { seeded, nHistory: history.size, source } as any,
     },
   });
 
-  return { season: CURRENT_SEASON, targetGw, count: preds.length, seeded };
+  return { season: CURRENT_SEASON, targetGw, count: preds.length, seeded, source };
 }

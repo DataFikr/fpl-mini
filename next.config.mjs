@@ -28,13 +28,11 @@ const nextConfig = {
     // Allow production builds to succeed despite TypeScript errors
     ignoreBuildErrors: true,
   },
-  // Off-season demo mode (FPL_DEMO_SEASON) reads 2025/26 snapshots from
-  // scripts/fpl-predictor/.cache at runtime via fs. Those dynamic reads aren't
-  // auto-traced, so bundle the cache into every serverless function. Remove
-  // once the live 2026/27 season is running and demo mode is turned off.
-  outputFileTracingIncludes: {
-    '/**': ['./scripts/fpl-predictor/.cache/**/*'],
-  },
+  // NOTE: demo mode (FPL_DEMO_SEASON) used to require bundling the 2025/26
+  // snapshot cache into every serverless function. Dropped 2026-08-18 — the live
+  // 2026/27 season is running, so nothing reads those files at runtime. Restore
+  // `outputFileTracingIncludes` for scripts/fpl-predictor/.cache if demo mode is
+  // ever deployed again.
   images: {
     domains: [
       'fantasy.premierleague.com',

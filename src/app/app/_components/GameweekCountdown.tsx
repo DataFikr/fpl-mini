@@ -8,8 +8,7 @@ import { useEffect, useState } from 'react';
  * The deadline is fetched from /api/gameweek/current (live FPL bootstrap) and
  * falls back to the published GW1 deadline if that call fails. Once the season
  * is under way the whole block disappears — it only speaks to the pre-season
- * gap, where the app has no live data to show and the demo league is the way
- * to understand what FPL Ranker does.
+ * gap, where no gameweek has been scored yet and there is nothing live to show.
  */
 
 /** Published GW1 2026/27 deadline. Only used if the API is unreachable. */
@@ -18,9 +17,9 @@ const GW1_FALLBACK = '2026-08-21T17:30:00Z';
 /**
  * True while the real 2026/27 season has not kicked off.
  *
- * Callers need this because `/api/gameweek/current` reports the *demo* season
- * (2025/26, GW20) whenever FPL_DEMO_SEASON is set — so the gameweek number
- * coming back from the API cannot be used to decide whether football is on.
+ * Callers need this because the API reports gameweek 1 as "current" from the
+ * moment the season is created — the gameweek number alone cannot tell you
+ * whether football has actually been played.
  */
 export const isBeforeGameweek1 = () => Date.now() < new Date(GW1_FALLBACK).getTime();
 
@@ -41,7 +40,7 @@ function remainingUntil(target: number): Remaining {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export function GameweekCountdown({ onTryDemo }: { onTryDemo?: () => void }) {
+export function GameweekCountdown() {
   const [deadline, setDeadline] = useState<number | null>(null);
   const [gwNumber, setGwNumber] = useState<number>(1);
   const [left, setLeft] = useState<Remaining | null>(null);
@@ -54,10 +53,8 @@ export function GameweekCountdown({ onTryDemo }: { onTryDemo?: () => void }) {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!alive) return;
-        // Only trust the API deadline if it is actually in the future. Under
-        // FPL_DEMO_SEASON the bootstrap serves 2025/26 snapshots whose deadlines
-        // are all in the past — without this check the demo data would suppress
-        // the countdown on the real site.
+        // Only trust the API deadline if it is actually in the future — a stale
+        // or past deadline from the API must not suppress the countdown.
         const fromApi = d?.nextDeadline ? new Date(d.nextDeadline).getTime() : NaN;
         if (Number.isFinite(fromApi) && fromApi > Date.now()) {
           setDeadline(fromApi);
@@ -110,12 +107,8 @@ export function GameweekCountdown({ onTryDemo }: { onTryDemo?: () => void }) {
       </div>
 
       <p className="gwc-note">
-        While GW{gwNumber} is loading, take a look at the{' '}
-        {onTryDemo
-          ? <a onClick={onTryDemo} role="button" tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTryDemo(); } }}>demo data</a>
-          : <span>demo data</span>}{' '}
-        to understand what FPL Ranker can do for your mini-league.
+        Enter your team ID now — your league&rsquo;s headlines, rank movers and
+        predictions go live the moment GW{gwNumber} is scored.
       </p>
     </div>
   );

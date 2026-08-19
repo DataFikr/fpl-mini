@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from './Toast';
-import { DEMO_TEAM } from '../_lib/screen-data';
-import { getLocalTeamId, persistTeamId } from '@/lib/use-account';
+import { getLocalTeamId } from '@/lib/use-account';
 import { isFreeLaunchWindow } from '@/lib/premium';
 import { GameweekCountdown, isBeforeGameweek1 } from './GameweekCountdown';
 import { AppMenu, type MenuLink } from './AppMenu';
@@ -64,7 +63,9 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
   const analyze = (id: string) => {
     const v = id.trim();
     if (!/^\d{1,9}$/.test(v)) { toast('Team IDs are numbers only'); return; }
-    if (v !== String(DEMO_TEAM)) persistTeamId(v);
+    // Deliberately not persisted here: the id is unverified at this point, and
+    // remembering a typo would follow the visitor around every screen. The app
+    // shell stores it once the squad screen has actually resolved the team.
     router.push(`/app/squad?teamId=${v}`);
   };
 
@@ -92,13 +93,13 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
       <section className="hero">
         <div className="wrap">
           <div>
-            {/* Pre-season, `gw` is the demo season's gameweek — claiming it is
-                "Live" would contradict the GW1 countdown directly below. */}
+            {/* Before GW1 the API's "current" gameweek is 1 with nothing played —
+                claiming it is "Live" would contradict the countdown directly below. */}
             <span className="live-kicker"><span className="dot" />
               {preSeason || !gw ? '2026/27 season · GW1 Aug 21' : `Gameweek ${gw} · Live`}
             </span>
             <h1><span>Track your mini-league</span><em>like it&rsquo;s matchday</em></h1>
-            <GameweekCountdown onTryDemo={() => analyze(String(DEMO_TEAM))} />
+            <GameweekCountdown />
             <p className="sub">ESPN-style headlines, live rank movers and AI point predictions for your FPL mini-league. Enter your team ID and get your league&rsquo;s story in seconds — no signup.</p>
             <form className="league-form" onSubmit={(e) => { e.preventDefault(); analyze(teamId); }} noValidate>
               <label className="id-field" aria-label="FPL manager ID">
@@ -111,7 +112,7 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
             {savedTeam && (
               <p className="form-hint">Welcome back — <a onClick={() => analyze(savedTeam)}>resume team {savedTeam} &rarr;</a></p>
             )}
-            <p className="form-hint">Not sure of your ID? <a onClick={() => router.push('/app/find-team-id')}>Find your team ID &rarr;</a> · try the demo <a onClick={() => analyze(String(DEMO_TEAM))}>{DEMO_TEAM}</a></p>
+            <p className="form-hint">Not sure of your ID? <a onClick={() => router.push('/app/find-team-id')}>Find your team ID &rarr;</a></p>
             <div className="trust">
               <b>Live FPL data</b>
               <b>AI predictions</b>

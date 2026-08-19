@@ -21,7 +21,9 @@ export async function GET() {
   const gw = latest.gameweek;
   const rows = await prisma.playerPrediction.findMany({
     where: { season: CURRENT_SEASON, gameweek: gw },
-    orderBy: { xPts: 'desc' },
+    // Ties are common pre-season, when xPts comes from FPL's coarse ep_next —
+    // break them on price so the free top-10 is stable between requests.
+    orderBy: [{ xPts: 'desc' }, { price: 'desc' }, { playerFplId: 'asc' }],
   });
 
   const user = await getSessionUser();
