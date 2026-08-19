@@ -21,6 +21,19 @@ export interface LeagueAppData {
   focusTeamId: number | null;
   managers: AppManager[];
   partial: boolean; // true when the league was larger than MAX_MANAGERS
+  /** No gameweek scored yet: the roster is real, every score is still zero. */
+  preSeason: boolean;
+}
+
+/** The subset of a standings row this module needs, so pre-season entries can stand in for one. */
+interface RosterRow {
+  entry: number;
+  entry_name: string;
+  player_name: string;
+  event_total: number;
+  total: number;
+  rank: number;
+  rank_sort: number;
 }
 
 function initialsOf(name: string): string {
@@ -43,7 +56,25 @@ export async function getLeagueAppData(
     fpl.getCurrentGameweek().catch(() => 1),
   ]);
 
-  const results = standings.standings.results || [];
+  // Until a gameweek has been scored, FPL returns an empty `standings.results`
+  // and lists every member under `new_entries` instead. Falling back to that
+  // roster is the difference between a real league page and a 404 all through
+  // pre-season.
+  const scored: RosterRow[] = (standings.standings.results || []) as unknown as RosterRow[];
+  const preSeason = scored.length === 0;
+  const newEntries: any[] = (standings as any).new_entries?.results || [];
+  const results: RosterRow[] = preSeason
+    ? newEntries.map((n) => ({
+        entry: n.entry,
+        entry_name: n.entry_name,
+        player_name: `${n.player_first_name ?? ''} ${n.player_last_name ?? ''}`.trim(),
+        event_total: 0,
+        total: 0,
+        rank: 0,
+        rank_sort: 0,
+      }))
+    : scored;
+
   const partial = results.length > MAX_MANAGERS;
   const slice = results.slice(0, MAX_MANAGERS);
 
@@ -83,5 +114,6 @@ export async function getLeagueAppData(
     focusTeamId: focusTeamId ?? (results[0]?.entry ?? null),
     managers,
     partial,
+    preSeason,
   };
 }

@@ -196,6 +196,13 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
       <div className="ld-meta">
         {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
       </div>
+      {/* Pre-season the roster is real but every score is zero, so any order on
+          the podium below is arbitrary — say so rather than imply a ranking. */}
+      {data.preSeason && (
+        <div className="ld-meta" style={{ color: 'var(--red)' }}>
+          GW{currentGameweek} has not been scored yet — the table fills in once the deadline passes.
+        </div>
+      )}
       <div className="s-tabs ld-tabs">
         {([['standings', 'Standings'], ['headlines', 'Headlines'], ['analytics', 'Analytics'], ['monthly', 'MOTM'], ['ambassador', 'Ambassador']] as [Tab, string][]).map(([id, label]) => (
           <a key={id} className={tab === id ? 'is-active' : ''} onClick={() => setTab(id)}>{label}</a>

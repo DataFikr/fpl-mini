@@ -248,12 +248,29 @@ export class TeamService {
         const leagueStandings = await this.fplApi.getLeagueStandings(leagueId, 1, true); // Force fresh data
         const currentGameweek = await this.fplApi.getCurrentGameweek();
         
+        // Pre-season (before any gameweek is scored) FPL leaves `standings.results`
+        // empty and lists the whole roster under `new_entries` instead. Without
+        // this the league reads as having no members at all.
+        const scoredRows = leagueStandings.standings.results || [];
+        const rows: any[] = scoredRows.length
+          ? scoredRows
+          : ((leagueStandings as any).new_entries?.results || []).map((n: any, i: number) => ({
+              entry: n.entry,
+              entry_name: n.entry_name,
+              player_name: `${n.player_first_name ?? ''} ${n.player_last_name ?? ''}`.trim(),
+              rank: i + 1,
+              rank_sort: i + 1,
+              last_rank: i + 1,
+              total: 0,
+              event_total: 0,
+            }));
+
         console.log('League standings fetched:', leagueStandings.league.name);
-        console.log('Number of teams:', leagueStandings.standings.results.length);
-        
+        console.log('Number of teams:', rows.length, scoredRows.length ? '' : '(pre-season roster)');
+
         // Fetch additional team data for each entry
         const teamsWithData = await Promise.all(
-          leagueStandings.standings.results.map(async (entry) => {
+          rows.map(async (entry) => {
             try {
               const teamData = await this.fplApi.getManagerEntry(entry.entry);
               return {
@@ -279,11 +296,11 @@ export class TeamService {
         );
         
         // Debug the raw data first
-        console.log('Raw FPL API data (first 5):', leagueStandings.standings.results.slice(0, 5).map(entry => 
+        console.log('Raw FPL API data (first 5):', rows.slice(0, 5).map(entry =>
           `${entry.rank_sort}. ${entry.entry_name} (rank: ${entry.rank}, rank_sort: ${entry.rank_sort})`
         ));
         
-        const sortedStandings = leagueStandings.standings.results
+        const sortedStandings = rows
           .map((entry) => {
             const teamData = teamsWithData.find(t => t.id === entry.entry);
             const managerData = teamData?.managerData;
