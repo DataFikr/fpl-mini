@@ -1,4 +1,4 @@
-import { FPLApiService } from '@/services/fpl-api';
+import { FPLApiService, isFplNotFound } from '@/services/fpl-api';
 import { getKitShirtUrl } from '@/lib/fpl-images';
 import { buildPrediction, type PredictionData } from './prediction';
 import { computeVerdict, type SquadVerdict } from './rmt-analyze';
@@ -36,18 +36,63 @@ export interface SquadData {
 
 const POS_KEY: Record<number, 'gk' | 'def' | 'mid' | 'fwd'> = { 1: 'gk', 2: 'def', 3: 'mid', 4: 'fwd' };
 
+/** No FPL manager has this ID — the user mistyped it (or it's from a past season). */
+export class TeamNotFoundError extends Error {
+  constructor(public readonly teamId: number) {
+    super(`No FPL team with ID ${teamId}`);
+    this.name = 'TeamNotFoundError';
+  }
+}
+
+/**
+ * The team exists, but its picks for this gameweek aren't published yet.
+ *
+ * This is not a failure: the FPL API 404s `entry/{id}/event/{gw}/picks/` for
+ * every manager until that gameweek's deadline passes — squads are private
+ * until then, and there is no other public endpoint that exposes them. Carries
+ * the deadline so the screen can tell the user exactly when the pitch appears.
+ */
+export class SquadNotAvailableError extends Error {
+  constructor(
+    public readonly teamId: number,
+    public readonly gw: number,
+    public readonly deadline?: string,
+  ) {
+    super(`Team ${teamId} has no published picks for GW${gw}`);
+    this.name = 'SquadNotAvailableError';
+  }
+}
+
+type Settled<T> = { ok: true; value: T } | { ok: false; error: unknown };
+const settle = <T>(p: Promise<T>): Promise<Settled<T>> =>
+  p.then((value) => ({ ok: true as const, value })).catch((error) => ({ ok: false as const, error }));
+
 export async function getSquadData(teamId: number, gw?: number): Promise<SquadData> {
   const fpl = new FPLApiService();
   const currentGameweek = await fpl.getCurrentGameweek().catch(() => 1);
   const targetGw = gw && gw >= 1 && gw <= currentGameweek ? gw : currentGameweek;
 
-  const [picks, bootstrap, live, entry, fixtures] = await Promise.all([
-    fpl.getManagerPicks(teamId, targetGw),
+  const [picksRes, bootstrap, live, entryRes, fixtures] = await Promise.all([
+    settle(fpl.getManagerPicks(teamId, targetGw)),
     fpl.getBootstrapData(),
     fpl.getLiveGameweekData(targetGw).catch(() => ({ elements: [] as any[] })),
-    fpl.getManagerEntry(teamId).catch(() => null as any),
+    settle(fpl.getManagerEntry(teamId)),
     fpl.getFixtures().catch(() => [] as any[]),
   ]);
+
+  // The entry endpoint is what decides whether the team exists at all. Picks can
+  // 404 for a perfectly valid team (before the deadline, or a gameweek it didn't
+  // play), so the two 404s mean very different things to the user.
+  if (!entryRes.ok && isFplNotFound(entryRes.error)) throw new TeamNotFoundError(teamId);
+  if (!picksRes.ok) {
+    if (isFplNotFound(picksRes.error)) {
+      const deadline = (bootstrap.events as any[]).find((e) => e.id === targetGw)?.deadline_time;
+      throw new SquadNotAvailableError(teamId, targetGw, deadline);
+    }
+    throw picksRes.error;
+  }
+  const picks = picksRes.value;
+  const entry = entryRes.ok ? entryRes.value : (null as any);
 
   // Lookups from bootstrap (cast for fields absent from the local TS types).
   const elementById = new Map<number, any>();

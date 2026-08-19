@@ -13,6 +13,9 @@ import { toast } from './Toast';
 
 type SqTab = 'team' | 'transfers' | 'impact' | 'prediction' | 'rival';
 
+/** Why there is no pitch to show — see `promptCopy`. */
+export type SquadNotice = 'not-found' | 'not-published' | 'error';
+
 /**
  * Contextual kit CTA on the squad page.
  *
@@ -173,9 +176,53 @@ function Shirt({ p, onOpen }: { p: PitchPlayer; onOpen: (p: PitchPlayer) => void
   );
 }
 
-function TeamIdPrompt() {
+/**
+ * Copy for the four states behind an empty pitch. They look identical to the
+ * page (no squad data) but mean different things: a mistyped ID is the user's to
+ * fix, a squad that isn't published yet is only a matter of waiting.
+ */
+function promptCopy(notice: SquadNotice | undefined, teamId?: number, when?: string | null) {
+  switch (notice) {
+    case 'not-found':
+      return {
+        kicker: 'Team not found',
+        heading: teamId ? `NO FPL TEAM WITH ID ${teamId}` : 'NO FPL TEAM WITH THAT ID',
+        body: 'That ID does not match any FPL manager this season. Team IDs change every season, so an old one will not work — check the number and try again.',
+      };
+    case 'not-published':
+      return {
+        kicker: 'Squad not published yet',
+        heading: 'SQUAD APPEARS AT THE DEADLINE',
+        body: `${teamId ? `Team ${teamId}` : 'That team'} is real — but FPL keeps every squad private until the gameweek deadline${when ? ` (${when})` : ''}, so no site can show your pitch before then. It loads here automatically once the deadline passes.`,
+      };
+    case 'error':
+      return {
+        kicker: 'Could not load this team',
+        heading: 'SOMETHING WENT WRONG',
+        body: 'The FPL API did not answer in time. Try again in a moment, or load a different team ID.',
+      };
+    default:
+      return {
+        kicker: 'Load your real pitch',
+        heading: 'ENTER YOUR FPL TEAM ID',
+        body: 'Your live starting XI, captain and gameweek points — straight from the FPL API.',
+      };
+  }
+}
+
+function TeamIdPrompt({ notice, teamId, deadline }: { notice?: SquadNotice; teamId?: number; deadline?: string }) {
   const router = useRouter();
   const [id, setId] = useState('');
+  // Resolved after mount: the deadline reads in the visitor's own timezone, and
+  // formatting it during render would mismatch the server-rendered string.
+  const [when, setWhen] = useState<string | null>(null);
+  useEffect(() => {
+    if (!deadline) { setWhen(null); return; }
+    setWhen(new Date(deadline).toLocaleString(undefined, {
+      weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    }));
+  }, [deadline]);
+  const copy = promptCopy(notice, teamId, when);
   const go = () => {
     const v = id.trim();
     if (!/^\d{1,9}$/.test(v)) { toast('Team IDs are numbers only'); return; }
@@ -183,10 +230,10 @@ function TeamIdPrompt() {
   };
   return (
     <div style={{ marginTop: 18, background: 'var(--ink)', color: '#fff', padding: '22px 18px', clipPath: 'polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)' }}>
-      <div className="lbl" style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Load your real pitch</div>
-      <h3 style={{ fontFamily: 'var(--display)', fontWeight: 400, fontSize: 23, margin: '5px 0 4px' }}>ENTER YOUR FPL TEAM ID</h3>
+      <div className="lbl" style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '.08em' }}>{copy.kicker}</div>
+      <h3 style={{ fontFamily: 'var(--display)', fontWeight: 400, fontSize: 23, margin: '5px 0 4px' }}>{copy.heading}</h3>
       <p style={{ fontFamily: 'var(--body)', fontSize: 12.5, color: '#cfc6c6', lineHeight: 1.5, margin: '0 0 14px' }}>
-        Your live starting XI, captain and gameweek points — straight from the FPL API.
+        {copy.body}
       </p>
       <form className="id-field" style={{ display: 'inline-flex' }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>
@@ -348,14 +395,19 @@ function TransferImpact({ teamId }: { teamId: number }) {
   );
 }
 
-export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: number }) {
+export function SquadScreen({ data, leagueId, teamId, notice, deadline }: {
+  data?: SquadData; leagueId?: number; teamId?: number; notice?: SquadNotice; deadline?: string;
+}) {
   const router = useRouter();
   const [tab, setTab] = useState<SqTab>('team');
   const [selected, setSelected] = useState<PitchPlayer | null>(null);
   const tabs: [SqTab, string][] = [['team', 'Squad'], ['transfers', 'Planner'], ['impact', 'Transfer Impact'], ['rival', 'Rival watch'], ['prediction', 'Prediction']];
+  const prompt = <TeamIdPrompt notice={notice} teamId={teamId} deadline={deadline} />;
 
   const sub = data
     ? `${data.team.name} · ${data.team.gwPoints} pts · GW${data.team.gw}`
+    : notice === 'not-found' ? `Team ${teamId} does not exist`
+    : notice === 'not-published' ? `Team ${teamId} · squad not published yet`
     : 'Enter a team ID to load your live pitch';
 
   const gws = data ? Array.from({ length: Math.max(data.currentGameweek, 1) }, (_, i) => i + 1) : [];
@@ -370,7 +422,7 @@ export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: n
       </div>
 
       {tab === 'team' && (
-        !data ? <TeamIdPrompt /> : (
+        !data ? prompt : (
           <>
             <div className="lbl-row" style={{ marginTop: 6, marginBottom: 8 }}>
               <span className="l">STARTING XI</span>
@@ -400,7 +452,7 @@ export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: n
               <div className="rating"><span className="tag tab-cut" style={{ paddingRight: 16, background: '#FF5050' }}>{data.verdict.tag.toUpperCase()}</span></div>
               <div className="rating" style={{ marginTop: 8 }}><span className="v">{data.verdict.score.toFixed(1)}</span><span className="o">/ 10</span></div>
               <p className="pr" style={{ marginTop: 10, marginBottom: 0, fontFamily: 'var(--mono)', fontSize: 10.5, color: '#cfc6c6', textTransform: 'uppercase', letterSpacing: '.05em' }}>
-                Full 2025/26 season · {data.verdict.seasonTotal} pts · {data.verdict.seasonPpg}/GW avg
+                Full 2026/27 season · {data.verdict.seasonTotal} pts · {data.verdict.seasonPpg}/GW avg
               </p>
               <p className="pr">{data.verdict.summary}</p>
             </div>
@@ -427,11 +479,11 @@ export function SquadScreen({ data, leagueId }: { data?: SquadData; leagueId?: n
 
       {tab === 'transfers' && data && <TransfersView data={data} />}
 
-      {tab === 'impact' && (data ? <TransferImpact teamId={data.team.id} /> : <TeamIdPrompt />)}
+      {tab === 'impact' && (data ? <TransferImpact teamId={data.team.id} /> : prompt)}
 
       {tab === 'rival' && (data
         ? <RivalWatch teamId={data.team.id} leagueId={leagueId} currentGameweek={data.currentGameweek} defaultGw={data.team.gw} />
-        : <TeamIdPrompt />)}
+        : prompt)}
 
       {tab === 'prediction' && <div style={{ marginTop: 6 }}><PredictionBlock data={data?.prediction} gw={data?.currentGameweek} /></div>}
 

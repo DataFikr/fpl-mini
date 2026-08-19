@@ -11,11 +11,21 @@ function MoveTag({ mv }: { mv: number }) {
   return <span className="mv flat">— 0</span>;
 }
 
-export function LeaguesScreen({ data }: { data?: LeaguesData }) {
+export function LeaguesScreen({ data, teamId: requestedId, notFound }: {
+  data?: LeaguesData; teamId?: number; notFound?: boolean;
+}) {
   const router = useRouter();
   const leagues = data?.leagues ?? [];
   const teamId = data?.manager.teamId;
   const mini = leagues.filter((l) => l.isCustom).length;
+
+  // Three ways to have no leagues to show, and only one of them is the user's
+  // to fix: a wrong ID, no ID at all, or a real team that has joined none.
+  const emptyMessage = notFound
+    ? `No FPL team has ID ${requestedId}. Team IDs are reissued each season — check the number and try again from the home screen.`
+    : requestedId === undefined
+      ? 'Enter your FPL team ID on the home screen to see the mini-leagues you are in.'
+      : 'This team has not joined any mini-leagues yet.';
 
   return (
     <>
@@ -27,7 +37,7 @@ export function LeaguesScreen({ data }: { data?: LeaguesData }) {
       </div>
 
       {leagues.length === 0 ? (
-        <p className="kit-intro">No leagues found for this team ID. Enter a valid FPL team ID on the home screen.</p>
+        <p className="kit-intro">{emptyMessage}</p>
       ) : leagues.map((l) => {
         const h2h = l.type === 'Head-to-head';
         return (

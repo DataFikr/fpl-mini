@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { FPLApiService } from '@/services/fpl-api';
+import { FPLApiService, isFplNotFound } from '@/services/fpl-api';
 import TeamPageClient from '@/components/team/team-page-client';
 
 interface TeamPageProps {
@@ -26,7 +26,14 @@ export async function generateMetadata({ params }: TeamPageProps) {
         title: `${teamName} - FPL Dashboard | FPLRanker`,
         description: `${teamName} managed by ${managerName}. View pitch, transfers, captain analysis, and post-match insights.`
       };
-    } catch {
+    } catch (error) {
+      if (isFplNotFound(error)) {
+        return {
+          title: 'Team not found | FPLRanker',
+          description: 'No Fantasy Premier League manager has this team ID.',
+          robots: { index: false, follow: false },
+        };
+      }
       return {
         title: `Team ${teamId} - FPL Dashboard | FPLRanker`,
         description: `Fantasy Premier League team ${teamId} dashboard with pitch view, transfer impact, and match analysis.`
@@ -40,10 +47,17 @@ export async function generateMetadata({ params }: TeamPageProps) {
   }
 }
 
+/**
+ * Basic header data for the team page.
+ *
+ * A 404 from the entry endpoint means the ID does not belong to any manager —
+ * that is rethrown so the page can render the not-found route rather than a
+ * placeholder "Team 12345 / FPL Manager" that reads like a real team. Slow or
+ * failing API calls still degrade to placeholders, because the team does exist.
+ */
 async function fetchBasicTeamData(teamId: number) {
+  const fplApi = new FPLApiService();
   try {
-    const fplApi = new FPLApiService();
-
     const [managerData, currentGameweek] = await Promise.all([
       Promise.race([
         fplApi.getManagerEntry(teamId),
@@ -59,29 +73,31 @@ async function fetchBasicTeamData(teamId: number) {
       currentGameweek,
     };
   } catch (error) {
+    if (isFplNotFound(error)) throw error;
     console.error(`Failed to fetch basic data for team ${teamId}:`, error);
     return {
       name: `Team ${teamId}`,
       managerName: 'FPL Manager',
       favouriteTeam: null,
-      currentGameweek: 6,
+      currentGameweek: await fplApi.getCurrentGameweek().catch(() => 1),
     };
   }
 }
 
 export default async function TeamPage({ params }: TeamPageProps) {
+  const resolvedParams = await params;
+  const teamId = parseInt(resolvedParams.id);
+
+  if (isNaN(teamId) || teamId < 1) {
+    notFound();
+  }
+
+  let initialData: Awaited<ReturnType<typeof fetchBasicTeamData>>;
   try {
-    const resolvedParams = await params;
-    const teamId = parseInt(resolvedParams.id);
-
-    if (isNaN(teamId)) {
-      notFound();
-    }
-
-    const initialData = await fetchBasicTeamData(teamId);
-
-    return <TeamPageClient teamId={teamId} initialData={initialData} />;
+    initialData = await fetchBasicTeamData(teamId);
   } catch (error) {
+    // No such manager → the team-not-found page (a real 404), not an error box.
+    if (isFplNotFound(error)) notFound();
     return (
       <div className="min-h-screen bg-gradient-to-br from-fpl-dark via-fpl-primary/5 to-fpl-dark flex items-center justify-center p-8">
         <div className="backdrop-blur-fpl bg-fpl-dark/40 rounded-fpl shadow-fpl p-8 max-w-lg text-center border border-red-500/20">
@@ -96,4 +112,6 @@ export default async function TeamPage({ params }: TeamPageProps) {
       </div>
     );
   }
+
+  return <TeamPageClient teamId={teamId} initialData={initialData} />;
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FPLApiService } from '@/services/fpl-api';
+import { FPLApiService, isFplNotFound } from '@/services/fpl-api';
 
 const fplApi = new FPLApiService();
 
@@ -242,6 +242,9 @@ export async function GET(
       },
     });
   } catch (error) {
+    if (isFplNotFound(error)) {
+      return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+    }
     console.error('Dashboard API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch dashboard data' },

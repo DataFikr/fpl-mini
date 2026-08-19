@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FPLApiService } from '@/services/fpl-api';
+import { FPLApiService, isFplNotFound } from '@/services/fpl-api';
 
 const fplApi = new FPLApiService();
 
@@ -94,6 +94,9 @@ export async function GET(
       leagueLeaderboards: leagueLeaderboards.filter((l: any) => l.months.length > 0),
     });
   } catch (error) {
+    if (isFplNotFound(error)) {
+      return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+    }
     console.error('Leaderboard API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch leaderboard data' },

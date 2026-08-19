@@ -9,6 +9,21 @@ import {
 import redis from '@/lib/redis';
 import { isDemoMode, resolveDemo } from '@/lib/demo/fpl-demo';
 
+/**
+ * The FPL API answered 404 — the manager/league/entry genuinely does not exist.
+ *
+ * Distinct from a network or 5xx failure: callers must not paper over this with
+ * placeholder data, because a wrong team ID would then render as a real team.
+ */
+export class FplNotFoundError extends Error {
+  constructor(public readonly url: string) {
+    super(`FPL API 404: ${url}`);
+    this.name = 'FplNotFoundError';
+  }
+}
+
+export const isFplNotFound = (e: unknown): e is FplNotFoundError => e instanceof FplNotFoundError;
+
 export class FPLApiService {
   private readonly baseUrl: string;
 
@@ -37,6 +52,7 @@ export class FPLApiService {
         }
       });
 
+      if (response.status === 404) throw new FplNotFoundError(url);
       if (!response.ok) {
         throw new Error(`FPL API error: ${response.status} ${response.statusText}`);
       }
@@ -59,6 +75,7 @@ export class FPLApiService {
       }
     });
 
+    if (response.status === 404) throw new FplNotFoundError(url);
     if (!response.ok) {
       throw new Error(`FPL API error: ${response.status} ${response.statusText}`);
     }
@@ -103,38 +120,9 @@ export class FPLApiService {
     );
   }
 
-  async getManagerHistory(managerId: number): Promise<FPLManagerHistory> {
-    try {
-      return await this.fetchWithCache(
-        `${this.baseUrl}/entry/${managerId}/history/`,
-        `fpl:manager:${managerId}:history`,
-        3600 // 1 hour
-      );
-    } catch (error) {
-      console.warn('Could not fetch real manager history, using mock data:', error);
-      
-      // Fallback to mock data
-      const mockHistory: FPLManagerHistory = {
-        current: Array.from({ length: 6 }, (_, i) => ({
-          event: i + 1,
-          points: 50 + Math.floor(Math.random() * 40), // 50-90 points per GW
-          total_points: (i + 1) * 65 + Math.floor(Math.random() * 200),
-          rank: Math.floor(Math.random() * 1000) + 100,
-          rank_sort: Math.floor(Math.random() * 1000) + 100,
-          overall_rank: Math.floor(Math.random() * 100000) + 10000,
-          bank: Math.floor(Math.random() * 15) + 1,
-          value: 1000 + Math.floor(Math.random() * 50),
-          event_transfers: Math.floor(Math.random() * 3),
-          event_transfers_cost: Math.floor(Math.random() * 2) * 4,
-          points_on_bench: Math.floor(Math.random() * 15)
-        })),
-        past: [],
-        chips: []
-      };
-
-      return mockHistory;
-    }
-  }
+  // NOTE: `getManagerHistory` lives further down (it was declared twice; the
+  // later definition — which returns an empty season on failure rather than
+  // randomised mock gameweeks — is the one JS actually used).
 
   async getManagerPicks(managerId: number, gameweek: number): Promise<FPLManagerPicks> {
     return this.fetchWithCache(
@@ -152,59 +140,20 @@ export class FPLApiService {
     );
   }
 
+  /**
+   * A manager's entry — the authoritative "does this team ID exist?" check.
+   *
+   * Deliberately has no fallback: a 404 throws `FplNotFoundError` so callers can
+   * render a team-not-found path, and any other failure propagates as an error.
+   * (It used to fall back to a hardcoded roster, which meant a wrong ID rendered
+   * as a real-looking team.)
+   */
   async getManagerEntry(managerId: number): Promise<FPLManagerEntry> {
-    console.log(`Fetching live data for manager ${managerId} from FPL API`);
-
-    try {
-      // Always use live FPL API data with shorter cache time
-      const apiResponse = await this.fetchWithCache(
-        `${this.baseUrl}/entry/${managerId}/`,
-        `fpl:manager:${managerId}:live`,
-        900 // 15 minutes cache for live data
-      );
-
-      console.log(`Successfully fetched live data for manager ${managerId}:`, {
-        name: apiResponse.name || `${apiResponse.player_first_name} ${apiResponse.player_last_name}`,
-        points: apiResponse.summary_overall_points,
-        rank: apiResponse.summary_overall_rank
-      });
-
-      return apiResponse;
-
-    } catch (error) {
-      console.warn(`Failed to fetch manager ${managerId} from FPL API:`, error);
-
-      // Try to use mock data as fallback only if API completely fails
-      try {
-        const mockManagerData = await this.findTeamByName('');
-        const manager = mockManagerData.find(m => m.id === managerId);
-
-        if (manager) {
-          console.log(`Using mock data fallback for manager ${managerId}:`, manager.name);
-          return manager;
-        }
-      } catch (mockError) {
-        console.warn('Mock data fallback also failed:', mockError);
-      }
-
-      // Final fallback - create basic manager structure
-      console.log(`Creating default structure for manager ${managerId}`);
-      return {
-        id: managerId,
-        name: `Team ${managerId}`,
-        player_first_name: 'FPL',
-        player_last_name: 'Manager',
-        summary_overall_points: 0,
-        summary_overall_rank: 1000000,
-        started_event: 1,
-        joined_time: new Date().toISOString(),
-        player_region_name: null,
-        player_region_iso_code_short: null,
-        player_region_iso_code_long: null,
-        favourite_team: null,
-        kit: 'home'
-      };
-    }
+    return this.fetchWithCache(
+      `${this.baseUrl}/entry/${managerId}/`,
+      `fpl:manager:${managerId}:live`,
+      900 // 15 minutes cache for live data
+    );
   }
 
   async findTeamByName(teamName: string): Promise<FPLManagerEntry[]> {
@@ -511,6 +460,9 @@ export class FPLApiService {
       return response;
 
     } catch (error) {
+      // A 404 means the manager does not exist — callers render a not-found
+      // path rather than an empty (but real-looking) league list.
+      if (isFplNotFound(error)) throw error;
       console.warn(`Failed to fetch leagues for manager ${managerId}:`, error);
       // Return empty leagues structure when API fails
       return {
