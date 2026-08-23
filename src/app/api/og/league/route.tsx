@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { FPLApiService } from '@/services/fpl-api';
 import { pickHeadlineImages, absoluteHeadlineUrl, resolveStoryTone } from '@/lib/headline-images';
+import { SEASON_LABEL, seasonLabelFromEvents, nextSeasonLabel } from '@/lib/season';
 
 export const runtime = 'nodejs'; // FPL service uses node fetch / redis
 
@@ -39,16 +40,24 @@ export async function GET(request: NextRequest) {
   const teamId = parseInt(searchParams.get('teamId') || '');
 
   let leagueName = 'Mini-League';
-  let gw = 38;
+  // GW1, not GW38: this card is rendered live and shared into group chats, so a
+  // failed lookup should degrade to the start of a season rather than claim the
+  // season is over.
+  let gw = 1;
+  let season = SEASON_LABEL;
   let rows: { entry: number; team: string; mgr: string; rank: number; total: number; move: number }[] = [];
 
   try {
     const fpl = new FPLApiService();
-    const [standings, currentGw] = await Promise.all([
+    const [standings, currentGw, bootstrap] = await Promise.all([
       fpl.getLeagueStandings(id),
-      fpl.getCurrentGameweek().catch(() => 38),
+      fpl.getCurrentGameweek().catch(() => 1),
+      // Already cached — getCurrentGameweek reads the same payload — and it is
+      // what tells the card which season it is rendering.
+      fpl.getBootstrapData().catch(() => null),
     ]);
     gw = currentGw;
+    season = seasonLabelFromEvents(bootstrap?.events);
     leagueName = standings.league?.name || leagueName;
     rows = (standings.standings?.results || []).map((r: any) => ({
       entry: r.entry,
@@ -87,7 +96,7 @@ export async function GET(request: NextRequest) {
     ? gap <= 5 && second
       ? `GW${nextGw}: just ${gap} pts splits the top two — the title is wide open`
       : `GW${nextGw}: ${leader ? leader.team : 'the leaders'} ${gap} pts clear — can anyone reel them in?`
-    : `Season done — ${leader ? leader.team : 'your champion'} takes the crown. Who dethrones them in 2026/27?`;
+    : `Season done — ${leader ? leader.team : 'your champion'} takes the crown. Who dethrones them in ${nextSeasonLabel(season)}?`;
 
   // ---- 5 top storylines pulled from the headlines engine (3 positive, 2 negative, with pictures) ----
   const origin = new URL(request.url).origin;
@@ -148,7 +157,7 @@ export async function GET(request: NextRequest) {
             <div style={{ width: '36px', height: '36px', background: RED, display: 'flex', clipPath: 'polygon(48% 0,100% 0,52% 42%,100% 42%,20% 100%,42% 52%,0 52%)' }} />
             <div style={{ fontFamily: dFont, fontSize: '34px', letterSpacing: '2px' }}>FPL RANKER</div>
           </div>
-          <div style={{ display: 'flex', fontFamily: dFont, fontSize: '26px', letterSpacing: '2px', background: 'rgba(255,255,255,0.1)', padding: '8px 18px' }}>GW{gw} · 2025/26</div>
+          <div style={{ display: 'flex', fontFamily: dFont, fontSize: '26px', letterSpacing: '2px', background: 'rgba(255,255,255,0.1)', padding: '8px 18px' }}>GW{gw} · {season}</div>
         </div>
 
         {/* league name */}

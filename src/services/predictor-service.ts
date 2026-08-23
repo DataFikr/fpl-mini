@@ -9,8 +9,12 @@ import {
   type HistoryByGw, type PlayerGwStats, type PredictionRow,
 } from '@/lib/predictor';
 
-/** Season key for stored rows. Bump when the FPL API rolls to a new season. */
-export const CURRENT_SEASON = process.env.FPL_SEASON || '2026-27';
+/**
+ * Season key for stored rows. Re-exported from `@/lib/season` so the label the
+ * UI renders and the key the rows are written under can never disagree.
+ */
+export { SEASON_ID as CURRENT_SEASON } from '@/lib/season';
+import { SEASON_ID as CURRENT_SEASON } from '@/lib/season';
 
 /** Map a raw FPL live element to the engine's stats shape (defensive parsing). */
 function toStats(el: any): PlayerGwStats {

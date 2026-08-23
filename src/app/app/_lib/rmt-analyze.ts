@@ -13,6 +13,7 @@
  */
 
 import type { PredictionData } from './prediction';
+import { seasonLabelFromEvents } from '@/lib/season';
 
 export interface RmtInsight { k: 'good' | 'warn' | 'bad'; n: string; d: string }
 
@@ -69,16 +70,6 @@ function tagFor(score: number) {
   if (score >= 5) return 'Top-half team';
   if (score >= 3.5) return 'Work to do';
   return 'Rebuild needed';
-}
-
-/**
- * The season label ("2026/27") taken from GW1's deadline. The bootstrap feed
- * carries no season field, and a hardcoded one is guaranteed to go stale in July.
- */
-function seasonLabel(events: any[]): string {
-  const gw1 = events?.find((e) => e.id === 1) ?? events?.[0];
-  const year = gw1?.deadline_time ? new Date(gw1.deadline_time).getFullYear() : new Date().getFullYear();
-  return `${year}/${String(year + 1).slice(2)}`;
 }
 
 /** Status codes the FPL feed uses for a player who will not feature. */
@@ -141,7 +132,7 @@ export function computeVerdict(
   prediction: PredictionData,
   ctx: VerdictContext
 ): SquadVerdict {
-  const season = seasonLabel(ctx.events);
+  const season = seasonLabelFromEvents(ctx.events);
   // Gameweeks whose deadline has passed — the sample the season aggregates are
   // drawn from. Distinct from `completedGws`, which excludes a live one.
   const now = Date.now();
