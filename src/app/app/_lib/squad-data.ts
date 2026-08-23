@@ -137,10 +137,13 @@ export async function getSquadData(teamId: number, gw?: number): Promise<SquadDa
   const eh = picks.entry_history || ({} as any);
   const managerName = entry ? (entry.name ? `${entry.player_first_name ?? ''} ${entry.player_last_name ?? ''}`.trim() : '') : '';
 
-  // Token-free "Rank My Team" verdict from the resolved starting XI (full-season data).
+  // Token-free "Rank My Team" verdict from the resolved starting XI.
   const prediction = buildPrediction({ picks, bootstrap, fixtures, entry, currentGameweek });
   const starterEls = allPicks.filter((p: any) => p.position <= 11).map((p: any) => elementById.get(p.element)).filter(Boolean);
-  const verdict = computeVerdict(starterEls, prediction);
+  // The verdict reads the season stage off the same feeds the pitch used, so it
+  // can weigh an injury flag and an unplayed fixture rather than assuming the
+  // gameweek is settled.
+  const verdict = computeVerdict(starterEls, prediction, { gw: targetGw, events: bootstrap.events as any[], fixtures });
 
   return {
     team: {

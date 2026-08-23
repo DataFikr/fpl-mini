@@ -446,13 +446,13 @@ export function SquadScreen({ data, leagueId, teamId, notice, deadline }: {
             </div>
 
             <div className="scr-head" style={{ marginTop: 22, marginBottom: 10 }}>
-              <div><div className="scr-title" style={{ fontSize: 26 }}>RANK MY TEAM</div><div className="scr-sub">FPL Ranker verdict · GW{data.team.gw}</div></div>
+              <div><div className="scr-title" style={{ fontSize: 26 }}>RANK MY TEAM</div><div className="scr-sub">FPL Ranker verdict · GW{data.team.gw}{data.verdict.earlySeason ? ' · provisional' : ''}</div></div>
             </div>
             <div className="rmt-verdict">
               <div className="rating"><span className="tag tab-cut" style={{ paddingRight: 16, background: '#FF5050' }}>{data.verdict.tag.toUpperCase()}</span></div>
               <div className="rating" style={{ marginTop: 8 }}><span className="v">{data.verdict.score.toFixed(1)}</span><span className="o">/ 10</span></div>
               <p className="pr" style={{ marginTop: 10, marginBottom: 0, fontFamily: 'var(--mono)', fontSize: 10.5, color: '#cfc6c6', textTransform: 'uppercase', letterSpacing: '.05em' }}>
-                Full 2026/27 season · {data.verdict.seasonTotal} pts · {data.verdict.seasonPpg}/GW avg
+                {data.verdict.scopeLabel}
               </p>
               <p className="pr">{data.verdict.summary}</p>
             </div>
