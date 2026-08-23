@@ -26,8 +26,10 @@ export async function GET(request: NextRequest) {
   const user = await getOrCreateUser(email);
   const { raw, expiresAt } = await createSession(user.id);
 
-  // Only honour a same-site relative destination.
-  const dest = /^\/(?!\/)/.test(next) ? next : '/app';
+  // Only honour a same-site relative destination. The default is the hub rather
+  // than the marketing page: someone who just signed in has an account (and
+  // usually a saved team id), so /app/home is where their own data lives.
+  const dest = /^\/(?!\/)/.test(next) ? next : '/app/home';
   const res = NextResponse.redirect(new URL(dest, request.url));
   res.cookies.set(SESSION_COOKIE, raw, sessionCookieOptions(expiresAt));
   return res;

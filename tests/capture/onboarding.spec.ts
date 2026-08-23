@@ -6,8 +6,11 @@ import { writeFileSync, mkdirSync } from 'node:fs';
  *
  * The brief asserts "ten seconds, no password". This test exists to find out
  * whether that is true rather than assert it: it stopwatches from the moment
- * "Rank my league" is clicked to the moment the squad view is actually usable,
- * and writes the number where the composition can read it.
+ * "Rank my league" is clicked to the moment the hub is actually usable, and
+ * writes the number where the composition can read it.
+ *
+ * The landing form lands on /app/home (not /app/squad) — Home is the screen a
+ * team ID now resolves to, so that is the load this measures.
  *
  * If the measured time is materially worse than the claim, the video says the
  * measured number — or the product gets fixed first. It must never say ten
@@ -48,10 +51,10 @@ test('onboarding: team ID to squad view', async ({ page }) => {
   const t0 = Date.now();
   await submit.click();
 
-  // "Usable" = the squad screen's tab row has rendered, which is the first
-  // moment the visitor can actually do something.
-  await expect(page).toHaveURL(/\/app\/squad/, { timeout: 60_000 });
-  await expect(page.getByText('Transfer Impact', { exact: false }).first()).toBeVisible({
+  // "Usable" = the hub's tool grid has rendered, which is the first moment the
+  // visitor can actually do something with their own team.
+  await expect(page).toHaveURL(/\/app\/home/, { timeout: 60_000 });
+  await expect(page.getByText('JUMP BACK IN', { exact: false }).first()).toBeVisible({
     timeout: 60_000,
   });
   const loadMs = Date.now() - t0;
@@ -65,7 +68,7 @@ test('onboarding: team ID to squad view', async ({ page }) => {
     typeMs,
     loadMs,
     totalMs: typeMs + loadMs,
-    note: 'loadMs = click "Rank my league" -> squad tabs visible. Local dev server, demo season.',
+    note: 'loadMs = click "Rank my league" -> home hub visible. Local dev server, live season.',
   };
 
   mkdirSync('video/src/data', { recursive: true });

@@ -65,8 +65,8 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
     if (!/^\d{1,9}$/.test(v)) { toast('Team IDs are numbers only'); return; }
     // Deliberately not persisted here: the id is unverified at this point, and
     // remembering a typo would follow the visitor around every screen. The app
-    // shell stores it once the squad screen has actually resolved the team.
-    router.push(`/app/squad?teamId=${v}`);
+    // shell stores it once Home has actually resolved the team.
+    router.push(`/app/home?teamId=${v}`);
   };
 
   return (

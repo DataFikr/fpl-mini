@@ -3,10 +3,12 @@
    (Landing + League detail) is live-wired; these screens are presentational
    demos in the new theme and can be wired to FPL data later. */
 
-export const DEMO_LEAGUE = '150789';
-// Default team shown on My Squad so the pitch loads immediately (no ID prompt),
-// matching the handoff design. Overridden by ?teamId= (e.g. tapping a manager).
-export const DEMO_TEAM = 6454003;
+/* DEMO_LEAGUE (150789) and DEMO_TEAM lived here and were removed on 2026-08-22.
+   Home linked its hero tile straight at DEMO_LEAGUE, so every visitor's "your
+   top league" was one hardcoded stranger's mini-league. Home now resolves the
+   visitor's own team id — see _lib/home-data.ts. Nothing should reintroduce a
+   default team: an empty state that asks for an ID beats a real-looking screen
+   belonging to someone else. */
 
 export interface Player { n: string; p: number; kit?: string; c?: boolean }
 export const SQUAD: { gk: Player[]; def: Player[]; mid: Player[]; fwd: Player[]; bench: Player[] } = {

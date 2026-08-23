@@ -32,8 +32,10 @@ export const NAV: NavItem[] = [
   { id: 'blog', label: 'Blog', icon: ICONS.blog, href: '/app/blog', sidebarOnly: true },
 ];
 
-/** Carry the manager context (teamId) across the squad/leagues tabs. */
+/** Tabs that render one specific manager's data and so must carry the team id. */
+const TEAM_SCOPED = new Set(['home', 'squad', 'leagues']);
+
+/** Carry the manager context (teamId) across the team-scoped tabs. */
 export function navHref(n: NavItem, teamId?: string | number) {
-  const carry = teamId && (n.id === 'squad' || n.id === 'leagues') ? `?teamId=${teamId}` : '';
-  return n.href + carry;
+  return n.href + (teamId && TEAM_SCOPED.has(n.id) ? `?teamId=${teamId}` : '');
 }
