@@ -14,6 +14,16 @@
 export interface BlogSection {
   heading: string;
   body: string[];
+  /**
+   * Optional screenshot under /public/images/blog/*, rendered after the prose.
+   * A how-to that describes a button is worth much less than one that shows it,
+   * so posts about the app itself carry a shot of the screen they describe.
+   */
+  image?: string;
+  /** Describes the screenshot for readers who cannot see it. Set it whenever `image` is set. */
+  imageAlt?: string;
+  /** Short caption rendered under the shot. */
+  imageCaption?: string;
 }
 
 /** A question/answer pair — rendered as a visible accordion AND FAQPage schema. */
@@ -848,13 +858,20 @@ export const BLOG_POSTS: BlogPost[] = [
           'Each ID links straight to that manager\'s official Fantasy squad page, and Export CSV downloads the whole roster — rank, team, manager, team ID, total points, gameweek points, the official FPL link and an FPL Ranker link for each manager. Copy list puts the same roster on your clipboard for a group chat.',
           'It is sign-in gated on purpose. A roster of manager names and IDs should not be bulk-scrapeable by anyone who happens to know a league code, so exporting is tied to a real account.',
         ],
+        image: '/images/blog/ambassador_teamId.png',
+        imageAlt: 'The Ambassador tab on FPL Ranker, listing every manager in a mini-league alongside their FPL team ID, with the Export CSV button below',
+        imageCaption: '1. Open the Ambassador tab on your league. 2. Export CSV pulls every team ID into one file. (IDs are blurred in this screenshot; yours show in full.)',
       },
       {
         heading: 'What to do with the list',
         body: [
           'The common use is comparison. With every ID in one place you can pull up any rival\'s squad, see their captain, and check their transfers without hunting through the official table each week.',
+          'The export opens straight in Google Sheets, Excel or Numbers. Every row is one manager — rank, team name, manager name, FPL team ID, total points, gameweek points, a link to their official Fantasy squad and a link to their FPL Ranker page — so you can sort it, filter it, or paste a single column into whatever tool you use next.',
           'The other use is the one the tab is named after. Share the CSV in your league chat so everyone can paste their own ID into a tool and see their season — rank movement, gameweek headlines, and where they actually gained and lost ground. A mini-league is more fun when everyone can see the story, not just the table.',
         ],
+        image: '/images/blog/ambassador_googlesheet.png',
+        imageAlt: 'The exported mini-league CSV open in Google Sheets, with columns for rank, team name, manager, FPL team ID, total points, gameweek points and links',
+        imageCaption: 'The same export opened in Google Sheets — one row per manager, ready to sort, filter or share.',
       },
     ],
     faq: [

@@ -65,6 +65,13 @@ export function AppArticle({ slug }: { slug: string }) {
           <section key={i}>
             <h3>{s.heading}</h3>
             {s.body.map((para, j) => <p key={j}>{para}</p>)}
+            {s.image && (
+              <figure className="art-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={s.image} alt={s.imageAlt || s.heading} loading="lazy" />
+                {s.imageCaption && <figcaption>{s.imageCaption}</figcaption>}
+              </figure>
+            )}
           </section>
         ))}
       </div>
