@@ -659,6 +659,173 @@ and the price/ownership pair moves every night.
 
 ---
 
+## Talking-head trio (FR-18…FR-20) — evergreen, presenter-led
+
+> **Written 2026-08-27** in response to a brief for evergreen talking-head shorts. **None are
+> built** — these are specs, not renders.
+>
+> **The format tension, stated up front.** `viral-playbook.md` §2.5 identifies the wedge as
+> mini-league *data drama*, precisely because the established FPL short-form field is already
+> talking-head opinion. Three 2026 findings sharpen that into a build rule rather than a veto:
+>
+> 1. Replacing a **talking-head opening** with visual content is one of the five edits that most
+>    reliably lifts average view duration — pure face-first intros underperform in 2026.
+> 2. **Screen recordings outperform face-cam alone** for anything operational or tactical.
+> 3. But a **webcam overlay on a screen recording lifts engagement 30–40% over screen-only**, and
+>    Loom's internal data shows a face bubble raises completion.
+>
+> **Therefore the house talking-head rule: the face never owns the first two seconds.** Frames
+> 0–2s are a number, a verdict chip or a UI moment at full bleed. The presenter enters at ~2s as a
+> corner bubble (or a cut-in) and carries the voice from there. This is what makes these three
+> "talking-head" rather than "opinion" videos — the face supplies trust and the screen supplies the
+> receipts. It also satisfies the retention bar these were briefed against ("beyond 2 seconds").
+>
+> **Presenter must be a real person.** A synthetic presenter saying it uses FPLRanker is a
+> fabricated testimonial (SKILL.md hard constraints; UK ASA / FTC endorsement rules). AI b-roll
+> with no claimed identity is still fine and still needs the platform's AI label.
+>
+> **Evergreen means no perishable pegs**: no gameweek-specific standings in the hook, no World Cup
+> fatigue (FR-08's peg decays through Sep 2026), and the free-until-GW5 window
+> (`NEXT_PUBLIC_PREMIUM_FREE_UNTIL`, default **2026-09-22**) may not be the hook — it is a closing
+> line that must be swapped for the price after that date.
+>
+> ⚠️ **Correction carried into these briefs.** SKILL.md's quality gate still says to cite the
+> predictor as "MAE 1.84 vs 1.95". Those figures are wrong and were already caught during the FR-07
+> build (`video/src/predictor.ts`, `FR07Predictions.tsx`). The real v2 backtest summary, from
+> `video/src/data/fr07-backtest.json`, is: **MAE 1.0015 · frozen MAE 1.268 · played MAE 1.9971 ·
+> capture 83.31% · captain avg 5.66 · H1 1.0399 → H2 0.9631 · Spearman 0.3466 · 38 GWs, engine
+> v2-ridge.** FR-20 uses those. SKILL.md line 134 should be corrected.
+
+**Shared talking-head spec** (in addition to the sheet at the top of this file)
+
+| Field | Value |
+|---|---|
+| Frames 0–2s | Full-bleed number / verdict chip / UI moment. **No face, no logo, no greeting.** |
+| Presenter | Real person, corner bubble ~360px from ~2s, or cut-in on the turn |
+| Pattern interrupt | Every 10–15s — a cut to full-bleed UI, a chip flip, or a counter |
+| Captions | Word-synchronised burned captions (measurably lifts watch-through when audio drops) |
+| Cuts | 60s TikTok master · 40s Shorts cut · 10s loop |
+| B-roll | Playwright at 390×844 on a real demo league. No player/manager photos, no broadcast footage |
+
+---
+
+## FR-18 — "Five ways people lose their mini-league in August"
+**Feature:** Master the League · `/app/master-the-league` (headline tags used as visual evidence)
+**Source:** `src/app/app/master-the-league/page.tsx`, `src/app/api/leagues/[id]/headlines/route.ts`
+**Hook family:** recognised pain · **Publish:** any time — fully evergreen
+**Status:** brief only, not built
+
+**Why this one travels.** The ranked "mistakes to avoid" listicle is the single most-saved and
+most-shared educational format in the fantasy-sport niche, and 2026 evergreen research is explicit
+that short-form stays evergreen when it answers a durable question. Five items give five natural
+micro-payoffs at ~11s each, which satisfies the pattern-interrupt-every-10–15s rule without any
+contrivance. Saves and shares now outweigh likes as ranking signals, and this format is optimised
+for exactly those two.
+
+**Cover:** Ink background, gold `5` at full bleed, overlay **"FIVE WAYS TO LOSE YOUR LEAGUE"**.
+
+| t | Visual | Burned caption | VO |
+|---|---|---|---|
+| 0–3 | Full-bleed `5` counter, no face. A red `BOTTLE JOB` chip snaps in under it | **FIVE WAYS TO LOSE IT.** | "Five ways people lose their mini-league before September. I've done four." |
+| 3–14 | Presenter bubble enters bottom-right. Cut to the pitch view, bench points highlighted | 1 · YOU BENCH THE HAUL. | "One. You bench the haul. The table doesn't care that you owned him." |
+| 14–25 | `CLONE WARS` chip over two near-identical squads side by side | 2 · YOU COPY THE TEMPLATE. | "Two. You copy the template. Now you can't gain on anyone who did the same." |
+| 25–36 | `PANIC MERCHANT` chip; a transfer being made, then reversed | 3 · YOU PANIC AFTER ONE WEEK. | "Three. You take a hit to fix one bad week. That's four points to correct variance." |
+| 36–47 | `CAPTAIN CALAMITY` chip; effective-ownership row | 4 · YOU CAPTAIN THE FIELD. | "Four. You captain what everyone captains — safe, but it can't move you." |
+| 47–55 | Analytics position chart, sawtooth visible | 5 · YOU ONLY READ THE TABLE. | "Five. You only read the table. It remembers one number and forgets the season." |
+| 55–60 | End card | FPLRANKER.COM | "All five are on Master the League. Free." |
+
+**Retention devices:** the numbered counter is its own progress bar — viewers stay to see 5.
+Each chip is a colour change, so the interrupt is built into the structure.
+**Loop:** last frame returns to the gold `5`.
+**CTA:** bio link → `/app/master-the-league`.
+**Caption:** `four of these are mine. no notes. #fpl #fantasypremierleague #minileague`
+**Success bar:** saves ≥3% of views (this is a saves format, not a shares format); completion ≥60%.
+**UTM:** `?utm_source={platform}&utm_medium=social&utm_campaign=fr-18-five-mistakes`
+
+---
+
+## FR-19 — "I ran it on my own league and it called me out"
+**Feature:** ESPN-style AI Headlines · `/app/league/[id]` → Headlines tab
+**Source:** `src/app/api/leagues/[id]/headlines/route.ts`
+**Hook family:** confession + named accusation · **Publish:** any time — evergreen
+**Status:** brief only, not built
+
+**Why this one travels.** This is the Roast My Strava loop (playbook §2.2), which took a free
+tool reading a user's own data through an official API to 50,000+ connected users almost entirely
+because people posted *their own verdict* and friends asked what it was. The share asset is about
+the user, not the product. TikTok's own read of the 1.2-trillion-view World Cup dataset is that
+**reactions** — not highlights — were the growth engine, and a genuine on-camera reaction to a
+verdict about your own team is that format applied to a product demo.
+
+**Format note vs FR-01.** Same engine, deliberately different video. FR-01 is a VO'd app demo that
+finds a villain in *someone's* league. FR-19 is a presenter reacting to a verdict about **his own**,
+which is what makes it shareable rather than promotional. Do not ship them in the same week.
+
+**Cover:** the real red tag chip mid-slam, overlay **"IT CALLED ME A BOTTLE JOB"**.
+
+| t | Visual | Burned caption | VO |
+|---|---|---|---|
+| 0–2 | Full-bleed real headline card, red chip landing on the beat. No face | **IT CALLED ME A BOTTLE JOB.** | — (chip sting only) |
+| 2–15 | Presenter cuts in, reading it. Card stays on screen behind | I PASTED IN MY OWN LEAGUE. | "I built this thing. Then I ran it on my own mini-league, and it opened with that." |
+| 15–30 | Scroll the real story feed — six cards, real tags, real teams | IT WRITES THESE ITSELF. | "Nobody types these. It reads the league every gameweek and writes the story." |
+| 30–45 | The stat footer that justifies the tag pushes in | AND IT SHOWS ITS WORKING. | "And it shows the number underneath, so I can't argue with it." |
+| 45–55 | Tone flips green — `ON THE CHARGE` | FOUR OF THE TEN ARE GOOD NEWS. | "Four of the ten tags are good news. I have never once had those four." |
+| 55–60 | End card | FPLRANKER.COM | "Paste your league. Find out what it calls you." |
+
+**Retention devices:** the 2s chip sting before any speech; the 45s red→green tone flip.
+**Loop:** end card eases back to the same red chip as frame 0.
+**CTA:** bio link → `/app/league/[id]`.
+**Caption:** `ran my own product on my own league. instant regret 💀 what would yours call you? #fpl #minileague #fantasypremierleague`
+**Success bar:** shares ≥2% and comments carrying league names — the Roast My Strava signal is
+people tagging their group chat, not people praising the tool.
+**Note on engagement bait:** the closing line invites a reply because the verdict is genuinely
+personal. Do **not** add "comment your league below" — TikTok's 2026 rules actively suppress
+explicit interaction prompts that don't reflect genuine interest.
+**UTM:** `?utm_source={platform}&utm_medium=social&utm_campaign=fr-19-roast-my-league`
+
+---
+
+## FR-20 — "I let a model pick my captain for 38 gameweeks"
+**Feature:** AI captain picks + xPts · `/predictions`
+**Source:** `src/lib/predictor/`, backtest in `video/src/data/fr07-backtest.json` (engine `v2-ridge`)
+**Hook family:** number nobody has + confession · **Publish:** any time — the result is a finished season
+**Status:** brief only, not built
+
+**Why this one travels.** A completed 38-gameweek backtest is permanently evergreen — it is a
+result, not a fixture. The 2026 hook research is that "here is why X is wrong" and "did you know X"
+openings beat pure visual hooks, and this opens on a self-implicating number. It is also the one
+video where the presenter earns the format: a claim about model accuracy delivered by a faceless
+graphic reads as marketing, and delivered by a person who then shows the report reads as receipts.
+
+**Every figure below is from the generated report and must be re-read from
+`video/src/data/fr07-backtest.json` at build, never typed.**
+
+**Cover:** full-bleed `38`, overlay **"38 GAMEWEEKS. ONE MODEL."**
+
+| t | Visual | Burned caption | VO |
+|---|---|---|---|
+| 0–2 | Full-bleed `38` counter rolling up. No face | **38 GAMEWEEKS. NO OPINIONS.** | — |
+| 2–14 | Presenter cuts in; the real backtest table behind | I BACKTESTED THE WHOLE SEASON. | "I ran a model over an entire season of FPL and let it pick the captain every week." |
+| 14–28 | `1.00` MAE slams in beside `1.27` frozen | IT MISSED BY ONE POINT A PLAYER. | "Average error, one point per player per gameweek. A version that stopped learning sat at 1.27." |
+| 28–40 | The 38-row line chart draws; H1/H2 split highlighted | IT GOT BETTER AS IT WENT. | "First half of the season, 1.04. Second half, 0.96. It sharpened as it learned." |
+| 40–50 | `83.31%` capture and `5.66` captain average | 83% OF THE POINTS IT SAID WERE THERE. | "It captured eighty-three per cent of available points, and its captain averaged five point seven." |
+| 50–55 | Honest beat — the harder metric | IT IS NOT A CRYSTAL BALL. | "On players who actually played, error is two points. It's an edge, not a guarantee." |
+| 55–60 | End card | FPLRANKER.COM | "This week's picks are on the site." |
+
+**Retention devices:** the 50s honesty beat is the retention payload — a stated limitation after
+four strong numbers is the pattern interrupt viewers do not expect from a product video, and it is
+what makes the preceding numbers credible.
+**Loop:** end card returns to the `38`.
+**CTA:** bio link → `/predictions`.
+**Caption:** `38 gameweeks, one model, no opinions. it got better in the second half 📈 #fpl #fantasypremierleague`
+**Success bar:** rewatch ≥15% (people re-reading the numbers) and completion ≥55%.
+**Deadline handling:** `/predictions` is free until `NEXT_PUBLIC_PREMIUM_FREE_UNTIL` (default
+**2026-09-22**). Until then the closing line may add "free right now"; after it, that line becomes
+the price. The video body is unaffected — this is why the free window is not in the hook.
+**UTM:** `?utm_source={platform}&utm_medium=social&utm_campaign=fr-20-38-gameweeks`
+
+---
+
 ## Bench (rotation 11–15, build after the founding ten prove out)
 
 | ID | Feature | Angle |
