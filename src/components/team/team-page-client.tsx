@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getKitbagUrl, teamPrimaryColors } from '@/utils/kitbag-urls';
+import { getKitbagUrlByShort, hasKitbagTeam, teamPrimaryColorByShort } from '@/utils/kitbag-urls';
+import { SEASON_LABEL } from '@/lib/season';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { GenericJersey, GenericBadge, getTeamColor } from '@/components/ui/generic-jersey';
 import { ComparePlayersModal } from './compare-players-modal';
@@ -1178,7 +1179,7 @@ function PitchPlayerCard({ player, isSub = false, onClick }: { player: PlayerDat
 }
 
 function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => void }) {
-  const teamColor = teamPrimaryColors[player.teamId] || '#37003c';
+  const teamColor = teamPrimaryColorByShort[player.team] || '#37003c';
   const playerLastName = player.name.split(' ').pop() || player.name;
 
   return (
@@ -1247,32 +1248,34 @@ function PlayerDrawer({ player, onClose }: { player: PlayerData; onClose: () => 
             )}
           </div>
 
-          {/* Impulse Buy CTA Block */}
-          <div className="rounded-fpl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 overflow-hidden">
-            <div className="flex items-center gap-3 p-4">
-              <GenericJersey shortName={player.team} color={teamPrimaryColors[player.teamId] || '#37003c'} size={48} className="flex-shrink-0 drop-shadow-md" />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-jakarta font-bold text-white">
-                  Get {playerLastName}&apos;s 25/26 Kit
-                </div>
-                <div className="text-[11px] text-fpl-text-secondary font-inter">
-                  Official kits, prints &amp; more
+          {/* Impulse Buy CTA Block — hidden for clubs with no verified Kitbag store */}
+          {hasKitbagTeam(player.team) && (
+            <div className="rounded-fpl bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/50 overflow-hidden">
+              <div className="flex items-center gap-3 p-4">
+                <GenericJersey shortName={player.team} color={teamPrimaryColorByShort[player.team] || '#37003c'} size={48} className="flex-shrink-0 drop-shadow-md" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-jakarta font-bold text-white">
+                    Get {playerLastName}&apos;s {SEASON_LABEL} Kit
+                  </div>
+                  <div className="text-[11px] text-fpl-text-secondary font-inter">
+                    Official kits, prints &amp; more
+                  </div>
                 </div>
               </div>
+              <AffiliateLink
+                href={getKitbagUrlByShort(player.team)}
+                placement="team-page"
+                item={player.team}
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-jakarta font-bold text-center transition-colors"
+              >
+                <GenericBadge shortName={player.team} size={16} />
+                Shop on Kitbag
+              </AffiliateLink>
+              <div className="text-center py-1.5 text-[9px] text-gray-500 font-inter">
+                Affiliate link · commission earned on purchases.
+              </div>
             </div>
-            <AffiliateLink
-              href={getKitbagUrl(player.teamId)}
-              placement="team-page"
-              item={player.team}
-              className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-jakarta font-bold text-center transition-colors"
-            >
-              <GenericBadge shortName={player.team} size={16} />
-              Shop on Kitbag
-            </AffiliateLink>
-            <div className="text-center py-1.5 text-[9px] text-gray-500 font-inter">
-              Affiliate link · commission earned on purchases.
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

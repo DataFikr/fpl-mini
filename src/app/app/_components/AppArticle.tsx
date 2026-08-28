@@ -7,7 +7,7 @@ import { getBlogIndex, formatPostDate } from '@/content/blog-index';
 import { LineupPitch } from '@/components/blog/lineup-pitch';
 import { FatigueScreen } from './FatigueScreen';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
-import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
+import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { toast } from './Toast';
 
 // Category → tag-chip colour, matching the in-app blog list.
@@ -36,6 +36,7 @@ export function AppArticle({ slug }: { slug: string }) {
   const tone = CAT_TONE[post.category] ?? '#12233F';
   const dateDisplay = formatPostDate(post.date);
   const related = getBlogIndex().filter((t) => t.slug !== post.slug).slice(0, 2);
+  const kitTeams = (post.kitTeams ?? []).filter(hasKitbagTeam);
 
   return (
     <>
@@ -112,12 +113,13 @@ export function AppArticle({ slug }: { slug: string }) {
         </div>
       ))}
 
-      {/* Contextual Kitbag CTA */}
-      {post.kitTeams && post.kitTeams.length > 0 && (
+      {/* Contextual Kitbag CTA — only for clubs with a verified store path, so a
+          "Shop HUL" button never lands on the generic Kitbag homepage. */}
+      {kitTeams.length > 0 && (
         <div className="art-kit">
           <div className="art-kit-lbl">Back your club — shop the official 2026/27 kit</div>
           <div className="art-kit-btns">
-            {post.kitTeams.map((team) => (
+            {kitTeams.map((team) => (
               <AffiliateLink
                 key={team}
                 href={getKitbagUrlByShort(team)}

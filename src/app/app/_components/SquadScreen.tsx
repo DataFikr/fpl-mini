@@ -8,7 +8,7 @@ import { PredictionBlock } from './PredictionBlock';
 import { PlayerCard } from './PlayerCard';
 import { CaptureCard } from './CaptureCard';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
-import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
+import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { toast } from './Toast';
 
 type SqTab = 'team' | 'transfers' | 'impact' | 'prediction' | 'rival';
@@ -41,8 +41,10 @@ function SquadKitCta({ data }: { data: SquadData }) {
   if (!top) return null;
 
   const [short, info] = top;
+  // No verified Kitbag store for this club (e.g. the promoted sides) — drop the
+  // CTA rather than send a club-branded button to the generic homepage.
+  if (!hasKitbagTeam(short)) return null;
   const url = getKitbagUrlByShort(short);
-  if (!url) return null;
 
   return (
     <aside className="sq-kit">

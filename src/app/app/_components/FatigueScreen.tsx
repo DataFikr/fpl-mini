@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { WC_FATIGUE, NATIONS } from '../_lib/fatigue-data';
-import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
+import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { toast } from './Toast';
 
@@ -74,16 +74,18 @@ export function FatigueScreen({ embedded = false }: { embedded?: boolean } = {})
                     </>
                   )}
 
-                  <AffiliateLink
-                    className="s-btn s-btn--red hex"
-                    href={getKitbagUrlByShort(p.short)}
-                    placement="fatigue-card"
-                    item={p.short}
-                    onClick={() => toast(`Opening ${p.club} on Kitbag`)}
-                    style={{ marginTop: 16, fontSize: 12, textDecoration: 'none' }}
-                  >
-                    Shop {p.short} kit
-                  </AffiliateLink>
+                  {hasKitbagTeam(p.short) && (
+                    <AffiliateLink
+                      className="s-btn s-btn--red hex"
+                      href={getKitbagUrlByShort(p.short)}
+                      placement="fatigue-card"
+                      item={p.short}
+                      onClick={() => toast(`Opening ${p.club} on Kitbag`)}
+                      style={{ marginTop: 16, fontSize: 12, textDecoration: 'none' }}
+                    >
+                      Shop {p.short} kit
+                    </AffiliateLink>
+                  )}
                 </div>
               )}
             </div>

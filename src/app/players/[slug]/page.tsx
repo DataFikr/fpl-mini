@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import '@/app/_styles/sportify-pages.css';
 import { getPlayerData, getTopPlayerSlugs, getSimilarPlayers } from '@/lib/players';
-import { getKitbagUrl } from '@/utils/kitbag-urls';
+import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { SITE_URL, SITE_NAME, absUrl } from '@/lib/seo';
 import { StructuredData, BreadcrumbStructuredData, FaqStructuredData } from '@/components/seo/structured-data';
@@ -191,17 +191,19 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
         <h2 className="faq-h">{p.webName.toUpperCase()} FAQ</h2>
         <PredictionsFaq items={faqs} />
 
-        <aside className="kitbag">
-          <span className="shirt" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3h8l2 3 3 2-3 4v9H6v-9L3 8l3-2 2-3Z" /></svg>
-          </span>
-          <div>
-            <b>Get the {SEASON} {p.teamName} shirt</b>
-            <small>Official kit from our partner Kitbag — shirts, printing and more.</small>
-            <span className="fine">Affiliate link · supports {SITE_NAME}</span>
-          </div>
-          <AffiliateLink href={getKitbagUrl(p.teamId)} placement="player_page_kitbag" className="s-btn hex">Shop kit</AffiliateLink>
-        </aside>
+        {hasKitbagTeam(p.teamShort) && (
+          <aside className="kitbag">
+            <span className="shirt" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3h8l2 3 3 2-3 4v9H6v-9L3 8l3-2 2-3Z" /></svg>
+            </span>
+            <div>
+              <b>Get the {SEASON} {p.teamName} shirt</b>
+              <small>Official kit from our partner Kitbag — shirts, printing and more.</small>
+              <span className="fine">Affiliate link · supports {SITE_NAME}</span>
+            </div>
+            <AffiliateLink href={getKitbagUrlByShort(p.teamShort)} placement="player_page_kitbag" className="s-btn hex">Shop kit</AffiliateLink>
+          </aside>
+        )}
 
         <p className="footnote">
           Stats from the official FPL API, updated daily. Predictions are model estimates, not guarantees.{' '}

@@ -1,7 +1,7 @@
 'use client';
 
 import { getPlayerPhotoUrl } from '@/lib/fpl-images';
-import { getKitbagUrlByShort } from '@/utils/kitbag-urls';
+import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import type { PitchPlayer } from '../_lib/squad-data';
 import { toast } from './Toast';
@@ -44,18 +44,20 @@ export function PlayerCard({ player, onClose }: { player: PitchPlayer; onClose: 
           {stats.map(([v, l]) => <div className="pc-stat" key={l}><div className="v">{v}</div><div className="l">{l}</div></div>)}
         </div>
 
-        <div className="pc-foot">
-          <AffiliateLink
-            className="s-btn s-btn--red hex"
-            href={getKitbagUrlByShort(player.teamShort)}
-            placement="player-card"
-            item={player.teamShort}
-            onClick={() => toast(`Opening ${player.team} on Kitbag`)}
-            style={{ width: '100%', justifyContent: 'center', textDecoration: 'none' }}
-          >
-            Shop {player.teamShort} kit
-          </AffiliateLink>
-        </div>
+        {hasKitbagTeam(player.teamShort) && (
+          <div className="pc-foot">
+            <AffiliateLink
+              className="s-btn s-btn--red hex"
+              href={getKitbagUrlByShort(player.teamShort)}
+              placement="player-card"
+              item={player.teamShort}
+              onClick={() => toast(`Opening ${player.team} on Kitbag`)}
+              style={{ width: '100%', justifyContent: 'center', textDecoration: 'none' }}
+            >
+              Shop {player.teamShort} kit
+            </AffiliateLink>
+          </div>
+        )}
       </div>
     </>
   );
