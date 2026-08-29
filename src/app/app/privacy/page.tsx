@@ -17,6 +17,7 @@ export default function Page() {
         <h2>Information we collect</h2>
         <div className="info-card"><h3>Personal information</h3><p>If you create an account, we may collect your email address and display name.</p></div>
         <div className="info-card"><h3>Fantasy Premier League data</h3><p>When you connect your FPL team, we access public FPL API data such as team name, league standings, player selections and gameweek points.</p></div>
+        <div className="info-card"><h3>Team name search</h3><p>So people can find their squad without hunting for a numeric team ID, we keep a list of the team names, manager names and team IDs that already appear on the public FPL league tables we load. <strong>Only team names are searchable</strong> — you cannot look a person up by their manager name here. A manager name is shown next to a search result purely so two squads with the same name can be told apart, exactly as the official FPL league table shows it. We store no email addresses, squads or private details for this. If you would like your entry removed, <a href="/contact">contact us</a>.</p></div>
         <div className="info-card"><h3>Cookies &amp; analytics</h3><p>We use cookies and tools like Google Analytics to understand traffic patterns and improve your experience.</p></div>
 
         <h2>How we use information</h2>

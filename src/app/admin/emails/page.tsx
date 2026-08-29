@@ -373,7 +373,7 @@ export default function AdminEmailsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link
-                          href={`/league/${subscription.leagueId}`}
+                          href={`/app/league/${subscription.leagueId}`}
                           className="text-sm text-blue-600 hover:text-blue-800"
                         >
                           {subscription.leagueId}

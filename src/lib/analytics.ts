@@ -10,6 +10,52 @@ declare global {
   }
 }
 
+/**
+ * Event-parameter names GA4 reserves for traffic attribution.
+ *
+ * Sending one of these on a *custom* event does not record a dimension — it
+ * rewrites that session's acquisition source. `subscribe_newsletter` and
+ * `share_league` were passing `source: 'header' | 'banner' | 'headline_modal'`,
+ * so GA4's August 2026 report showed 27 sessions arriving from a "banner" and
+ * lost where those users actually came from. Since the affected events are the
+ * conversions (subscribes and shares), it destroyed attribution on exactly the
+ * sessions worth understanding.
+ *
+ * Use `placement` for where-in-the-UI something happened — the convention the
+ * rest of the file already follows (`affiliate_click`, `video_play`,
+ * `premium_gate_click`, `capture_dismiss`).
+ */
+const RESERVED_GA4_PARAMS = new Set([
+  'source', 'medium', 'campaign', 'campaign_id', 'term', 'content',
+  'gclid', 'dclid', 'srsltid',
+]);
+
+/**
+ * Drops reserved names before they reach gtag. Losing one custom parameter is
+ * strictly better than corrupting the session's acquisition data, which is why
+ * this strips rather than renames; the dev warning names the offending event so
+ * the call site gets fixed properly.
+ */
+const stripReservedParams = (
+  eventName: string,
+  params?: Record<string, any>
+): Record<string, any> | undefined => {
+  if (!params) return params;
+  const clean: Record<string, any> = {};
+  const dropped: string[] = [];
+  for (const [key, value] of Object.entries(params)) {
+    if (RESERVED_GA4_PARAMS.has(key)) dropped.push(key);
+    else clean[key] = value;
+  }
+  if (dropped.length && process.env.NODE_ENV !== 'production') {
+    console.warn(
+      `[analytics] "${eventName}" dropped reserved GA4 param(s): ${dropped.join(', ')}. ` +
+      'These overwrite session attribution — use "placement" instead.'
+    );
+  }
+  return clean;
+};
+
 // Track custom events
 export const trackEvent = (
   eventName: string,
@@ -18,7 +64,7 @@ export const trackEvent = (
   if (typeof window !== 'undefined' && window.gtag) {
     const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
     if (measurementId) {
-      window.gtag('event', eventName, eventParams);
+      window.gtag('event', eventName, stripReservedParams(eventName, eventParams));
     }
   }
 };

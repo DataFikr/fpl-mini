@@ -1,25 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { isFreeLaunchWindow } from '@/lib/premium';
 import { TEAM_ID_COOKIE, TEAM_ID_MAX_AGE } from '@/lib/team-id';
 
 /**
- * Client-side account + saved-team helpers (workstream E1).
+ * Client-side account + team helpers.
  *
- * Team id is persisted in two places: localStorage (works anonymously, offline,
- * across the stateless app) and — when the user is signed in — the account row
- * via /api/me. `fpl_user_team_id` is the pre-existing key used by the public
- * league page, so we standardize on it.
+ * Two team ids live side by side, and conflating them is what made a tap on a
+ * rival manager silently steal the account's identity:
+ *
+ *   - the **linked** team — `User.fplTeamId`, the squad this email address owns.
+ *     It is written only by an explicit link (or the one-time adoption of an
+ *     anonymous id at first sign-in) and cleared only by an explicit unlink.
+ *   - the **active** team — the squad currently being browsed. Kept in
+ *     localStorage + a cookie so server-rendered screens can resolve it without
+ *     a `?teamId=`, and free to change on every tap through the leagues.
+ *
+ * Browsing therefore moves the active id and never touches the linked one.
  */
 export const TEAM_ID_KEY = 'fpl_user_team_id';
 
-export function getLocalTeamId(): string | null {
+/** The team currently being browsed (may be a rival's), not the linked one. */
+export function getActiveTeamId(): string | null {
   if (typeof window === 'undefined') return null;
   return window.localStorage.getItem(TEAM_ID_KEY);
 }
 
-export function setLocalTeamId(id: string | number): void {
+/**
+ * Point the browsing context at a team. Local only — this is the id the nav
+ * tabs and server-rendered screens follow, and it says nothing about which team
+ * the account owns.
+ */
+export function setActiveTeamId(id: string | number): void {
   if (typeof window === 'undefined') return;
   const v = String(id).trim();
   if (!/^\d{1,9}$/.test(v)) return;
@@ -30,16 +43,36 @@ export function setLocalTeamId(id: string | number): void {
 }
 
 /**
- * Persist a team id: always to localStorage, and — best effort — to the account
- * if signed in. Safe to call from anonymous sessions (the PATCH just 401s).
+ * Tie a team to the signed-in account, permanently, and make it the active one.
+ * `force` is what separates a deliberate re-link from the drive-by writes that
+ * used to happen on every screen; the API refuses an unforced overwrite.
  */
-export function persistTeamId(id: string | number): void {
-  setLocalTeamId(id);
-  fetch('/api/me', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fplTeamId: Number(id) }),
-  }).catch(() => {});
+export async function linkTeamId(id: string | number, force = true): Promise<boolean> {
+  setActiveTeamId(id);
+  try {
+    const res = await fetch('/api/me', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fplTeamId: Number(id), force }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** Cut the account loose from its team. The active (browsing) id is untouched. */
+export async function unlinkTeamId(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/me', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fplTeamId: null }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export interface Account {
@@ -52,12 +85,22 @@ export interface Account {
 }
 
 /**
- * Fetches the current account once on mount. Also reconciles an anonymous
- * localStorage team id up to a freshly-signed-in account that has none yet.
+ * Fetches the current account once on mount. Also adopts an anonymous
+ * localStorage team id into an account that has never linked one — the only
+ * implicit write to the linked id there is.
  */
-export function useAccount(): { account: Account | null; loading: boolean } {
+export function useAccount(): {
+  account: Account | null;
+  loading: boolean;
+  /** Apply a locally-known change (link/unlink) without a refetch. */
+  patchAccount: (patch: Partial<Account>) => void;
+} {
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const patchAccount = useCallback((patch: Partial<Account>) => {
+    setAccount((a) => (a ? { ...a, ...patch } : a));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,18 +114,21 @@ export function useAccount(): { account: Account | null; loading: boolean } {
         // through GW5 while monetization is on hold. See src/lib/premium.ts.
         if (isFreeLaunchWindow()) data.isPremium = true;
 
-        // Migrate anonymous localStorage id → account on first login.
-        const local = getLocalTeamId();
-        if (data.authenticated && !data.fplTeamId && local) {
-          data.fplTeamId = Number(local);
+        const active = getActiveTeamId();
+        if (data.authenticated && !data.fplTeamId && active) {
+          // First sign-in from an anonymous session: adopt the team they were
+          // already using. Unforced, so it can never overwrite an existing link.
+          data.fplTeamId = Number(active);
           fetch('/api/me', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fplTeamId: Number(local) }),
+            body: JSON.stringify({ fplTeamId: Number(active) }),
           }).catch(() => {});
+        } else if (data.authenticated && data.fplTeamId && !active) {
+          // Signed in on a fresh device with nothing selected yet — start them
+          // on their own squad. Never overrides a team they are already viewing.
+          setActiveTeamId(data.fplTeamId);
         }
-        // Mirror an account team id down into localStorage for the stateless pages.
-        if (data.authenticated && data.fplTeamId) setLocalTeamId(data.fplTeamId);
 
         setAccount(data);
       } catch {
@@ -94,5 +140,5 @@ export function useAccount(): { account: Account | null; loading: boolean } {
     return () => { cancelled = true; };
   }, []);
 
-  return { account, loading };
+  return { account, loading, patchAccount };
 }

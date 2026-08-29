@@ -24,10 +24,12 @@ export function DesktopSidebar({ active, teamId, youName }: { active?: string; t
         ))}
       </nav>
       <div className="side-foot">
+        {/* "Selected", not "Your": this follows the team being browsed, which is
+            often a rival's rather than the one linked to the account. */}
         {youName && (
           <div className="you">
             <div className="crest" style={{ background: 'var(--red)', color: '#fff' }}>{initials(youName)}</div>
-            <div><div className="nm">{youName}</div><div className="mt">Your team</div></div>
+            <div><div className="nm">{youName}</div><div className="mt">Selected team</div></div>
           </div>
         )}
         {/* /app directly — `/` only redirect()s here, so routing via it costs a hop. */}

@@ -319,7 +319,7 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
   const shareStory = async (s: Story) => {
     const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://fplranker.com'}/app/league/${leagueId}`;
     const text = `${s.title}\n\n${leagueName} on FPL Ranker 👀`;
-    const track = (method: string) => trackEvent('share_league', { league_id: String(leagueId), method, source: 'headline_modal' });
+    const track = (method: string) => trackEvent('share_league', { league_id: String(leagueId), method, placement: 'headline_modal' });
     if (typeof navigator !== 'undefined' && navigator.share) {
       try { await navigator.share({ title: leagueName, text, url }); track('native'); return; }
       catch { return; } // user cancelled — not a failure worth a toast

@@ -2,23 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAccount, getLocalTeamId } from '@/lib/use-account';
+import { useAccount, getActiveTeamId, linkTeamId, unlinkTeamId } from '@/lib/use-account';
+import { toast } from './Toast';
 
 /**
  * Header account control (mockup 05). Anonymous → ghost "Sign in" button;
  * signed-in → an ink initial badge (notch-cut) that opens a small menu.
  * Premium adds a yellow frame + star. Sportify tokens (no hardcoded hex).
+ *
+ * The menu is the only place the *linked* team moves: browsing a rival changes
+ * the active team but leaves the account pointed at its own squad, so this menu
+ * has to offer both the way back ("Open my hub") and the way out ("Unlink").
  */
 export function AccountChip() {
   const router = useRouter();
-  const { account, loading } = useAccount();
+  const { account, loading, patchAccount } = useAccount();
   const [open, setOpen] = useState(false);
   const [team, setTeam] = useState<{ id: number; name: string } | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  // The linked FPL team, shown under the email so the profile says *which*
-  // squad this account is tied to. Falls back to the anonymous localStorage id
-  // for the window between signing in and the account row catching up.
-  const linkedId = account?.fplTeamId ?? (account?.authenticated ? Number(getLocalTeamId()) || null : null);
+  // The FPL team this account owns — strictly the account row. It deliberately
+  // ignores the localStorage id, which tracks whoever is being browsed.
+  const linkedId = account?.authenticated ? account.fplTeamId ?? null : null;
+  // The team on screen right now, offered for linking when the account has none.
+  const [activeId, setActiveId] = useState<number | null>(null);
+  useEffect(() => { setActiveId(Number(getActiveTeamId()) || null); }, [open, linkedId]);
+
   useEffect(() => {
     if (!linkedId) { setTeam(null); return; }
     let alive = true;
@@ -41,6 +50,29 @@ export function AccountChip() {
 
   const initial = (account.email?.[0] || 'U').toUpperCase();
   const premium = !!account.isPremium;
+
+  const link = async (id: number) => {
+    setBusy(true);
+    const ok = await linkTeamId(id);
+    setBusy(false);
+    if (!ok) { toast('Could not link that team — try again'); return; }
+    patchAccount({ fplTeamId: id });
+    toast(`Team ${id} is now linked to ${account.email}`);
+    setOpen(false);
+    router.refresh();
+  };
+
+  const unlink = async () => {
+    setBusy(true);
+    const ok = await unlinkTeamId();
+    setBusy(false);
+    if (!ok) { toast('Could not unlink — try again'); return; }
+    patchAccount({ fplTeamId: null });
+    setTeam(null);
+    toast('Team unlinked from this account');
+    setOpen(false);
+    router.refresh();
+  };
 
   return (
     <span className="acct-menu-anchor">
@@ -75,8 +107,17 @@ export function AccountChip() {
               </span>
             </div>
             {linkedId ? (
-              <button className="acct-item" role="menuitem" onClick={() => { setOpen(false); router.push(`/app/home?teamId=${linkedId}`); }}>
-                Open my hub
+              <>
+                <button className="acct-item" role="menuitem" onClick={() => { setOpen(false); router.push(`/app/home?teamId=${linkedId}`); }}>
+                  Open my hub
+                </button>
+                <button className="acct-item acct-unlink" role="menuitem" disabled={busy} onClick={unlink}>
+                  {busy ? 'Unlinking…' : `Unlink team ${linkedId}`}
+                </button>
+              </>
+            ) : activeId ? (
+              <button className="acct-item" role="menuitem" disabled={busy} onClick={() => link(activeId)}>
+                {busy ? 'Linking…' : `Link team ${activeId} to this account`}
               </button>
             ) : (
               <button className="acct-item" role="menuitem" onClick={() => { setOpen(false); router.push('/app/home'); }}>

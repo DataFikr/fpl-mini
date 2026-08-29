@@ -70,3 +70,8 @@ video/public/*.mp4
 # Playwright run artifacts (screenshots, traces, videos) — regenerated on every run
 tests/test-results/
 tests/reports/
+
+# Scratch working directory for analysis/reporting runs (the Aug traffic review
+# and its inlined fonts). Regenerable via .analysis/build.py; the report itself
+# lives as a published artifact, not in the repo.
+.analysis/

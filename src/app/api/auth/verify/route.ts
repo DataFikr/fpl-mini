@@ -6,6 +6,7 @@ import {
   sessionCookieOptions,
   SESSION_COOKIE,
 } from '@/lib/auth';
+import { TEAM_ID_COOKIE, TEAM_ID_MAX_AGE } from '@/lib/team-id';
 
 /**
  * GET /api/auth/verify?token=...
@@ -32,5 +33,18 @@ export async function GET(request: NextRequest) {
   const dest = /^\/(?!\/)/.test(next) ? next : '/app/home';
   const res = NextResponse.redirect(new URL(dest, request.url));
   res.cookies.set(SESSION_COOKIE, raw, sessionCookieOptions(expiresAt));
+
+  // Point the browsing context at the linked team, so a sign-in on a device
+  // with no cookie yet still lands on the account's own squad rather than the
+  // "enter a team id" prompt. Explicit destinations (a shared rival link) keep
+  // their own ?teamId=, which resolveTeamId() prefers over this cookie.
+  if (user.fplTeamId) {
+    res.cookies.set(TEAM_ID_COOKIE, String(user.fplTeamId), {
+      path: '/',
+      maxAge: TEAM_ID_MAX_AGE,
+      sameSite: 'lax',
+    });
+  }
+
   return res;
 }

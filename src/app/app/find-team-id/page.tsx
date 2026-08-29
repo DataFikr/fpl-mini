@@ -1,4 +1,6 @@
 import { AppShell } from '../_components/AppShell';
+import { TeamNameSearch } from '../_components/TeamNameSearch';
+import { TeamIdEntry } from '../_components/TeamIdEntry';
 
 export const metadata = {
   title: 'How to Find Your FPL Team ID — FPL Ranker',
@@ -9,6 +11,15 @@ export default function Page() {
   return (
     <AppShell title="Find Team ID" backHref="/app/home" meta="6 quick steps">
       <div className="content">
+        {/* This page is the site's best-converting entry point (72 users from
+            search in Aug 2026, lowest bounce of any content page) but it used to
+            end by telling people to go back to /app and paste the ID there —
+            losing them at peak intent. Offer the shortcut first, guide second. */}
+        <div className="fti-shortcut">
+          <h2>Skip the steps — search your team name</h2>
+          <p>If anyone in your mini-league has used FPL Ranker, search the name of your squad and we&rsquo;ll find the ID for you.</p>
+          <TeamNameSearch />
+        </div>
         <div className="scr-head" style={{ marginBottom: 10 }}>
           <div><div className="scr-title">FIND YOUR TEAM ID</div><div className="scr-sub">Locate your FPL Team ID in 6 steps</div></div>
         </div>
@@ -51,7 +62,8 @@ export default function Page() {
 
         <div className="step">
           <div className="step-h"><div className="step-n">6</div><h3>Enter it on FPL Ranker</h3></div>
-          <p>Head to <a href="/app">FPL Ranker</a>, paste your Team ID into the field on the home screen and tap <strong>Rank it</strong>. You&rsquo;ll instantly see:</p>
+          <p>Paste it straight into the box below — you can paste the whole FPL link if that&rsquo;s easier. You&rsquo;ll instantly see:</p>
+          <TeamIdEntry />
           <ul>
             <li>Your live squad, kit and gameweek points</li>
             <li>All your <strong>mini-leagues</strong> with rank and movement</li>

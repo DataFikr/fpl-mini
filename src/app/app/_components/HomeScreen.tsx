@@ -6,6 +6,8 @@ import type { HomeData, HomeHeadline } from '../_lib/home-data';
 import { pickHeadlineImages } from '@/lib/headline-images';
 import { formatRank } from '../_lib/compute';
 import { toast } from './Toast';
+import { TeamNameSearch } from './TeamNameSearch';
+import { extractTeamId } from '@/lib/team-id';
 
 export type HomeNotice = 'not-found' | 'error';
 
@@ -40,13 +42,13 @@ function TeamIdPrompt({ notice, teamId }: { notice?: HomeNotice; teamId?: number
         }
       : {
           kicker: 'Your mini-league hub',
-          heading: 'ENTER YOUR FPL TEAM ID',
-          body: 'Your leagues, your rank and this week’s headlines from every mini-league you are in — straight from the FPL API.',
+          heading: 'FIND YOUR TEAM',
+          body: 'Search your team name — no need to go hunting for your team ID. Your leagues, your rank and this week’s headlines, straight from the FPL API.',
         };
 
   const go = () => {
-    const v = id.trim();
-    if (!/^\d{1,9}$/.test(v)) { toast('Team IDs are numbers only'); return; }
+    const v = extractTeamId(id);
+    if (!v) { toast('Enter your team ID, or paste your FPL team link'); return; }
     router.push(`/app/home?teamId=${v}`);
   };
 
@@ -55,14 +57,23 @@ function TeamIdPrompt({ notice, teamId }: { notice?: HomeNotice; teamId?: number
       <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '.08em' }}>{copy.kicker}</div>
       <h3 style={{ fontFamily: 'var(--display)', fontWeight: 400, fontSize: 23, margin: '5px 0 4px' }}>{copy.heading}</h3>
       <p style={{ fontFamily: 'var(--body)', fontSize: 12.5, color: '#cfc6c6', lineHeight: 1.5, margin: '0 0 14px' }}>{copy.body}</p>
-      <form className="id-field" style={{ display: 'inline-flex' }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>
-        <input inputMode="numeric" placeholder="e.g. 6454003" aria-label="FPL team ID" value={id} onChange={(e) => setId(e.target.value)} />
-        <button type="submit" className="s-btn s-btn--red hex">Load</button>
-      </form>
-      <p style={{ fontFamily: 'var(--body)', fontSize: 11, color: '#9a8e8e', margin: '10px 0 0' }}>
-        Don&rsquo;t know it? <a href="/app/find-team-id" style={{ color: 'var(--red)', fontWeight: 700 }}>Find your team ID ›</a>
-      </p>
+
+      {/* Team name first: the ID is the thing people leave to go and look up. */}
+      <TeamNameSearch tone="ink" />
+
+      <details style={{ marginTop: 14 }}>
+        <summary style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '.07em', textTransform: 'uppercase', color: '#9a8e8e', cursor: 'pointer' }}>
+          Know your team ID? Enter it directly
+        </summary>
+        <form className="id-field" style={{ display: 'inline-flex', marginTop: 10 }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>
+          <input inputMode="numeric" placeholder="e.g. 6454003 or paste your FPL link" aria-label="FPL team ID" value={id} onChange={(e) => setId(e.target.value)} />
+          <button type="submit" className="s-btn s-btn--red hex">Load</button>
+        </form>
+        <p style={{ fontFamily: 'var(--body)', fontSize: 11, color: '#9a8e8e', margin: '10px 0 0' }}>
+          Don&rsquo;t know it? <a href="/app/find-team-id" style={{ color: 'var(--red)', fontWeight: 700 }}>Find your team ID ›</a>
+        </p>
+      </details>
     </div>
   );
 }

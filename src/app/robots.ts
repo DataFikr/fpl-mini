@@ -11,7 +11,9 @@ const AI_AGENTS = [
   'CCBot', 'Amazonbot', 'Bingbot',
 ];
 
-const DISALLOW = ['/api/', '/admin/'];
+// `/go/` are tagged campaign redirects for profile bios — entry points for
+// humans, never destinations worth crawling or indexing.
+const DISALLOW = ['/api/', '/admin/', '/go/'];
 
 export default function robots(): MetadataRoute.Robots {
   return {

@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from './Toast';
-import { getLocalTeamId } from '@/lib/use-account';
+import { getActiveTeamId } from '@/lib/use-account';
+import { extractTeamId } from '@/lib/team-id';
+import { TeamNameSearch } from './TeamNameSearch';
 import { isFreeLaunchWindow } from '@/lib/premium';
 import { GameweekCountdown, isBeforeGameweek1 } from './GameweekCountdown';
 import { AppMenu, type MenuLink } from './AppMenu';
@@ -52,7 +54,7 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
       .then((d) => { if (d && (d.gameweek || d.currentGameweek)) setGw(d.gameweek || d.currentGameweek); })
       .catch(() => {});
 
-    const local = getLocalTeamId();
+    const local = getActiveTeamId();
     if (local) setSavedTeam(local);
     fetch('/api/me')
       .then((r) => (r.ok ? r.json() : null))
@@ -61,8 +63,9 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
   }, []);
 
   const analyze = (id: string) => {
-    const v = id.trim();
-    if (!/^\d{1,9}$/.test(v)) { toast('Team IDs are numbers only'); return; }
+    // Accepts a bare id or a pasted FPL team link — see extractTeamId.
+    const v = extractTeamId(id);
+    if (!v) { toast('Enter your team ID, or paste your FPL team link'); return; }
     // Deliberately not persisted here: the id is unverified at this point, and
     // remembering a typo would follow the visitor around every screen. The app
     // shell stores it once Home has actually resolved the team.
@@ -100,11 +103,13 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
             </span>
             <h1><span>Track your mini-league</span><em>like it&rsquo;s matchday</em></h1>
             <GameweekCountdown />
-            <p className="sub">ESPN-style headlines, live rank movers and AI point predictions for your FPL mini-league. Enter your team ID and get your league&rsquo;s story in seconds — no signup.</p>
+            <p className="sub">ESPN-style headlines, live rank movers and AI point predictions for your FPL mini-league. Search your team name and get your league&rsquo;s story in seconds — no signup, no team ID needed.</p>
+            <TeamNameSearch />
+            <p className="form-hint" style={{ marginTop: 14 }}>Know your team ID? Enter it here:</p>
             <form className="league-form" onSubmit={(e) => { e.preventDefault(); analyze(teamId); }} noValidate>
               <label className="id-field" aria-label="FPL manager ID">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-                <input type="text" inputMode="numeric" placeholder="Enter your FPL manager ID…" aria-label="FPL team ID"
+                <input type="text" inputMode="numeric" placeholder="Team ID, or paste your FPL link" aria-label="FPL team ID"
                   autoComplete="off" value={teamId} onChange={(e) => setTeamId(e.target.value)} />
                 <button className="s-btn s-btn--red hex" type="submit">Rank my league</button>
               </label>

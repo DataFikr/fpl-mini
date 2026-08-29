@@ -18,6 +18,25 @@ const nextConfig = {
       { source: '/blog/:slug', destination: '/app/blog/:slug', permanent: true },
       { source: '/blog', destination: '/app/blog', permanent: true },
       { source: '/find-team-id', destination: '/app/find-team-id', permanent: true },
+
+      // The pre-Sportify team/league dashboards. August 2026 analytics found
+      // ~10% of pageviews still landing on their old titles ("FPL League Hub",
+      // "FPL Dashboard | FPLRanker") alongside the current pages — two
+      // generations of the same content competing in search, in the channel
+      // supplying 70% of all traffic. 308 so the ranking signal transfers.
+      //
+      // The legacy league URL carried the manager as `?team=`; the app reads
+      // `?teamId=`. The `has` rule captures and renames it, so old shared links
+      // keep highlighting the right manager — it must precede the bare rule,
+      // which otherwise matches first and drops the parameter.
+      {
+        source: '/league/:id',
+        has: [{ type: 'query', key: 'team', value: '(?<legacyTeam>.*)' }],
+        destination: '/app/league/:id?teamId=:legacyTeam',
+        permanent: true,
+      },
+      { source: '/league/:id', destination: '/app/league/:id', permanent: true },
+      { source: '/team/:id', destination: '/app/squad?teamId=:id', permanent: true },
     ];
   },
   eslint: {

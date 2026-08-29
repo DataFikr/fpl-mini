@@ -28,23 +28,20 @@ export async function GET() {
 }
 
 /**
- * PATCH /api/me — persist the logged-in user's FPL team id and/or save a league.
- * Body: { fplTeamId?: number, addLeagueId?: number }. Used both when a user
- * enters an id while signed in and to migrate an anonymous localStorage id up
- * to the account on first login.
+ * PATCH /api/me — link/unlink the logged-in user's FPL team and/or save a league.
+ * Body: { fplTeamId?: number | null, force?: boolean, addLeagueId?: number }.
+ *
+ * The linked team is the account's identity, so it is deliberately hard to
+ * move: an id only lands on an account that has none, unless `force` marks the
+ * write as a deliberate re-link from the account menu. Without that guard,
+ * merely opening a rival's squad re-pointed the account at their team.
+ * `fplTeamId: null` unlinks.
  */
 export async function PATCH(request: NextRequest) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
   const body = await request.json().catch(() => ({}));
-
-  const data: { fplTeamId?: number } = {};
-  const teamId = parseInt(String(body.fplTeamId), 10);
-  if (Number.isFinite(teamId) && teamId > 0) data.fplTeamId = teamId;
-  if (data.fplTeamId != null) {
-    await prisma.user.update({ where: { id: user.id }, data });
-  }
 
   const leagueId = parseInt(String(body.addLeagueId), 10);
   if (Number.isFinite(leagueId) && leagueId > 0) {
@@ -55,5 +52,28 @@ export async function PATCH(request: NextRequest) {
     });
   }
 
-  return NextResponse.json({ success: true });
+  let linkedTeamId = user.fplTeamId;
+
+  if (body.fplTeamId === null) {
+    await prisma.user.update({ where: { id: user.id }, data: { fplTeamId: null } });
+    linkedTeamId = null;
+  } else if (body.fplTeamId !== undefined) {
+    const teamId = parseInt(String(body.fplTeamId), 10);
+    if (!Number.isFinite(teamId) || teamId <= 0) {
+      return NextResponse.json({ error: 'Invalid team id' }, { status: 400 });
+    }
+    if (user.fplTeamId != null && teamId !== user.fplTeamId && body.force !== true) {
+      // Browsing another manager must not steal the account's team.
+      return NextResponse.json(
+        { success: false, error: 'Team already linked', fplTeamId: user.fplTeamId },
+        { status: 409 },
+      );
+    }
+    if (teamId !== user.fplTeamId) {
+      await prisma.user.update({ where: { id: user.id }, data: { fplTeamId: teamId } });
+    }
+    linkedTeamId = teamId;
+  }
+
+  return NextResponse.json({ success: true, fplTeamId: linkedTeamId });
 }

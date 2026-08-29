@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
 import { FPLApiService } from '@/services/fpl-api';
 import { EmailService } from '@/services/email-service';
-import { findPlayerPhotoInText, type BootstrapElementLike } from '@/lib/fpl-images';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, leagueId, leagueName, stories, gameweek, subscriptionType = 'newsletter', rivalData } = await request.json();
+    const { email, leagueId, leagueName, gameweek, subscriptionType = 'newsletter', rivalData } = await request.json();
 
     // Get current gameweek dynamically if not provided
     let currentGameweek = gameweek;
@@ -183,97 +182,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (subscriptionType === 'team-analysis' || (gameweek && !stories)) {
-      console.log(`📧 Team analysis subscription confirmed for ${email} for league ${leagueId}, gameweek ${gameweek}`);
-
-      // Send actual team analysis email
-      const emailResult = await emailService.sendTeamAnalysis(
-        email,
-        leagueName || `League ${leagueId}`,
-        currentGameweek
-      );
-
-      if (!emailResult.success) {
-        console.error('Failed to send team analysis email:', emailResult.error);
-
-        // Check if it's a configuration issue
-        const isConfigurationError = emailResult.error?.includes('API key is invalid') ||
-                                     emailResult.error?.includes('not configured');
-
-        return NextResponse.json({
-          success: false,
-          message: isConfigurationError
-            ? 'Subscription saved! Email service is currently in demo mode. Please configure RESEND_API_KEY for actual email delivery.'
-            : 'Subscription saved but failed to send email. Please try again later.',
-          error: emailResult.error,
-          isDemo: isConfigurationError
-        }, { status: isConfigurationError ? 200 : 500 });
-      }
-
-      // Update database with successful send
-      await prisma.newsletterSubscription.update({
-        where: { id: subscription.id },
-        data: { lastSentAt: new Date() }
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: 'Team analysis email sent successfully and subscription saved!',
-        emailId: emailResult.messageId
-      });
-    }
-
-    // Enrich stories with official player action photos (best-effort).
-    let enrichedStories = stories || [];
-    try {
-      const fplApi = new FPLApiService();
-      const bootstrap = await fplApi.getBootstrapData();
-      const elements = (bootstrap.elements || []) as BootstrapElementLike[];
-      enrichedStories = enrichedStories.map((story: any) => {
-        if (story.imageUrl) return story;
-        const text = `${story.headline || ''} ${story.subheadline || ''} ${story.details || story.content || ''}`;
-        const found = findPlayerPhotoInText(text, elements);
-        return found ? { ...story, imageUrl: found.photoUrl, playerName: found.playerName } : story;
-      });
-    } catch (e) {
-      console.warn('Could not enrich stories with player photos:', e instanceof Error ? e.message : e);
-    }
-
-    // Send gameweek summary newsletter
-    const emailResult = await emailService.sendGameweekSummary(
-      email,
-      leagueName || `League ${leagueId}`,
-      enrichedStories,
-      currentGameweek
-    );
-
-    if (!emailResult.success) {
-      console.error('Failed to send newsletter:', emailResult.error);
-
-      // Check if it's a configuration issue
-      const isConfigurationError = emailResult.error?.includes('API key is invalid') ||
-                                   emailResult.error?.includes('not configured');
-
-      return NextResponse.json({
-        success: false,
-        message: isConfigurationError
-          ? 'Subscription saved! Email service is currently in demo mode. Please configure RESEND_API_KEY for actual email delivery.'
-          : 'Subscription saved but failed to send email. Please try again later.',
-        error: emailResult.error,
-        isDemo: isConfigurationError
-      }, { status: isConfigurationError ? 200 : 500 });
-    }
-
-    // Update database with successful send
-    await prisma.newsletterSubscription.update({
-      where: { id: subscription.id },
-      data: { lastSentAt: new Date() }
-    });
-
+    // Subscribing sends exactly one email: the confirm/welcome above, which
+    // already carries the league's live OG infographic. It used to be followed
+    // by a second, older summary/analysis template — two emails per subscribe,
+    // for the same mini-league. The gameweek summary belongs to the scheduled
+    // bulk send (/api/newsletter/send-bulk), which goes only to verified
+    // addresses, so nothing is lost by not firing one here.
     return NextResponse.json({
       success: true,
-      message: 'Newsletter sent successfully and subscription saved!',
-      emailId: emailResult.messageId
+      message: 'Subscription saved! Check your inbox to confirm.',
     });
 
   } catch (error) {

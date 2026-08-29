@@ -345,7 +345,7 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories, gamew
         if (data.isDemo) {
           setMessage('Subscription saved! Note: Email service is in demo mode.');
         } else {
-          setMessage('Newsletter sent successfully! You\'ve been subscribed for weekly updates.');
+          setMessage('Subscribed! Check your inbox to confirm — then every gameweek report lands there.');
         }
         setMessageType('success');
         setEmail('');

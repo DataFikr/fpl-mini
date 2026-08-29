@@ -640,6 +640,10 @@
 .acct-item.go-prem{color:var(--red);}
 .acct-item.go-prem:hover{color:var(--red-dark);}
 .acct-item + .acct-item{border-top:1px solid var(--line-2);}
+.acct-item[disabled]{opacity:.55;cursor:default;}
+/* Destructive, so it reads quieter than the primary items until hovered. */
+.acct-item.acct-unlink{font-weight:600;color:var(--t2);}
+.acct-item.acct-unlink:hover:not([disabled]){color:var(--red);}
 
 /* ============================================================
    I3 (DESIGN_REVIEW D2/D3) — skeleton primitives, oversized
@@ -743,3 +747,57 @@
 .gate-card p{font-family:var(--body);font-size:13px;color:#cfc6c6;line-height:1.55;margin:0 0 16px;}
 .gate-card .s-btn{width:100%;}
 .gate-card .fine{display:block;font-family:var(--mono);font-weight:600;font-size:12px;color:#9a8e8e;text-transform:uppercase;letter-spacing:.05em;margin-top:12px;}
+
+/* ============================================================
+   Manager name search — find your team without the 7-digit ID.
+   Used on the landing hero, the home-screen empty state (tone
+   "ink") and the find-team-id guide. See ManagerSearch.tsx.
+   ============================================================ */
+.mgr-search{display:block;}
+.mgr-search .id-field{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);
+  padding:4px 4px 4px 16px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
+.mgr-search .id-field svg{flex:0 0 auto;color:var(--t3);width:17px;height:17px;}
+.mgr-search .id-field input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);
+  font-family:var(--body);font-weight:600;font-size:15px;padding:13px 0;min-height:44px;}
+.mgr-search .id-field input::placeholder{color:var(--t4);}
+.mgr-search .id-field:focus-within{outline:3px solid var(--red);outline-offset:2px;}
+.mgr-search .id-field button[disabled]{opacity:.6;cursor:default;}
+
+.ms-msg{font-family:var(--body);font-size:12.5px;line-height:1.5;color:var(--t2);margin:11px 0 0;}
+.ms-err{color:var(--red);font-weight:700;}
+.ms-empty{max-width:62ch;}
+
+.ms-list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:1px;
+  background:var(--line);border:1px solid var(--line);max-height:330px;overflow-y:auto;}
+.ms-list:focus-visible{outline:3px solid var(--red);outline-offset:2px;}
+.ms-row{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;
+  background:#fff;border:0;cursor:pointer;text-align:left;padding:11px 14px;min-height:52px;font:inherit;}
+.ms-row:hover,.ms-row:focus-visible{background:var(--bg);outline:none;}
+.ms-row:focus-visible{box-shadow:inset 3px 0 0 var(--red);}
+.ms-names{display:flex;flex-direction:column;min-width:0;}
+.ms-team{font-family:var(--body);font-weight:800;font-size:13.5px;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ms-mgr{font-family:var(--body);font-size:12px;color:var(--t2);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ms-id{flex:0 0 auto;font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.03em;
+  color:var(--t2);background:var(--line-2);padding:4px 8px;border-radius:2px;}
+.ms-fallback{margin-top:12px;}
+
+/* Dark card (home-screen empty state): same structure, inverted surfaces. */
+.mgr-search.on-ink .ms-msg{color:#cfc6c6;}
+.mgr-search.on-ink .ms-err{color:#ff8a8a;}
+.mgr-search.on-ink .ms-list{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.16);}
+.mgr-search.on-ink .ms-row{background:#1f0a0a;}
+.mgr-search.on-ink .ms-row:hover,.mgr-search.on-ink .ms-row:focus-visible{background:#2a1010;}
+.mgr-search.on-ink .ms-team{color:#fff;}
+.mgr-search.on-ink .ms-mgr{color:#bdb2b2;}
+.mgr-search.on-ink .ms-id{color:#e9dede;background:rgba(255,255,255,.12);}
+
+/* Find-team-ID guide: the name-search shortcut above the six steps. */
+.fti-shortcut{background:var(--ink);color:#fff;padding:22px 20px;margin:0 0 22px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%);}
+.fti-shortcut h2{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.02em;
+  margin:0 0 6px;text-transform:uppercase;line-height:1;}
+.fti-shortcut > p{font-family:var(--body);font-size:13px;color:#cfc6c6;line-height:1.5;margin:0 0 14px;max-width:60ch;}
+.fti-shortcut .mgr-search .ms-msg{color:#cfc6c6;}
+.fti-shortcut .mgr-search .ms-err{color:#ff8a8a;}

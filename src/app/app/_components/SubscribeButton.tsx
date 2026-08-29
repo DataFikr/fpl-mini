@@ -36,7 +36,7 @@ export function SubscribeButton({ leagueId, leagueName, gameweek, stories, varia
       const j = await res.json().catch(() => ({}));
       if (res.ok) {
         setDone(true);
-        trackEvent('subscribe_newsletter', { league_id: String(leagueId), source: variant });
+        trackEvent('subscribe_newsletter', { league_id: String(leagueId), placement: variant });
         toast('Subscribed! Check your inbox 📬');
         setTimeout(() => { setOpen(false); setDone(false); setEmail(''); }, 1800);
       } else {

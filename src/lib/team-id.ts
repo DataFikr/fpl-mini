@@ -25,3 +25,21 @@ export function parseTeamId(raw?: string | number | null): number | undefined {
   const v = typeof raw === 'number' ? raw : parseInt(String(raw).trim(), 10);
   return Number.isFinite(v) && v > 0 && v < 1e9 ? v : undefined;
 }
+
+/**
+ * Pull a team id out of whatever someone types into an entry field: a bare
+ * number, or a pasted FPL URL like
+ * `https://fantasy.premierleague.com/entry/1234567/event/3`.
+ *
+ * The find-your-team-ID guide walks people to exactly that URL, so rejecting it
+ * with "Team IDs are numbers only" punished the behaviour our own instructions
+ * produce. Accepts the `/entry/<id>` segment from any FPL link shape.
+ */
+export function extractTeamId(raw?: string | null): number | undefined {
+  const s = (raw ?? '').trim();
+  if (!s) return undefined;
+  // A bare id first, so a plain number never goes near the URL pattern.
+  const direct = parseTeamId(s);
+  if (direct) return direct;
+  return parseTeamId(s.match(/\/entry\/(\d{1,9})\b/)?.[1]);
+}

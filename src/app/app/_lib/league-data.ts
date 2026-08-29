@@ -1,4 +1,5 @@
 import { FPLApiService } from '@/services/fpl-api';
+import { indexManagersInBackground } from '@/lib/manager-index';
 
 const CREST_PALETTE = ['#FF5050', '#12233F', '#009C54', '#322D2D', '#CC4040', '#001B58', '#5B5757', '#6CABDD'];
 const MAX_MANAGERS = 30; // cap per-manager history fetches for big leagues
@@ -74,6 +75,11 @@ export async function getLeagueAppData(
         rank_sort: 0,
       }))
     : scored;
+
+  // Feed the manager-name lookup from the *full* roster, not the sliced 30 —
+  // this is the only source of that index, and the rows are already in hand.
+  // Fire-and-forget: a failed write must never cost us the league page.
+  indexManagersInBackground(results);
 
   const partial = results.length > MAX_MANAGERS;
   const slice = results.slice(0, MAX_MANAGERS);

@@ -7,7 +7,7 @@ import { ToastHost } from './Toast';
 import { AppMenu } from './AppMenu';
 import { AccountChip } from './AccountChip';
 import { DesktopSidebar } from './DesktopSidebar';
-import { getLocalTeamId, persistTeamId, setLocalTeamId } from '@/lib/use-account';
+import { getActiveTeamId, setActiveTeamId } from '@/lib/use-account';
 
 interface AppShellProps {
   navActive?: string;
@@ -19,9 +19,11 @@ interface AppShellProps {
   /** Manager context carried across the squad/leagues nav tabs + shown in the sidebar footer. */
   teamId?: string | number;
   /**
-   * Remember `teamId` as the visitor's team (cookie + localStorage) so it
-   * survives a hop through a screen that takes no team id, like Players.
-   * Pass false when the id turned out not to exist — see the squad screen.
+   * Remember `teamId` as the *active* (browsed) team — cookie + localStorage —
+   * so it survives a hop through a screen that takes no team id, like Players.
+   * This never touches the team linked to a signed-in account; that only moves
+   * from the account menu. Pass false when the id turned out not to exist —
+   * see the squad screen.
    */
   rememberTeamId?: boolean;
   youName?: string;
@@ -45,16 +47,13 @@ export function AppShell({ navActive, title, backHref, meta, teamId, rememberTea
   const [navTeamId, setNavTeamId] = useState<string | number | undefined>(teamId);
   useEffect(() => {
     if (teamId != null && teamId !== '') {
-      if (rememberTeamId) {
-        // Sync a *changed* team up to the signed-in account too; an unchanged
-        // one only needs its cookie/localStorage entry refreshed.
-        if (String(teamId) !== getLocalTeamId()) persistTeamId(teamId);
-        else setLocalTeamId(teamId);
-      }
+      // Local only: opening a rival's squad moves the browsing context, not the
+      // account's linked team.
+      if (rememberTeamId) setActiveTeamId(teamId);
       setNavTeamId(teamId);
       return;
     }
-    const stored = getLocalTeamId();
+    const stored = getActiveTeamId();
     if (stored) setNavTeamId(stored);
   }, [teamId, rememberTeamId]);
 

@@ -16,10 +16,22 @@ export const absUrl = (path = '/'): string => new URL(path, SITE_URL).toString()
 /** Canonical YouTube channel. Also the source of the landing page's Shorts band. */
 export const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@fplranker';
 
+/** Canonical TikTok profile — the larger of the two video channels by reach. */
+export const TIKTOK_CHANNEL_URL = 'https://www.tiktok.com/@fplranker';
+
 /** Official social profiles — used for Organization `sameAs`. */
 export const SOCIAL_LINKS = [
   'https://x.com/fplranker',
   'https://www.reddit.com/user/fplranker/',
   'https://instagram.com/FPLRanker',
   YOUTUBE_CHANNEL_URL,
+  TIKTOK_CHANNEL_URL,
 ];
+
+/**
+ * The tagged link to put in a channel's profile bio, so GA4 can attribute the
+ * visit. Untagged links from TikTok/YouTube in-app browsers arrive as direct
+ * traffic — see src/app/go/[channel]/route.ts.
+ */
+export const bioLink = (channel: 'tiktok' | 'youtube' | 'instagram' | 'x' | 'reddit'): string =>
+  absUrl(`/go/${channel}`);
