@@ -70,6 +70,85 @@ export const trackEvent = (
 };
 
 /**
+ * The four events that must be marked as **key events** in the GA4 console
+ * (Admin → Data display → Events → "Mark as key event"). Marking cannot be done
+ * from code, so this list is the contract between the app and the property —
+ * see docs/marketing/ga4-key-events.md for the console steps.
+ *
+ * The Sep 2026 diagnostic found `Key events: 0` against £0 revenue: nothing
+ * after `page_view` was measurable, so no funnel step could be shown to have
+ * worked or failed. Each name below is the step it makes visible.
+ *
+ * `sign_up` and `begin_checkout` use GA4's *recommended* names rather than the
+ * prose names in the diagnostic ("signup", "checkout") because recommended
+ * names unlock GA4's built-in funnel and monetisation reports; custom spellings
+ * would only ever appear as unlabelled custom events.
+ */
+export const KEY_EVENTS = [
+  'sign_up',            // magic-link requested — visitor becomes a lead
+  'premium_gate_click', // premium reached — the paywall discovery step
+  'affiliate_click',    // Kitbag outbound — the only live revenue path today
+  'begin_checkout',     // hosted checkout opened — intent to pay
+] as const;
+
+/**
+ * GA4's client id, read from the `_ga` cookie (`GA1.1.<client>.<ts>`).
+ *
+ * Needed to stitch a server-side purchase back to the browsing session that
+ * produced it: the Lemon Squeezy webhook fires with no cookies, so without this
+ * carried through the checkout URL any future purchase event would land as a
+ * brand-new user and lose its acquisition channel. Returns null before gtag has
+ * set the cookie, in which case checkout proceeds untagged rather than blocked.
+ */
+export const gaClientId = (): string | null => {
+  if (typeof document === 'undefined') return null;
+  const m = document.cookie.match(/(?:^|;\s*)_ga=GA\d\.\d\.(\d+\.\d+)/);
+  return m ? m[1] : null;
+};
+
+/**
+ * Track a magic-link sign-in request — fired once the request succeeds, so it
+ * counts intent that actually produced an email rather than every submit press.
+ *
+ * The login page previously fired no analytics at all, which is why account
+ * conversion could only be reconstructed by hand from the Resend export.
+ * `method` matches GA4's recommended parameter for `sign_up`.
+ */
+export const trackSignup = (placement: string) => {
+  trackEvent('sign_up', { method: 'magic_link', placement });
+};
+
+/**
+ * Track a click that sends the user to /premium.
+ *
+ * Centralised because the event previously lived inline in one component
+ * (PredictionBlock) whose gate cannot render during the free-launch window, so
+ * the event was structurally incapable of firing. Every route into /premium
+ * should call this so paywall discovery is measurable regardless of which
+ * surface the user came from.
+ */
+export const trackPremiumGateClick = (placement: string, feature?: string) => {
+  trackEvent('premium_gate_click', { placement, feature });
+};
+
+/**
+ * Track the hosted-checkout open. GA4 ecommerce shape (`value`, `currency`,
+ * `items`) so it feeds the standard monetisation reports rather than sitting as
+ * an opaque custom event.
+ */
+export const trackBeginCheckout = (
+  plan: 'season' | 'annual',
+  value: number,
+  currency = 'GBP'
+) => {
+  trackEvent('begin_checkout', {
+    currency,
+    value,
+    items: [{ item_id: plan, item_name: `FPL Ranker Premium — ${plan}`, price: value, quantity: 1 }],
+  });
+};
+
+/**
  * Track an outbound click on a monetised affiliate link (Kitbag/Impact).
  *
  * Previously affiliate anchors fired no analytics at all, so GA4 showed zero
@@ -113,11 +192,15 @@ export const analytics = {
     });
   },
 
-  // Track newsletter subscriptions
-  trackNewsletterSubscribe: (email: string) => {
-    trackEvent('newsletter_subscribe', {
-      method: 'website_form',
-    });
+  // Track newsletter subscriptions.
+  //
+  // Emits `subscribe_newsletter`, matching what CaptureCard and SubscribeButton
+  // already fire. This helper previously sent `newsletter_subscribe` — the same
+  // two words reversed — so any call site using it would have split the metric
+  // across two GA4 event names that look identical in a list and never sum.
+  // It takes no email: an address is PII and GA4 must not receive one.
+  trackNewsletterSubscribe: (placement = 'website_form') => {
+    trackEvent('subscribe_newsletter', { placement });
   },
 
   // Track gameweek changes

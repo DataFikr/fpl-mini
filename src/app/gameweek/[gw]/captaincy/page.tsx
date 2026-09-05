@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import '@/app/_styles/sportify-pages.css';
+import { PremiumCta } from '@/components/ui/premium-cta';
 import { getGameweekCaptains } from '@/lib/players';
 import { SITE_URL, SITE_NAME, absUrl } from '@/lib/seo';
 import { StructuredData, BreadcrumbStructuredData, FaqStructuredData } from '@/components/seo/structured-data';
@@ -96,7 +97,7 @@ export default async function GameweekCaptaincyPage({ params }: { params: Promis
             <h2>Captain the right player for YOUR squad</h2>
             <p>These are the best picks overall. Premium ranks them against your own 15 and flags the safest vice.</p>
           </div>
-          <Link href="/premium" className="s-btn s-btn--red hex">Go premium</Link>
+          <PremiumCta placement="captaincy_teaser" feature="captain_advice">Go premium</PremiumCta>
         </section>
 
         <h2 className="faq-h">GW{n} Captaincy FAQ</h2>

@@ -1,5 +1,7 @@
 'use client';
 
+import { withShareUtm } from '@/lib/share-url';
+
 import { useState, useRef, useEffect } from 'react';
 import { Share2, Link2, MessageCircle, Mail, Check } from 'lucide-react';
 
@@ -7,9 +9,11 @@ interface ShareActionProps {
   title: string;
   text: string;
   url?: string;
+  /** UTM campaign for the shared link — names the surface it was shared from. */
+  campaign?: string;
 }
 
-export function ShareAction({ title, text, url }: ShareActionProps) {
+export function ShareAction({ title, text, url, campaign = 'page_share' }: ShareActionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -26,7 +30,15 @@ export function ShareAction({ title, text, url }: ShareActionProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+  // Tagged so links shared from the public league page, team page and headline
+  // cards stop arriving as Direct like the in-app share button used to.
+  // `campaign` defaults per-surface via the prop; the medium stays generic here
+  // because this component's popover does not distinguish where it was sent.
+  const shareUrl = withShareUtm(
+    url || (typeof window !== 'undefined' ? window.location.href : ''),
+    'unknown',
+    campaign,
+  );
   const shareText = `${text}\n${shareUrl}`;
 
   const handleNativeShare = async () => {

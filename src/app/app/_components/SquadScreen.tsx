@@ -7,9 +7,14 @@ import type { PredRow } from '../_lib/prediction';
 import { PredictionBlock } from './PredictionBlock';
 import { PlayerCard } from './PlayerCard';
 import { CaptureCard } from './CaptureCard';
+import { DeadlineReminderPrompt } from './DeadlineReminderPrompt';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
 import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { toast } from './Toast';
+import { PremiumFrame } from './PremiumFrame';
+import { useAccount } from '@/lib/use-account';
+import { isFreeLaunchWindow } from '@/lib/premium';
+import { trackPremiumGateClick } from '@/lib/analytics';
 
 type SqTab = 'team' | 'transfers' | 'impact' | 'prediction' | 'rival';
 
@@ -64,7 +69,136 @@ function SquadKitCta({ data }: { data: SquadData }) {
 interface RWEO { id: number; name: string; team: string; eo: number; ownedPct: number }
 interface RWCap { id: number; name: string; team: string; count: number; pct: number }
 interface RWChip { key: string; label: string; count: number }
-interface RivalData { leagueName: string; gw: number; managers: number; effectiveOwnership: RWEO[]; captaincy: RWCap[]; chips: RWChip[] }
+interface RWPlayer { id: number; name: string; team: string }
+interface RWYou {
+  captain: RWPlayer | null;
+  captainShare: number;
+  threats: (RWPlayer & { ownedPct: number; eo: number })[];
+  differentials: (RWPlayer & { ownedPct: number })[];
+  inSquad: number;
+}
+interface RivalData { leagueName: string; gw: number; managers: number; you?: RWYou | null; effectiveOwnership: RWEO[]; captaincy: RWCap[]; chips: RWChip[] }
+
+/**
+ * The differential read: your squad against the league's.
+ *
+ * `threats` are players a big share of your rivals start and you do not — every
+ * point they score is a point you cannot match. `differentials` are the reverse.
+ * Both are loss-framed on purpose; a neutral "here is the ownership table" is
+ * the vitamin this block exists to replace.
+ */
+function YouVsThem({ you, managers, gw }: { you: RWYou; managers: number; gw: number }) {
+  const rivals = Math.max(0, managers - 1);
+  const capAlone = you.captain && you.captainShare < 50;
+
+  return (
+    <div className="rw-you">
+      <div className="lbl-row" style={{ marginTop: 14 }}>
+        <span className="l">YOU vs {rivals} RIVAL{rivals === 1 ? '' : 'S'}</span>
+      </div>
+
+      {you.captain && (
+        <p className="rw-you-cap">
+          You captained <b>{you.captain.name}</b>.{' '}
+          {you.captainShare >= 100
+            ? 'So did everyone else — no captaincy swing either way this week.'
+            : capAlone
+              ? `Only ${you.captainShare}% of the league did. This is where your gameweek is won or lost.`
+              : `${you.captainShare}% of the league did the same.`}
+        </p>
+      )}
+
+      {you.threats.length > 0 && (
+        <>
+          <div className="rw-you-h">Owned by your rivals, not by you</div>
+          <div className="rw-list">
+            {you.threats.map((p) => (
+              <div className="rw-row rw-threat" key={p.id}>
+                <div className="rw-who"><div className="nm">{p.name}</div><div className="cl">{p.team}</div></div>
+                <span className="rw-val">{p.ownedPct}% <small>of the league</small></span>
+              </div>
+            ))}
+          </div>
+          <p className="rw-you-note">Every point these score is a point you do not.</p>
+        </>
+      )}
+
+      {you.differentials.length > 0 && (
+        <>
+          <div className="rw-you-h">Yours, and rare in this league</div>
+          <div className="rw-list">
+            {you.differentials.map((p) => (
+              <div className="rw-row rw-diff" key={p.id}>
+                <div className="rw-who"><div className="nm">{p.name}</div><div className="cl">{p.team}</div></div>
+                <span className="rw-val">{p.ownedPct}% <small>of the league</small></span>
+              </div>
+            ))}
+          </div>
+          <p className="rw-you-note">Your edge — these are the ones that move you up the table.</p>
+        </>
+      )}
+
+      {you.threats.length === 0 && you.differentials.length === 0 && (
+        <p className="rw-you-note">
+          Your GW{gw} XI lines up almost exactly with the league&rsquo;s. No differentials either way.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The paywall, moved.
+ *
+ * Premium used to gate captain picks and the prediction table — all of which
+ * livefpl.net and fplgameweek.com give away free, so the bundle scored 3/4 and
+ * failed the un-substitutable test. This block is the thing rivals at 3M visits
+ * do not build, because per-mini-league work does not scale for them, so it is
+ * what the paywall should sit on.
+ *
+ * The league aggregates below it stay free: they are the commodity half, and
+ * they are what makes the locked half legible.
+ */
+function YouVsThemGate({ you, managers, gw }: { you: RWYou; managers: number; gw: number }) {
+  const router = useRouter();
+  const { account } = useAccount();
+  const freeWindow = isFreeLaunchWindow();
+  const entitled = freeWindow || !!account?.isPremium;
+
+  if (!entitled) {
+    const rivals = Math.max(0, managers - 1);
+    return (
+      <div className="gate" style={{ marginTop: 14 }}>
+        <div className="blurred" aria-hidden="true">
+          <YouVsThem you={you} managers={managers} gw={gw} />
+        </div>
+        <div className="gate-overlay">
+          <div className="gate-card">
+            <span className="cbadge" aria-hidden="true" style={{ background: 'var(--red)', color: '#fff' }}>vs</span>
+            <h3>You vs {rivals} rival{rivals === 1 ? '' : 's'}</h3>
+            <ul className="withheld">
+              <li><span className="lk">Locked</span><span>Players your rivals own, you don&rsquo;t</span><span className="vv">{you.threats.length}</span></li>
+              <li><span className="lk">Locked</span><span>Your differentials</span><span className="vv">{you.differentials.length}</span></li>
+              <li><span className="lk">Locked</span><span>Your captain vs the field</span><span className="vv">{you.captainShare}%</span></li>
+            </ul>
+            <button className="s-btn s-btn--red hex" onClick={() => { trackPremiumGateClick('rival_watch', 'differentials'); router.push('/premium'); }}>Go premium</button>
+            <span className="fine">From £15 · one-off · full season</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <PremiumFrame
+      on={freeWindow}
+      blurb="Your squad against everyone else's in this league."
+      onGo={() => { trackPremiumGateClick('preview_rival_watch', 'differentials'); router.push('/premium'); }}
+    >
+      <YouVsThem you={you} managers={managers} gw={gw} />
+    </PremiumFrame>
+  );
+}
 
 function RivalWatch({ teamId, leagueId, currentGameweek, defaultGw }: { teamId: number; leagueId?: number; currentGameweek: number; defaultGw: number }) {
   const [gw, setGw] = useState(defaultGw);
@@ -117,6 +251,12 @@ function RivalWatch({ teamId, leagueId, currentGameweek, defaultGw }: { teamId: 
 
       {data && !loading && (
         <>
+          {/* You vs them, first. The league aggregates below are useful but
+              substitutable — every rival tool shows effective ownership. What
+              nobody at livefpl's scale builds is the comparison against your own
+              15, framed as what it costs you to do nothing. */}
+          {data.you && <YouVsThemGate you={data.you} managers={data.managers} gw={gw} />}
+
           <div className="lbl-row" style={{ marginTop: 14 }}><span className="l">EFFECTIVE OWNERSHIP · TOP 10</span></div>
           <div className="rw-list">
             {data.effectiveOwnership.map((p, i) => (
@@ -237,7 +377,7 @@ function TeamIdPrompt({ notice, teamId, deadline }: { notice?: SquadNotice; team
       <p style={{ fontFamily: 'var(--body)', fontSize: 12.5, color: '#cfc6c6', lineHeight: 1.5, margin: '0 0 14px' }}>
         {copy.body}
       </p>
-      <form className="id-field" style={{ display: 'inline-flex' }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
+      <form id="team-id-squad" name="team-id-squad" className="id-field" style={{ display: 'inline-flex' }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>
         <input inputMode="numeric" placeholder="e.g. 6454003" aria-label="FPL team ID" value={id} onChange={(e) => setId(e.target.value)} />
         <button type="submit" className="s-btn s-btn--red hex">Load</button>
@@ -469,6 +609,11 @@ export function SquadScreen({ data, leagueId, teamId, notice, deadline }: {
             {/* Moment of value: the verdict has just rendered, so this is where
                 an anonymous visitor is most likely to leave an identity. */}
             <CaptureCard mode="save-team" teamId={data.team.id} teamName={data.team.name} />
+
+            {/* Same moment, different ask: save-team is an account, this is the
+                deadline painkiller. Both self-hide once taken, so a visitor sees
+                one at a time in practice rather than a wall of forms. */}
+            <DeadlineReminderPrompt teamId={data.team.id} nextGw={data.currentGameweek + 1} />
 
             <SquadKitCta data={data} />
 

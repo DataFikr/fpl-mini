@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Crown, Target, AlertTriangle, Zap, Users, Mai
 import Image from 'next/image';
 import { ShareAction } from '@/components/ui/share-action';
 import { pickHeadlineImages, type StoryTone } from '@/lib/headline-images';
+import { trackEvent } from '@/lib/analytics';
 
 // ─── Story Configuration ────────────────────────────────────
 
@@ -345,8 +346,12 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories, gamew
         if (data.isDemo) {
           setMessage('Subscription saved! Note: Email service is in demo mode.');
         } else {
-          setMessage('Subscribed! Check your inbox to confirm — then every gameweek report lands there.');
+          setMessage("You're subscribed — every gameweek report lands in your inbox.");
         }
+        // This form posted to the same endpoint as CaptureCard and
+        // SubscribeButton but fired no event, so its subscribes were invisible
+        // in GA4 and undercounted the newsletter funnel.
+        trackEvent('subscribe_newsletter', { placement: 'storytelling_modal', league_id: String(leagueId) });
         setMessageType('success');
         setEmail('');
         setTimeout(() => { onClose(); setMessage(''); }, 3000);
@@ -385,7 +390,7 @@ function NewsletterModal({ isOpen, onClose, leagueId, leagueName, stories, gamew
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="newsletter-storytelling" name="newsletter-storytelling" onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
             <input

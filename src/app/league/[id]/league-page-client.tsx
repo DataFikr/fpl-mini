@@ -8,6 +8,7 @@ import { EnhancedLeagueStorytelling } from '@/components/ui/enhanced-league-stor
 import { VotingPoll } from '@/components/ui/voting-poll';
 import { ManagerOfTheMonth } from '@/components/ui/manager-of-the-month';
 import { ShareAction } from '@/components/ui/share-action';
+import { LeagueCaptureCard } from '@/components/ui/league-capture-card';
 import { Users, Trophy, Calendar, TrendingUp, ArrowUp, ArrowDown, Minus, BarChart3, UserSearch, Award, MessageSquare, Star, Zap, Home, User, Crown, Medal } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -341,6 +342,15 @@ export function LeaguePageClient({ leagueId, league, topTeams, averagePoints, us
       <div className="flex-1 p-3 md:p-6 overflow-hidden">
         <div className="h-full overflow-y-auto">
           {renderTabContent()}
+
+          {/* Sits below every tab, not inside one: this page is where a shared
+              link lands, and it previously asked the visitor for nothing at
+              all. Placed after the content so the ask follows the value. */}
+          <LeagueCaptureCard
+            leagueId={leagueId}
+            leagueName={league.name}
+            gameweek={league.currentGameweek}
+          />
         </div>
       </div>
 

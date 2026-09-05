@@ -37,7 +37,7 @@ export function SubscribeButton({ leagueId, leagueName, gameweek, stories, varia
       if (res.ok) {
         setDone(true);
         trackEvent('subscribe_newsletter', { league_id: String(leagueId), placement: variant });
-        toast('Subscribed! Check your inbox 📬');
+        toast('Subscribed! 📬');
         setTimeout(() => { setOpen(false); setDone(false); setEmail(''); }, 1800);
       } else {
         toast(j?.error || 'Subscription failed — try again');
@@ -79,9 +79,9 @@ export function SubscribeButton({ leagueId, leagueName, gameweek, stories, varia
             <div className="ss-head"><span>Get the {leagueName} newsletter</span><button className="ss-x" aria-label="Close" onClick={() => setOpen(false)}>✕</button></div>
             <div className="ss-sub">ESPN-style gameweek headlines from your mini-league — a pre-deadline nudge and a post-gameweek recap, straight to your inbox. Free.</div>
             {done ? (
-              <div className="sub-done"><span className="ic"><Check size={20} /></span>You&rsquo;re in! Check your inbox for this week&rsquo;s headlines.</div>
+              <div className="sub-done"><span className="ic"><Check size={20} /></span>You&rsquo;re in! Your first report lands next gameweek.</div>
             ) : (
-              <form className="sub-form" onSubmit={submit} noValidate>
+              <form id="newsletter-modal" name="newsletter-modal" className="sub-form" onSubmit={submit} noValidate>
                 <input
                   type="email"
                   inputMode="email"

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAccount, getActiveTeamId, linkTeamId, unlinkTeamId } from '@/lib/use-account';
 import { toast } from './Toast';
+import { trackPremiumGateClick } from '@/lib/analytics';
 
 /**
  * Header account control (mockup 05). Anonymous → ghost "Sign in" button;
@@ -125,7 +126,7 @@ export function AccountChip() {
               </button>
             )}
             {!premium && (
-              <button className="acct-item go-prem" role="menuitem" onClick={() => { setOpen(false); router.push('/premium'); }}>
+              <button className="acct-item go-prem" role="menuitem" onClick={() => { setOpen(false); trackPremiumGateClick('account_menu'); router.push('/premium'); }}>
                 Go premium
               </button>
             )}

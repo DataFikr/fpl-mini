@@ -76,6 +76,28 @@ model TeamCrest {
   @@map("team_crests")
 }
 
+/**
+ * Deadline reminders scoped to a manager's own squad, not to a mini-league.
+ *
+ * NewsletterSubscription is keyed (email, leagueId), so it can only reach people
+ * who joined a league newsletter — 16 addresses at the Sep 2026 review, while
+ * the deadline reminder is the highest-scoring painkiller the product ships.
+ * This opens it to anyone who has a team ID, which is the only intent the
+ * reminder actually requires.
+ *
+ * Single opt-in (see subscribe/route.ts) — a row here is a live subscriber.
+ */
+model DeadlineSubscription {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  fplTeamId  Int
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  lastSentAt DateTime?
+
+  @@map("deadline_subscriptions")
+}
+
 model NewsletterSubscription {
   id          Int      @id @default(autoincrement())
   email       String
@@ -83,7 +105,11 @@ model NewsletterSubscription {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   lastSentAt  DateTime?
-  // Linkage + double-opt-in (workstream E). Nullable so existing rows are valid.
+  // Linkage + consent (workstream E). Nullable so existing rows stay valid.
+  // `verifiedAt` records when consent was given. It was a double-opt-in click;
+  // subscribing is single opt-in now, so /api/newsletter/subscribe stamps it on
+  // submit. Bulk sends and both cron jobs still gate on it being non-null, so it
+  // remains the switch that decides who receives mail.
   userId      String?
   verifiedAt  DateTime?
 

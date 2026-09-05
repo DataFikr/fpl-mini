@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import '@/app/_styles/sportify-pages.css';
+import { PremiumCta } from '@/components/ui/premium-cta';
+import { KitbagStrip } from '@/components/ui/kitbag-strip';
 import { prisma } from '@/lib/database';
 import { getSessionUser, hasActivePremium } from '@/lib/auth';
 import { CURRENT_SEASON } from '@/services/predictor-service';
@@ -157,7 +159,7 @@ export default async function PredictionsPage() {
                       </span>
                       <h2>See every projected scorer</h2>
                       <p>Premium unlocks the full expected-points table and personalised captain &amp; transfer advice for your squad.</p>
-                      <Link href="/premium" className="s-btn s-btn--red hex">Go premium</Link>
+                      <PremiumCta placement="predictions_lock" feature="full_table">Go premium</PremiumCta>
                       <span className="fine">From £15 · one-off · full season</span>
                     </div>
                   </div>
@@ -166,6 +168,10 @@ export default async function PredictionsPage() {
             )}
           </>
         )}
+
+        {/* Clubs from the projected-points table above — this page had no
+            affiliate placement either. */}
+        <KitbagStrip teamShorts={rows.map((r) => r.teamShort)} placement="predictions_table" />
 
         <h2 className="faq-h">FAQ</h2>
         <PredictionsFaq items={faqs} />

@@ -8,6 +8,7 @@ import { AmbassadorTab } from './AmbassadorTab';
 import { CaptureCard } from './CaptureCard';
 import { pickHeadlineImages, resolveStoryTone } from '@/lib/headline-images';
 import { trackEvent } from '@/lib/analytics';
+import { withShareUtm } from '@/lib/share-url';
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
@@ -239,6 +240,25 @@ function StandingsTab({ managers, gw, focusId, gwSelect, leagueId, leagueName }:
           ))}
         </div>
       )}
+      {/* Entry into the matchday surface, next to the static table it replaces
+          during a gameweek. Without a link here the live table would be another
+          4/4 feature nobody can reach, which is how /app/fatigue ended up at
+          zero views. */}
+      <button
+        className="live-cta"
+        onClick={() => {
+          trackEvent('live_cta_click', { league_id: String(leagueId) });
+          router.push(`/app/league/${leagueId}/live${focusId ? `?teamId=${focusId}` : ''}`);
+        }}
+      >
+        <span className="lc-dot" aria-hidden="true" />
+        <span className="lc-tx">
+          <b>See this league live</b>
+          <small>Live points and positions as the matches play out</small>
+        </span>
+        <span className="lc-go">Open ›</span>
+      </button>
+
       <div className="lbl-row"><span className="l">TABLE</span>{gwSelect}</div>
       <div className="st-head">
         <span className="r">#</span><span /><span>Team</span><span className="c">GW</span><span className="c">Total</span><span className="c">Overall</span><span className="c">Move</span>
@@ -317,7 +337,8 @@ function HeadlinesTab({ managers, gw, leagueName, leagueId, gwSelect }: { manage
    * group chat where the banter already happens.
    */
   const shareStory = async (s: Story) => {
-    const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://fplranker.com'}/app/league/${leagueId}`;
+    const raw = `${typeof window !== 'undefined' ? window.location.origin : 'https://fplranker.com'}/app/league/${leagueId}`;
+    const url = withShareUtm(raw, 'native', 'headline_share');
     const text = `${s.title}\n\n${leagueName} on FPL Ranker 👀`;
     const track = (method: string) => trackEvent('share_league', { league_id: String(leagueId), method, placement: 'headline_modal' });
     if (typeof navigator !== 'undefined' && navigator.share) {

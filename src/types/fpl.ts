@@ -154,6 +154,10 @@ export interface FPLLiveData {
 export interface FPLLiveElement {
   id: number;
   stats: {
+    // The player's points for this gameweek, before any captain multiplier.
+    // Present on every /event/{gw}/live/ element; it was missing from this type,
+    // which is why callers summing live scores had to cast around it.
+    total_points: number;
     minutes: number;
     goals_scored: number;
     assists: number;

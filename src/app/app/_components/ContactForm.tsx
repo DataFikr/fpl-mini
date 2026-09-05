@@ -57,7 +57,7 @@ export function ContactForm() {
             <p style={{ margin: 0 }}>Thanks for reaching out — we&rsquo;ll get back to you soon.</p>
           </div>
         ) : (
-          <form onSubmit={submit}>
+          <form id="contact-app" name="contact-app" onSubmit={submit}>
             <div className="form-field"><label htmlFor="name">Name</label><input id="name" name="name" value={form.name} onChange={onChange} required placeholder="Your full name" /></div>
             <div className="form-field"><label htmlFor="email">Email</label><input id="email" name="email" type="email" value={form.email} onChange={onChange} required placeholder="you@example.com" /></div>
             <div className="form-field"><label htmlFor="message">Message</label><textarea id="message" name="message" value={form.message} onChange={onChange} required placeholder="Your question, suggestion or how we can help…" /></div>

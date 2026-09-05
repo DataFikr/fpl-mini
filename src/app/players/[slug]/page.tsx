@@ -5,6 +5,7 @@ import '@/app/_styles/sportify-pages.css';
 import { getPlayerData, getTopPlayerSlugs, getSimilarPlayers } from '@/lib/players';
 import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
+import { TeamEntryPrompt } from '@/components/ui/team-entry-prompt';
 import { SITE_URL, SITE_NAME, absUrl } from '@/lib/seo';
 import { StructuredData, BreadcrumbStructuredData, FaqStructuredData } from '@/components/seo/structured-data';
 import { PredictionsFaq } from '@/app/predictions/_faq';
@@ -159,13 +160,16 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
           </section>
         </div>
 
-        <section className="teaser on-ink">
-          <div>
-            <h2>Should you captain {p.webName} in GW{nextGw}?</h2>
-            <p>Our model projects {p.xPts} points. Premium ranks {p.webName} against <em>your</em> squad’s options every gameweek.</p>
-          </div>
-          <Link href="/app/squad" className="s-btn s-btn--red hex">See my captain picks</Link>
-        </section>
+        {/* Was a link to /app/squad, which asks for the team ID one click later.
+            Asking here removes the step, and the resulting navigation is the
+            second pageview that ends the bounce these pages were logging. */}
+        <TeamEntryPrompt
+          placement="player_page"
+          kicker={`GW${nextGw} captaincy`}
+          heading={`Should you captain ${p.webName} in GW${nextGw}?`}
+          body={`Our model projects ${p.xPts} points. Enter your team ID to see how ${p.webName} ranks against the rest of your own 15 this gameweek.`}
+          cta="Check my XI"
+        />
 
         {alts.length > 0 && (
           <section className="pos-block" style={{ marginTop: 26 }}>

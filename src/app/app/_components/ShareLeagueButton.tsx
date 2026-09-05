@@ -5,6 +5,7 @@ import { Share2, Link2, Download, Check, Mail } from 'lucide-react';
 import { XIcon, WhatsAppIcon } from '@/components/ui/brand-icons';
 import { trackEvent } from '@/lib/analytics';
 import { toast } from './Toast';
+import { withShareUtm, type ShareMethod } from '@/lib/share-url';
 
 function ordinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
@@ -24,7 +25,10 @@ export function ShareLeagueButton({ leagueId, leagueName, teamId, rank, size }: 
   const [copied, setCopied] = useState(false);
 
   const qs = teamId ? `?teamId=${teamId}` : '';
-  const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/app/league/${leagueId}${qs}` : '';
+  const rawUrl = typeof window !== 'undefined' ? `${window.location.origin}/app/league/${leagueId}${qs}` : '';
+  // Tagged per method: the same league link sent via WhatsApp and via X are
+  // different acquisition channels, and untagged both arrived as Direct.
+  const linkFor = (m: ShareMethod) => (rawUrl ? withShareUtm(rawUrl, m) : '');
   const ogUrl = `/api/og/league?id=${leagueId}${teamId ? `&teamId=${teamId}` : ''}`;
   const text = rank && size
     ? `I'm ${ordinal(rank)} of ${size} in ${leagueName} on FPL Ranker 👀 can you beat me?`
@@ -34,22 +38,22 @@ export function ShareLeagueButton({ leagueId, leagueName, teamId, rank, size }: 
 
   const nativeShare = async () => {
     if (typeof navigator !== 'undefined' && navigator.share) {
-      try { await navigator.share({ title: leagueName, text, url: shareUrl }); track('native'); setOpen(false); }
+      try { await navigator.share({ title: leagueName, text, url: linkFor('native') }); track('native'); setOpen(false); }
       catch { /* cancelled */ }
     }
   };
   const copy = async () => {
-    try { await navigator.clipboard.writeText(shareUrl); } catch { /* ignore */ }
+    try { await navigator.clipboard.writeText(linkFor('copy')); } catch { /* ignore */ }
     setCopied(true); track('copy'); toast('Link copied');
     setTimeout(() => { setCopied(false); setOpen(false); }, 1400);
   };
-  const whatsapp = () => { window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${shareUrl}`)}`, '_blank'); track('whatsapp'); setOpen(false); };
-  const x = () => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`, '_blank'); track('x'); setOpen(false); };
+  const whatsapp = () => { window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${linkFor('whatsapp')}`)}`, '_blank'); track('whatsapp'); setOpen(false); };
+  const x = () => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(linkFor('x'))}`, '_blank'); track('x'); setOpen(false); };
 
   const email = () => {
     const absImg = typeof window !== 'undefined' ? `${window.location.origin}${ogUrl}` : ogUrl;
     const subject = encodeURIComponent(`${leagueName} — mini-league update on FPL Ranker`);
-    const body = encodeURIComponent(`${text}\n\nThe full table, the latest headlines and what's coming next gameweek:\n${shareUrl}\n\nShareable infographic:\n${absImg}`);
+    const body = encodeURIComponent(`${text}\n\nThe full table, the latest headlines and what's coming next gameweek:\n${linkFor('email')}\n\nShareable infographic:\n${absImg}`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
     track('email'); setOpen(false);
   };

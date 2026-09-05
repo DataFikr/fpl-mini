@@ -7,6 +7,7 @@ import { getBlogIndex, formatPostDate } from '@/content/blog-index';
 import { LineupPitch } from '@/components/blog/lineup-pitch';
 import { FatigueScreen } from './FatigueScreen';
 import { AffiliateLink } from '@/components/ui/affiliate-link';
+import { TeamEntryPrompt } from '@/components/ui/team-entry-prompt';
 import { getKitbagUrlByShort, hasKitbagTeam } from '@/utils/kitbag-urls';
 import { toast } from './Toast';
 
@@ -152,6 +153,19 @@ export function AppArticle({ slug }: { slug: string }) {
           </div>
         </div>
       )}
+
+      {/* The one route from an article into the product. The blog ranked and
+          then dead-ended: four posts bounced at 100% because everything below
+          the text pointed either outward (Kitbag) or sideways (More like this,
+          itself a 100%-bounce page). "More like this" moves the leak; this
+          closes it. */}
+      <TeamEntryPrompt
+        placement={`blog_${post.slug}`}
+        kicker="Put this to work"
+        heading="How does your own squad look?"
+        body="Enter your team ID for your projected points, captaincy verdict and mini-league position — the same model behind this article, run against your 15."
+        cta="Rank my squad"
+      />
 
       <button className="s-btn s-btn--ghost hex art-share" onClick={() => toast('Article link copied')}>Share this story</button>
 

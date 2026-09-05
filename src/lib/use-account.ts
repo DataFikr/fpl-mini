@@ -111,7 +111,8 @@ export function useAccount(): {
         if (cancelled) return;
 
         // Launch hold: unlock premium features for everyone (incl. anonymous)
-        // through GW5 while monetization is on hold. See src/lib/premium.ts.
+        // through the free window (GW8) while monetization is on hold.
+        // See src/lib/premium.ts.
         if (isFreeLaunchWindow()) data.isPremium = true;
 
         const active = getActiveTeamId();

@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { PREDICT } from '../_lib/screen-data';
 import type { PredictionData, PredRow } from '../_lib/prediction';
 import { useAccount } from '@/lib/use-account';
-import { trackEvent } from '@/lib/analytics';
+import { trackPremiumGateClick } from '@/lib/analytics';
+import { isFreeLaunchWindow } from '@/lib/premium';
+import { PremiumFrame } from './PremiumFrame';
 import { toast } from './Toast';
 
 // Showcase unlock so the promo video can record the premium UI without a
@@ -15,14 +17,36 @@ const DEMO_UNLOCK = process.env.NEXT_PUBLIC_DEMO_PREMIUM === '1';
 /**
  * Squad → Prediction tab (I4, the premium revenue product). Derives personalized
  * captain picks (your 15 ranked by expected points) and transfer suggestions
- * (in/out pairs ranked by xPts gain) from the squad projection. Premium unlocks
- * both; free/anonymous users see a blurred teaser + upsell. Mockups 06 & 07.
+ * (in/out pairs ranked by xPts gain) from the squad projection. Mockups 06 & 07.
+ *
+ * Three states, not two — the middle one is the fix for the Sep 2026
+ * diagnostic's most expensive finding:
+ *
+ *   locked   → blurred content + a gate naming what is withheld
+ *   preview  → unlocked content inside a "premium, free right now" frame
+ *   premium  → unlocked, unframed
+ *
+ * `use-account` forces `isPremium = true` for everyone during the launch free
+ * window, so the locked state could never render and premium was visually
+ * identical to the free tier. Every user was being taught the product is free,
+ * with no exposure to what premium withholds, right up until the paywall drops.
+ * The preview state keeps the content free while making the value and the price
+ * legible — and it is what lets `premium_gate_click` fire from inside the app
+ * at all, since entitlement alone cannot distinguish the two.
  */
 export function PredictionBlock({ data, gw }: { data?: PredictionData; gw?: number }) {
   const router = useRouter();
   const P = data ?? (PREDICT as unknown as PredictionData);
   const { account } = useAccount();
-  const premium = !!account?.isPremium || DEMO_UNLOCK;
+  // The free window is a pure date check with no network dependency, so it is
+  // read directly rather than via `account.isPremium`. Both say the same thing
+  // (use-account forces isPremium true for everyone, including anonymous, while
+  // the window is open) but the account arrives one fetch later — keying off it
+  // would flash the locked gate at every visitor before flipping to the
+  // preview, which is the opposite of what this state exists to teach.
+  const freeWindow = isFreeLaunchWindow();
+  const preview = freeWindow && !DEMO_UNLOCK;
+  const entitled = freeWindow || !!account?.isPremium || DEMO_UNLOCK;
   const gwTag = gw ? `GW${gw}` : P.horizon;
 
   // Captain picks = your players ranked by projected points over the run.
@@ -33,11 +57,19 @@ export function PredictionBlock({ data, gw }: { data?: PredictionData; gw?: numb
     [P.rows],
   );
 
+  // Projected gain of the best available move. Shown (as a number) inside the
+  // locked gate while the move itself stays hidden — the loss is the point.
+  const gain = useMemo(() => {
+    const best = transfers[0];
+    if (!best) return 0;
+    return Math.round((best.pxp - best.cxp) * 10) / 10;
+  }, [transfers]);
+
   const topCxp = captains[0]?.cxp || 1;
   const conf = (cxp: number) => Math.max(35, Math.min(95, Math.round((cxp / topCxp) * 88)));
 
   const goPremium = (placement: string) => {
-    trackEvent('premium_gate_click', { placement, feature: 'prediction' });
+    trackPremiumGateClick(placement, 'prediction');
     router.push('/premium');
   };
 
@@ -54,8 +86,14 @@ export function PredictionBlock({ data, gw }: { data?: PredictionData; gw?: numb
         <span className="gwtag">{gwTag} · from your 15</span>
       </div>
 
-      {premium ? (
-        <CaptainContent captains={captains} conf={conf} horizon={P.horizon} />
+      {entitled ? (
+        <PremiumFrame
+          on={preview}
+          blurb={`Your captain pick for ${gwTag}, ranked from your own 15.`}
+          onGo={() => goPremium('preview_captain_picks')}
+        >
+          <CaptainContent captains={captains} conf={conf} horizon={P.horizon} />
+        </PremiumFrame>
       ) : (
         <div className="gate">
           <div className="blurred" aria-hidden="true">
@@ -65,7 +103,14 @@ export function PredictionBlock({ data, gw }: { data?: PredictionData; gw?: numb
             <div className="gate-card">
               <span className="cbadge" aria-hidden="true">C</span>
               <h3>Your captain call is ready</h3>
-              <p>The model has ranked all 15 of your players for {gwTag}. Premium unlocks your captain picks every gameweek.</p>
+              {/* Names the withheld thing and shows its value while hiding its
+                  identity. A generic "upgrade" panel gives the user nothing to
+                  feel the loss of; a number they cannot see does. */}
+              <ul className="withheld">
+                <li><span className="lk">Locked</span><span>Your GW{gwTag.replace('GW', '')} captain</span><span className="vv">{captains[0] ? `${captains[0].cxp} xP` : '—'}</span></li>
+                <li><span className="lk">Locked</span><span>Safest vice</span><span className="vv">{captains[1] ? `${captains[1].cxp} xP` : '—'}</span></li>
+                <li><span className="lk">Locked</span><span>All {P.rows.length} players ranked</span><span className="vv">every GW</span></li>
+              </ul>
               <button className="s-btn s-btn--red hex" onClick={() => goPremium('captain_picks')}>Go premium</button>
               <span className="fine">From £15 · one-off · full season</span>
             </div>
@@ -84,8 +129,14 @@ export function PredictionBlock({ data, gw }: { data?: PredictionData; gw?: numb
         <div className="b"><span className="bl">Optimal XI</span><span className="bv red">{P.opt} xP</span></div>
       </div>
 
-      {premium ? (
-        <TransferContent transfers={transfers} />
+      {entitled ? (
+        <PremiumFrame
+          on={preview}
+          blurb="Every in/out move for your squad, ranked by projected points gain."
+          onGo={() => goPremium('preview_transfer_suggestions')}
+        >
+          <TransferContent transfers={transfers} />
+        </PremiumFrame>
       ) : (
         <div className="gate">
           <div className="blurred" aria-hidden="true">
@@ -95,7 +146,11 @@ export function PredictionBlock({ data, gw }: { data?: PredictionData; gw?: numb
             <div className="gate-card">
               <span className="cbadge" aria-hidden="true" style={{ background: 'var(--red)', color: '#fff' }}>⇄</span>
               <h3>See your best transfers</h3>
-              <p>Premium ranks every in/out move for your squad by projected points gain — with the reasons why.</p>
+              <ul className="withheld">
+                <li><span className="lk">Locked</span><span>Your best transfer</span><span className="vv">{gain ? `+${gain} xP` : 'ranked'}</span></li>
+                <li><span className="lk">Locked</span><span>Optimal XI gap</span><span className="vv">{Math.max(0, Math.round((P.opt - P.cur) * 10) / 10)} xP</span></li>
+                <li><span className="lk">Locked</span><span>The reason for each move</span><span className="vv">every GW</span></li>
+              </ul>
               <button className="s-btn s-btn--red hex" onClick={() => goPremium('transfer_suggestions')}>Go premium</button>
               <span className="fine">From £15 · one-off · full season</span>
             </div>

@@ -52,6 +52,19 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     const picksRes = await Promise.allSettled(results.map((r) => fpl.getManagerPicks(r.entry, gw)));
 
+    // This manager's own picks. Without them the endpoint can only describe what
+    // the league is doing, which is interesting but substitutable and carries no
+    // cost to ignore. The comparison below is what makes it a painkiller: it
+    // names what the reader is exposed to, not what the league owns.
+    const meIdx = results.findIndex((r) => r.entry === teamId);
+    let mine: any = meIdx >= 0 && picksRes[meIdx].status === 'fulfilled'
+      ? (picksRes[meIdx] as PromiseFulfilledResult<any>).value
+      : null;
+    if (!mine) {
+      // Outside the top MAX_MANAGERS slice (or not in this league at all) — fetch directly.
+      try { mine = await fpl.getManagerPicks(teamId, gw); } catch { mine = null; }
+    }
+
     const eo: Record<number, number> = {};     // Σ multiplier in scoring team (captain ×2/3, bench-boost bench ×1)
     const owned: Record<number, number> = {};  // count of teams playing the player
     const cap: Record<number, number> = {};    // count of teams captaining the player
@@ -96,7 +109,58 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       { key: 'none', label: 'No chip', count: chipCount.none },
     ].sort((a, b) => b.count - a.count);
 
-    return NextResponse.json({ leagueId, leagueName, gw, managers: denom, effectiveOwnership, captaincy, chips });
+    // ── You vs them ───────────────────────────────────────────────────
+    // Three loss-framed reads, all from data already in hand:
+    //   threats       — they own it, you do not (points you cannot match)
+    //   differentials — you own it, they mostly do not (your edge)
+    //   captain       — your armband against the league's most-captained
+    let you: {
+      captain: ReturnType<typeof meta> | null;
+      captainShare: number;
+      threats: (ReturnType<typeof meta> & { ownedPct: number; eo: number })[];
+      differentials: (ReturnType<typeof meta> & { ownedPct: number })[];
+      inSquad: number;
+    } | null = null;
+
+    if (mine?.picks) {
+      const starting = new Set<number>();
+      let myCaptainId = 0;
+      for (const p of mine.picks as any[]) {
+        if (p.multiplier > 0) starting.add(p.element);
+        if (p.is_captain) myCaptainId = p.element;
+      }
+
+      const ownedPctOf = (elId: number) => Math.round(((owned[elId] || 0) / denom) * 100);
+
+      // Widely owned in the league, absent from your scoring XI.
+      const threats = Object.keys(owned)
+        .map(Number)
+        .filter((elId) => !starting.has(elId))
+        .map((elId) => ({ ...meta(elId), ownedPct: ownedPctOf(elId), eo: Math.round(((eo[elId] || 0) / denom) * 100) }))
+        .filter((t) => t.ownedPct >= 30)
+        .sort((a, b) => b.eo - a.eo)
+        .slice(0, 5);
+
+      // Yours, and rare in the league. Owned by <=30% of rivals counts as an edge.
+      const differentials = [...starting]
+        .map((elId) => ({ ...meta(elId), ownedPct: ownedPctOf(elId) }))
+        .filter((d) => d.ownedPct <= 30)
+        .sort((a, b) => a.ownedPct - b.ownedPct)
+        .slice(0, 5);
+
+      const capCount = myCaptainId ? (cap[myCaptainId] || 0) : 0;
+      you = {
+        captain: myCaptainId ? meta(myCaptainId) : null,
+        // Share of the league on the same armband — 100% means no captaincy edge
+        // either way, a low number means you are swinging against the field.
+        captainShare: myCaptainId ? Math.round((capCount / denom) * 100) : 0,
+        threats,
+        differentials,
+        inSquad: starting.size,
+      };
+    }
+
+    return NextResponse.json({ leagueId, leagueName, gw, managers: denom, you, effectiveOwnership, captaincy, chips });
   } catch (error) {
     console.error('Rival watch API error:', error);
     return NextResponse.json({ error: 'Failed to build rival watch' }, { status: 500 });

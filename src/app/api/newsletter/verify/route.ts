@@ -4,9 +4,16 @@ import { verifySubToken } from '@/lib/newsletter-token';
 import { SITE_URL } from '@/lib/seo';
 
 /**
- * Double opt-in confirmation (I5). The link in the "confirm your subscription"
- * email points here; a valid token flips `verifiedAt` so bulk sends will include
- * the subscriber. Returns a small branded HTML page.
+ * Subscription confirmation.
+ *
+ * Subscribing is now single opt-in — /api/newsletter/subscribe stamps
+ * `verifiedAt` on submit — so nothing routes here any more. The endpoint stays
+ * because confirmation links from the double opt-in era are sitting in real
+ * inboxes and will keep being clicked; landing them on a 404 would read as a
+ * broken subscription to someone who is already subscribed.
+ *
+ * It is also the re-consent path if double opt-in ever comes back above ~500
+ * subscribers (see the note in subscribe/route.ts).
  */
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token') || '';
@@ -36,9 +43,12 @@ a{display:inline-block;background:#FF5050;color:#fff;font-weight:700;text-decora
     }
     await prisma.newsletterSubscription.update({
       where: { id: sub.id },
-      data: { verifiedAt: new Date(), isActive: true },
+      // Never overwrite an existing timestamp: it records when consent was first
+      // given, and a click on a months-old link should not backdate it to today.
+      // `isActive` is re-set because the link doubles as a resubscribe.
+      data: { verifiedAt: sub.verifiedAt ?? new Date(), isActive: true },
     });
-    return page('You’re confirmed! ✓', 'Your email is verified — you’ll get your mini-league’s gameweek recaps and deadline reminders.', true);
+    return page('You’re all set ✓', 'Your subscription is active — you’ll get your mini-league’s gameweek recaps and deadline reminders.', true);
   } catch {
     return page('Something went wrong', 'We couldn’t confirm your subscription right now. Please try the link again shortly.', false);
   }

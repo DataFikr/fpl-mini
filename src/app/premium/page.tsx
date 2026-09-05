@@ -3,22 +3,43 @@ import Link from 'next/link';
 import '@/app/_styles/sportify-pages.css';
 import { getSessionUser, hasActivePremium } from '@/lib/auth';
 import { checkoutUrl, PRICING, LAUNCH_OFFER_ENDS } from '@/lib/billing';
-import { isFreeLaunchWindow } from '@/lib/premium';
+import { PlanCta } from './_components/PlanCta';
+import { isFreeLaunchWindow, FREE_WINDOW_GW, FREE_WINDOW_LABEL } from '@/lib/premium';
 import { SITE_URL, SITE_NAME } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'FPL Ranker Premium — AI Captain & Transfer Picks',
   description:
-    'AI captain picks, transfer suggestions, the full points-prediction table and a premium gameweek newsletter for your FPL mini-league — free for everyone until GW5.',
+    `See exactly which players your mini-league owns that you don’t, get rival transfer and captaincy alerts, and AI calls tuned to your own 15 — free for everyone until GW${FREE_WINDOW_GW}.`,
   alternates: { canonical: `${SITE_URL}/premium` },
 };
 
+/**
+ * What premium is, in the order that decides whether anyone buys.
+ *
+ * The Sep 2026 diagnostic graded the old bundle 3/4 on the painkiller rubric: it
+ * led with captain picks, transfer suggestions and the full prediction table —
+ * all of which livefpl.net (3.2M visits) and fplgameweek.com (1.1M) give away
+ * free. It failed *un-substitutable*, the test that decides whether someone
+ * reaches for a card.
+ *
+ * The list now leads with the mini-league layer, which nobody at that scale
+ * builds because per-league work does not scale for them. The generic tables
+ * stay free: they are SEO surface and they feed the team-entry prompts.
+ */
 const FEATURES = [
-  'AI captain picks tuned to your own squad every gameweek',
-  'Transfer suggestions ranked by expected points gain',
-  'The full player points-prediction table (not just the top 10)',
-  'Premium gameweek newsletter with your personalised calls',
-  'Rival transfer alerts across your mini-leagues',
+  'Rival Watch: exactly which players your league owns that you don’t — and what it costs you',
+  'Rival transfer and captaincy alerts across every mini-league you’re in',
+  'Your differentials ranked by how much they can actually swing your league',
+  'AI captain and transfer calls tuned to your own 15, every gameweek',
+  'A premium gameweek newsletter with your personalised calls',
+];
+
+/** Kept free on purpose — commodity data that rivals already give away. */
+const STAYS_FREE = [
+  'The live mini-league table on matchday',
+  'Player prices, ownership and the projected-points table',
+  'Your squad, your leagues and the gameweek reports',
 ];
 
 export default async function PremiumPage() {
@@ -45,27 +66,28 @@ export default async function PremiumPage() {
       <main className="wrap">
         <header className="p-head">
           <span className="kicker">{SITE_NAME} Premium</span>
-          <h1>Win your mini-league <em>with an AI edge</em></h1>
+          <h1>Know what your <em>rivals</em> are doing</h1>
           <p className="sub">
-            Everything you already love stays free. Premium adds the AI advisor: captain and
-            transfer calls tuned to <strong>your</strong> squad, powered by our self-learning prediction model.
+            The tables and the live matchday scores stay free. Premium is the mini-league edge:
+            which players <strong>your</strong> rivals own that you don&rsquo;t, what it costs you, and the
+            captain and transfer calls tuned to your own 15.
           </p>
         </header>
 
         {freeWindow ? (
           <div className="prem-card on-ink">
-            <span className="tag tag--yellow">Free until GW5</span>
+            <span className="tag tag--yellow">{FREE_WINDOW_LABEL}</span>
             <h2>Premium is <em>free</em> for everyone right now</h2>
             <p>
-              We&rsquo;ve put pricing on hold for launch. AI captain picks, transfer suggestions and the
-              full points-prediction table are unlocked for every manager through Gameweek 5 while we
-              validate the live data and retune the model. No card needed.
+              We&rsquo;ve put pricing on hold for launch. Rival Watch, the differential breakdown and
+              the AI captain and transfer calls are unlocked for every manager through Gameweek {FREE_WINDOW_GW}
+              while we validate the live data and retune the model. No card needed.
             </p>
             <div className="prem-cta">
               {user
                 ? <Link href="/app/squad" className="s-btn s-btn--red hex">Open my squad</Link>
                 : <Link href="/auth/login?next=/app/squad" className="s-btn s-btn--red hex">Sign up free</Link>}
-              <span className="prem-note">Pricing returns after GW5 · sign up now to lock in your team</span>
+              <span className="prem-note">Pricing returns after GW{FREE_WINDOW_GW} · sign up now to lock in your team</span>
             </div>
             <ul className="feats" style={{ marginTop: 22 }}>
               {FEATURES.map((f) => <li key={f}>{f}</li>)}
@@ -98,7 +120,7 @@ export default async function PremiumPage() {
                 </div>
                 <span className="cad">{PRICING.season.cadence}</span>
                 <p className="blurb">{PRICING.season.blurb}</p>
-                <PlanCta plan="season" href={seasonUrl} loggedIn={!!user} variant="red" label="Get Season Pass" />
+                <PlanCta plan="season" href={seasonUrl} loggedIn={!!user} variant="red" label="Get Season Pass" amount={PRICING.season.amount} />
               </section>
 
               <section className="plan" aria-label={PRICING.annual.name}>
@@ -106,13 +128,18 @@ export default async function PremiumPage() {
                 <div className="price"><span className="v">{PRICING.annual.price}</span></div>
                 <span className="cad">{PRICING.annual.cadence}</span>
                 <p className="blurb">{PRICING.annual.blurb}</p>
-                <PlanCta plan="annual" href={annualUrl} loggedIn={!!user} variant="navy" label="Get Annual" />
+                <PlanCta plan="annual" href={annualUrl} loggedIn={!!user} variant="navy" label="Get Annual" amount={PRICING.annual.amount} />
               </section>
             </div>
 
             <ul className="feats">
               {FEATURES.map((f) => <li key={f}>{f}</li>)}
             </ul>
+
+            <div className="stays-free">
+              <span className="sf-h">Always free</span>
+              <ul>{STAYS_FREE.map((f) => <li key={f}>{f}</li>)}</ul>
+            </div>
 
             <p className="checkout-note">
               Secure checkout by Lemon Squeezy (our merchant of record — VAT handled). Cancel anytime.
@@ -122,15 +149,6 @@ export default async function PremiumPage() {
       </main>
     </div>
   );
-}
-
-function PlanCta({ plan, href, loggedIn, variant, label }: {
-  plan: 'season' | 'annual'; href: string | null; loggedIn: boolean; variant: 'red' | 'navy'; label: string;
-}) {
-  const cls = `s-btn s-btn--${variant} hex`;
-  if (!loggedIn) return <Link href={`/auth/login?next=/premium`} className="s-btn s-btn--navy hex">Sign in to buy</Link>;
-  if (href) return <a href={href} className={cls}>{label}</a>;
-  return <span className={cls} style={{ opacity: 0.5, cursor: 'not-allowed' }} aria-disabled="true">Checkout unavailable</span>;
 }
 
 function AccountControl({ email }: { email?: string }) {

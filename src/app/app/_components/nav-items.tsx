@@ -19,6 +19,7 @@ const ICONS: Record<string, React.ReactNode> = {
   blog: <><path d="M5 3h11l3 3v15H5z" /><path d="M8 9h8M8 13h8M8 17h5" /></>,
   kits: <path d="M6 2 3 6l3 2v12h12V8l3-2-3-4-4 2a4 4 0 0 1-8 0z" />,
   players: <><path d="M3 20V9M9 20V4M15 20v-7M21 20V11" /><path d="M2 20h20" /></>,
+  premium: <path d="m12 3 2.6 5.6 6.4.8-4.7 4.3 1.3 6.3L12 17l-5.6 3 1.3-6.3L3 9.4l6.4-.8z" />,
 };
 
 export const NAV: NavItem[] = [
@@ -30,6 +31,12 @@ export const NAV: NavItem[] = [
   // Blog keeps its sidebar slot and stays in the hamburger menu; the bottom bar
   // only fits five.
   { id: 'blog', label: 'Blog', icon: ICONS.blog, href: '/app/blog', sidebarOnly: true },
+  // Premium had no in-app nav entry at all — inside the app it was reachable
+  // only from the account dropdown, which is most of why /premium drew 2 views
+  // from 275 sessions. It is sidebarOnly for the same reason as Blog: the bottom
+  // bar's hexagon clip fits exactly five. The hamburger (AppMenu) carries it at
+  // every width, so mobile is covered without breaking that bar.
+  { id: 'premium', label: 'Premium', icon: ICONS.premium, href: '/premium', sidebarOnly: true },
 ];
 
 /** Tabs that render one specific manager's data and so must carry the team id. */

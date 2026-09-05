@@ -20,16 +20,24 @@ export const SEASON_END = new Date('2027-06-30T23:59:59Z');
 /** Launch offer: Season Pass rises from £15 to £20 on this date. */
 export const LAUNCH_OFFER_ENDS = new Date('2026-09-01T00:00:00Z');
 
-export const PRICING: Record<Plan, { name: string; price: string; cadence: string; blurb: string }> = {
+/** Currency for both plans — GBP, matching the UK/IE-weighted audience. */
+export const CURRENCY = 'GBP';
+
+// `amount` is the same number as `price` without the glyph: GA4's `begin_checkout`
+// needs a numeric `value` to feed the monetisation reports, and parsing it back
+// out of the display string would break the moment the price gains a decimal.
+export const PRICING: Record<Plan, { name: string; price: string; amount: number; cadence: string; blurb: string }> = {
   season: {
     name: 'Season Pass 2026/27',
     price: '£15',
+    amount: 15,
     cadence: 'one-off · full season',
     blurb: 'Everything premium until the end of the 2026/27 season. No renewal.',
   },
   annual: {
     name: 'Annual',
     price: '£30',
+    amount: 30,
     cadence: 'per year',
     blurb: 'Rolling annual access, renews automatically. Cancel anytime.',
   },

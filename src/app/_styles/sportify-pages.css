@@ -272,3 +272,26 @@
      label) so 4 headers line up with the 4 body columns */
   .pt-row.head span:nth-child(3){display:none;}
 }
+
+/* ── Kitbag strip (content-page affiliate placement) ────────────────
+   Placement follows traffic: /players (68 views) and /predictions had none,
+   while /app/kits (6 views) did. See diagnostic item 10. */
+.kit-strip{margin-top:30px;background:#fff;border:1px solid var(--line);padding:18px 20px;}
+.kit-strip .ks-head{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;}
+.kit-strip .ks-shirt{width:44px;height:44px;display:grid;place-items:center;background:var(--line-2);color:var(--ink);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.kit-strip b{font-family:var(--body);font-weight:800;font-size:14px;display:block;}
+.kit-strip small{font-family:var(--body);font-size:12.5px;color:var(--t2);line-height:1.5;display:block;margin-top:3px;}
+.kit-strip .ks-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.kit-strip .ks-fine{display:block;font-family:var(--mono);font-weight:600;font-size:11px;color:var(--t4);
+  text-transform:uppercase;letter-spacing:.04em;margin-top:12px;}
+
+/* ── "Always free" list on /premium ─────────────────────────────────
+   Gate 4 needs the paid thing to be legibly different from the free thing, not
+   merely longer. Naming what stays free is what makes the paid list credible. */
+.stays-free{margin-top:26px;border:1px dashed var(--line);padding:16px 18px;}
+.stays-free .sf-h{display:block;font-family:var(--mono);font-weight:700;font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--t4);margin-bottom:9px;}
+.stays-free ul{list-style:none;margin:0;padding:0;}
+.stays-free li{font-family:var(--body);font-size:13px;color:var(--t2);line-height:1.6;padding-left:18px;position:relative;}
+.stays-free li::before{content:'\2713';position:absolute;left:0;color:#009C54;font-weight:700;}

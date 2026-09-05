@@ -27,7 +27,7 @@ export function TeamIdEntry({ label = 'Rank it' }: { label?: string }) {
   };
 
   return (
-    <form className="mgr-search" onSubmit={go} noValidate>
+    <form id="team-id-entry" name="team-id-entry" className="mgr-search" onSubmit={go} noValidate>
       <div className="id-field">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />

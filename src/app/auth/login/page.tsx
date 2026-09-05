@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { trackSignup } from '@/lib/analytics';
 import '@/app/_styles/sportify-pages.css';
 
 /**
@@ -32,6 +33,10 @@ export default function LoginPage() {
         throw new Error(data.error || 'Something went wrong.');
       }
       setStatus('sent');
+      // Fired on success, not on submit: a failed request produced no email and
+      // is not a lead. `next` distinguishes an organic sign-in from one the
+      // premium or squad CTA pushed the visitor into.
+      trackSignup(next ? `next:${next}` : 'login_page');
     } catch (err) {
       setStatus('error');
       setMessage(err instanceof Error ? err.message : 'Something went wrong.');
@@ -69,7 +74,7 @@ export default function LoginPage() {
                 <p className="err" role="alert">{message}</p>
               )}
 
-              <form onSubmit={submit}>
+              <form id="auth-magic-link" name="auth-magic-link" onSubmit={submit}>
                 <label className="f-label" htmlFor="email">Email</label>
                 <input
                   className="f-input"

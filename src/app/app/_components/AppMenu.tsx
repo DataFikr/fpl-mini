@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { XIcon, RedditIcon, InstagramIcon } from '@/components/ui/brand-icons';
+import { trackPremiumGateClick } from '@/lib/analytics';
 
 export interface MenuLink { label: string; href: string }
 
 const PRIMARY: MenuLink[] = [
+  // Premium leads because this overlay is the only nav surface on every screen
+  // at every width, and the bottom bar cannot take a sixth item.
+  { label: 'Premium', href: '/premium' },
   { label: 'Master the League', href: '/app/master-the-league' },
   { label: 'Find Team ID', href: '/app/find-team-id' },
   { label: 'Blog', href: '/app/blog' },
@@ -49,7 +53,11 @@ export function AppMenu({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const go = (href: string) => { setOpen(false); router.push(href); };
+  const go = (href: string) => {
+    setOpen(false);
+    if (href === '/premium') trackPremiumGateClick('app_menu');
+    router.push(href);
+  };
 
   return (
     <>

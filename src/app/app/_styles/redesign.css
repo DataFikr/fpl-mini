@@ -801,3 +801,86 @@
 .fti-shortcut > p{font-family:var(--body);font-size:13px;color:#cfc6c6;line-height:1.5;margin:0 0 14px;max-width:60ch;}
 .fti-shortcut .mgr-search .ms-msg{color:#cfc6c6;}
 .fti-shortcut .mgr-search .ms-err{color:#ff8a8a;}
+
+/* ── Premium preview frame (launch free-window) ─────────────────────
+   During the free window everyone is entitled, so the .gate above never
+   renders and premium content is indistinguishable from the free tier — the
+   Sep 2026 diagnostic's most expensive finding. This frames the same content
+   as premium-and-currently-free, so the value and the price are both learned
+   before the window closes. */
+.prem-preview{position:relative;border:2px solid var(--yellow);padding:10px 10px 12px;margin-top:6px;}
+.prem-preview-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-22px 0 10px;}
+.prem-preview-bar .pp-tag{font-family:var(--mono);font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--yellow);color:var(--ink);padding:4px 9px;}
+.prem-preview-bar .pp-note{font-family:var(--mono);font-weight:600;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--t4);
+  background:var(--bg,#FAFAFA);padding:4px 6px;}
+.prem-preview-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;
+  border-top:1px dashed var(--line);padding-top:11px;}
+.prem-preview-foot p{font-family:var(--body);font-size:12.5px;color:var(--t2);line-height:1.5;margin:0;flex:1 1 190px;}
+.prem-preview-foot .s-btn{flex:0 0 auto;}
+/* The withheld specifics inside a locked gate: value shown, identity hidden. */
+.gate-card .withheld{list-style:none;margin:0 0 15px;padding:0;text-align:left;}
+.gate-card .withheld li{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-family:var(--body);font-size:12.5px;color:#cfc6c6;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12);}
+.gate-card .withheld li:last-child{border-bottom:0;}
+.gate-card .withheld .lk{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.05em;color:#fff;
+  background:rgba(255,255,255,.14);padding:3px 7px;white-space:nowrap;}
+.gate-card .withheld .vv{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--yellow);white-space:nowrap;}
+
+/* ── Rival Watch: you vs them ───────────────────────────────────────
+   The differential block that makes Rival Watch loss-framed rather than a
+   neutral ownership table (diagnostic item 18b). */
+.rw-you{border:2px solid var(--ink);padding:0 12px 12px;margin-top:4px;}
+.rw-you-cap{font-family:var(--body);font-size:13px;color:var(--t2);line-height:1.55;margin:2px 0 12px;}
+.rw-you-cap b{color:var(--ink);}
+.rw-you-h{font-family:var(--mono);font-weight:700;font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--t4);margin:12px 0 6px;}
+.rw-you-note{font-family:var(--body);font-size:12px;color:var(--t3,var(--t4));line-height:1.5;margin:7px 0 0;}
+.rw-row.rw-threat{border-left:3px solid var(--red);padding-left:9px;}
+.rw-row.rw-diff{border-left:3px solid var(--green,#009C54);padding-left:9px;}
+.rw-row.rw-threat .rw-val,.rw-row.rw-diff .rw-val{margin-left:auto;}
+
+/* ── Live mini-league table (matchday) ──────────────────────────────
+   The matchday surface (diagnostic item 18a). Reads as movement against the
+   league, not as a scoreboard: rank first, direction second, points last. */
+.live-you{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--ink);color:#fff;
+  padding:16px 18px;margin-top:10px;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);}
+.live-you .ly-rank{text-align:center;}
+.live-you .ly-rank .v{display:block;font-family:var(--display);font-size:30px;line-height:.9;}
+.live-you .ly-rank .l,.live-you .ly-pts .l{display:block;font-family:var(--mono);font-size:9.5px;color:#9a8e8e;
+  text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+.live-you .ly-mid .nm{font-family:var(--body);font-weight:800;font-size:15px;}
+.live-you .ly-mid .mv{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;font-family:var(--mono);font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.05em;}
+.live-you .ly-mid .up{color:#5BE59B;}
+.live-you .ly-mid .dn{color:#FF8B8B;}
+.live-you .ly-mid .fl,.live-you .ly-mid .rem{color:#9a8e8e;}
+.live-you .ly-pts{text-align:center;}
+.live-you .ly-pts .v{display:block;font-family:var(--display);font-size:30px;line-height:.9;color:var(--yellow);}
+.live-chase{font-family:var(--body);font-size:13px;color:var(--t2);margin:10px 0 0;}
+.live-chase b{color:var(--red);}
+.live-list{margin-top:12px;}
+.live-row{display:grid;grid-template-columns:26px 34px 1fr auto auto;gap:9px;align-items:center;
+  padding:9px 8px;border-bottom:1px solid var(--line);}
+.live-row.me{background:var(--line-2);}
+.live-row .lr-rk{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--t4);}
+.live-row .lr-mv{font-family:var(--mono);font-weight:700;font-size:11px;}
+.live-row .lr-mv.up{color:#009C54;}
+.live-row .lr-mv.dn{color:var(--red);}
+.live-row .lr-mv.fl{color:var(--t4);}
+.live-row .lr-who .nm{font-family:var(--body);font-weight:700;font-size:13.5px;line-height:1.25;}
+.live-row .lr-who .cl{font-family:var(--body);font-size:11.5px;color:var(--t4);line-height:1.35;margin-top:1px;}
+.live-row .lr-who .cap{color:var(--t3,var(--t4));font-weight:600;}
+.live-row .lr-gw{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--red);min-width:30px;text-align:right;}
+.live-row .lr-tot{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--t4);min-width:38px;text-align:right;}
+.live-foot{font-family:var(--mono);font-size:9.5px;color:var(--t4);text-transform:uppercase;letter-spacing:.05em;
+  text-align:center;margin-top:14px;}
+@media (max-width:400px){.live-row{grid-template-columns:22px 30px 1fr auto;}.live-row .lr-tot{display:none;}}
+.live-cta{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;
+  background:var(--ink);color:#fff;border:0;cursor:pointer;padding:14px 16px;margin-top:14px;font:inherit;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);}
+.live-cta .lc-dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(255,80,80,.22);}
+.live-cta .lc-tx b{display:block;font-family:var(--body);font-weight:800;font-size:14px;}
+.live-cta .lc-tx small{display:block;font-family:var(--body);font-size:11.5px;color:#cfc6c6;margin-top:2px;}
+.live-cta .lc-go{font-family:var(--mono);font-weight:700;font-size:11px;color:var(--yellow);text-transform:uppercase;letter-spacing:.05em;}

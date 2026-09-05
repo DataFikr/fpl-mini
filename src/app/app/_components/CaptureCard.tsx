@@ -90,11 +90,11 @@ export function CaptureCard({
       <div className="cap-card cap-done">
         <span className="cap-tick" aria-hidden="true">✓</span>
         <div>
-          <b>Check your inbox</b>
+          <b>{mode === 'save-team' ? 'Check your inbox' : "You're subscribed"}</b>
           <p>
             {mode === 'save-team'
               ? 'We sent a sign-in link. Click it and your team stays saved on every device.'
-              : `We sent a confirmation link. Click it and ${leagueName || 'your league'}'s reports start arriving.`}
+              : `You're in. ${leagueName || 'Your league'}'s deadline reminder and gameweek report land in your inbox from the next gameweek.`}
           </p>
         </div>
       </div>
@@ -121,7 +121,7 @@ export function CaptureCard({
       <div className="cap-kicker"><span className="dot" />{copy.kicker}</div>
       <h3>{copy.title}</h3>
       <p>{copy.body}</p>
-      <form onSubmit={submit} noValidate>
+      <form id={`capture-${mode}`} name={`capture-${mode}`} onSubmit={submit} noValidate>
         <label className="id-field cap-field" aria-label="Email address">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <rect x="3" y="5" width="18" height="14" /><path d="m3 6 9 7 9-7" />
@@ -136,7 +136,7 @@ export function CaptureCard({
         </label>
       </form>
       <span className="cap-fine">
-        {mode === 'save-team' ? 'No password. No spam.' : 'Double opt-in — unsubscribe in one click.'}
+        {mode === 'save-team' ? 'No password. No spam.' : 'Twice a gameweek. Unsubscribe in one click.'}
       </span>
     </div>
   );

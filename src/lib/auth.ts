@@ -122,7 +122,8 @@ export function sessionCookieOptions(expiresAt: Date) {
 
 /** True if the user currently holds active premium (flag + not-expired). */
 export function hasActivePremium(user: Pick<User, 'isPremium' | 'premiumUntil'> | null): boolean {
-  // Launch hold: premium is free for everyone through GW5 while we validate the
+  // Launch hold: premium is free for everyone through the free window (GW8)
+  // while we validate the
   // live API + retune the model. Unlocks all gates without a paid entitlement.
   if (isFreeLaunchWindow()) return true;
   if (!user || !user.isPremium) return false;

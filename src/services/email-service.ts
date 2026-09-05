@@ -261,6 +261,128 @@ export class EmailService {
    * is for an address that has already confirmed (a re-subscribe). Same design,
    * different CTA, so an unverified address is never treated as opted in.
    */
+  /** Confirmation that squad deadline reminders are on. Single opt-in — nothing to click. */
+  async sendDeadlineOptInWelcome(opts: {
+    to: string;
+    fplTeamId: number;
+    unsubscribeUrl?: string;
+  }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    return this.sendEmail({
+      to: opts.to,
+      subject: "You're in — FPL deadline reminders",
+      html: this.deadlineShell({
+        heading: 'Deadline reminders are on',
+        lede: "Before every deadline we'll email what needs attention in your squad — flagged players first, then the captain call.",
+        ctaUrl: `${this.baseUrl()}/app/squad?teamId=${opts.fplTeamId}`,
+        ctaLabel: 'Open my squad',
+        body: '',
+        unsubscribeUrl: opts.unsubscribeUrl,
+      }),
+    });
+  }
+
+  /**
+   * The squad deadline reminder — the painkiller itself, not a nudge to visit.
+   *
+   * The league reminder it replaces for team-only subscribers led with standings,
+   * which are substitutable and carry no deadline cost. This leads with what the
+   * manager stands to lose if they do nothing before the clock: players in their
+   * own XI who are flagged. That is recurring, deadline-coupled, personal and
+   * loss-framed — all four painkiller tests, from data already fetched.
+   */
+  async sendSquadDeadlineReminder(opts: {
+    to: string;
+    fplTeamId: number;
+    gameweek: number;
+    deadlineLabel: string;
+    flagged: { name: string; team: string; note: string }[];
+    captain?: { name: string; team: string } | null;
+    unsubscribeUrl?: string;
+  }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const n = opts.flagged.length;
+    // The subject carries the loss. "Gameweek N reminder" is ignorable; a count
+    // of your own flagged players is not.
+    const subject = n > 0
+      ? `⚠️ ${n} player${n === 1 ? '' : 's'} in your squad flagged — GW${opts.gameweek} deadline ${opts.deadlineLabel}`
+      : `✅ Your GW${opts.gameweek} squad looks clean — deadline ${opts.deadlineLabel}`;
+
+    const rows = opts.flagged.map((f) => `
+      <tr>
+        <td style="padding:9px 0;border-bottom:1px solid #EEE;font:600 14px/1.4 Inter,Arial,sans-serif;color:#150000">
+          ${this.esc(f.name)} <span style="color:#8A8585;font-weight:400">${this.esc(f.team)}</span>
+        </td>
+        <td style="padding:9px 0;border-bottom:1px solid #EEE;font:600 12px/1.4 Inter,Arial,sans-serif;color:#FF5050;text-align:right;white-space:nowrap">
+          ${this.esc(f.note)}
+        </td>
+      </tr>`).join('');
+
+    const body = n > 0
+      ? `<p style="font:400 14px/1.6 Inter,Arial,sans-serif;color:#5B5757;margin:0 0 10px">
+           These are in your squad right now and carry a risk of not playing:
+         </p>
+         <table role="presentation" width="100%" style="border-collapse:collapse;margin:0 0 6px">${rows}</table>`
+      : `<p style="font:400 14px/1.6 Inter,Arial,sans-serif;color:#5B5757;margin:0 0 10px">
+           No injury or availability flags in your 15 this week. Worth a last look at the captain.
+         </p>`;
+
+    const captainLine = opts.captain
+      ? `<p style="font:400 13px/1.6 Inter,Arial,sans-serif;color:#5B5757;margin:12px 0 0">
+           Currently captained: <b style="color:#150000">${this.esc(opts.captain.name)}</b> ${this.esc(opts.captain.team)}
+         </p>`
+      : '';
+
+    return this.sendEmail({
+      to: opts.to,
+      subject,
+      html: this.deadlineShell({
+        heading: n > 0 ? `${n} to look at before GW${opts.gameweek}` : `GW${opts.gameweek} deadline`,
+        lede: `Deadline ${opts.deadlineLabel}.`,
+        body: body + captainLine,
+        ctaUrl: `${this.baseUrl()}/app/squad?teamId=${opts.fplTeamId}`,
+        ctaLabel: 'Check my squad',
+        unsubscribeUrl: opts.unsubscribeUrl,
+      }),
+    });
+  }
+
+  private baseUrl(): string {
+    return (process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com').replace(/\/$/, '');
+  }
+
+  /** Minimal escaping for values interpolated into email HTML (FPL-sourced names). */
+  private esc(v: string): string {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  /** Shared shell for the squad-scoped deadline emails. */
+  private deadlineShell(o: {
+    heading: string; lede: string; body: string;
+    ctaUrl: string; ctaLabel: string; unsubscribeUrl?: string;
+  }): string {
+    return `
+  <div style="background:#FAFAFA;padding:26px 14px">
+    <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #D6D5D5">
+      <div style="background:#150000;padding:16px 22px">
+        <span style="font:700 15px/1 Inter,Arial,sans-serif;color:#fff;letter-spacing:.02em">FPL RANKER</span>
+      </div>
+      <div style="padding:24px 22px">
+        <h1 style="font:700 22px/1.15 Inter,Arial,sans-serif;color:#150000;margin:0 0 6px">${o.heading}</h1>
+        <p style="font:600 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#FF5050;text-transform:uppercase;letter-spacing:.05em;margin:0 0 16px">${o.lede}</p>
+        ${o.body}
+        <p style="margin:22px 0 0">
+          <a href="${o.ctaUrl}" style="background:#FF5050;color:#fff;text-decoration:none;padding:12px 22px;font:700 14px/1 Inter,Arial,sans-serif;display:inline-block">${o.ctaLabel}</a>
+        </p>
+      </div>
+      <div style="padding:14px 22px;border-top:1px solid #EEE">
+        <p style="font:400 11px/1.5 Inter,Arial,sans-serif;color:#8A8585;margin:0">
+          You get this because you turned on deadline reminders for your FPL squad.
+          ${o.unsubscribeUrl ? `<a href="${o.unsubscribeUrl}" style="color:#8A8585">Turn them off</a>.` : ''}
+        </p>
+      </div>
+    </div>
+  </div>`;
+  }
+
   async sendNewsletterWelcome(opts: {
     to: string;
     leagueId: number;

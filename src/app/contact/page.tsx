@@ -154,7 +154,7 @@ export default function ContactPage() {
                   <p className="font-inter text-fpl-text-secondary">Thank you for reaching out. We'll get back to you soon.</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form id="contact-site" name="contact-site" onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-jakarta font-medium text-white mb-2">
                       Name

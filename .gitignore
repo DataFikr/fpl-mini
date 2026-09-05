@@ -22,6 +22,8 @@ openAI_API_Key.txt
 # Cache directories
 .fpl_cache/
 scripts/fpl-predictor/.cache/
+# Per-season predictor caches (FPL_CACHE_DIR), e.g. .cache-2026-27
+scripts/fpl-predictor/.cache-*/
 scripts/fpl-predictor/out/
 
 # Remotion social-video renders (video/ workspace). The compositions are

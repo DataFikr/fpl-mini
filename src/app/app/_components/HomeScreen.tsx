@@ -65,7 +65,7 @@ function TeamIdPrompt({ notice, teamId }: { notice?: HomeNotice; teamId?: number
         <summary style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '.07em', textTransform: 'uppercase', color: '#9a8e8e', cursor: 'pointer' }}>
           Know your team ID? Enter it directly
         </summary>
-        <form className="id-field" style={{ display: 'inline-flex', marginTop: 10 }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
+        <form id="team-id-home" name="team-id-home" className="id-field" style={{ display: 'inline-flex', marginTop: 10 }} onSubmit={(e) => { e.preventDefault(); go(); }} noValidate>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>
           <input inputMode="numeric" placeholder="e.g. 6454003 or paste your FPL link" aria-label="FPL team ID" value={id} onChange={(e) => setId(e.target.value)} />
           <button type="submit" className="s-btn s-btn--red hex">Load</button>

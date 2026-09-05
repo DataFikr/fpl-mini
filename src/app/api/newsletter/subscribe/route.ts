@@ -48,13 +48,27 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      // Single opt-in: `verifiedAt` is stamped here rather than by a click in a
+      // confirmation email.
+      //
+      // Double opt-in cost 80% of the list (5 "Confirm your spot" sends → 1
+      // "You're in") — the Sep 2026 diagnostic's largest single conversion loss.
+      // That trade buys deliverability protection worth having at 50k
+      // subscribers and nothing at all at 16, where the whole list is people who
+      // typed their address into a form thirty seconds earlier. Every send still
+      // carries a one-click unsubscribe, which is what actually keeps complaint
+      // rates down. Revisit above ~500 subscribers.
+      const now = new Date();
       if (existingSubscription) {
         console.log(`📧 Updating existing subscription (ID: ${existingSubscription.id})`);
         subscription = await prisma.newsletterSubscription.update({
           where: { id: existingSubscription.id },
           data: {
             isActive: true,
-            lastSentAt: new Date()
+            // Preserve an existing confirmation timestamp so a re-subscribe does
+            // not rewrite when consent was first given.
+            verifiedAt: existingSubscription.verifiedAt ?? now,
+            lastSentAt: now
           }
         });
       } else {
@@ -64,7 +78,8 @@ export async function POST(request: NextRequest) {
             email: email.toLowerCase(),
             leagueId: parseInt(leagueId),
             isActive: true,
-            lastSentAt: new Date()
+            verifiedAt: now,
+            lastSentAt: now
           }
         });
       }
@@ -120,20 +135,19 @@ export async function POST(request: NextRequest) {
     const emailService = EmailService.getInstance();
 
     // Sportify-themed subscribe email, carrying the same league infographic the
-    // app's Share → Download produces. Unverified addresses get the double
-    // opt-in ask; already-confirmed ones get the welcome-back variant. Bulk
-    // sends still only go to verified addresses.
+    // app's Share → Download produces. Always the welcome variant now that the
+    // subscription is live on submit — there is nothing left to confirm, so an
+    // email asking them to click again would only be a second chance to drop
+    // out. The one-click unsubscribe link is what carries the consent contract.
     try {
       const { signSubToken } = await import('@/lib/newsletter-token');
       const base = (process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com').replace(/\/$/, '');
-      const confirming = !subscription.verifiedAt;
       const token = signSubToken(email, parseInt(leagueId));
       await emailService.sendNewsletterWelcome({
         to: email,
         leagueId: parseInt(leagueId),
         leagueName: leagueName || `League ${leagueId}`,
-        mode: confirming ? 'confirm' : 'welcome',
-        confirmUrl: confirming ? `${base}/api/newsletter/verify?token=${token}` : undefined,
+        mode: 'welcome',
         unsubscribeUrl: `${base}/api/newsletter/unsubscribe?token=${token}`,
       });
     } catch (e) {
@@ -190,7 +204,7 @@ export async function POST(request: NextRequest) {
     // addresses, so nothing is lost by not firing one here.
     return NextResponse.json({
       success: true,
-      message: 'Subscription saved! Check your inbox to confirm.',
+      message: "You're subscribed — reports start with the next gameweek.",
     });
 
   } catch (error) {

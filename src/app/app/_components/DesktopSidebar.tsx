@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { NAV, navHref } from './nav-items';
+import { trackPremiumGateClick } from '@/lib/analytics';
 
 function initials(name: string): string {
   const p = (name || '').trim().split(/\s+/).filter(Boolean);
@@ -17,7 +18,14 @@ export function DesktopSidebar({ active, teamId, youName }: { active?: string; t
       <div className="logo" onClick={() => router.push('/app')}><span className="bolt" />FPL RANKER</div>
       <nav className="side-nav">
         {NAV.map((n) => (
-          <a key={n.id} className={active === n.id ? 'on' : ''} onClick={() => router.push(navHref(n, teamId))}>
+          <a
+            key={n.id}
+            className={active === n.id ? 'on' : ''}
+            onClick={() => {
+              if (n.id === 'premium') trackPremiumGateClick('app_sidebar');
+              router.push(navHref(n, teamId));
+            }}
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{n.icon}</svg>
             <span>{n.label}</span>{n.live && <span className="live-dot" />}
           </a>

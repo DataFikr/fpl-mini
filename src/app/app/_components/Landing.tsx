@@ -6,7 +6,8 @@ import { toast } from './Toast';
 import { getActiveTeamId } from '@/lib/use-account';
 import { extractTeamId } from '@/lib/team-id';
 import { TeamNameSearch } from './TeamNameSearch';
-import { isFreeLaunchWindow } from '@/lib/premium';
+import { isFreeLaunchWindow, FREE_WINDOW_GW, FREE_WINDOW_LABEL } from '@/lib/premium';
+import { trackPremiumGateClick } from '@/lib/analytics';
 import { GameweekCountdown, isBeforeGameweek1 } from './GameweekCountdown';
 import { AppMenu, type MenuLink } from './AppMenu';
 
@@ -30,7 +31,7 @@ const MENU_MORE: MenuLink[] = [
 /**
  * Marketing landing (mockup 01-landing.html) — sticky header, a single-column
  * hero, the YouTube Shorts band, a features grid, a premium band
- * (Free-until-GW5 during the launch hold) and a footer. Scoped to `.lp` (see
+ * (free-until-GW{FREE_WINDOW_GW} during the launch hold) and a footer. Scoped to `.lp` (see
  * landing.css). The Team-ID form stays the #1 above-the-fold CTA.
  *
  * `videoSlot` is injected by the server component in page.tsx rather than
@@ -62,6 +63,14 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
       .catch(() => {});
   }, []);
 
+  // Landing is the highest-traffic page on the site and holds five routes into
+  // /premium, none of which fired anything — so paywall discovery looked like
+  // zero interest rather than an unmeasured step. `placement` says which one.
+  const goPremium = (placement: string) => {
+    trackPremiumGateClick(placement);
+    router.push('/premium');
+  };
+
   const analyze = (id: string) => {
     // Accepts a bare id or a pasted FPL team link — see extractTeamId.
     const v = extractTeamId(id);
@@ -79,13 +88,13 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
           <a className="logo" onClick={() => router.push('/app')} aria-label="FPL Ranker home"><span className="bolt" />FPL RANKER</a>
           <nav aria-label="Primary">
             <a onClick={() => router.push('/predictions')}>Predictions</a>
-            <a onClick={() => router.push('/premium')}>Premium</a>
+            <a onClick={() => goPremium('landing_nav')}>Premium</a>
             <a onClick={() => router.push('/app/blog')}>Blog</a>
             <a onClick={() => router.push('/app/find-team-id')}>Find team ID</a>
           </nav>
           <div className="head-actions">
             <a className="s-btn s-btn--ghost" onClick={() => router.push('/auth/login')}>Sign in</a>
-            <a className="s-btn s-btn--red hex" onClick={() => router.push('/premium')}>{free ? 'Get started free' : 'Go premium'}</a>
+            <a className="s-btn s-btn--red hex" onClick={() => goPremium('landing_header_cta')}>{free ? 'Get started free' : 'Go premium'}</a>
             {/* Below 900px the inline nav is hidden (and Sign in below 560px);
                 this carries those links so the selling points stay reachable. */}
             <AppMenu primary={MENU_PRIMARY} more={MENU_MORE} backHref={null} wide />
@@ -106,7 +115,7 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
             <p className="sub">ESPN-style headlines, live rank movers and AI point predictions for your FPL mini-league. Search your team name and get your league&rsquo;s story in seconds — no signup, no team ID needed.</p>
             <TeamNameSearch />
             <p className="form-hint" style={{ marginTop: 14 }}>Know your team ID? Enter it here:</p>
-            <form className="league-form" onSubmit={(e) => { e.preventDefault(); analyze(teamId); }} noValidate>
+            <form id="team-id-landing" name="team-id-landing" className="league-form" onSubmit={(e) => { e.preventDefault(); analyze(teamId); }} noValidate>
               <label className="id-field" aria-label="FPL manager ID">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
                 <input type="text" inputMode="numeric" placeholder="Team ID, or paste your FPL link" aria-label="FPL team ID"
@@ -121,7 +130,7 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
             <div className="trust">
               <b>Live FPL data</b>
               <b>AI predictions</b>
-              <b>{free ? 'Free until GW5' : 'Core stays free'}</b>
+              <b>{free ? FREE_WINDOW_LABEL : 'Core stays free'}</b>
             </div>
           </div>
 
@@ -168,11 +177,11 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
             <span className="kicker">FPL Ranker Premium</span>
             {free ? (
               <>
-                <h2>The AI edge is <em>free</em> until GW5</h2>
-                <p>Pricing is on hold for launch. AI captain picks, transfer calls and the full points-prediction table are unlocked for every manager through Gameweek&nbsp;5 while we validate the live data and retune the model. No card needed.</p>
+                <h2>The AI edge is <em>free</em> until GW{FREE_WINDOW_GW}</h2>
+                <p>Pricing is on hold for launch. Rival Watch, the differential breakdown and the AI captain and transfer calls are unlocked for every manager through Gameweek&nbsp;{FREE_WINDOW_GW} while we validate the live data and retune the model. No card needed.</p>
                 <div className="prem-cta">
-                  <a className="s-btn s-btn--red hex" onClick={() => router.push('/premium')}>See what&rsquo;s included</a>
-                  <span className="prem-note">Pricing returns after GW5</span>
+                  <a className="s-btn s-btn--red hex" onClick={() => goPremium('landing_premium_free')}>See what&rsquo;s included</a>
+                  <span className="prem-note">Pricing returns after GW{FREE_WINDOW_GW}</span>
                 </div>
               </>
             ) : (
@@ -180,7 +189,7 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
                 <h2>An AI edge for <em>&pound;15</em>, all season</h2>
                 <p>Captain picks and transfer calls tuned to your own squad, powered by the same model behind the predictions table. Launch price until 1 September, then &pound;20.</p>
                 <div className="prem-cta">
-                  <a className="s-btn s-btn--red hex" onClick={() => router.push('/premium')}>See premium</a>
+                  <a className="s-btn s-btn--red hex" onClick={() => goPremium('landing_premium_paid')}>See premium</a>
                   <span className="prem-note">One-off &middot; full 2026/27 season</span>
                 </div>
               </>
@@ -201,7 +210,7 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
           <nav aria-label="Footer">
             <a onClick={() => router.push('/predictions')}>Predictions</a>
             <a onClick={() => router.push('/app/players')}>Players</a>
-            <a onClick={() => router.push('/premium')}>Premium</a>
+            <a onClick={() => goPremium('landing_footer')}>Premium</a>
             <a onClick={() => router.push('/app/blog')}>Blog</a>
             <a onClick={() => router.push('/app/find-team-id')}>Find team ID</a>
             <a onClick={() => router.push('/about')}>About</a>

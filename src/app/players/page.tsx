@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import '@/app/_styles/sportify-pages.css';
+import { PremiumCta } from '@/components/ui/premium-cta';
+import { TeamEntryPrompt } from '@/components/ui/team-entry-prompt';
+import { KitbagStrip } from '@/components/ui/kitbag-strip';
 import { getPlayersIndex, type PlayerIndexRow } from '@/lib/players';
 import { SITE_URL, SITE_NAME } from '@/lib/seo';
 import { StructuredData, BreadcrumbStructuredData, FaqStructuredData } from '@/components/seo/structured-data';
@@ -149,13 +152,31 @@ export default async function PlayersHub() {
           </>
         )}
 
+        {/* Primary next-click. This page ranked (68 views) and then leaked 67.5%
+            of them, because the only thing under the table was a "Go premium"
+            ask aimed at anonymous visitors ~20 seconds old. Team entry is the
+            step that actually converts, and it routes into the pages that
+            retain rather than the one that sells. */}
+        <TeamEntryPrompt
+          placement="players_prices"
+          kicker="Your squad, ranked"
+          heading="Which of these are in YOUR squad?"
+          body="This table ranks every player overall. Enter your team ID to see the same numbers against your own 15 — who to captain, who to bench, who to sell."
+          cta="Rank my squad"
+        />
+
         <section className="teaser on-ink" style={{ marginTop: 28 }}>
           <div>
-            <h2>Which of these belong in YOUR squad?</h2>
-            <p>This list ranks every player overall. Premium ranks them against your own 15 and tells you who to captain, bench and sell.</p>
+            <h2>Want the model&rsquo;s call, not just the table?</h2>
+            <p>Premium ranks every player against your own 15 each gameweek and names the captain, the transfer and the bench.</p>
           </div>
-          <Link href="/premium" className="s-btn s-btn--red hex">Go premium</Link>
+          <PremiumCta placement="players_teaser" feature="squad_ranking">Go premium</PremiumCta>
         </section>
+
+        {/* The most-viewed non-landing page on the site and it carried no
+            affiliate placement, while /app/kits (6 views) did. Clubs come from
+            the table above, so it matches whatever the reader was just scanning. */}
+        <KitbagStrip teamShorts={all.map((p) => p.teamShort)} placement="players_index" />
 
         <h2 className="faq-h">FPL players FAQ</h2>
         <PredictionsFaq items={faqs} />

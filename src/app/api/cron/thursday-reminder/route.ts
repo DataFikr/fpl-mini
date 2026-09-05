@@ -117,6 +117,18 @@ export async function runReminderJob(request: NextRequest) {
       }
     }
 
+    // Squad-scoped reminders. Independent of the league loop above: these
+    // subscribers may be in no mini-league newsletter at all, which was the
+    // whole point of opening the reminder up. Each email carries that manager's
+    // own flagged players rather than league standings, so it is the painkiller
+    // itself and not a nudge to come and look for one.
+    let squadSent = 0;
+    try {
+      squadSent = await sendSquadReminders(nextEvent, fplApi, emailService);
+    } catch (e) {
+      console.error('Squad deadline reminders failed (league reminders unaffected):', e);
+    }
+
     if (allEmails.length > 0) {
       console.log(`📤 Batch sending ${allEmails.length} reminder emails...`);
       const batchResult = await emailService.sendBatch(allEmails);
@@ -136,7 +148,9 @@ export async function runReminderJob(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Deadline reminders sent for GW${nextEvent.id}`,
-      sent: successCount,
+      sent: successCount + squadSent,
+      leagueSent: successCount,
+      squadSent,
       failed: failureCount,
       totalSubscriptions: subscriptions.length
     });
@@ -158,4 +172,106 @@ export async function GET(request: NextRequest) {
 // POST kept for manual triggers / local testing.
 export async function POST(request: NextRequest) {
   return runReminderJob(request);
+}
+
+/**
+ * Squad-scoped deadline reminders (diagnostic action 16 + 17).
+ *
+ * For each active DeadlineSubscription, works out which players in that
+ * manager's own 15 are flagged for the upcoming gameweek and mails them that
+ * list. Bootstrap is fetched once and shared; only the per-manager picks call
+ * scales with subscriber count, and it is bounded by MAX_SQUAD_REMINDERS so a
+ * surge cannot blow the cron's time budget.
+ *
+ * Picks for the *upcoming* gameweek do not exist until a manager saves them, so
+ * this reads the last completed gameweek's squad — which is exactly the squad
+ * they still have if they have not acted, i.e. the one the warning is about.
+ */
+const MAX_SQUAD_REMINDERS = 500;
+
+async function sendSquadReminders(
+  nextEvent: { id: number; deadline_time?: string },
+  fplApi: FPLApiService,
+  emailService: EmailService,
+): Promise<number> {
+  const subs = await prisma.deadlineSubscription.findMany({
+    where: { isActive: true },
+    take: MAX_SQUAD_REMINDERS,
+  });
+  if (subs.length === 0) return 0;
+
+  console.log(`📧 Preparing ${subs.length} squad deadline reminder(s) for GW${nextEvent.id}`);
+
+  const bootstrap = await fplApi.getBootstrapData();
+  const elements = bootstrap.elements as any[];
+  const teams = bootstrap.teams as any[];
+  const byId = new Map<number, any>(elements.map((e) => [e.id, e]));
+  const teamShort = new Map<number, string>(teams.map((t) => [t.id, t.short_name]));
+
+  const deadlineLabel = nextEvent.deadline_time
+    ? new Date(nextEvent.deadline_time).toUTCString().replace(/:\d{2} GMT$/, ' UTC')
+    : 'before kick-off';
+
+  // The squad they hold now is last GW's, since next GW's picks are not saved yet.
+  const picksGw = Math.max(1, nextEvent.id - 1);
+  const { signTeamToken } = await import('@/lib/newsletter-token');
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || 'https://fplranker.com').replace(/\/$/, '');
+
+  let sent = 0;
+  for (const sub of subs) {
+    try {
+      const picks = await fplApi.getManagerPicks(sub.fplTeamId, picksGw);
+      if (!picks?.picks?.length) continue;
+
+      const flagged: { name: string; team: string; note: string }[] = [];
+      let captain: { name: string; team: string } | null = null;
+
+      for (const p of picks.picks as any[]) {
+        const el = byId.get(p.element);
+        if (!el) continue;
+        const short = teamShort.get(el.team) || '';
+        if (p.is_captain) captain = { name: el.web_name, team: short };
+
+        // `status` 'a' is available; anything else is a flag. chance_of_playing
+        // is null when unflagged, so only trust it when it is a real number.
+        const chance = typeof el.chance_of_playing_next_round === 'number'
+          ? el.chance_of_playing_next_round
+          : null;
+        const unavailable = el.status && el.status !== 'a';
+        if (!unavailable && chance === null) continue;
+        if (chance !== null && chance >= 100) continue;
+
+        const note =
+          el.status === 'i' ? 'Injured'
+          : el.status === 's' ? 'Suspended'
+          : el.status === 'u' ? 'Unavailable'
+          : chance !== null ? `${chance}% chance`
+          : 'Doubtful';
+        flagged.push({ name: el.web_name, team: short, note });
+      }
+
+      const res = await emailService.sendSquadDeadlineReminder({
+        to: sub.email,
+        fplTeamId: sub.fplTeamId,
+        gameweek: nextEvent.id,
+        deadlineLabel,
+        flagged,
+        captain,
+        unsubscribeUrl: `${base}/api/reminders?token=${signTeamToken(sub.email, sub.fplTeamId)}`,
+      });
+      if (res.success) {
+        sent++;
+        await prisma.deadlineSubscription.update({
+          where: { id: sub.id },
+          data: { lastSentAt: new Date() },
+        });
+      }
+    } catch (e) {
+      // One bad team id must not stop the rest of the run.
+      console.warn(`Squad reminder skipped for team ${sub.fplTeamId}:`, e instanceof Error ? e.message : e);
+    }
+  }
+
+  console.log(`✅ Squad deadline reminders sent: ${sent}/${subs.length}`);
+  return sent;
 }
