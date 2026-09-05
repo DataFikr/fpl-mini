@@ -97,6 +97,18 @@ Plan approved; began S1. **Next up (in order):** (1) gate `/admin/emails` + audi
 
 ---
 
+## 8a. Amendment — window extended to GW8 (2026-09-05)
+
+**Decision:** hold pricing three gameweeks longer. `NEXT_PUBLIC_PREMIUM_FREE_UNTIL` default moves `2026-09-22` → **`2026-10-27`** (the night GW8 finishes; GW8 deadline 23 Oct, GW9 opens 31 Oct).
+
+**Why:** the 5 Sep revenue diagnostic found five of seven monetization gates failing with 17 days left on the GW5 clock — 16 registered users against the ~400 needed, Week-1 retention 2.4%, Day-7 0%, `Key events: 0`, and a paywalled bundle scoring 3/4 because livefpl/fplgameweek give the same data away free. Turning on a paywall against that produces refunds and bad word of mouth, not revenue. §8's exit checklist below was not close to met.
+
+**What the extra three gameweeks are for:** the mini-league painkillers now shipped (live matchday table, Rival Watch differentials, squad deadline reminders) need gameweeks to accumulate a base worth selling to. The paywall has also been repackaged onto that mini-league layer, so the GW8 exit is selling something different from what §8 assumed.
+
+**Consequence for the $1k-by-Oct-31 goal — read this:** a window closing 27 Oct leaves **four days** to sell before the 31 Oct checkpoint. That target is not reachable through subscription and the diagnostic already showed why (it needs 4.4% of raw traffic to convert; cold search runs 0.1–0.5%). **The date should move, not the window.** Re-base the revenue checkpoint to end-of-season, and judge Oct 31 on Gate 2 instead — warm audience toward ~400.
+
+The original §8 decision and its rationale are preserved below as the record.
+
 ## 8. Revised premium roll-out — HOLD until GW5 (added 2026-07-27)
 
 **Decision (founder):** Do **not** monetize at GW1. Hold the premium roll-out and run a **free launch window through GW5**, then turn pricing on.

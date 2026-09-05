@@ -119,7 +119,7 @@ twice goes daily. By Stage 2 the schedule should be dominated by two or three fo
 | Cold-start: seed tests fail with no followers | Stage 0 exists for exactly this. Post consistently for a week before judging any format. |
 | Solo-founder production burnout | Templates, not productions. If the weekly refresh exceeds 45 min, the composition isn't parameterised enough. |
 | Traffic arrives, retention doesn't | Week-1 retention was 3–6%. Magic-link accounts + saved teams now catch it — but if Stage 1 traffic still bounces, fix the landing before buying more traffic. |
-| Free-until-GW5 window closes mid-ramp | `NEXT_PUBLIC_PREMIUM_FREE_UNTIL=2026-09-22`. The "it's free" hook expires with it — FR-07's urgency line must switch to price on Sep 22. |
+| Free-until-GW8 window closes mid-ramp | `NEXT_PUBLIC_PREMIUM_FREE_UNTIL=2026-10-27` (extended from GW5/22 Sep on 5 Sep 2026). The "it's free" hook expires with it — FR-07's urgency line must switch to price on Sep 22. |
 | FPL API rate limits under load | Existing Redis caching layer; monitor at Stage 2 volumes. |
 
 ## 8. Open items for the founder
