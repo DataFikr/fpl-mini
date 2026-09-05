@@ -6,7 +6,15 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const ROOT = join(__dirname, '..');
-export const CACHE_DIR = join(ROOT, '.cache');
+/**
+ * Cache location. Overridable via FPL_CACHE_DIR so a different season can be
+ * backtested without writing over another one: `.cache/` holds the complete
+ * 2025/26 season captured before the API rolled to 2026/27, and that data no
+ * longer exists anywhere else. Point a new season at its own directory.
+ */
+export const CACHE_DIR = process.env.FPL_CACHE_DIR
+  ? (process.env.FPL_CACHE_DIR.match(/^([a-zA-Z]:[\/]|[\/])/) ? process.env.FPL_CACHE_DIR : join(ROOT, process.env.FPL_CACHE_DIR))
+  : join(ROOT, '.cache');
 const BASE = process.env.FPL_API_BASE_URL || 'https://fantasy.premierleague.com/api';
 
 async function exists(p) {

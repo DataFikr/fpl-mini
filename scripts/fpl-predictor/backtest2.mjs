@@ -13,7 +13,7 @@
 import { loadBootstrap, loadFixtures, loadLiveMap } from './lib/fetch-data.mjs';
 import { buildFeaturesV2, indexFixturesV2 } from './lib/features2.mjs';
 import { RidgeModel } from './lib/model2.mjs';
-import { pickSquad, bestXI, squadCost, BUDGET } from './lib/optimizer.mjs';
+import { pickSquad, bestXI, squadCost, dreamTeams, BUDGET } from './lib/optimizer.mjs';
 import { mae, rmse } from './lib/report.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -117,6 +117,25 @@ async function main() {
     const captain = capPool.reduce((a, p) => (p.xpts > a.xpts ? p : a), capPool[0]);
     const bestCaptainSquad = squad.reduce((a, p) => (p.actual > a.actual ? p : a), squad[0]);
 
+    // Three squad archetypes for the same £100m. The single optimum above tells
+    // you the ceiling; these tell you the choice — and each is scored on what it
+    // actually went on to make, so the archetypes can be compared over a season
+    // rather than argued about.
+    const dreams = dreamTeams(cands).map((d) => ({
+      key: d.key,
+      label: d.label,
+      formation: d.formation,
+      cost: d.cost,
+      xiPred: +d.xiTotal.toFixed(2),
+      xiPredWithCaptain: +d.xiTotalWithCaptain.toFixed(2),
+      xiActual: d.xi.reduce((a, x) => a + x.actual, 0),
+      // What it would really have scored with the armband applied.
+      xiActualWithCaptain: d.xi.reduce((a, x) => a + x.actual, 0) + (d.captain?.actual ?? 0),
+      captain: d.captain ? { id: d.captain.id, xpts: +d.captain.xpts.toFixed(2), actual: d.captain.actual } : null,
+      xi: d.xi.map((x) => ({ id: x.id, pos: x.pos, team: x.team, price: x.price, xpts: +x.xpts.toFixed(2), actual: x.actual })),
+      bench: d.bench.map((x) => ({ id: x.id, pos: x.pos, price: x.price, xpts: +x.xpts.toFixed(2), actual: x.actual })),
+    }));
+
     const pairs = cands.map((p) => [p.xpts, p.actual]);
     const frozenPairs = cands.map((p) => [p.xpts_frozen, p.actual]);
     const playedPairs = cands.filter((p) => p.minutes > 0).map((p) => [p.xpts, p.actual]);
@@ -135,6 +154,7 @@ async function main() {
       captain_actual: captain?.actual ?? 0,
       captain_best_squad: bestCaptainSquad?.actual ?? 0,
       squadCost: squadCost(squad),
+      dreams,
     });
 
     console.assert(squadCost(squad) <= BUDGET, `GW${gw} squad over budget`);
