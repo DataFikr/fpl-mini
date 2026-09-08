@@ -24,11 +24,120 @@ export class FplNotFoundError extends Error {
 
 export const isFplNotFound = (e: unknown): e is FplNotFoundError => e instanceof FplNotFoundError;
 
+/**
+ * Total wall-clock budget for one logical FPL read, retries included.
+ *
+ * A serverless function has its own ceiling (10s on Vercel Hobby), and blowing
+ * past it turns a slow upstream into a hard 504 with nothing rendered. Every
+ * attempt is bounded by whatever is left of this budget, so the retry loop can
+ * never outlive the function that is waiting on it.
+ */
+const FETCH_BUDGET_MS = Number(process.env.FPL_FETCH_BUDGET_MS || 8000);
+/** Ceiling for any single attempt — keeps one slow response from eating the lot. */
+const ATTEMPT_TIMEOUT_MS = 3500;
+const MAX_ATTEMPTS = 3;
+/**
+ * How long a copy is kept purely to be served when the API is unreachable.
+ * Much longer than the live TTL: yesterday's standings beat an error card.
+ */
+const STALE_TTL_SECONDS = 60 * 60 * 24;
+const staleKey = (cacheKey: string) => `${cacheKey}:stale`;
+
+/** 5xx and 429 are worth another go; 4xx (bar 429) will fail identically. */
+const isRetryableStatus = (s: number) => s === 429 || (s >= 500 && s < 600);
+
+/**
+ * A non-retryable upstream status (403, 400, …).
+ *
+ * Needs to be its own type so the retry loop's `catch` can tell it apart from a
+ * transient failure and re-throw. Throwing a plain Error inside the `try` would
+ * be caught by that same handler and treated as retryable — which is precisely
+ * the bug this class exists to prevent: a 403 burning all three attempts and
+ * the whole time budget before failing exactly as it would have first time.
+ */
+class FplNonRetryableError extends Error {}
+
 export class FPLApiService {
   private readonly baseUrl: string;
 
   constructor() {
     this.baseUrl = process.env.FPL_API_BASE_URL || 'https://fantasy.premierleague.com/api';
+  }
+
+  /** One attempt, aborted after `timeoutMs`. */
+  private async fetchOnce(url: string, timeoutMs: number): Promise<Response> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, {
+        headers: { 'User-Agent': 'FPL-League-Hub/1.0' },
+        signal: controller.signal,
+        // These responses are cached by us in Redis; letting the platform cache
+        // them too would make the stale-fallback TTLs meaningless.
+        cache: 'no-store',
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  /**
+   * Fetch with a bounded retry loop and exponential backoff.
+   *
+   * Before this, `fetch` was called bare: no timeout, no retry, no abort. One
+   * slow response from the FPL API therefore hung until the platform killed the
+   * function, and the page rendered "the FPL API did not answer in time" — which
+   * is exactly what production was doing while the same code served fine from a
+   * residential IP. The API throttles datacenter egress, so a single attempt was
+   * never a safe assumption from Vercel.
+   *
+   * A 404 throws immediately and is never retried: the manager or league simply
+   * does not exist, and retrying only burns the budget.
+   */
+  private async fetchWithRetry(url: string): Promise<Response> {
+    const deadline = Date.now() + FETCH_BUDGET_MS;
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const remaining = deadline - Date.now();
+      if (remaining < 400) break; // not enough left to be worth trying
+
+      try {
+        const res = await this.fetchOnce(url, Math.min(ATTEMPT_TIMEOUT_MS, remaining));
+
+        if (res.status === 404) throw new FplNotFoundError(url);
+        if (res.ok) return res;
+
+        if (!isRetryableStatus(res.status)) {
+          throw new FplNonRetryableError(`FPL API error: ${res.status} ${res.statusText}`);
+        }
+        lastError = new Error(`FPL API error: ${res.status} ${res.statusText}`);
+      } catch (error) {
+        // Both of these are settled answers — retrying changes nothing.
+        if (error instanceof FplNotFoundError || error instanceof FplNonRetryableError) throw error;
+        lastError = error;
+      }
+
+      // Exponential backoff with jitter, clipped to the remaining budget so the
+      // sleep itself can never push us past the deadline.
+      if (attempt < MAX_ATTEMPTS) {
+        const backoff = Math.min(200 * 2 ** (attempt - 1) + Math.random() * 150, Math.max(0, deadline - Date.now() - 400));
+        if (backoff <= 0) break;
+        await new Promise((r) => setTimeout(r, backoff));
+      }
+    }
+
+    throw lastError instanceof Error ? lastError : new Error(`FPL API unreachable: ${url}`);
+  }
+
+  /** Last-good copy for `cacheKey`, or null if we have never stored one. */
+  private async readStale<T>(cacheKey: string): Promise<T | null> {
+    try {
+      const raw = await redis.get(staleKey(cacheKey));
+      return raw ? (JSON.parse(raw) as T) : null;
+    } catch {
+      return null;
+    }
   }
 
   private async fetchWithCache<T>(
@@ -46,17 +155,7 @@ export class FPLApiService {
     // For league 150789, bypass cache completely for now to get live data
     if (cacheKey.includes('fpl:league:150789:standings')) {
       console.log('BYPASSING CACHE COMPLETELY for league 150789');
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'FPL-League-Hub/1.0'
-        }
-      });
-
-      if (response.status === 404) throw new FplNotFoundError(url);
-      if (!response.ok) {
-        throw new Error(`FPL API error: ${response.status} ${response.statusText}`);
-      }
-
+      const response = await this.fetchWithRetry(url);
       return await response.json();
     }
 
@@ -69,21 +168,32 @@ export class FPLApiService {
       console.warn('Redis cache read failed (continuing without cache):', error);
     }
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'FPL-League-Hub/1.0'
+    let data: T;
+    try {
+      const response = await this.fetchWithRetry(url);
+      data = await response.json();
+    } catch (error) {
+      // A 404 is a real answer — the team/league does not exist — so it must
+      // surface rather than be masked by whatever we happen to hold.
+      if (error instanceof FplNotFoundError) throw error;
+
+      // Every attempt failed. Serve the last good copy rather than an error
+      // card: slightly stale standings are worth far more to a visitor than
+      // "something went wrong", and this is the whole difference between the
+      // FPL API degrading the site and taking it down.
+      const stale = await this.readStale<T>(cacheKey);
+      if (stale !== null) {
+        console.warn(`FPL API unreachable, serving stale cache for ${cacheKey}:`, error);
+        return stale;
       }
-    });
-
-    if (response.status === 404) throw new FplNotFoundError(url);
-    if (!response.ok) {
-      throw new Error(`FPL API error: ${response.status} ${response.statusText}`);
+      throw error;
     }
-
-    const data = await response.json();
 
     try {
       await redis.setEx(cacheKey, ttlSeconds, JSON.stringify(data));
+      // Second, longer-lived copy — the only thing standing between an upstream
+      // outage and the error card.
+      await redis.setEx(staleKey(cacheKey), STALE_TTL_SECONDS, JSON.stringify(data));
     } catch (error) {
       console.warn('Redis cache write failed:', error);
     }

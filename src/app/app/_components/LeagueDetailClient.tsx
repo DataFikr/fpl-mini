@@ -486,7 +486,21 @@ function AnalyticsTab({ managers, currentGameweek, focusId }: { managers: AppMan
   // Window-aware KPIs.
   const best = ranks.length && isFinite(Math.min(...ranks)) ? Math.min(...ranks) : 0;
   const avg = points.length ? Math.round(points.reduce((a, p) => a + p.gwPts, 0) / points.length) : 0;
-  const climbs = points.filter((p, i) => i > 0 && p.rank < points[i - 1].rank).length;
+  // Places gained, not the number of times the rank improved.
+  //
+  // This counted *occasions* (8→11→5 scored 1, because the rank improved once).
+  // Sitting next to "Best rank" and labelled "▲", a 1 reads as "climbed one
+  // place" — so the box understated a six-place jump as a 1, and barely moved
+  // between managers: with three gameweeks there are only two transitions, so
+  // the old metric could only ever be 0, 1 or 2.
+  //
+  // Summing the upward moves (ignoring the drops) gives 8→11→5 = 6, which is
+  // what the arrow claims. Falls are already visible in the chart and in the
+  // standings' move column.
+  const climbs = points.reduce(
+    (sum, p, i) => (i > 0 && p.rank < points[i - 1].rank ? sum + (points[i - 1].rank - p.rank) : sum),
+    0,
+  );
   const maxBar = Math.max(...points.map((p) => p.gwPts), 1);
 
   return (
@@ -572,7 +586,9 @@ function AnalyticsTab({ managers, currentGameweek, focusId }: { managers: AppMan
       <div className="kpi" style={{ margin: '14px 0' }}>
         <div className="k"><div className="v red">{best ? formatRank(best) : '—'}</div><div className="l">Best rank</div></div>
         <div className="k"><div className="v">{avg}</div><div className="l">Avg / GW</div></div>
-        <div className="k"><div className="v">{climbs}</div><div className="l">Climbs ▲</div></div>
+        {/* "Places ▲" rather than "Places climbed ▲": the longer label wrapped
+            the arrow onto its own line in the KPI box at 390px. */}
+        <div className="k"><div className="v">{climbs}</div><div className="l">Places ▲</div></div>
       </div>
 
       <div className="chart-card barset-wrap">

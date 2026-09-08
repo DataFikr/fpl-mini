@@ -840,6 +840,15 @@
 .rw-row.rw-diff{border-left:3px solid var(--green,#009C54);padding-left:9px;}
 .rw-row.rw-threat .rw-val,.rw-row.rw-diff .rw-val{margin-left:auto;}
 
+/* Rival Watch "you vs them" rows carry two cells (.rw-who + .rw-val), not the
+   four the base .rw-row grid declares (20px 1fr 88px auto). Without their own
+   template .rw-who inherited that leading 20px track, and since .nm is
+   `overflow:hidden;text-overflow:ellipsis` every player name rendered as a
+   single letter — "Haaland" came out as "H…". The club code survived only
+   because three uppercase characters at 9px happen to fit 20px.
+   Two columns: the name takes the slack, the percentage sizes to content. */
+.rw-row.rw-threat,.rw-row.rw-diff{grid-template-columns:minmax(0,1fr) auto;}
+
 /* ── Live mini-league table (matchday) ──────────────────────────────
    The matchday surface (diagnostic item 18a). Reads as movement against the
    league, not as a scoreboard: rank first, direction second, points last. */
