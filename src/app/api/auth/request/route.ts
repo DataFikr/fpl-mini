@@ -2,18 +2,41 @@ import { NextRequest, NextResponse } from 'next/server';
 import { EmailService } from '@/services/email-service';
 import { createLoginToken, isValidEmail, normalizeEmail } from '@/lib/auth';
 import { SITE_URL, SITE_NAME } from '@/lib/seo';
+import { clientIp, rateLimitAll, tooManyRequests } from '@/lib/rate-limit';
 
 /**
  * POST /api/auth/request  { email }
  * Emails a single-use magic link. Always returns success (does not reveal
  * whether an account exists) as long as the email is syntactically valid.
+ *
+ * Rate limited on two subjects (added 2026-09-07):
+ *  - per email, so a third party cannot flood one person's inbox with sign-in
+ *    links they never asked for;
+ *  - per IP, so one client cannot walk a list of addresses and spend the whole
+ *    Resend quota — the damage there is deliverability, since a burst of
+ *    unsolicited mail is what gets a sending domain reputation-flagged.
  */
+const PER_EMAIL = { limit: 3, windowSec: 15 * 60 };
+const PER_IP = { limit: 10, windowSec: 60 * 60 };
+
 export async function POST(request: NextRequest) {
   try {
     const { email, next } = await request.json();
 
     if (!isValidEmail(email)) {
       return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
+    }
+
+    // Keyed off the normalized address so casing/alias variants share a bucket.
+    const limited = await rateLimitAll([
+      { key: `auth-request:email:${normalizeEmail(email)}`, rule: PER_EMAIL },
+      { key: `auth-request:ip:${clientIp(request)}`, rule: PER_IP },
+    ]);
+    if (!limited.ok) {
+      return tooManyRequests(
+        limited.retryAfter,
+        'Too many sign-in requests. Check your inbox, or try again in a few minutes.'
+      );
     }
 
     const raw = await createLoginToken(email);

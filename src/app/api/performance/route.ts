@@ -3,13 +3,32 @@ import { enhancedCache } from '@/lib/cache-enhanced';
 import { optimizedCrestService } from '@/services/crest-service-optimized';
 import { optimizedFPLApi } from '@/services/fpl-api-optimized';
 import { checkDatabaseHealth, DatabaseMonitor } from '@/lib/database';
+import { requireAdmin } from '@/lib/admin-auth';
 
 /**
  * 📊 Performance Monitoring API
  * Provides real-time performance metrics and health checks
+ *
+ * Admin-only, all verbs. Until the 2026-09-07 security review this route was
+ * fully public, which meant two distinct problems:
+ *
+ *  1. `?action=clear-cache` let anyone flush the Redis, crest and FPL caches
+ *     with a plain GET. Repeated, that is a cache-stampede amplifier: every
+ *     subsequent request falls through to the FPL API and Postgres. Because it
+ *     was a GET it did not even need an attacker — a link prefetcher or
+ *     security scanner following URLs would trip it.
+ *  2. `?action=database` / `?action=cache` handed out DB health and cache
+ *     internals to anonymous callers.
+ *
+ * `clear-cache` has also moved to POST, alongside the other state-changing
+ * actions. Destructive operations behind GET are reachable by anything that
+ * follows a URL, which is what made (1) exploitable by accident.
  */
 
 export async function GET(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action') || 'status';
 
@@ -24,10 +43,13 @@ export async function GET(request: NextRequest) {
       case 'health':
         return await getHealthCheck();
       case 'clear-cache':
-        return await clearPerformanceCache();
+        return NextResponse.json(
+          { error: 'clear-cache has moved to POST /api/performance with body {"action":"clear-cache"}.' },
+          { status: 405, headers: { Allow: 'POST' } }
+        );
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: status, cache, database, health, clear-cache' },
+          { error: 'Invalid action. Use: status, cache, database, health' },
           { status: 400 }
         );
     }
@@ -261,6 +283,9 @@ function generatePerformanceRecommendations(metrics: {
  * 🔄 POST endpoint for performance actions
  */
 export async function POST(request: NextRequest) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { action } = body;
@@ -272,9 +297,11 @@ export async function POST(request: NextRequest) {
         return await optimizeDatabase();
       case 'preload-data':
         return await preloadCommonData();
+      case 'clear-cache':
+        return await clearPerformanceCache();
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: warm-cache, optimize-database, preload-data' },
+          { error: 'Invalid action. Use: warm-cache, optimize-database, preload-data, clear-cache' },
           { status: 400 }
         );
     }

@@ -42,9 +42,9 @@
     "test:ci": "npm run test:clean && npm run test && npm run test:mobile && npm run test:accessibility",
     "test:full": "npm run test:clean && npm run test:ci && npm run test:visual && npm run test:performance",
     "performance:test": "node test-performance.js",
-    "performance:monitor": "curl http://localhost:3000/api/performance?action=status",
-    "performance:health": "curl http://localhost:3000/api/performance?action=health",
-    "performance:cache": "curl http://localhost:3000/api/performance?action=cache",
+    "performance:monitor": "curl -H \"x-admin-key: $ADMIN_KEY\" \"http://localhost:3000/api/performance?action=status\"",
+    "performance:health": "curl -H \"x-admin-key: $ADMIN_KEY\" \"http://localhost:3000/api/performance?action=health\"",
+    "performance:cache": "curl -H \"x-admin-key: $ADMIN_KEY\" \"http://localhost:3000/api/performance?action=cache\"",
     "performance:setup": "powershell -ExecutionPolicy Bypass -File setup-production.ps1"
   },
   "dependencies": {

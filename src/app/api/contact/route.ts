@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EmailService } from '@/services/email-service';
+import { clientIp, rateLimit, tooManyRequests } from '@/lib/rate-limit';
+
+/**
+ * Rate limited per IP (added 2026-09-07). This form relays attacker-supplied
+ * text straight to support@fplranker.com, so without a cap it is both an inbox
+ * flood and a way to spend Resend quota anonymously.
+ */
+const PER_IP = { limit: 3, windowSec: 60 * 60 };
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +27,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
+      );
+    }
+
+    // Checked after validation so malformed spam does not consume the budget.
+    const limited = await rateLimit(`contact:ip:${clientIp(request)}`, PER_IP);
+    if (!limited.ok) {
+      return tooManyRequests(
+        limited.retryAfter,
+        'Thanks — we already have your message. Please wait a little before sending another.'
       );
     }
 

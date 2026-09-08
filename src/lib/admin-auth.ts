@@ -9,7 +9,13 @@ import { timingSafeEqual } from 'crypto';
  * session-based admin allowlist. It checks a shared secret supplied via one of:
  *   - `Authorization: Bearer <key>` header
  *   - `x-admin-key: <key>` header
- *   - `?key=<key>` query param (convenience for the admin dashboard fetch)
+ *
+ * Header-only, deliberately. A `?key=` query param was accepted here until the
+ * 2026-09-07 security review: query strings are written to Vercel request logs,
+ * browser history, and any outbound `Referer` header, so that path leaked the
+ * admin secret into three places that outlive the request. The admin dashboard
+ * already sends `x-admin-key`, so nothing in-app depended on it — but any saved
+ * bookmark or curl one-liner using `?key=` must move to the header.
  *
  * The expected secret is `ADMIN_KEY`, falling back to the existing `CRON_SECRET`
  * so production (which already sets CRON_SECRET) is protected immediately.
@@ -47,11 +53,6 @@ function extractKey(request: NextRequest): string | null {
   const headerKey = request.headers.get('x-admin-key');
   if (headerKey) {
     return headerKey.trim();
-  }
-
-  const queryKey = new URL(request.url).searchParams.get('key');
-  if (queryKey) {
-    return queryKey.trim();
   }
 
   return null;

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
 import { FPLApiService } from '@/services/fpl-api';
 import { EmailService } from '@/services/email-service';
+import { clientIp, rateLimitAll, tooManyRequests } from '@/lib/rate-limit';
+
+const PER_EMAIL = { limit: 3, windowSec: 60 * 60 };
+const PER_IP = { limit: 8, windowSec: 60 * 60 };
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,6 +36,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
+      );
+    }
+
+    // Rate limited on both subjects (added 2026-09-07): subscribing sends a
+    // confirmation email, so an unthrottled endpoint lets anyone sign a third
+    // party up repeatedly and spend Resend quota doing it.
+    const limited = await rateLimitAll([
+      { key: `subscribe:email:${email.toLowerCase()}`, rule: PER_EMAIL },
+      { key: `subscribe:ip:${clientIp(request)}`, rule: PER_IP },
+    ]);
+    if (!limited.ok) {
+      return tooManyRequests(
+        limited.retryAfter,
+        'Too many subscription attempts. Please check your inbox and try again shortly.'
       );
     }
 
