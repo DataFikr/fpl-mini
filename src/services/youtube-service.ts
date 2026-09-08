@@ -54,6 +54,27 @@ const FETCH_ATTEMPTS = 5;
 const ATTEMPT_TIMEOUT = 6000;
 const RETRY_BACKOFF = [200, 400, 800, 1200];
 
+/**
+ * How long to stop attempting the feed after all five tries have failed.
+ *
+ * The retry policy above is tuned for the transient 404/500 flapping seen from a
+ * residential IP, and it is right for that. It is useless against the other
+ * failure mode the comment already names: from Vercel every attempt returns 404,
+ * because the egress is refused rather than the request being unlucky. Retrying
+ * cannot win that, so paying for it repeatedly is pure loss.
+ *
+ * And it was being paid on every cache miss. The 8 Sep 2026 production logs show
+ * /app as the slowest route in the hour — the three slowest invocations of any
+ * route, up to 2,907ms — spending ~2.6s of backoff on five doomed attempts
+ * before falling back to the committed snapshot it was always going to use. This
+ * band is decorative; it should never be the reason the landing page is slow.
+ *
+ * A short cooldown after a total failure collapses that to a single cache read.
+ * Ten minutes is well under FRESH_TTL, so a feed that recovers is picked up on
+ * the next miss rather than being locked out for the full TTL.
+ */
+const FAIL_COOLDOWN = 600;
+
 export class YouTubeService {
   private readonly channelId: string;
   private readonly since?: string;
@@ -124,6 +145,7 @@ export class YouTubeService {
     // stale fallback survives them.
     const freshKey = `yt:feed:v2:${this.channelId}`;
     const staleKey = `${freshKey}:last`;
+    const cooldownKey = `${freshKey}:failed`;
 
     let all: YouTubeVideo[] | null = null;
 
@@ -134,13 +156,27 @@ export class YouTubeService {
       console.warn('YouTube cache read failed:', error);
     }
 
+    // A recent total failure means the next five attempts will fail the same
+    // way. Skip straight to the fallbacks below and keep the render fast — see
+    // FAIL_COOLDOWN.
+    let cooling = false;
     if (!all) {
+      try {
+        cooling = !!(await redis.get(cooldownKey));
+      } catch {
+        cooling = false; // cache trouble must not stop us trying the feed
+      }
+    }
+
+    if (!all && !cooling) {
       try {
         all = await this.fetchFeed();
 
         const payload = JSON.stringify(all);
         try {
           await redis.setEx(freshKey, FRESH_TTL, payload);
+          // Recovered — drop any cooldown so the next miss fetches normally.
+          await (redis as any).del?.(cooldownKey);
           // An empty parse of a 200 means the feed's shape changed, not that the
           // channel emptied — see the note on parseAtomFeed. Letting that reach
           // the 7-day key would destroy the only good fallback, so the stale
@@ -152,17 +188,29 @@ export class YouTubeService {
         }
       } catch (error) {
         console.error('YouTube feed error:', error);
-        // Serve the last good feed rather than blanking the section because
-        // YouTube had a bad minute. This is the whole reason for the second key.
+        // Stop re-paying the retry budget for the next FAIL_COOLDOWN seconds.
         try {
-          const stale = await redis.get(staleKey);
-          if (stale) {
-            console.warn('YouTube: serving stale feed');
-            all = JSON.parse(stale) as YouTubeVideo[];
-          }
-        } catch (staleError) {
-          console.warn('YouTube stale cache read failed:', staleError);
+          await redis.setEx(cooldownKey, FAIL_COOLDOWN, '1');
+        } catch { /* a missing cooldown only costs speed, never correctness */ }
+      }
+    }
+
+    // Serve the last good feed rather than blanking the section because YouTube
+    // had a bad minute. This is the whole reason for the second key.
+    //
+    // Deliberately outside the fetch block so it also covers the cooldown path:
+    // a skipped fetch must still reach this 7-day copy, which is far fresher
+    // than the committed snapshot below. Putting it only in the catch would have
+    // made the cooldown quietly downgrade the band to a build-time capture.
+    if (!all) {
+      try {
+        const stale = await redis.get(staleKey);
+        if (stale) {
+          console.warn(cooling ? 'YouTube: in failure cooldown, serving stale feed' : 'YouTube: serving stale feed');
+          all = JSON.parse(stale) as YouTubeVideo[];
         }
+      } catch (staleError) {
+        console.warn('YouTube stale cache read failed:', staleError);
       }
     }
 
