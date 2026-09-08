@@ -12,6 +12,8 @@ import { withShareUtm } from '@/lib/share-url';
 import { toast } from './Toast';
 import { AppShell } from './AppShell';
 import { ShareLeagueButton } from './ShareLeagueButton';
+import { ClaimRowBanner } from './ClaimRowBanner';
+import { getActiveTeamId, getActiveTeamSource } from '@/lib/use-account';
 import { SubscribeButton } from './SubscribeButton';
 
 type Tab = 'standings' | 'headlines' | 'analytics' | 'monthly' | 'ambassador';
@@ -168,6 +170,15 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
     [managers, focusTeamId]
   );
 
+  // True when the row marked "you" is not this visitor's own team — the state a
+  // shared link lands someone in. Resolved after mount because provenance lives
+  // in localStorage; the server has no way to know whose link this is.
+  const [isSharedView, setIsSharedView] = useState(false);
+  useEffect(() => {
+    const own = getActiveTeamId();
+    setIsSharedView(!(own && getActiveTeamSource() === 'self'));
+  }, [focusTeamId]);
+
   const gwSelect = (
     <span className="gwsel notch">
       GW{gw} <span className="car">▾</span>
@@ -194,6 +205,13 @@ export function LeagueDetailClient({ data }: { data: LeagueAppData }) {
       youName={focus?.team}
       actions={<><SubscribeButton leagueId={league.id} leagueName={league.name} gameweek={currentGameweek} /><ShareLeagueButton leagueId={league.id} leagueName={league.name} teamId={focusTeamId} rank={shareInfo.rank} size={shareInfo.size} /></>}
     >
+      {/* Someone who arrived through a shared link is looking at the sharer's
+          row, not their own. Offer the one tap that fixes it before anything
+          else on the page. */}
+      {isSharedView && (
+        <ClaimRowBanner leagueId={league.id} managers={managers} sharerTeam={focus?.team} />
+      )}
+
       <div className="ld-meta">
         {league.type} · {league.size} managers{focus ? ` · you're tracking ${focus.team}` : ''}{data.partial ? ' · top 30 shown' : ''}
       </div>

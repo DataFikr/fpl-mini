@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { extractTeamId } from '@/lib/team-id';
+import { markSelfEnteredTeamId } from '@/lib/use-account';
 import { trackEvent } from '@/lib/analytics';
 
 /**
@@ -54,6 +55,9 @@ export function TeamEntryPrompt({
     }
     setError('');
     trackEvent('content_to_app', { placement });
+    // Marks the id as this visitor's own, so the shell does not file it as a
+    // browsed/shared team — see markSelfEnteredTeamId.
+    markSelfEnteredTeamId(id);
     router.push(`/app/home?teamId=${id}`);
   };
 

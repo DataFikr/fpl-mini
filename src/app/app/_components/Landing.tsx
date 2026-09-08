@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from './Toast';
 import { getActiveTeamId } from '@/lib/use-account';
 import { extractTeamId } from '@/lib/team-id';
+import { markSelfEnteredTeamId } from '@/lib/use-account';
 import { TeamNameSearch } from './TeamNameSearch';
 import { isFreeLaunchWindow, FREE_WINDOW_GW, FREE_WINDOW_LABEL } from '@/lib/premium';
 import { trackPremiumGateClick } from '@/lib/analytics';
@@ -78,6 +79,10 @@ export function Landing({ videoSlot }: { videoSlot?: React.ReactNode }) {
     // Deliberately not persisted here: the id is unverified at this point, and
     // remembering a typo would follow the visitor around every screen. The app
     // shell stores it once Home has actually resolved the team.
+    //
+    // The claim is recorded though, so the shell can tell this apart from an id
+    // that arrived through someone else's share link and mark it `self`.
+    markSelfEnteredTeamId(v);
     router.push(`/app/home?teamId=${v}`);
   };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAccount, getActiveTeamId, linkTeamId, unlinkTeamId } from '@/lib/use-account';
+import { useAccount, getActiveTeamId, getActiveTeamSource, linkTeamId, unlinkTeamId } from '@/lib/use-account';
 import { toast } from './Toast';
 import { trackPremiumGateClick } from '@/lib/analytics';
 
@@ -26,8 +26,14 @@ export function AccountChip() {
   // ignores the localStorage id, which tracks whoever is being browsed.
   const linkedId = account?.authenticated ? account.fplTeamId ?? null : null;
   // The team on screen right now, offered for linking when the account has none.
+  // Only offered when the visitor entered it themselves: one tap here makes it
+  // the account's identity, and the id on screen is just as often a stranger's
+  // (arrived via a shared link) or a rival's (tapped through the standings).
   const [activeId, setActiveId] = useState<number | null>(null);
-  useEffect(() => { setActiveId(Number(getActiveTeamId()) || null); }, [open, linkedId]);
+  useEffect(() => {
+    const id = Number(getActiveTeamId()) || null;
+    setActiveId(id && getActiveTeamSource() === 'self' ? id : null);
+  }, [open, linkedId]);
 
   useEffect(() => {
     if (!linkedId) { setTeam(null); return; }
@@ -70,8 +76,14 @@ export function AccountChip() {
     if (!ok) { toast('Could not unlink — try again'); return; }
     patchAccount({ fplTeamId: null });
     setTeam(null);
-    toast('Team unlinked from this account');
+    setActiveId(null);
+    toast('Team unlinked — pick a team to start again');
     setOpen(false);
+    // unlinkTeamId() also clears the browsing context, so the screen behind this
+    // menu is still rendering the team that was just unlinked. Send them to the
+    // entry point rather than refreshing into a stale view — the old behaviour
+    // left people on the unlinked team with no way back except typing /app.
+    router.replace('/app/home');
     router.refresh();
   };
 
