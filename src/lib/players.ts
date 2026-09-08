@@ -241,3 +241,37 @@ export async function getGameweekCaptains(targetGw: number, limit = 12): Promise
       };
     });
 }
+
+/**
+ * Projected points for a set of slugs, for the authenticated xPts island on the
+ * player pages.
+ *
+ * The player page itself is ISR-cached, so anything rendered server-side there
+ * lands in HTML that any scraper can read. Comparison xPts (the alternatives
+ * grid) is therefore fetched separately through a session-gated route rather
+ * than baked into the static page — see /api/players/xpts. Returns only the
+ * slugs it could resolve; callers render a lock for the rest.
+ */
+export async function getXptsBySlugs(slugs: string[]): Promise<Record<string, number>> {
+  if (!slugs.length) return {};
+  try {
+    const fpl = new FPLApiService();
+    const [boot, fixtures, currentGw] = await Promise.all([
+      fpl.getBootstrapData(),
+      fpl.getFixtures().catch(() => []),
+      fpl.getCurrentGameweek().catch(() => 1),
+    ]);
+    const ctx = buildFixtureContext(fixtures as any[], currentGw);
+    const wanted = new Set(slugs);
+    const out: Record<string, number> = {};
+
+    for (const e of boot.elements as any[]) {
+      const s = playerSlug(e);
+      if (!wanted.has(s) || out[s] !== undefined) continue;
+      out[s] = Math.round(projectPlayer(e, ctx).perGw * 10) / 10;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}

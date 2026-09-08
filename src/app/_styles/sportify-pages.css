@@ -245,6 +245,18 @@
 .alt-card .xp{font-family:var(--display);font-size:24px;line-height:.9;color:var(--red);}
 .alt-card .xp small{font-family:var(--mono);font-weight:600;font-size:11px;color:var(--t3);letter-spacing:.04em;margin-left:4px;}
 
+/* Locked / pending states for the alternatives xPts slot. The value is fetched
+   from the session-gated /api/players/xpts rather than server-rendered, so the
+   slot has to hold its own layout while it resolves — otherwise the card
+   reflows on every page view. Both states keep the same box as a real value. */
+.alt-card .xp--locked,.alt-card .xp--loading{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--t3);}
+.alt-card .xp--locked{color:var(--t2);}
+.alt-card .xp--locked small{margin-left:0;color:var(--t2);}
+.alt-card .xp--loading small{margin-left:0;opacity:.45;}
+.alt-card .xp--loading::before{content:'';width:22px;height:14px;background:linear-gradient(90deg,var(--line) 25%,rgba(0,0,0,.04) 50%,var(--line) 75%);background-size:200% 100%;animation:xp-shimmer 1.2s ease-in-out infinite;}
+@keyframes xp-shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+@media (prefers-reduced-motion:reduce){.alt-card .xp--loading::before{animation:none;}}
+
 /* ── tables on mobile ──
    .pt-row's fixed tracks (40+56+62+74 + 4x10 gap) leave the 1fr name column
    ~40px at 390px, and .tm is flex:0 0 auto — so the name collapsed to ~10px and

@@ -122,10 +122,25 @@ export function sessionCookieOptions(expiresAt: Date) {
 
 /** True if the user currently holds active premium (flag + not-expired). */
 export function hasActivePremium(user: Pick<User, 'isPremium' | 'premiumUntil'> | null): boolean {
-  // Launch hold: premium is free for everyone through the free window (GW8)
-  // while we validate the
-  // live API + retune the model. Unlocks all gates without a paid entitlement.
+  // Anonymous callers are never premium — checked before the launch-hold branch.
+  //
+  // The free window below used to return true unconditionally, which granted
+  // every gate to visitors with no account at all. That made
+  // /api/predictions/current serve the whole projection table (654 players with
+  // xPts) to any unauthenticated request, so the model output the paid tier is
+  // built on was a single anonymous GET away — no crawling required.
+  //
+  // Requiring a session does not shorten the free window or charge anyone: it
+  // stays free for every signed-in user through GW8. It restores the window's
+  // stated purpose (premium.ts) of letting real managers sign up and building a
+  // base worth selling to — a giveaway to anonymous traffic accumulates no base,
+  // and registration is the metric the Sept diagnostic found short.
+  if (!user) return false;
+
+  // Launch hold: premium is free for every registered user through the free
+  // window (GW8) while we validate the live API + retune the model.
   if (isFreeLaunchWindow()) return true;
-  if (!user || !user.isPremium) return false;
+
+  if (!user.isPremium) return false;
   return !user.premiumUntil || user.premiumUntil > new Date();
 }

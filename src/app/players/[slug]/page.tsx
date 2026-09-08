@@ -9,6 +9,7 @@ import { TeamEntryPrompt } from '@/components/ui/team-entry-prompt';
 import { SITE_URL, SITE_NAME, absUrl } from '@/lib/seo';
 import { StructuredData, BreadcrumbStructuredData, FaqStructuredData } from '@/components/seo/structured-data';
 import { PredictionsFaq } from '@/app/predictions/_faq';
+import { AlternativesGrid } from '@/components/players/alternatives-grid';
 
 export const revalidate = 21600; // 6h ISR
 export const dynamicParams = true;
@@ -38,6 +39,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function fdrClass(d: number) { return d <= 1 ? 'd1' : d === 2 ? 'd2' : d === 3 ? 'd3' : 'd4'; }
 
+/**
+ * "a, b and c". Replaces a `.join(', ').replace(/, ([^,]*)$/, ' and $1')` that
+ * matched the last comma *in the string* rather than the last separator — since
+ * each item carries its own comma inside parentheses, it rewrote the final
+ * item's internals ("Wissa (NEW and £6.2m)") instead of joining the list. The
+ * text is emitted as FAQ JSON-LD, so the mangling shipped to crawlers too.
+ */
+function joinList(items: string[]): string {
+  if (items.length <= 1) return items[0] || '';
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+}
+
 export default async function PlayerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = await getPlayerData(slug);
@@ -66,11 +79,14 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
     },
     ...(alts.length
       ? [{
+          // Names, clubs and prices only. The per-alternative projected points
+          // moved behind sign-in (see AlternativesGrid), and this answer is
+          // emitted as FAQ JSON-LD — asserting values the page no longer shows
+          // would be a structured-data mismatch as well as re-leaking them.
           question: `Who are the best ${p.webName} alternatives in FPL ${SEASON}?`,
-          answer: `The best-projected ${p.position.toLowerCase()}s in ${p.webName}'s price bracket are ${alts
-            .map((a) => `${a.webName} (${a.teamShort}, £${a.price}m, ${a.xPts} projected points)`)
-            .join(', ')
-            .replace(/, ([^,]*)$/, ' and $1')}. We take the ${p.position.toLowerCase()}s priced closest to ${p.webName}'s £${p.price}m and rank them by our model's projected points, so each is a like-for-like swap rather than a squad rebuild.`,
+          answer: `The best-projected ${p.position.toLowerCase()}s in ${p.webName}'s price bracket are ${joinList(
+            alts.map((a) => `${a.webName} (${a.teamShort}, £${a.price}m)`)
+          )}. We take the ${p.position.toLowerCase()}s priced closest to ${p.webName}'s £${p.price}m and rank them by our model's projected points, so each is a like-for-like swap rather than a squad rebuild. Sign in free to see each alternative's projected GW${nextGw} points.`,
         }]
       : []),
   ];
@@ -177,18 +193,18 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
             <p className="sub" style={{ marginTop: -4 }}>
               Best-projected {p.position.toLowerCase()}s in the same price bracket, for GW{nextGw}.
             </p>
-            <div className="alts">
-              {alts.map((a) => (
-                <Link key={a.slug} href={`/players/${a.slug}`} className="alt-card">
-                  <span className="nm">{a.webName}</span>
-                  <span className="tm">{a.teamShort} · {a.positionShort}</span>
-                  <span className="row">
-                    <span className="pr">£{a.price}m</span>
-                    <span className="xp">{a.xPts}<small>xPts</small></span>
-                  </span>
-                </Link>
-              ))}
-            </div>
+            {/* Client island: keeps the comparison xPts out of this page's
+                static HTML. See /api/players/xpts. */}
+            <AlternativesGrid
+              nextGw={nextGw}
+              alts={alts.map((a) => ({
+                slug: a.slug,
+                webName: a.webName,
+                teamShort: a.teamShort,
+                positionShort: a.positionShort,
+                price: a.price,
+              }))}
+            />
           </section>
         )}
 

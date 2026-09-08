@@ -65,7 +65,14 @@ export default async function PredictionsPage() {
   const premium = hasActivePremium(user);
   const gw = latest?.gameweek;
   const free = rows.slice(0, FREE_LIMIT);
-  const locked = premium ? rows.slice(FREE_LIMIT) : rows.slice(FREE_LIMIT, FREE_LIMIT + 8);
+
+  // Only premium callers get real locked rows in the payload. This used to send
+  // the next 8 rows to everyone and hide them behind a CSS blur — but blur is a
+  // visual effect, not an access control: the names, prices and xPts were all
+  // sitting in the HTML for anyone reading the DOM instead of the screen. Free
+  // callers now get a count, and the placeholder rows below carry no real data.
+  const locked = premium ? rows.slice(FREE_LIMIT) : [];
+  const lockedPreviewRows = premium ? 0 : Math.min(8, Math.max(0, rows.length - FREE_LIMIT));
   const topPick = free[0];
 
   const faqs = [
@@ -146,10 +153,12 @@ export default async function PredictionsPage() {
               {free.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={i + 1} top={i === 0} slug={slugs.get(p.playerFplId)} />)}
             </div>
 
-            {locked.length > 0 && (
+            {(locked.length > 0 || lockedPreviewRows > 0) && (
               <div className="locked">
                 <div className={`ptable${premium ? '' : ' blurred'}`} aria-hidden={!premium}>
-                  {locked.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={FREE_LIMIT + i + 1} slug={slugs.get(p.playerFplId)} />)}
+                  {premium
+                    ? locked.map((p, i) => <PredRowView key={p.playerFplId} p={p} rank={FREE_LIMIT + i + 1} slug={slugs.get(p.playerFplId)} />)
+                    : Array.from({ length: lockedPreviewRows }, (_, i) => <PredRowPlaceholder key={i} rank={FREE_LIMIT + i + 1} />)}
                 </div>
                 {!premium && (
                   <div className="lock-overlay">
@@ -201,6 +210,26 @@ function PredRowView({ p, rank, top, slug }: { p: PredRow; rank: number; top?: b
       <span className="pos tag tag--ghost">{POS[p.position]}</span>
       <span className="pr">{(p.price / 10).toFixed(1)}</span>
       <span className="xp">{p.xPts.toFixed(1)}</span>
+    </div>
+  );
+}
+
+/**
+ * Shape-only stand-in for a locked row. Deliberately carries no player name,
+ * price or xPts: it exists so the blurred strip under the free table still reads
+ * as "there is more here", without shipping the data it is meant to withhold.
+ */
+function PredRowPlaceholder({ rank }: { rank: number }) {
+  return (
+    <div className="pt-row" role="row" aria-hidden="true">
+      <span className="rk">{rank}</span>
+      <span className="who">
+        <span className="nm">&nbsp;</span>
+        <span className="tm">&nbsp;</span>
+      </span>
+      <span className="pos tag tag--ghost">&nbsp;</span>
+      <span className="pr">&nbsp;</span>
+      <span className="xp">&nbsp;</span>
     </div>
   );
 }
