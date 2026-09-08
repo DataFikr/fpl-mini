@@ -83,7 +83,7 @@ export default async function GameweekCaptaincyPage({ params }: { params: Promis
             {picks.map((p) => (
               <div className={`pt-row${p.rank === 1 ? ' top' : ''}`} role="row" key={p.slug}>
                 <span className="rk">{p.rank}</span>
-                <span className="who"><Link className="nm" href={`/players/${p.slug}`}>{p.webName}</Link><span className="tm">{p.teamShort}</span></span>
+                <span className="who"><Link className="nm" prefetch={false} href={`/players/${p.slug}`}>{p.webName}</Link><span className="tm">{p.teamShort}</span></span>
                 <span className="pos tag tag--ghost">{p.opp} {p.home ? '(H)' : '(A)'}</span>
                 <span className="pr">{p.price}</span>
                 <span className="xp">{p.xPts}</span>

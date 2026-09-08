@@ -203,7 +203,7 @@ function PredRowView({ p, rank, top, slug }: { p: PredRow; rank: number; top?: b
         {/* Falls back to plain text when the slug can't be resolved, so a
             bootstrap failure never produces dead links. */}
         {slug
-          ? <Link className="nm" href={`/players/${slug}`}>{p.webName}</Link>
+          ? <Link className="nm" prefetch={false} href={`/players/${slug}`}>{p.webName}</Link>
           : <span className="nm">{p.webName}</span>}
         <span className="tm">{p.teamShort}</span>
       </span>

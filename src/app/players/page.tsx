@@ -42,7 +42,12 @@ function PlayerTable({ rows, label }: { rows: PlayerIndexRow[]; label: string })
         <div className="pt-row" role="row" key={p.slug}>
           <span className="rk">{i + 1}</span>
           <span className="who">
-            <Link className="nm" href={`/players/${p.slug}`}>{p.webName}</Link>
+            {/* prefetch={false}: this table renders 200 rows, and Next prefetches
+                every Link that scrolls into view. One visitor scrolling the list fired
+                183 RSC requests in 40s — 77% of an hour's traffic and 59% of its
+                function compute — and because half came back STALE, each one also
+                triggered an on-demand ISR render that calls the FPL API. */}
+            <Link className="nm" prefetch={false} href={`/players/${p.slug}`}>{p.webName}</Link>
             <span className="tm">{p.teamShort}</span>
           </span>
           <span className="pos tag tag--ghost">{p.ownership}%</span>
