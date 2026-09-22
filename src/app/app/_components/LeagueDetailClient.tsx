@@ -300,7 +300,7 @@ function StandingsTab({ managers, gw, focusId, gwSelect, leagueId, leagueName }:
 
       {/* Moment of value: the table has rendered, so ask here rather than from a
           header menu — that placement captured 1.6% of visitors. */}
-      <CaptureCard mode="newsletter" leagueId={leagueId} leagueName={leagueName} gameweek={gw} />
+      <CaptureCard mode="newsletter" leagueId={leagueId} leagueName={leagueName} gameweek={gw} placement="league_detail" />
     </>
   );
 }

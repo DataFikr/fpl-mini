@@ -28,7 +28,7 @@ The diagnostic wrote "signup" and "checkout" in prose. The code uses GA4's **rec
 
 | Event | Call sites |
 |---|---|
-| `sign_up` | [auth/login/page.tsx:39](../../src/app/auth/login/page.tsx#L39) |
+| `sign_up` | [auth/login/page.tsx:39](../../src/app/auth/login/page.tsx#L39) · [CaptureCard.tsx](../../src/app/app/_components/CaptureCard.tsx) — `placement: squad_screen` and `placement: leagues_screen` |
 | `premium_gate_click` | [Landing.tsx:70](../../src/app/app/_components/Landing.tsx#L70) (5 CTAs) · [PredictionBlock.tsx:40](../../src/app/app/_components/PredictionBlock.tsx#L40) · [AccountChip.tsx:129](../../src/app/app/_components/AccountChip.tsx#L129) · [premium-cta.tsx](../../src/components/ui/premium-cta.tsx) (players, predictions, captaincy) |
 | `affiliate_click` | [affiliate-link.tsx:36](../../src/components/ui/affiliate-link.tsx#L36) — every Kitbag anchor routes through it |
 | `begin_checkout` | [premium/_components/PlanCta.tsx:37](../../src/app/premium/_components/PlanCta.tsx#L37) |
@@ -62,9 +62,19 @@ If an event has not appeared yet, use **Admin → Events → Create event** to p
 
 Without this, you will see *that* `premium_gate_click` fired but not *which* of the nine CTAs produced it — which is the whole question.
 
-**`form_id` matters just as much.** GA4 fires `form_start` on every `<form>` on the site and reports one total; the site has eleven. Until `form_id` is registered, no per-form conversion rate can be computed — which is how the 5 Sep diagnostic came to divide newsletter completions by every form start on the site. All eleven forms now carry an `id`/`name`:
+**`form_id` matters just as much.** GA4 fires `form_start` on every `<form>` on the site and reports one total; the site has twelve. Until `form_id` is registered, no per-form conversion rate can be computed — which is how the 5 Sep diagnostic came to divide newsletter completions by every form start on the site. All twelve forms carry an `id`/`name`:
 
-`team-id-landing` · `team-id-home` · `team-id-squad` · `team-id-entry` · `team-name-search` · `capture-save-team` · `capture-newsletter` · `newsletter-modal` · `newsletter-storytelling` · `auth-magic-link` · `contact-app` / `contact-site`
+`team-id-landing` · `team-id-home` · `team-id-squad` · `team-id-entry` · `team-name-search` · `capture-save-team` · `capture-save-league` · `capture-newsletter` · `newsletter-modal` · `newsletter-storytelling` · `auth-magic-link` · `contact-app` / `contact-site`
+
+---
+
+## Amendment, 21 Sep 2026 — `sign_up` was missing its biggest source
+
+`CaptureCard` in `save-team` mode posts to `/api/auth/request` and sends a real magic link, so it is the same funnel step as the login page. It fired **`save_team_request`** — a name absent from `KEY_EVENTS`, never marked in the console, and invisible to every report. The squad screen is the highest-intent signup surface in the app (440 views from 147 users at 6.4% bounce), so the 0.76% visitor→signup rate in the 21 Sep diagnostic was measuring the login page and little else.
+
+Both account-mode cards now call `trackSignup(placement)` and emit `sign_up`. `save_team_request` is retired; nothing depended on it because it was never registered.
+
+Register `placement` as a custom dimension (it is already in the table above) or the two Engine surfaces cannot be told apart — which is the entire point of naming them.
 
 ---
 

@@ -607,8 +607,16 @@ export function SquadScreen({ data, leagueId, teamId, notice, deadline }: {
             </div>
 
             {/* Moment of value: the verdict has just rendered, so this is where
-                an anonymous visitor is most likely to leave an identity. */}
-            <CaptureCard mode="save-team" teamId={data.team.id} teamName={data.team.name} />
+                an anonymous visitor is most likely to leave an identity. The
+                placement is named so this surface can be compared against the
+                leagues screen — both now emit `sign_up`, and without it they
+                would be indistinguishable in the funnel. */}
+            <CaptureCard
+              mode="save-team"
+              teamId={data.team.id}
+              teamName={data.team.name}
+              placement="squad_screen"
+            />
 
             {/* Same moment, different ask: save-team is an account, this is the
                 deadline painkiller. Both self-hide once taken, so a visitor sees

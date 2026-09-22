@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { LeaguesData } from '../_lib/leagues-data';
 import { formatRank } from '../_lib/compute';
+import { CaptureCard } from './CaptureCard';
 import { toast } from './Toast';
 
 function MoveTag({ mv }: { mv: number }) {
@@ -61,6 +62,22 @@ export function LeaguesScreen({ data, teamId: requestedId, notFound }: {
       <a className="lg-row" onClick={() => toast('Join a league — coming soon')} style={{ borderStyle: 'dashed', justifyContent: 'center', color: 'var(--t3)' }}>
         <span style={{ fontFamily: 'var(--display)', fontSize: 16, letterSpacing: '.03em' }}>+ JOIN OR CREATE A LEAGUE</span>
       </a>
+
+      {/* The ask, placed on the Engine rather than on the pages people bounce off.
+          My Leagues is the second-densest surface in the product — 279 views from
+          79 users at 5.7% bounce in the 21 Sep diagnostic — and until now it was
+          the only core-app screen carrying no signup ask at all, while the asks
+          sat on the landing page (47.9% bounce) and the prices page (65.2%).
+          Rendered only once a table has actually loaded: an empty screen has
+          proved nothing yet, so there is nothing to lose and nothing to save. */}
+      {leagues.length > 0 && teamId !== undefined && (
+        <CaptureCard
+          mode="save-league"
+          teamId={teamId}
+          leagueCount={mini || leagues.length}
+          placement="leagues_screen"
+        />
+      )}
     </>
   );
 }

@@ -3,12 +3,12 @@ import { prisma } from '@/lib/database';
 import { EmailService } from '@/services/email-service';
 import { FPLApiService } from '@/services/fpl-api';
 import redis from '@/lib/redis';
+import { classifySend, idle, stalled, type CronJobReport } from '@/lib/cron-health';
 
 /**
  * Deadline Reminder Email Cron Job
  *
  * Runs daily and checks if the next gameweek deadline is ~2 days away.
- * Only sends reminder emails when the deadline is 36-60 hours away.
  *
  * Invoked by the consolidated /api/cron/daily dispatcher
  * (vercel.json schedule: "0 8 * * *" — daily at 08:00 UTC).
@@ -16,8 +16,31 @@ import redis from '@/lib/redis';
  * NOTE: Vercel Cron invokes this endpoint with a GET request and attaches
  * `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
  * Both GET and POST run the same job so the cron actually fires in production.
+ *
+ * Every exit returns a {@link CronJobReport} so the dispatcher can tell "not due
+ * yet" from "due and sent nothing". Pass `{ dryRun: true }` to walk the gates
+ * and report what would be sent without handing anything to Resend.
  */
-export async function runReminderJob(request: NextRequest) {
+
+/**
+ * Send when the next deadline is inside this window, in hours.
+ *
+ * It used to be 36–60 — exactly 24 hours wide, sampled by a cron that runs
+ * exactly every 24 hours. That only works if the sample lands inside the window
+ * every single time, and it is a coin-flip at the boundary: a deadline at 20:00
+ * against an 08:00 run gives 60.0h on one day and 36.0h the next, both on the
+ * excluded edge. Any drift in when the platform actually fires the cron and the
+ * gameweek is missed silently.
+ *
+ * 30–72 is 42 hours wide, so at least one daily run always lands inside it
+ * whatever the deadline hour and however late the cron fires. Sending twice is
+ * prevented by the per-gameweek dedup key, which is what should have been
+ * enforcing once-only all along — not the width of the window.
+ */
+const REMINDER_WINDOW_HOURS = { min: 30, max: 72 };
+
+export async function runReminderJob(request: NextRequest, opts: { dryRun?: boolean } = {}) {
+  const { dryRun = false } = opts;
   try {
     const authHeader = request.headers.get('authorization');
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -32,11 +55,7 @@ export async function runReminderJob(request: NextRequest) {
     // Find the next gameweek with a deadline
     const nextEvent = bootstrap.events.find((e) => e.is_next);
     if (!nextEvent) {
-      return NextResponse.json({
-        success: true,
-        message: 'No upcoming gameweek found (season may be over)',
-        sent: 0
-      });
+      return report(idle('No upcoming gameweek found (season may be over)'));
     }
 
     const deadline = new Date(nextEvent.deadline_time);
@@ -45,40 +64,66 @@ export async function runReminderJob(request: NextRequest) {
 
     console.log(`📅 Next deadline: GW${nextEvent.id} at ${deadline.toISOString()} (${hoursUntilDeadline.toFixed(1)} hours away)`);
 
-    // Only send if deadline is 36-60 hours away (roughly 2 days before)
-    if (hoursUntilDeadline < 36 || hoursUntilDeadline > 60) {
-      return NextResponse.json({
-        success: true,
-        message: `Not time to send reminder. GW${nextEvent.id} deadline in ${hoursUntilDeadline.toFixed(1)} hours.`,
-        sent: 0
-      });
+    const inWindow =
+      hoursUntilDeadline >= REMINDER_WINDOW_HOURS.min &&
+      hoursUntilDeadline <= REMINDER_WINDOW_HOURS.max;
+
+    const gates = {
+      nextGw: nextEvent.id,
+      deadline: deadline.toISOString(),
+      hoursUntilDeadline: +hoursUntilDeadline.toFixed(1),
+      window: REMINDER_WINDOW_HOURS,
+      inWindow,
+    };
+
+    if (!inWindow) {
+      return report(idle(
+        `Not time to send reminder. GW${nextEvent.id} deadline in ${hoursUntilDeadline.toFixed(1)} hours.`,
+        gates,
+      ));
     }
 
-    // Check if we already sent reminders for this GW
+    // Check if we already sent reminders for this GW. With a 42-hour window this
+    // key is what keeps the send once-only, so it matters more than it used to.
     const sentKey = `cron:reminder:sent:gw:${nextEvent.id}`;
     try {
       const alreadySent = await redis.get(sentKey);
       if (alreadySent) {
-        return NextResponse.json({
-          success: true,
-          message: `Reminder already sent for GW${nextEvent.id}`,
-          sent: 0
-        });
+        return report(idle(`Reminder already sent for GW${nextEvent.id}`, { ...gates, dedup: 'redis' }));
       }
     } catch {
-      // Redis unavailable, continue anyway
+      // Redis unavailable, continue anyway — a duplicate reminder beats none.
     }
 
-    // Only verified subscribers (double opt-in): a confirmed verifiedAt is the
-    // gate for bulk sends, so unconfirmed addresses never receive email.
+    /*
+     * `verifiedAt` is stamped at submit time by the single opt-in flow, so on
+     * anything created since 5 Sep 2026 it just means "subscribed". Older rows
+     * held a null until `npm run backfill:newsletter` stamped them; before that
+     * backfill this filter was quietly excluding 29 of 32 subscribers, and the
+     * double opt-in confirm route it was waiting on no longer has a caller.
+     */
     const subscriptions = await prisma.newsletterSubscription.findMany({
       where: { isActive: true, verifiedAt: { not: null } }
     });
 
     console.log(`📧 Found ${subscriptions.length} active, verified subscriptions`);
 
-    if (subscriptions.length === 0) {
-      return NextResponse.json({ success: true, message: 'No active subscriptions found', sent: 0 });
+    const squadSubCount = await prisma.deadlineSubscription.count({ where: { isActive: true } });
+
+    if (subscriptions.length === 0 && squadSubCount === 0) {
+      // Inside the window with nobody to mail on either track. Whether that is
+      // a bug depends on why: an empty list is a growth problem, a list that
+      // exists but filters to zero is this job's original failure.
+      const active = await prisma.newsletterSubscription.count({ where: { isActive: true } });
+      const counts = { ...gates, activeSubscriptions: active, verifiedSubscriptions: 0, squadSubscriptions: 0 };
+
+      if (active === 0) {
+        return report(idle(`GW${nextEvent.id} reminder: nobody is subscribed yet`, counts));
+      }
+      return report(stalled(
+        `GW${nextEvent.id} reminder had no verified recipients (${active} active, 0 verified — run \`npm run backfill:newsletter\`)`,
+        counts,
+      ));
     }
 
     // Group subscriptions by league
@@ -122,6 +167,20 @@ export async function runReminderJob(request: NextRequest) {
     // whole point of opening the reminder up. Each email carries that manager's
     // own flagged players rather than league standings, so it is the painkiller
     // itself and not a nudge to come and look for one.
+    if (dryRun) {
+      return report({
+        outcome: 'idle',
+        message: `Dry run: would send ${allEmails.length} league reminders and up to ${squadSubCount} squad reminders for GW${nextEvent.id}`,
+        sent: 0,
+        gates: {
+          ...gates,
+          wouldSendLeague: allEmails.length,
+          wouldSendSquad: squadSubCount,
+          verifiedSubscriptions: subscriptions.length,
+        },
+      });
+    }
+
     let squadSent = 0;
     try {
       squadSent = await sendSquadReminders(nextEvent, fplApi, emailService);
@@ -136,42 +195,56 @@ export async function runReminderJob(request: NextRequest) {
       failureCount += batchResult.failureCount;
     }
 
-    // Mark as sent to prevent duplicates
+    // Mark as sent to prevent duplicates. 30 days, not 7, to match the summary
+    // job: a key that expires mid-break can re-send a gameweek already covered.
     try {
-      await redis.setEx(sentKey, 604800, 'true'); // 7 day TTL
+      await redis.setEx(sentKey, 2592000, 'true');
     } catch {
       // Redis unavailable, skip dedup
     }
 
     console.log(`✅ Deadline reminder job completed. Success: ${successCount}, Failed: ${failureCount}`);
 
-    return NextResponse.json({
-      success: true,
-      message: `Deadline reminders sent for GW${nextEvent.id}`,
-      sent: successCount + squadSent,
-      leagueSent: successCount,
-      squadSent,
-      failed: failureCount,
-      totalSubscriptions: subscriptions.length
+    // Zero delivered from an open window is `stalled`: sendBatch resolves with
+    // successCount 0 and no throw when RESEND_API_KEY is unset.
+    const result = classifySend(successCount + squadSent, failureCount, `GW${nextEvent.id} reminder`);
+    return report({
+      ...result,
+      gates: {
+        ...gates,
+        leagueSent: successCount,
+        squadSent,
+        verifiedSubscriptions: subscriptions.length,
+        squadSubscriptions: squadSubCount,
+      },
     });
 
   } catch (error) {
     console.error('❌ Deadline reminder cron job error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process deadline reminder emails' },
-      { status: 500 }
-    );
+    return report({
+      outcome: 'error',
+      message: error instanceof Error ? error.message : String(error),
+    });
   }
+}
+
+/**
+ * Serialise a report, and make an unhealthy one answer 5xx — the status code is
+ * the alarm, so a stalled send shows as a red run in the platform's cron log.
+ */
+function report(r: CronJobReport) {
+  const status = r.outcome === 'error' ? 500 : r.outcome === 'stalled' ? 503 : 200;
+  return NextResponse.json({ success: status === 200, job: 'reminder', ...r }, { status });
 }
 
 // Vercel Cron uses GET — this is the primary production trigger.
 export async function GET(request: NextRequest) {
-  return runReminderJob(request);
+  return runReminderJob(request, { dryRun: request.nextUrl.searchParams.get('dryRun') === '1' });
 }
 
 // POST kept for manual triggers / local testing.
 export async function POST(request: NextRequest) {
-  return runReminderJob(request);
+  return runReminderJob(request, { dryRun: request.nextUrl.searchParams.get('dryRun') === '1' });
 }
 
 /**

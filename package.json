@@ -45,7 +45,8 @@
     "performance:monitor": "curl -H \"x-admin-key: $ADMIN_KEY\" \"http://localhost:3000/api/performance?action=status\"",
     "performance:health": "curl -H \"x-admin-key: $ADMIN_KEY\" \"http://localhost:3000/api/performance?action=health\"",
     "performance:cache": "curl -H \"x-admin-key: $ADMIN_KEY\" \"http://localhost:3000/api/performance?action=cache\"",
-    "performance:setup": "powershell -ExecutionPolicy Bypass -File setup-production.ps1"
+    "performance:setup": "powershell -ExecutionPolicy Bypass -File setup-production.ps1",
+    "backfill:newsletter": "node scripts/backfill-newsletter-verified.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
